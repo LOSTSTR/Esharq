@@ -37,6 +37,11 @@ jobs:
                   V=$(jq -r .version < package.json)
                   echo "version=$V" >> "$GITHUB_OUTPUT"
 
+            - name: Get commit hash
+              id: hash
+              shell: bash
+              run: echo "hash=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
             - name: Inject version into C# source
               shell: pwsh
               run: |
@@ -46,7 +51,6 @@ jobs:
                   $src  = [System.IO.File]::ReadAllText($cs, [System.Text.Encoding]::UTF8)
                   $src  = $src -replace '(AssemblyVersion\(")[^"]+("\))',     "`${1}$ver4`${2}"
                   $src  = $src -replace '(AssemblyFileVersion\(")[^"]+("\))', "`${1}$ver4`${2}"
-                  $src  = $src -replace '(const string VER\s*=\s*")[^"]+(")', "`${1}$ver4`${2}"
                   [System.IO.File]::WriteAllText($cs, $src, [System.Text.Encoding]::UTF8)
                   Write-Host "Version set to $ver4 in Esharq-Installer.cs"
 
@@ -170,15 +174,15 @@ jobs:
               env:
                   GH_TOKEN: ${{ secrets.ETOKEN || github.token }}
               run: |
-                  V="${{ steps.ver.outputs.version }}"
+                  HASH="${{ steps.hash.outputs.hash }}"
                   if gh release view v1.0.0-stable >/dev/null 2>&1; then
                     echo "Release v1.0.0-stable exists — updating title"
-                    gh release edit v1.0.0-stable --title "Esharq $V"
+                    gh release edit v1.0.0-stable --title "Esharq $HASH"
                   else
                     echo "Creating release v1.0.0-stable"
                     gh release create v1.0.0-stable \
                         --target main \
-                        --title "Esharq $V" \
+                        --title "Esharq $HASH" \
                         --notes "Official Release"
                   fi
                   gh release upload v1.0.0-stable installer/EsharqSetup.exe --clobber

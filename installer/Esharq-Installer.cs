@@ -1,4 +1,4 @@
-// Esharq Client Installer  v1.14.13.0
+// Esharq Client Installer — DevBuild
 // Copyright (c) 2026 LoSTSR / NRaymond. All rights reserved.
 // Build: see build.ps1
 
@@ -492,7 +492,7 @@ sealed class InstallerForm : Form
 
     const string DISCORD_URL = "https://discord.gg/kDJYqWX3S3";
     const string GITHUB_URL  = "https://github.com/LOSTSTR/Esharq";
-    const string VER         = "1.14.13.0";
+    const string VER         = "DevBuild";
 
     // ── Language ──────────────────────────────────────────────────────
     static bool _arabic = true;
