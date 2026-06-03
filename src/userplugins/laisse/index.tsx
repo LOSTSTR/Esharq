@@ -136,6 +136,18 @@ export default definePlugin({
     description: "Leashes a user to you by automatically moving them to whatever voice channel you join.\n\n⚠️ WARNING: Moving users to voice channels without their consent may violate Discord's Terms of Service and community guidelines. This feature requires server moderation permissions. Use responsibly.",
     tags: ["Utility"],
     authors: [{ name: "x2b", id: 0n }],
+    settingsAboutComponent: () => (
+        <div style={{
+            color: "var(--text-danger)",
+            border: "1px solid var(--text-danger)",
+            borderRadius: 6,
+            padding: "10px 12px",
+            margin: "8px 0",
+            fontWeight: 600
+        }}>
+            {t("⚠️ تحذير: نقل المستخدمين دون موافقتهم قد يخالف شروط خدمة Discord. تتطلب صلاحيات إشراف في السيرفر. استخدمها بمسؤولية.", "⚠️ WARNING: Moving users without their consent may violate Discord's Terms of Service. Requires server moderation permissions. Use responsibly.")}
+        </div>
+    ),
     settings,
     contextMenus: {
         "user-context": UserContextMenuPatch,
@@ -156,7 +168,7 @@ export default definePlugin({
                     voiceState.userId === myId &&
                     voiceState.channelId !== myLastChannelId
                 ) {
-                    myLastChannelId = voiceState.channelId;
+                    myLastChannelId = voiceState.channelId ?? null;
 
                     // If we have a hooked user and we join a voice channel
                     if (voiceState.channelId && leashedUserInfo.userId) {

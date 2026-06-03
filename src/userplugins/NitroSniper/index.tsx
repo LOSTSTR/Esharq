@@ -10,7 +10,7 @@ import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
 import { findByPropsLazy } from "@webpack";
-import { NavigationRouter, UserStore } from "@webpack/common";
+import { NavigationRouter, React, UserStore } from "@webpack/common";
 
 const logger = new Logger("NitroSniper");
 const GiftActions = findByPropsLazy("redeemGiftCode");
@@ -95,6 +95,19 @@ export default definePlugin({
         { name: "neoarz", id: 1015372540937502851n },
         { name: "irritably", id: 928787166916640838n }
     ],
+
+    settingsAboutComponent: () => (
+        <div style={{
+            color: "var(--text-danger)",
+            border: "1px solid var(--text-danger)",
+            borderRadius: 6,
+            padding: "10px 12px",
+            margin: "8px 0",
+            fontWeight: 600
+        }}>
+            {t("⚠️ تحذير: تستبدل هذه الإضافة أكواد نيترو تلقائياً — قد يخالف شروط خدمة Discord ويُعرّض حسابك للحظر. استخدمها على مسؤوليتك الخاصة.", "⚠️ WARNING: This plugin auto-redeems Nitro codes — may violate Discord's Terms of Service and get your account suspended. Use at your own risk.")}
+        </div>
+    ),
 
     settings,
 
