@@ -7,6 +7,7 @@
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { copyToClipboard } from "@utils/clipboard";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import definePlugin from "@utils/types";
 import { User } from "@vencord/discord-types";
@@ -94,7 +95,7 @@ const userContextMenuPatch: NavContextMenuPatchCallback = (children, { user, gui
         <Menu.MenuItem
             id="CopyProfileColors"
             icon={ColorIcon}
-            label="Copy Profile Colors"
+            label={t("نسخ ألوان الملف الشخصي", "Copy Profile Colors")}
             action={() => copyProfileColors(user.id)}
         />
     );
@@ -104,7 +105,7 @@ const userContextMenuPatch: NavContextMenuPatchCallback = (children, { user, gui
             <Menu.MenuItem
                 id="CopyServerProfileColors"
                 icon={ColorIcon}
-                label="Copy Server Profile Colors"
+                label={t("نسخ ألوان ملف السيرفر", "Copy Server Profile Colors")}
                 action={() => copyProfileColors(user.id, effectiveGuildId)}
             />
         );

@@ -7,6 +7,7 @@
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { copyToClipboard } from "@utils/clipboard";
 import { Devs, EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import type { Channel, User } from "@vencord/discord-types";
 import { Menu } from "@webpack/common";
@@ -37,7 +38,7 @@ const UserContextMenuPatch: NavContextMenuPatchCallback = (children, { user }: U
     children.push(
         <Menu.MenuItem
             id="vc-copy-user-mention"
-            label="Copy User Mention"
+            label={t("نسخ إشارة المستخدم", "Copy User Mention")}
             action={() => copyToClipboard(`<@${user.id}>`)}
             icon={MentionIcon}
         />

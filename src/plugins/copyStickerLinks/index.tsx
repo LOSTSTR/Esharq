@@ -21,6 +21,7 @@ import { isPluginEnabled } from "@api/PluginManager";
 import ExpressionClonerPlugin from "@plugins/expressionCloner";
 import { Devs } from "@utils/constants";
 import { copyWithToast } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { Message, Sticker } from "@vencord/discord-types";
 import { Menu, React, StickersStore } from "@webpack/common";
@@ -43,14 +44,14 @@ function buildMenuItem(sticker: PartialSticker, addBottomSeparator: boolean) {
                 <Menu.MenuItem
                     id="vc-copy-sticker-link"
                     key="vc-copy-sticker-link"
-                    label="Copy Link"
-                    action={() => copyWithToast(getUrl(sticker), "Link copied!")}
+                    label={t("نسخ الرابط", "Copy Link")}
+                    action={() => copyWithToast(getUrl(sticker), t("تم نسخ الرابط!", "Link copied!"))}
                 />
 
                 <Menu.MenuItem
                     id="vc-open-sticker-link"
                     key="vc-open-sticker-link"
-                    label="Open Link"
+                    label={t("فتح الرابط", "Open Link")}
                     action={() => VencordNative.native.openExternal(getUrl(sticker))}
                 />
             </Menu.MenuGroup>

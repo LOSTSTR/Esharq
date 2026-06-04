@@ -10,6 +10,7 @@ import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { get } from "@api/DataStore";
 import { definePluginSettings, Settings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
 import { Channel, User } from "@vencord/discord-types";
@@ -48,7 +49,7 @@ const userContextMenuPatch: NavContextMenuPatchCallback = (children, { user }: {
 
     const setCustomColorItem = (
         <Menu.MenuItem
-            label="Set Color"
+            label={t("تعيين اللون", "Set Color")}
             id="set-color"
             icon={ColorIcon}
             action={async () => {
@@ -66,7 +67,7 @@ const channelContextMenuPatch: NavContextMenuPatchCallback = (children, { channe
 
     const setCustomColorItem = (
         <Menu.MenuItem
-            label="Set Color"
+            label={t("تعيين اللون", "Set Color")}
             id="set-color"
             icon={ColorIcon}
             action={async () => {
