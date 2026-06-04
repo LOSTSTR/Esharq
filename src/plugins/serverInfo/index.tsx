@@ -7,6 +7,7 @@
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { definePluginSettings } from "@api/Settings";
 import { Devs, EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { Guild } from "@vencord/discord-types";
 import { Menu } from "@webpack/common";
@@ -19,7 +20,7 @@ const Patch: NavContextMenuPatchCallback = (children, { guild }: { guild: Guild;
     group?.push(
         <Menu.MenuItem
             id="vc-server-info"
-            label="Server Info"
+            label={t("معلومات السيرفر", "Server Info")}
             action={() => openGuildInfoModal(guild)}
         />
     );

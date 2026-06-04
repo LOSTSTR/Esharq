@@ -23,6 +23,7 @@ import { Divider } from "@components/Divider";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
 import { copyWithToast, getCurrentGuild, getIntlMessage } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { isTruthy } from "@utils/guards";
 import { Margins } from "@utils/margins";
 import definePlugin, { IconComponent, OptionType } from "@utils/types";
@@ -145,7 +146,7 @@ function MakeContextCallback(name: "Guild" | "Role" | "User" | "Channel" | "Mess
         (devContainer ?? children).splice(-1, 0,
             <Menu.MenuItem
                 id={id}
-                label="View Raw"
+                label={t("عرض الخام", "View Raw")}
                 action={action}
                 icon={CopyIcon}
             />
@@ -163,7 +164,7 @@ const devContextCallback: NavContextMenuPatchCallback = (children, { id }: { id:
     children.push(
         <Menu.MenuItem
             id={"vc-view-role-raw"}
-            label="View Raw"
+            label={t("عرض الخام", "View Raw")}
             action={() => openViewRawModal(JSON.stringify(role, null, 4), "Role")}
             icon={CopyIcon}
         />

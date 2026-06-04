@@ -21,6 +21,7 @@ import { definePluginSettings } from "@api/Settings";
 import { ImageIcon } from "@components/Icons";
 import { Devs } from "@utils/constants";
 import { openImageModal } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Channel, Guild, User } from "@vencord/discord-types";
 import { GuildMemberStore, IconUtils, Menu } from "@webpack/common";
@@ -101,14 +102,14 @@ const UserContext: NavContextMenuPatchCallback = (children, { user, guildId }: U
         <Menu.MenuGroup>
             <Menu.MenuItem
                 id="view-avatar"
-                label="View Avatar"
+                label={t("عرض الصورة الرمزية", "View Avatar")}
                 action={() => openAvatar(IconUtils.getUserAvatarURL(user, true))}
                 icon={ImageIcon}
             />
             {memberAvatar && (
                 <Menu.MenuItem
                     id="view-server-avatar"
-                    label="View Server Avatar"
+                    label={t("عرض صورة السيرفر", "View Server Avatar")}
                     action={() => openAvatar(IconUtils.getGuildMemberAvatarURLSimple({
                         userId: user.id,
                         avatar: memberAvatar,
@@ -133,7 +134,7 @@ const GuildContext: NavContextMenuPatchCallback = (children, { guild }: GuildCon
             {icon ? (
                 <Menu.MenuItem
                     id="view-icon"
-                    label="View Icon"
+                    label={t("عرض الأيقونة", "View Icon")}
                     action={() =>
                         openAvatar(IconUtils.getGuildIconURL({
                             id,
@@ -147,7 +148,7 @@ const GuildContext: NavContextMenuPatchCallback = (children, { guild }: GuildCon
             {banner ? (
                 <Menu.MenuItem
                     id="view-banner"
-                    label="View Banner"
+                    label={t("عرض البانر", "View Banner")}
                     action={() =>
                         openBanner(IconUtils.getGuildBannerURL(guild, true)!)
                     }
@@ -165,7 +166,7 @@ const GroupDMContext: NavContextMenuPatchCallback = (children, { channel }: Grou
         <Menu.MenuGroup>
             <Menu.MenuItem
                 id="view-group-channel-icon"
-                label="View Icon"
+                label={t("عرض الأيقونة", "View Icon")}
                 action={() =>
                     openAvatar(IconUtils.getChannelIconURL(channel)!)
                 }

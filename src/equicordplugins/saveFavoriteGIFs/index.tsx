@@ -141,7 +141,7 @@ export default definePlugin({
         return (
             <Menu.MenuItem
                 id="save-favorite-gifs-toolbox"
-                label="Save Favorite GIFs"
+                label={t("حفظ GIFات المفضّلة", "Save Favorite GIFs")}
                 action={saveAllGifs}
             />
         );

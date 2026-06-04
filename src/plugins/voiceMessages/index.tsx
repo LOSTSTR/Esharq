@@ -27,6 +27,7 @@ import { Paragraph } from "@components/Paragraph";
 import { lastState as silentMessageEnabled } from "@plugins/silentMessageToggle";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { useAwaiter } from "@utils/react";
 import definePlugin, { OptionType } from "@utils/types";
@@ -89,7 +90,7 @@ const ctxMenuPatch: NavContextMenuPatchCallback = (children, props) => {
                 type: "icon",
                 icon: Microphone
             }}
-            label="Send Voice Message"
+            label={t("إرسال رسالة صوتية", "Send Voice Message")}
             action={() => openModal(modalProps => <VoiceMessageModal modalProps={modalProps} />)}
         />
     );
