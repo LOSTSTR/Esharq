@@ -6,7 +6,7 @@
 
 import { definePluginSettings } from "@api/Settings";
 import { addSettingsPanelButton, DeafenIcon, removeSettingsPanelButton } from "@plugins/philsPluginLibrary";
-import { Devs } from "@utils/constants";
+import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 
@@ -165,7 +165,7 @@ export default definePlugin({
     name: "FakeDeafen",
     description: "Appear as deafened to others while still being able to hear.",
     dependencies: ["PhilsPluginLibrary"],
-    authors: [Devs.desu,Devs.viciouscal],
+    authors: [EquicordDevs.LOSTSTR],
 
     patches: [
         {
