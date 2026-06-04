@@ -8,6 +8,7 @@ import { findGroupChildrenByChildId } from "@api/ContextMenu";
 import { updateMessage } from "@api/MessageUpdater";
 import { ImageInvisible, ImageVisible } from "@components/Icons";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import { parseUrl } from "@utils/misc";
 import definePlugin from "@utils/types";
@@ -44,7 +45,7 @@ const addButton = (children, message, url) => {
         children.splice(0, 0,
             <Menu.MenuItem
                 id="vc-sme-show"
-                label="Show Embed"
+                label={t("إظهار التضمين", "Show Embed")}
                 action={_ => unfurlEmbed(url, message)}
                 icon={ImageVisible}
                 key="vc-sme-show" />);
@@ -52,7 +53,7 @@ const addButton = (children, message, url) => {
         children.splice(0, 0,
             <Menu.MenuItem
                 id="vc-sme-remove"
-                label="Remove Embed"
+                label={t("إزالة التضمين", "Remove Embed")}
                 action={_ => removeEmbed(url, message)}
                 icon={ImageInvisible}
                 key="vc-sme-remove" />);

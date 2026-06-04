@@ -8,6 +8,7 @@ import { definePluginSettings } from "@api/Settings";
 import { FormSwitch } from "@components/FormSwitch";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { getCurrentChannel } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { Message, RenderModalProps } from "@vencord/discord-types";
 import { IconUtils, Menu, Modal, openModal, TextInput, UploadHandler, useEffect, useState } from "@webpack/common";
@@ -76,7 +77,7 @@ export default definePlugin({
             const buttonElement = (
                 <Menu.MenuItem
                     id="vc-quote"
-                    label="Quote"
+                    label={t("اقتباس", "Quote")}
                     icon={QuoteIcon}
                     action={() => openModal(props => <QuoteModal message={message} {...props} />)}
                 />
