@@ -192,19 +192,27 @@ export const settings = definePluginSettings({
         type: OptionType.STRING,
         description: t("قائمة امتدادات الملفات المفصولة بفواصل للحفظ. لن تُحفظ المرفقات ذات الامتدادات غير الموجودة في القائمة. اتركها فارغة لحفظ جميع المرفقات.", "Comma-separated list of file extensions to save. Attachments with extensions not in the list will not be saved. Leave empty to save all attachments."),
         onChange: (value: string) => {
-            if (!value) return;
-            const exts = value.split(",").map(ext => ext.trim().toLowerCase());
+            let processedValue = "";
 
-            const invalid = exts.filter(ext => blockedExts.includes(ext));
-            if (invalid.length > 0) {
-                console.warn("Rejected invalid file extensions:", invalid);
-                return exts.filter(ext => !blockedExts.includes(ext)).join(",");
+            if (value) {
+                const exts = value.split(",").map(ext => ext.trim().toLowerCase());
+                const invalid = exts.filter(ext => blockedExts.includes(ext));
+
+                if (invalid.length > 0) {
+                    console.warn("Rejected invalid file extensions:", invalid);
+                    processedValue = exts.filter(ext => !blockedExts.includes(ext)).join(",");
+                } else {
+                    processedValue = exts.join(",");
+                }
             }
 
-            return exts.join(",");
+            Native.updateAllowedExtensions(processedValue).catch((err: any) => {
+                console.error("Failed to sync attachment extensions natively:", err);
+            });
+
+            return processedValue;
         }
     },
-
     cacheLimit: {
         default: 1000,
         type: OptionType.NUMBER,
@@ -284,7 +292,7 @@ export const settings = definePluginSettings({
                     || settings.store.imageCacheDir == null
                     || settings.store.imageCacheDir === DEFAULT_IMAGE_CACHE_DIR
                 }
-                onClick={() => Native.showItemInFolder(settings.store.imageCacheDir)}
+                onClick={() => Native.showItemInFolder()}
             >
                 Open Image Cache Folder
             </Button>

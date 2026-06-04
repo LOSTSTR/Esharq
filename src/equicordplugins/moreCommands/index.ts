@@ -19,7 +19,7 @@
 import { ApplicationCommandInputType, ApplicationCommandOptionType, findOption, OptionalMessageOption, RequiredMessageOption, sendBotMessage } from "@api/Commands";
 import { addMessagePreEditListener, addMessagePreSendListener, MessageObject, removeMessagePreEditListener, removeMessagePreSendListener } from "@api/MessageEvents";
 import { migratePluginSettings } from "@api/Settings";
-import { Devs, EquicordDevs } from "@utils/constants";
+import { Devs, EquicordDevs, GUILD_IDS } from "@utils/constants";
 import { sendMessage } from "@utils/discord";
 import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
@@ -34,7 +34,7 @@ import {
     generatePoissonDiskPosition,
     getCuteAnimeBoys,
     getCuteNeko,
-    getMessage,
+    getFavoriteGif,
     isMorse,
     loadFriendImage,
     loadImage,
@@ -470,10 +470,16 @@ export default definePlugin({
         },
         {
             name: "gifroulette",
-            description: t("جرب حظك وأرسل GIF", "Try your luck and send a GIF"),
-            execute: (opts, other) => ({
-                content: getMessage(opts, other)
-            }),
+            description: t("جرب حظك وأرسل GIF", "Tempt fate and send a gif"),
+            execute: (opts, other) => {
+                if (GUILD_IDS.includes(other?.guild?.id ?? "")) return sendBotMessage(other.channel.id, {
+                    content: t("هذا الأمر مقيّد في هذا السيرفر.", "This command is restricted in this server.")
+                });
+
+                return {
+                    content: getFavoriteGif(opts, other)
+                };
+            }
         },
         {
             inputType: ApplicationCommandInputType.BUILT_IN,
