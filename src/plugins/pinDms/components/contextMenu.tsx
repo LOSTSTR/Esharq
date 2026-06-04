@@ -7,6 +7,7 @@
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { PinOrder, settings } from "@plugins/pinDms";
 import { addChannelToCategory, canMoveChannelInDirection, currentUserCategories, isPinned, moveChannel, removeChannelFromCategory } from "@plugins/pinDms/data";
+import { t } from "@utils/esharqI18n";
 import { Menu } from "@webpack/common";
 
 import { openCategoryModal } from "./CreateCategoryModal";
@@ -26,7 +27,7 @@ function createPinMenuItem(channelId: string) {
                 <>
                     <Menu.MenuItem
                         id="vc-add-category"
-                        label="Add Category"
+                        label={t("إضافة فئة", "Add Category")}
                         color="brand"
                         action={() => openCategoryModal(null, channelId)}
                     />
@@ -49,7 +50,7 @@ function createPinMenuItem(channelId: string) {
                 <>
                     <Menu.MenuItem
                         id="unpin-dm"
-                        label="Unpin DM"
+                        label={t("إلغاء التثبيت", "Unpin DM")}
                         color="danger"
                         action={() => removeChannelFromCategory(channelId)}
                     />
@@ -58,7 +59,7 @@ function createPinMenuItem(channelId: string) {
                         settings.store.pinOrder === PinOrder.Custom && canMoveChannelInDirection(channelId, -1) && (
                             <Menu.MenuItem
                                 id="move-up"
-                                label="Move Up"
+                                label={t("تحريك لأعلى", "Move Up")}
                                 action={() => moveChannel(channelId, -1)}
                             />
                         )
@@ -68,7 +69,7 @@ function createPinMenuItem(channelId: string) {
                         settings.store.pinOrder === PinOrder.Custom && canMoveChannelInDirection(channelId, 1) && (
                             <Menu.MenuItem
                                 id="move-down"
-                                label="Move Down"
+                                label={t("تحريك لأسفل", "Move Down")}
                                 action={() => moveChannel(channelId, 1)}
                             />
                         )

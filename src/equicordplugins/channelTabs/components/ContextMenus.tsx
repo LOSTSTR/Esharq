@@ -10,6 +10,7 @@ import { Paragraph } from "@components/Paragraph";
 import { bookmarkFolderColors, bookmarkPlaceholderName, closeOtherTabs, closeTab, closeTabsToTheLeft, closeTabsToTheRight, createTab, getDiscordFolderIcon, getDiscordFolderIconNames, hasClosedTabs, isBookmarkFolder, openedTabs, reopenClosedTab, settings, toggleCompactTab } from "@equicordplugins/channelTabs/util";
 import { Bookmark, BookmarkFolder, Bookmarks, ChannelTabsProps, UseBookmarkMethods } from "@equicordplugins/channelTabs/util/types";
 import { getIntlMessage } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { RenderModalProps } from "@vencord/discord-types";
 import { Button, ChannelStore, closeModal, ColorPicker, FluxDispatcher, Menu, Modal, openModal, ReadStateStore, ReadStateUtils, Select, TextInput, useMemo, useState } from "@webpack/common";
@@ -54,7 +55,7 @@ export function BasicContextMenu() {
                 <Menu.MenuCheckboxItem
                     checked={showBookmarkBar}
                     id="show-bookmark-bar"
-                    label="Bookmark Bar"
+                    label={t("شريط الإشارات المرجعية", "Bookmark Bar")}
                     action={() => {
                         settings.store.showBookmarkBar = !settings.store.showBookmarkBar;
                     }}
@@ -350,7 +351,7 @@ function AddToFolderModal({ modalProps, modalKey, bookmarks, onSave }: {
                         value: parseInt(index, 10)
                     })),
                 {
-                    label: "Create one",
+                    label: t("أنشئ واحداً", "Create one"),
                     value: -1,
                     default: true
                 }]}
@@ -436,7 +437,7 @@ export function BookmarkContextMenu({ bookmarks, index, methods }: { bookmarks: 
             <Menu.MenuGroup>
                 <Menu.MenuItem
                     id="edit-bookmark"
-                    label="Edit Bookmark"
+                    label={t("تعديل الإشارة المرجعية", "Edit Bookmark")}
                     action={() => {
                         const key = openModal(modalProps =>
                             <EditModal
@@ -457,7 +458,7 @@ export function BookmarkContextMenu({ bookmarks, index, methods }: { bookmarks: 
                 />
                 <Menu.MenuItem
                     id="delete-bookmark"
-                    label="Delete Bookmark"
+                    label={t("حذف الإشارة المرجعية", "Delete Bookmark")}
                     action={() => {
                         if (isFolder) {
                             const key = openModal(modalProps =>
@@ -475,7 +476,7 @@ export function BookmarkContextMenu({ bookmarks, index, methods }: { bookmarks: 
                 />
                 <Menu.MenuItem
                     id="add-to-folder"
-                    label="Add Bookmark to Folder"
+                    label={t("إضافة الإشارة إلى مجلد", "Add Bookmark to Folder")}
                     disabled={isFolder}
                     action={() => {
                         const key = openModal(modalProps =>
@@ -502,7 +503,7 @@ export function BookmarkContextMenu({ bookmarks, index, methods }: { bookmarks: 
                 <Menu.MenuCheckboxItem
                     checked={showBookmarkBar}
                     id="show-bookmark-bar"
-                    label="Bookmark Bar"
+                    label={t("شريط الإشارات المرجعية", "Bookmark Bar")}
                     action={() => {
                         settings.store.showBookmarkBar = !settings.store.showBookmarkBar;
                     }}
@@ -576,7 +577,7 @@ export function TabContextMenu({ tab }: { tab: ChannelTabsProps; }) {
                 <Menu.MenuCheckboxItem
                     checked={showBookmarkBar}
                     id="show-bookmark-bar"
-                    label="Bookmark Bar"
+                    label={t("شريط الإشارات المرجعية", "Bookmark Bar")}
                     action={() => {
                         settings.store.showBookmarkBar = !settings.store.showBookmarkBar;
                     }}

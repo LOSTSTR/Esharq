@@ -10,6 +10,7 @@ import { addContextMenuPatch, NavContextMenuPatchCallback, removeContextMenuPatc
 import { DataStore } from "@api/index";
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { chooseFile, saveFile } from "@utils/web";
 import { CustomEmoji, UnicodeEmoji } from "@vencord/discord-types";
@@ -148,7 +149,7 @@ const buildGuildContextPatch = (guild: { id: string; name: string; }) => {
             <Menu.MenuItem
                 id="add-white-list-guild-emojis"
                 key="add-white-list-guild-emojis"
-                label="Add All Guild Emojis"
+                label={t("إضافة كل إيموجي السيرفر", "Add All Guild Emojis")}
                 action={() => {
                     const emojis = EmojiStore.getGuildEmoji(guild.id);
                     addBulkToAllowedList(emojis.map(emoji => ({
@@ -161,7 +162,7 @@ const buildGuildContextPatch = (guild: { id: string; name: string; }) => {
             <Menu.MenuItem
                 id="remove-white-list-guild-emojis"
                 key="remove-white-list-guild-emojis"
-                label="Remove All Guild Emojis"
+                label={t("إزالة كل إيموجي السيرفر", "Remove All Guild Emojis")}
                 action={() => {
                     const emojis = EmojiStore.getGuildEmoji(guild.id);
                     removeBulkFromAllowedList(emojis.map(emoji => ({

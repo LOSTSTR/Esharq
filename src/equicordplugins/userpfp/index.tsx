@@ -17,6 +17,7 @@ import { Notice } from "@components/Notice";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { openInviteModal } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { User } from "@vencord/discord-types";
 import { extractAndLoadChunksLazy } from "@webpack";
@@ -114,7 +115,7 @@ export default definePlugin({
             children.push(
                 <Menu.MenuSeparator />,
                 <Menu.MenuItem
-                    label="Set Avatar"
+                    label={t("تعيين الصورة الرمزية", "Set Avatar")}
                     id="set-avatar"
                     icon={PencilIcon}
                     action={async () => {
