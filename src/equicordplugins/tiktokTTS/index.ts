@@ -8,6 +8,7 @@ import { playAudio } from "@api/AudioPlayer";
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { Menu, React } from "@webpack/common";
 
@@ -183,7 +184,7 @@ const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }) => 
 
     children.push(React.createElement(Menu.MenuItem, {
         id: "tiktok-tts-play",
-        label: "Play TikTok TTS",
+        label: t("تشغيل TikTok TTS", "Play TikTok TTS"),
         action: () => enqueueRead(message.content),
     }));
 };

@@ -11,6 +11,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { OpenExternalIcon } from "@components/Icons";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { findByPropsLazy } from "@webpack";
 import { DraftType, FluxDispatcher, Menu, PermissionsBits, PermissionStore, React, useEffect, UserStore, useState } from "@webpack/common";
@@ -236,7 +237,7 @@ const channelAttachMenuPatch: NavContextMenuPatchCallback = (children, props) =>
         <Menu.MenuItem
             id="file-upload-manual"
             key="file-upload-manual"
-            label="Upload to Host"
+            label={t("الرفع إلى مستضيف", "Upload to Host")}
             iconLeft={ExternalIcon}
             leadingAccessory={{
                 type: "icon",

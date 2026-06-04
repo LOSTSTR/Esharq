@@ -23,6 +23,7 @@ import { OpenExternalIcon } from "@components/Icons";
 import { Paragraph } from "@components/Paragraph";
 import { Span } from "@components/Span";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import { useAwaiter } from "@utils/react";
 import definePlugin from "@utils/types";
@@ -46,7 +47,7 @@ const guildPopoutPatch: NavContextMenuPatchCallback = (children, { guild }: { gu
     if (!guild) return;
     children.push(
         <Menu.MenuItem
-            label="View Reviews"
+            label={t("عرض المراجعات", "View Reviews")}
             id="vc-rdb-server-reviews"
             icon={OpenExternalIcon}
             action={() => openReviewsModal(guild.id, guild.name, ReviewType.Server)}
@@ -58,7 +59,7 @@ const userContextPatch: NavContextMenuPatchCallback = (children, { user }: { use
     if (!user) return;
     children.push(
         <Menu.MenuItem
-            label="View Reviews"
+            label={t("عرض المراجعات", "View Reviews")}
             id="vc-rdb-user-reviews"
             icon={OpenExternalIcon}
             action={() => openReviewsModal(user.id, user.username, ReviewType.User)}
