@@ -12,6 +12,7 @@ import { Button } from "@components/Button";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { Channel } from "@vencord/discord-types";
 import { findComponentByCodeLazy } from "@webpack";
@@ -49,7 +50,7 @@ const ContextMenuPatch: NavContextMenuPatchCallback = (children, { channel }: { 
             <Menu.MenuSeparator />
             <Menu.MenuCheckboxItem
                 id="vc-ignore-calls-temp"
-                label="Temporarily Ignore Calls"
+                label={t("تجاهل المكالمات مؤقتاً", "Temporarily Ignore Calls")}
                 checked={tempChecked}
                 action={() => {
                     if (tempChecked)
@@ -62,7 +63,7 @@ const ContextMenuPatch: NavContextMenuPatchCallback = (children, { channel }: { 
             />
             <Menu.MenuCheckboxItem
                 id="vc-ignore-calls-perm"
-                label="Permanently Ignore Calls"
+                label={t("تجاهل المكالمات دائماً", "Permanently Ignore Calls")}
                 checked={permChecked}
                 action={() => {
                     let updated = permanentlyIgnoredUsers.slice();

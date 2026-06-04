@@ -8,6 +8,7 @@ import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { definePluginSettings } from "@api/Settings";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { insertTextIntoChatInputBox } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { makeRange, OptionType } from "@utils/types";
 import type { Channel } from "@vencord/discord-types";
 import { GuildChannelStore, Menu, React, RestAPI, UserStore, VoiceStateStore } from "@webpack/common";
@@ -77,21 +78,21 @@ const VoiceChannelContext: NavContextMenuPatchCallback = (children, { channel }:
         -1,
         0,
         <Menu.MenuItem
-            label="Voice Tools"
+            label={t("أدوات الصوت", "Voice Tools")}
             key="voice-tools"
             id="voice-tools"
         >
             <Menu.MenuItem
                 key="voice-tools-mention-all"
                 id="voice-tools-mention-all"
-                label="Mention all Users"
+                label={t("الإشارة لكل المستخدمين", "Mention all Users")}
                 action={() => mentionVoiceUsers(channel)}
             />
 
             <Menu.MenuItem
                 key="voice-tools-disconnect-all"
                 id="voice-tools-disconnect-all"
-                label="Disconnect all"
+                label={t("قطع اتصال الكل", "Disconnect all")}
                 action={() => sendPatch(channel, {
                     channel_id: null,
                 })}
@@ -100,7 +101,7 @@ const VoiceChannelContext: NavContextMenuPatchCallback = (children, { channel }:
             <Menu.MenuItem
                 key="voice-tools-mute-all"
                 id="voice-tools-mute-all"
-                label="Mute all"
+                label={t("كتم الكل", "Mute all")}
                 action={() => sendPatch(channel, {
                     mute: true,
                 })}
@@ -109,7 +110,7 @@ const VoiceChannelContext: NavContextMenuPatchCallback = (children, { channel }:
             <Menu.MenuItem
                 key="voice-tools-unmute-all"
                 id="voice-tools-unmute-all"
-                label="Unmute all"
+                label={t("إلغاء كتم الكل", "Unmute all")}
                 action={() => sendPatch(channel, {
                     mute: false,
                 })}
@@ -118,7 +119,7 @@ const VoiceChannelContext: NavContextMenuPatchCallback = (children, { channel }:
             <Menu.MenuItem
                 key="voice-tools-deafen-all"
                 id="voice-tools-deafen-all"
-                label="Deafen all"
+                label={t("إصمام الكل", "Deafen all")}
                 action={() => sendPatch(channel, {
                     deaf: true,
                 })}
@@ -127,14 +128,14 @@ const VoiceChannelContext: NavContextMenuPatchCallback = (children, { channel }:
             <Menu.MenuItem
                 key="voice-tools-undeafen-all"
                 id="voice-tools-undeafen-all"
-                label="Undeafen all"
+                label={t("إلغاء إصمام الكل", "Undeafen all")}
                 action={() => sendPatch(channel, {
                     deaf: false,
                 })}
             />
 
             <Menu.MenuItem
-                label="Move all"
+                label={t("نقل الكل", "Move all")}
                 key="voice-tools-move-all"
                 id="voice-tools-move-all"
             >

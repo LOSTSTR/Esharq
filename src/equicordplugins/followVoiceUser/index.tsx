@@ -53,7 +53,7 @@ const UserContextMenuPatch: NavContextMenuPatchCallback = (children, { channel, 
         <Menu.MenuSeparator />,
         <Menu.MenuCheckboxItem
             id="fvu-follow-user"
-            label="Follow User"
+            label={t("متابعة المستخدم", "Follow User")}
             checked={checked}
             action={() => {
                 if (followedUserInfo?.userId === user.id) {
