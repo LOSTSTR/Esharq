@@ -22,7 +22,11 @@ export default definePluginI18n({
         },
         "replacementEngine": {
             "ar": "الاستبدال بمحرك بحث محدد بدلاً من إضافة قائمة",
-            "en": "Search engine to replace Google with."
+            "en": "Search engine to replace Google with.",
+            "choices": {
+                "off": { "ar": "معطّل", "en": "Off" },
+                "custom": { "ar": "محرّك مخصّص", "en": "Custom Engine" }
+            }
         }
     }
 });

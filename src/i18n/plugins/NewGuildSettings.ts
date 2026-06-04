@@ -18,7 +18,13 @@ export default definePluginI18n({
         },
         "messages": {
             "ar": "إعدادات إشعارات السيرفر",
-            "en": "Default message notification setting."
+            "en": "Default message notification setting.",
+            "choices": {
+                "0": { "ar": "كل الرسائل", "en": "All messages" },
+                "1": { "ar": "الإشارات فقط @", "en": "Only @mentions" },
+                "2": { "ar": "لا شيء", "en": "Nothing" },
+                "3": { "ar": "افتراضي السيرفر", "en": "Server default" }
+            }
         },
         "everyone": {
             "ar": "كتم @everyone و @here",

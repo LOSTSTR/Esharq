@@ -30,7 +30,7 @@ import { debounce } from "@shared/debounce";
 import { gitRemote } from "@shared/vencordUserAgent";
 import { classNameFactory } from "@utils/css";
 import { t } from "@utils/esharqI18n";
-import { resolvePluginDescription, resolvePluginOption } from "@utils/i18n";
+import { resolvePluginDescription, resolvePluginOption, resolvePluginSelectLabel } from "@utils/i18n";
 import { proxyLazy } from "@utils/lazy";
 import { Margins } from "@utils/margins";
 import { classes, isObjectEmpty } from "@utils/misc";
@@ -142,6 +142,16 @@ export default function PluginModal({ plugin, onRestartNeeded, onClose, transiti
                 const resolvedOptionDesc = resolvePluginOption(plugin.name, key, setting.description as string);
                 if (resolvedOptionDesc !== setting.description)
                     resolvedSetting = { ...setting, description: resolvedOptionDesc };
+            }
+            // SELECT choice labels live in the options array (evaluated at module load),
+            // so they can't toggle via t(). Resolve them here at render from the overlay
+            // (keyed by choice value) — a fresh array each render → toggles with language.
+            if (setting.type === OptionType.SELECT && Array.isArray((setting as any).options)) {
+                const localizedOptions = (setting as any).options.map((o: any) => ({
+                    ...o,
+                    label: resolvePluginSelectLabel(plugin.name, key, String(o.value), o.label)
+                }));
+                resolvedSetting = { ...resolvedSetting, options: localizedOptions } as typeof resolvedSetting;
             }
             return (
                 <ErrorBoundary noop key={key}>

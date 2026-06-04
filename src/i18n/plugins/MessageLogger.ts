@@ -14,7 +14,11 @@ export default definePluginI18n({
     "options": {
         "deleteStyle": {
             "ar": "أسلوب عرض الرسائل المحذوفة",
-            "en": "How to display deleted messages."
+            "en": "How to display deleted messages.",
+            "choices": {
+                "text": { "ar": "نص أحمر", "en": "Red text" },
+                "overlay": { "ar": "تظليل أحمر", "en": "Red overlay" }
+            }
         },
         "logDeletes": {
             "ar": "تسجيل الرسائل المحذوفة",

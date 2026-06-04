@@ -15,6 +15,17 @@ export interface LocalizedString {
 }
 
 /**
+ * A single option's overlay entry. Carries the option's own description (ar/en)
+ * and, for SELECT options, optional per-choice translations keyed by the choice
+ * `value` (a stable identifier, not the display label). Choices are resolved at
+ * render time so they toggle with the language; any choice without an entry
+ * falls back to the original English label (brand/format names stay English).
+ */
+export interface PluginOptionI18n extends LocalizedString {
+    choices?: Record<string, LocalizedString>;
+}
+
+/**
  * Translation overlay for a single plugin, keyed by plugin name at the file
  * level (the filename in src/i18n/plugins/ IS the plugin name). The schema is a
  * fixed two levels — description + per-option strings — matching exactly how the
@@ -23,7 +34,7 @@ export interface LocalizedString {
  */
 export interface PluginI18n {
     description?: LocalizedString;
-    options?: Record<string, LocalizedString>;
+    options?: Record<string, PluginOptionI18n>;
 }
 
 /**

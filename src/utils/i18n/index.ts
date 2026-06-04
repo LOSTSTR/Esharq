@@ -56,5 +56,17 @@ export function resolvePluginOption(pluginName: string, key: string, original: s
     return pick(opt, original);
 }
 
+/**
+ * Resolve a single SELECT choice's display label, keyed by the choice `value`
+ * (stable id). Same override-or-original contract: returns the overlay
+ * translation when present, otherwise the original English label — so
+ * brand/format choices (Catbox, JSON, png, font names…) that have no entry
+ * stay English untouched. Called per-render so it toggles with the language.
+ */
+export function resolvePluginSelectLabel(pluginName: string, key: string, value: string, original: string): string {
+    const choice = pluginI18n[pluginName]?.options?.[key]?.choices?.[value];
+    return choice ? pick(choice, original) : original;
+}
+
 /** Local-only snapshot of drifted keys observed this session, for a debug view. */
 export const getMissedI18nKeys = (): string[] => [...missedKeys];
