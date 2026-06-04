@@ -186,7 +186,7 @@ async function createBotsChannel(guildId: string, newGuildId: string) {
 
     if (bots.length === 0) {
         LOG("No bots found in cache");
-        showToast("No bots found in cache — try scrolling through the member list first", Toasts.Type.MESSAGE);
+        showToast(t("لم يُعثَر على بوتات في الذاكرة المؤقتة — جرّب التمرير في قائمة الأعضاء أولاً", "No bots found in cache — try scrolling through the member list first"), Toasts.Type.MESSAGE);
         return;
     }
 
@@ -218,20 +218,20 @@ async function createBotsChannel(guildId: string, newGuildId: string) {
             }
         }
 
-        showToast(`Created #bots-list with ${bots.length} bots!`, Toasts.Type.SUCCESS);
+        showToast(t(`أُنشئت #bots-list بـ${bots.length} بوت!`, `Created #bots-list with ${bots.length} bots!`), Toasts.Type.SUCCESS);
     } catch (e) {
         ERR("Failed to create bots channel:", e);
-        showToast("Failed to create #bots-list channel", Toasts.Type.FAILURE);
+        showToast(t("فشل إنشاء قناة #bots-list", "Failed to create #bots-list channel"), Toasts.Type.FAILURE);
     }
 }
 
 async function copyGuild(guildId: string): Promise<void> {
     try {
         const guild = GuildStore.getGuild(guildId);
-        if (!guild) throw new Error("Guild not found");
+        if (!guild) throw new Error(t("لم يُعثَر على السيرفر", "Guild not found"));
 
         LOG(`Starting copy of guild: ${guild.name} (${guildId})`);
-        showToast("Starting guild copy process...", Toasts.Type.SUCCESS);
+        showToast(t("بدء عملية نسخ السيرفر...", "Starting guild copy process..."), Toasts.Type.SUCCESS);
 
         // --- Roles ---
         const roles = GuildRoleStore.getSortedRoles(guildId);
@@ -317,7 +317,7 @@ async function copyGuild(guildId: string): Promise<void> {
         });
         const newGuildId = newGuild.id;
         LOG(`New guild created: ${newGuild.name} (${newGuildId})`);
-        showToast(`Created new guild: ${newGuild.name}`, Toasts.Type.SUCCESS);
+        showToast(t(`أُنشئ سيرفر جديد: ${newGuild.name}`, `Created new guild: ${newGuild.name}`), Toasts.Type.SUCCESS);
 
         // --- Delete default channels ---
         try {
@@ -476,12 +476,12 @@ async function copyGuild(guildId: string): Promise<void> {
         }
 
         LOG("Guild copy completed!");
-        showToast("Guild copy completed successfully!", Toasts.Type.SUCCESS);
+        showToast(t("اكتمل نسخ السيرفر بنجاح!", "Guild copy completed successfully!"), Toasts.Type.SUCCESS);
 
     } catch (error) {
         ERR("Error during guild copy:", error);
-        const errorMessage = error instanceof Error ? error.message : "An error occurred";
-        showToast(`Error copying guild: ${errorMessage}`, Toasts.Type.FAILURE);
+        const errorMessage = error instanceof Error ? error.message : t("حدث خطأ", "An error occurred");
+        showToast(t(`خطأ في نسخ السيرفر: ${errorMessage}`, `Error copying guild: ${errorMessage}`), Toasts.Type.FAILURE);
     }
 }
 
@@ -491,7 +491,7 @@ const ctxMenuPatch: NavContextMenuPatchCallback = (children, props) => {
     children.splice(1, 0,
         <Menu.MenuItem
             id="vc-guild-copy"
-            label="Copy Guild"
+            label={t("نسخ السيرفر", "Copy Guild")}
             action={() => copyGuild(props.guild.id)}
         />
     );

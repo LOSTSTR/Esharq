@@ -5,6 +5,7 @@
  */
 
 import { addContextMenuPatch, NavContextMenuPatchCallback, removeContextMenuPatch } from "@api/ContextMenu";
+import { t } from "@utils/esharqI18n";
 import { findStoreLazy } from "@webpack";
 import { FluxDispatcher, Menu, MessageActions, React, Toasts, UserStore } from "@webpack/common";
 
@@ -24,6 +25,9 @@ const idFunctions = {
     Channel: props => props.message?.channel_id || props.channel?.id
 } as Record<string, (props: any) => string | string[] | null | undefined>;
 
+// ترجمة عربية لمصطلحات القوائم الديناميكية (تُستعمل داخل t())
+const AR_ID_TYPE: Record<string, string> = { Folder: "المجلد", Server: "السيرفر", User: "المستخدم", Channel: "القناة" };
+
 type idKeys = keyof typeof idFunctions;
 
 function renderListOption(listType: ListType, IdType: idKeys, props: any) {
@@ -36,6 +40,8 @@ function renderListOption(listType: ListType, IdType: idKeys, props: any) {
     const oppositeListType = listType === "blacklistedIds" ? "whitelistedIds" : "blacklistedIds";
     const isOppositeBlocked = ids.some(id => settings.store[oppositeListType].includes(id));
     const list = listType === "blacklistedIds" ? "Blacklist" : "Whitelist";
+    const arIdType = AR_ID_TYPE[IdType] ?? IdType;
+    const arList = listType === "blacklistedIds" ? "القائمة السوداء" : "القائمة البيضاء";
 
     const addToList = () => ids.forEach(id => addToXAndRemoveFromOpposite(listType, id));
     const removeFromList = () => ids.forEach(id => removeFromX(listType, id));
@@ -45,8 +51,8 @@ function renderListOption(listType: ListType, IdType: idKeys, props: any) {
             id={`${listType}-${IdType}-${ids[0]}`}
             label={
                 isOppositeBlocked
-                    ? `Move ${IdType} to ${list}`
-                    : isBlocked ? `Remove ${IdType} From ${list}` : `${list} ${IdType}`
+                    ? t(`نقل ${arIdType} إلى ${arList}`, `Move ${IdType} to ${list}`)
+                    : isBlocked ? t(`إزالة ${arIdType} من ${arList}`, `Remove ${IdType} From ${list}`) : t(`أضف ${arIdType} إلى ${arList}`, `${list} ${IdType}`)
             }
             action={isBlocked ? removeFromList : addToList}
         />
@@ -61,7 +67,7 @@ function renderOpenLogs(idType: idKeys, props: any) {
     return (
         <Menu.MenuItem
             id={`open-logs-for-${idType.toLowerCase()}`}
-            label={`Open Logs For ${idType}`}
+            label={t(`فتح السجلات لـ${AR_ID_TYPE[idType] ?? idType}`, `Open Logs For ${idType}`)}
             action={() => openLogModal(`${idType.toLowerCase()}:${id}`)}
         />
     );
@@ -80,7 +86,7 @@ export const contextMenuPath: NavContextMenuPatchCallback = (children, props) =>
 
                 <Menu.MenuItem
                     id="open-logs"
-                    label="Open Logs"
+                    label={t("فتح السجلات", "Open Logs")}
                     action={() => openLogModal()}
                 />
 
@@ -103,7 +109,7 @@ export const contextMenuPath: NavContextMenuPatchCallback = (children, props) =>
                             <Menu.MenuSeparator />
                             <Menu.MenuItem
                                 id="remove-message"
-                                label={props.message?.deleted ? "Remove Message (Permanent)" : "Remove Message History (Permanent)"}
+                                label={props.message?.deleted ? t("إزالة الرسالة (دائم)", "Remove Message (Permanent)") : t("إزالة سجلّ التعديلات (دائم)", "Remove Message History (Permanent)")}
                                 color="danger"
                                 action={() =>
                                     deleteMessageIDB(props.message.id)
@@ -120,7 +126,7 @@ export const contextMenuPath: NavContextMenuPatchCallback = (children, props) =>
                                             }
                                         }).catch(() => Toasts.show({
                                             type: Toasts.Type.FAILURE,
-                                            message: "Failed to remove message",
+                                            message: t("فشل إزالة الرسالة", "Failed to remove message"),
                                             id: Toasts.genId()
                                         }))
                                 }
@@ -139,7 +145,7 @@ export const contextMenuPath: NavContextMenuPatchCallback = (children, props) =>
                             <Menu.MenuSeparator />
                             <Menu.MenuItem
                                 id="hide-from-message-loggers"
-                                label="Delete Message (Hide From Message Loggers)"
+                                label={t("حذف الرسالة (إخفاؤها عن مسجّلات الرسائل)", "Delete Message (Hide From Message Loggers)")}
                                 color="danger"
 
                                 action={async () => {

@@ -79,9 +79,8 @@ async function moveUserToVoiceChannel(
         if (settings.store.showNotifications) {
             const user = UserStore.getUser(userId);
             showNotification({
-                title: "Leash - Success",
-                body: `${user?.username || "User"
-                    } has been moved to your voice channel`,
+                title: t("Leash - نجاح", "Leash - Success"),
+                body: t(`تم نقل ${user?.username || "المستخدم"} إلى قناتك الصوتية`, `${user?.username || "User"} has been moved to your voice channel`),
             });
         }
     } catch (error) {
@@ -104,7 +103,7 @@ const UserContextMenuPatch: NavContextMenuPatchCallback = (
         <Menu.MenuSeparator />,
         <Menu.MenuCheckboxItem
             id="laisse-leash-user"
-            label="Leash - Hook the user"
+            label={t("Leash - اربط المستخدم", "Leash - Hook the user")}
             checked={checked}
             action={() => {
                 if (leashedUserInfo?.userId === user.id) {
@@ -112,7 +111,7 @@ const UserContextMenuPatch: NavContextMenuPatchCallback = (
                     setChecked(false);
                     showNotification({
                         title: "Leash",
-                        body: `User ${user.username} is no longer hooked`,
+                        body: t(`لم يعُد المستخدم ${user.username} مربوطاً`, `User ${user.username} is no longer hooked`),
                     });
                     return;
                 }
@@ -124,7 +123,7 @@ const UserContextMenuPatch: NavContextMenuPatchCallback = (
                 setChecked(true);
                 showNotification({
                     title: "Leash",
-                    body: `User ${user.username} is now hooked to you`,
+                    body: t(`المستخدم ${user.username} مربوط بك الآن`, `User ${user.username} is now hooked to you`),
                 });
             }}
         />
@@ -189,8 +188,7 @@ export default definePlugin({
                                 if (settings.store.showNotifications) {
                                     showNotification({
                                         title: "Leash",
-                                        body: `Attempting to move ${user?.username || "user"
-                                            } to your voice channel`,
+                                        body: t(`محاولة نقل ${user?.username || "المستخدم"} إلى قناتك الصوتية`, `Attempting to move ${user?.username || "user"} to your voice channel`),
                                     });
                                 }
 
@@ -203,8 +201,8 @@ export default definePlugin({
                                 console.error("Leash: Error during move:", error);
                                 if (settings.store.showNotifications) {
                                     showNotification({
-                                        title: "Leash - Error",
-                                        body: "Unable to move user (insufficient permissions)",
+                                        title: t("Leash - خطأ", "Leash - Error"),
+                                        body: t("تعذّر نقل المستخدم (صلاحيات غير كافية)", "Unable to move user (insufficient permissions)"),
                                     });
                                 }
                             }
