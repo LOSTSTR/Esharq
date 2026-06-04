@@ -10,6 +10,7 @@ import { ImageIcon } from "@components/Icons";
 import { copyToClipboard } from "@utils/clipboard";
 import { Devs } from "@utils/constants";
 import { getCurrentChannel, getCurrentGuild, openImageModal } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { isTruthy } from "@utils/guards";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
@@ -107,7 +108,7 @@ export function buildExtraRoleContextMenuItems(role: Role, guild: Guild, popoutR
             <Menu.MenuItem
                 key="vc-edit-role"
                 id="vc-edit-role"
-                label="Edit Role"
+                label={t("تعديل الرتبة", "Edit Role")}
                 action={async () => {
                     await GuildSettingsActions.open(guild.id, "ROLES");
                     GuildSettingsActions.selectRole(role.id);
@@ -119,7 +120,7 @@ export function buildExtraRoleContextMenuItems(role: Role, guild: Guild, popoutR
             <Menu.MenuItem
                 key="vc-copy-role-color"
                 id="vc-copy-role-color"
-                label="Copy Role Color"
+                label={t("نسخ لون الرتبة", "Copy Role Color")}
                 action={() => copyToClipboard(role.colorString!)}
                 icon={AppearanceIcon}
             />
@@ -131,7 +132,7 @@ export function buildExtraRoleContextMenuItems(role: Role, guild: Guild, popoutR
             <Menu.MenuItem
                 key="vc-view-role-icon"
                 id="vc-view-role-icon"
-                label="View Role Icon"
+                label={t("عرض أيقونة الرتبة", "View Role Icon")}
                 action={() => {
                     openImageModal({
                         url: `${location.protocol}//${window.GLOBAL_ENV.CDN_HOST}/role-icons/${role.id}/${role.icon}.${settings.store.roleIconFileFormat}`,
@@ -146,7 +147,7 @@ export function buildExtraRoleContextMenuItems(role: Role, guild: Guild, popoutR
             <Menu.MenuItem
                 key="vc-view-role-members"
                 id="vc-view-role-members"
-                label="View Role Members"
+                label={t("عرض أعضاء الرتبة", "View Role Members")}
                 render={() => (
                     <Popout
                         position="right"
@@ -224,7 +225,7 @@ export default definePlugin({
                 children.unshift(
                     <Menu.MenuItem
                         id="vc-copy-role-color"
-                        label="Copy Role Color"
+                        label={t("نسخ لون الرتبة", "Copy Role Color")}
                         action={() => copyToClipboard(role.colorString!)}
                         icon={AppearanceIcon}
                     />
@@ -235,7 +236,7 @@ export default definePlugin({
                 children.unshift(
                     <Menu.MenuItem
                         id="vc-edit-role"
-                        label="Edit Role"
+                        label={t("تعديل الرتبة", "Edit Role")}
                         action={async () => {
                             await GuildSettingsActions.open(guild.id, "ROLES");
                             GuildSettingsActions.selectRole(id);
@@ -250,7 +251,7 @@ export default definePlugin({
                 children.push(
                     <Menu.MenuItem
                         id="vc-view-role-icon"
-                        label="View Role Icon"
+                        label={t("عرض أيقونة الرتبة", "View Role Icon")}
                         action={() => openRoleIconModal(role.id, roleIcon, role.name)}
                         icon={ImageIcon}
                     />

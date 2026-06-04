@@ -6,6 +6,7 @@
 
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { Channel, Message, User } from "@vencord/discord-types";
 import { ChannelStore, Constants, Menu, NavigationRouter, RestAPI, SelectedChannelStore, SelectedGuildStore, Toasts } from "@webpack/common";
@@ -71,12 +72,12 @@ const ChannelMenuPatch: NavContextMenuPatchCallback = (
     children.push(
         <Menu.MenuItem
             id="vc-jump-to-first"
-            label="Jump To First Message"
+            label={t("الانتقال إلى أول رسالة", "Jump To First Message")}
             action={() => jumpToFirstMessage(targetChannel.id, targetChannel.guild_id)}
         />,
         <Menu.MenuItem
             id="vc-jump-to-last"
-            label="Jump To Last Message"
+            label={t("الانتقال إلى آخر رسالة", "Jump To Last Message")}
             action={() => jumpToLastMessage(targetChannel.id, targetChannel.guild_id)}
         />
     );
@@ -88,12 +89,12 @@ const UserMenuPatch: NavContextMenuPatchCallback = (children, { user, channel }:
     children.push(
         <Menu.MenuItem
             id="vc-jump-to-first"
-            label="Jump To First Message"
+            label={t("الانتقال إلى أول رسالة", "Jump To First Message")}
             action={() => jumpToFirstMessage(channel.id, null)}
         />,
         <Menu.MenuItem
             id="vc-jump-to-last"
-            label="Jump To Last Message"
+            label={t("الانتقال إلى آخر رسالة", "Jump To Last Message")}
             action={() => jumpToLastMessage(channel.id, null)}
         />
     );
@@ -107,12 +108,12 @@ const MessageMenuPatch: NavContextMenuPatchCallback = (children, { message }: { 
     children.push(
         <Menu.MenuItem
             id="vc-jump-to-first-user"
-            label="Jump To First Message"
+            label={t("الانتقال إلى أول رسالة", "Jump To First Message")}
             action={() => jumpToUserMessage(channelId, guildId, message.author.id, true)}
         />,
         <Menu.MenuItem
             id="vc-jump-to-last-user"
-            label="Jump To Last Message"
+            label={t("الانتقال إلى آخر رسالة", "Jump To Last Message")}
             action={() => jumpToUserMessage(channelId, guildId, message.author.id, false)}
         />
     );

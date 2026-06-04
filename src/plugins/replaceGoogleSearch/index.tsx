@@ -8,6 +8,7 @@ import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/Co
 import { definePluginSettings, migratePluginSettings } from "@api/Settings";
 import { Flex } from "@components/Flex";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { Menu } from "@webpack/common";
 
@@ -84,7 +85,7 @@ function makeSearchItem(src: string) {
 
     return (
         <Menu.MenuItem
-            label="Search Text"
+            label={t("بحث عن النص", "Search Text")}
             key="search-text"
             id="vc-search-text"
         >

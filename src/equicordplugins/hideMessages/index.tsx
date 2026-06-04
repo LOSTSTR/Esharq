@@ -15,6 +15,7 @@ import pinDms from "@plugins/pinDms";
 import { isPinned } from "@plugins/pinDms/data";
 import { EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { Channel, Message } from "@vencord/discord-types";
 import { ChannelStore, Clickable, FluxDispatcher, Menu, Tooltip } from "@webpack/common";
@@ -63,7 +64,7 @@ const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }: { m
     group.splice(group.findIndex(c => c?.props?.id === "copy-text") + 1, 0, (
         <Menu.MenuItem
             id="vc-hidemessages"
-            label="Hide"
+            label={t("إخفاء", "Hide")}
             icon={EyeIcon}
             action={() => hideMessage(message.id, message.channel_id)}
         />
@@ -174,7 +175,7 @@ export default definePlugin({
         render(message: Message) {
             if (settings.store.hidePopoverButton) return null;
             return {
-                label: "Hide",
+                label: t("إخفاء", "Hide"),
                 icon: EyeIcon,
                 message,
                 channel: ChannelStore.getChannel(message.channel_id),
