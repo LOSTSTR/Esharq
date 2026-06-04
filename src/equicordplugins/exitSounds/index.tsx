@@ -90,7 +90,7 @@ const SoundButtonContext: NavContextMenuPatchCallback = (children, { sound }: { 
         <Menu.MenuGroup>
             <Menu.MenuItem
                 id="set-global-exit-sound"
-                label="Set as global exit sound"
+                label={t("تعيين كصوت خروج عام", "Set as global exit sound")}
                 action={() => {
                     settings.store.soundGuildId = sound.guildId;
                     settings.store.soundId = sound.soundId;

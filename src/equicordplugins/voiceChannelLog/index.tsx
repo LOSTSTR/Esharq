@@ -6,6 +6,7 @@
 
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { Devs, EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { ChannelType } from "@vencord/discord-types/enums";
 import { findByPropsLazy } from "@webpack";
@@ -45,7 +46,7 @@ const patchChannelContextMenu: NavContextMenuPatchCallback = (children, { channe
     children.push(
         <Menu.MenuItem
             id="vc-view-voice-channel-logs"
-            label="View Voice Channel Logs"
+            label={t("عرض سجلات القناة الصوتية", "View Voice Channel Logs")}
             action={() => openVoiceChannelLog(channel)}
         />
     );

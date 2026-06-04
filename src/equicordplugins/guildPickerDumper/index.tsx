@@ -6,6 +6,7 @@
 
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { Devs, EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import type { Guild } from "@vencord/discord-types";
 import { EmojiStore, Menu, StickersStore } from "@webpack/common";
@@ -20,8 +21,8 @@ const Patch: NavContextMenuPatchCallback = (children, { guild }: { guild: Guild;
     if (group) {
         group.push(
             <>
-                <Menu.MenuItem id="emoji.download" label="Download Emojis" action={() => zipGuildAssets(guild, "emojis")}></Menu.MenuItem>
-                <Menu.MenuItem id="sticker.download" label="Download Stickers" action={() => zipGuildAssets(guild, "stickers")}></Menu.MenuItem>
+                <Menu.MenuItem id="emoji.download" label={t("تنزيل الإيموجي", "Download Emojis")} action={() => zipGuildAssets(guild, "emojis")}></Menu.MenuItem>
+                <Menu.MenuItem id="sticker.download" label={t("تنزيل الملصقات", "Download Stickers")} action={() => zipGuildAssets(guild, "stickers")}></Menu.MenuItem>
             </>
         );
     }

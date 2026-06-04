@@ -17,6 +17,7 @@ import { disableStyle, enableStyle } from "@api/Styles";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs, EQUIBOT_USER_ID, EquicordDevs, SUPPORT_CHANNEL_ID, VC_SUPPORT_CATEGORY_ID, VENBOT_USER_ID } from "@utils/constants";
 import { getIntlMessage } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
@@ -80,7 +81,7 @@ const patchMessageContextMenu: NavContextMenuPatchCallback = (
             <Menu.MenuItem
                 id={TOGGLE_DELETE_STYLE_ID}
                 key={TOGGLE_DELETE_STYLE_ID}
-                label="Toggle Deleted Highlight"
+                label={t("تبديل إبراز المحذوف", "Toggle Deleted Highlight")}
                 action={() => domElement.classList.toggle("messagelogger-deleted")}
             />,
         );
@@ -150,7 +151,7 @@ const patchChannelContextMenu: NavContextMenuPatchCallback = (
     group.push(
         <Menu.MenuItem
             id="vc-ml-clear-channel"
-            label="Clear Message Log"
+            label={t("مسح سجل الرسائل", "Clear Message Log")}
             color="danger"
             action={() => {
                 messages.forEach(msg => {

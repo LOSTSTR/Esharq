@@ -8,6 +8,7 @@ import type { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { CloudUploadIcon } from "@components/Icons";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { findComponentByCodeLazy } from "@webpack";
 import { Menu } from "@webpack/common";
@@ -29,7 +30,7 @@ const ctxMenuPatch: NavContextMenuPatchCallback = (children, props) => {
         <Menu.MenuItem
             id="vc-upload-clip-file"
             iconLeft={CloudUploadIcon}
-            label="Upload Clip File"
+            label={t("رفع ملف مقطع", "Upload Clip File")}
             action={() => openUploadClipFileModal(props.channel.id)}
         />
     );

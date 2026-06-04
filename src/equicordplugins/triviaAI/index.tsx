@@ -7,6 +7,7 @@
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { RobotIcon } from "@components/Icons";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { Message } from "@vencord/discord-types";
 import { ChannelStore, Menu } from "@webpack/common";
@@ -24,7 +25,7 @@ const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }: { m
     group.splice(group.findIndex(c => c?.props?.id === "copy-text") + 1, 0, (
         <Menu.MenuItem
             id="vc-trivia-ai"
-            label="Answer With AI"
+            label={t("الإجابة بالذكاء الاصطناعي", "Answer With AI")}
             icon={RobotIcon}
             action={async () => {
                 const ans = await getResponse(payload);
@@ -51,7 +52,7 @@ export default definePlugin({
             if (!payload) return null;
 
             return {
-                label: "Answer With AI",
+                label: t("الإجابة بالذكاء الاصطناعي", "Answer With AI"),
                 icon: RobotIcon,
                 message,
                 channel: ChannelStore.getChannel(message.channel_id),
