@@ -91,7 +91,7 @@ export default definePlugin({
             children.push(
                 <Menu.MenuItem
                     id="vc-view-inrole"
-                    label="View Members in Role"
+                    label={t("عرض الأعضاء في الرتبة", "View Members in Role")}
                     action={() => {
                         showInRoleModal(getMembersInRole(role.id, guild.id), role.id, channel.id);
                     }}
@@ -117,7 +117,7 @@ export default definePlugin({
             children.push(
                 <Menu.MenuItem
                     id="vc-view-inrole"
-                    label="View Members in Role"
+                    label={t("عرض الأعضاء في الرتبة", "View Members in Role")}
                     action={() => {
                         showInRoleModal(getMembersInRole(role.id, guild.id), role.id, channel.id);
                     }}

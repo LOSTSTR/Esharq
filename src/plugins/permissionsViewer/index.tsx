@@ -24,6 +24,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { SafetyIcon } from "@components/Icons";
 import { TooltipContainer } from "@components/TooltipContainer";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Guild, RoleOrUserPermission } from "@vencord/discord-types";
@@ -65,7 +66,7 @@ function MenuItem(guildId: string, id?: string, type?: MenuItemParentType) {
     return (
         <Menu.MenuItem
             id="perm-viewer-permissions"
-            label="Permissions"
+            label={t("الصلاحيات", "Permissions")}
             action={() => {
                 const guild = GuildStore.getGuild(guildId);
 

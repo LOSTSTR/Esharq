@@ -12,6 +12,7 @@ import { definePluginSettings } from "@api/Settings";
 import { BaseText } from "@components/BaseText";
 import { Divider } from "@components/Divider";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { useForceUpdater } from "@utils/react";
 import definePlugin, { OptionType } from "@utils/types";
 import { Button, ChannelStore, Menu, RelationshipStore, TextInput, useEffect, UserStore, useState } from "@webpack/common";
@@ -187,7 +188,7 @@ const userPatch: NavContextMenuPatchCallback = (children, { user }) => {
     const buttonElement =
         <Menu.MenuItem
             id="vc-tag-group"
-            label="Tag"
+            label={t("وسم", "Tag")}
         >
             {SavedData.map(tag => {
                 const isTagged = SavedData.filter(e => e.tagName === tag.tagName)[0].userIds.includes(user.id);

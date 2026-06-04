@@ -6,6 +6,7 @@
 
 import type { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { RelationshipType } from "@vencord/discord-types/enums";
 import { findByPropsLazy } from "@webpack";
@@ -28,7 +29,7 @@ const userContextPatch: NavContextMenuPatchCallback = (children, { user }) => {
     children.push(
         <Menu.MenuItem
             id="vc-cancel-outgoing-friend-request"
-            label="Cancel Outgoing Friend Request"
+            label={t("إلغاء طلب الصداقة الصادر", "Cancel Outgoing Friend Request")}
             action={() => cancelOutgoingFriendRequest(user.id)}
         />
     );

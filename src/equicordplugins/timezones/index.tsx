@@ -11,6 +11,7 @@ import * as DataStore from "@api/DataStore";
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs, EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { Message, User } from "@vencord/discord-types";
 import { findByPropsLazy, findCssClassesLazy } from "@webpack";
@@ -243,7 +244,7 @@ const userContextMenuPatch: NavContextMenuPatchCallback = (children, { user }: {
 
     const setTimezoneItem = (
         <Menu.MenuItem
-            label="Set Local Timezone"
+            label={t("تعيين المنطقة الزمنية المحلية", "Set Local Timezone")}
             id="set-timezone"
             action={() => openModal(modalProps => <SetTimezoneModal userId={user.id} modalProps={modalProps} />)}
         />

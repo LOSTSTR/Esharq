@@ -11,6 +11,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { Heading } from "@components/Heading";
 import { Devs } from "@utils/constants";
 import { getIntlMessage } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import definePlugin from "@utils/types";
 import { Message } from "@vencord/discord-types";
@@ -104,7 +105,7 @@ function makeContextCallback(
         children.push(
             <Menu.MenuItem
                 id={`c98-view-${name}-raw`}
-                label="View Raw Variant"
+                label={t("عرض النسخة الخام", "View Raw Variant")}
                 action={() => action(value)}
                 icon={CopyIcon}
             />,
