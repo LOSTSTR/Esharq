@@ -114,7 +114,7 @@ const messageCtxPatch: NavContextMenuPatchCallback = (children, { msg }: { msg: 
     group.splice(group.findIndex(c => c?.props?.id === "reply") + 1, 0, (
         <Menu.MenuItem
             id="vc-repeat"
-            label={shift ? "Repeat and Reply" : "Repeat"}
+            label={shift ? t("تكرار ورد", "Repeat and Reply") : t("تكرار", "Repeat")}
             icon={RepeatMessageIcon}
             action={async () => repeatMessage(msg)}
         />
