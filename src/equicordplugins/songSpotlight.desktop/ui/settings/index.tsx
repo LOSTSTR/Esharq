@@ -40,24 +40,24 @@ function ImportButton({ overwrite, pending, setPending, onImport }: ImportButton
             json = JSON.parse(await readClipboard());
         } catch {
             setPending(false);
-            return showToast("No JSON in clipboard!", Toasts.Type.FAILURE);
+            return showToast(t("لا يوجد JSON في الحافظة!", "No JSON in clipboard!"), Toasts.Type.FAILURE);
         }
 
         const { error, data } = UserDataSchema.max(apiConstants.songLimit).safeParse(json);
         if (error) {
             setPending(false);
-            return showToast("Invalid Song Spotlight data in clipboard!", Toasts.Type.FAILURE);
+            return showToast(t("بيانات Song Spotlight في الحافظة غير صالحة!", "Invalid Song Spotlight data in clipboard!"), Toasts.Type.FAILURE);
         }
 
         const validated = await Promise.allSettled(data.map(song => Native.validateSong(song)));
         if (!validated.every(x => x.status === "fulfilled" && x.value)) {
             setPending(false);
-            return showToast("One or more imported songs were invalid.", Toasts.Type.FAILURE);
+            return showToast(t("أغنية واحدة أو أكثر من المستوردة غير صالحة.", "One or more imported songs were invalid."), Toasts.Type.FAILURE);
         }
 
         onImport(data);
         setPending(false);
-        showToast("Imported songs from clipboard!", Toasts.Type.SUCCESS);
+        showToast(t("تم استيراد الأغاني من الحافظة!", "Imported songs from clipboard!"), Toasts.Type.SUCCESS);
     }, [pending]);
 
     return (
@@ -107,22 +107,22 @@ export default function Settings({ templateData }: SettingsProps) {
         if (isAuthorized() && !localData) getData().then(() => setPending(false));
     }, [isAuthorized()]);
 
-    if (!isAuthorized()) return <Button onClick={() => presentOAuth2Modal()}>Sign in to Song Spotlight</Button>;
+    if (!isAuthorized()) return <Button onClick={() => presentOAuth2Modal()}>{t("تسجيل الدخول إلى Song Spotlight", "Sign in to Song Spotlight")}</Button>;
 
     return (
         <Flex flexDirection="column" gap="20px">
             <BaseText size="md" weight="normal">
-                You can also view your songs via the {Parser.parse("</songspotlight:1468320979938971802>")} command!
+                {t("يمكنك أيضاً عرض أغانيك عبر الأمر", "You can also view your songs via the")} {Parser.parse("</songspotlight:1468320979938971802>")}{t("!", " command!")}
             </BaseText>
             {localData
                 ? (
                     <Flex flexDirection="column" gap="12px">
                         <Flex flexDirection="column" gap={0}>
-                            <BaseText size="lg" weight="semibold">Songs</BaseText>
+                            <BaseText size="lg" weight="semibold">{t("الأغاني", "Songs")}</BaseText>
                             {self?.at
                                 && (
                                     <BaseText size="xs" weight="normal" className={cl("sub")}>
-                                        Last updated <b>{Intl.DateTimeFormat().format(new Date(self.at))}</b>
+                                        {t("آخر تحديث", "Last updated")} <b>{Intl.DateTimeFormat().format(new Date(self.at))}</b>
                                     </BaseText>
                                 )}
                         </Flex>
@@ -139,7 +139,7 @@ export default function Settings({ templateData }: SettingsProps) {
                                     onClick={() => copyWithToast(JSON.stringify(localData))}
                                     disabled={pending}
                                 >
-                                    Copy to clipboard
+                                    {t("نسخ إلى الحافظة", "Copy to clipboard")}
                                 </Button>
                                 <ImportButton
                                     overwrite={!!localData[0]}
@@ -154,21 +154,21 @@ export default function Settings({ templateData }: SettingsProps) {
                                     setPending(true);
                                     try {
                                         await saveData(localData);
-                                        showToast("Successfully saved songs!", Toasts.Type.SUCCESS);
+                                        showToast(t("تم حفظ الأغاني بنجاح!", "Successfully saved songs!"), Toasts.Type.SUCCESS);
                                     } finally {
                                         setPending(false);
                                     }
                                 }}
                                 disabled={isSame || pending}
                             >
-                                Save
+                                {t("حفظ", "Save")}
                             </Button>
                         </Flex>
                     </Flex>
                 )
                 : <Spinner type={Spinner.Type.WANDERING_CUBES} />}
             <Flex flexDirection="column" gap="12px">
-                <BaseText size="lg" weight="semibold">Authorization</BaseText>
+                <BaseText size="lg" weight="semibold">{t("التفويض", "Authorization")}</BaseText>
                 <div className={cl("twin-buttons")}>
                     <Button
                         variant="dangerPrimary"

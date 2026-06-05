@@ -377,7 +377,7 @@ export default definePlugin({
                     onConfirm() {
                         NavigationRouter.transitionTo(`/channels/${GUILD_ID}/${SUPPORT_CHANNEL_ID}`);
                     },
-                    cancelText: "Okay continue",
+                    cancelText: t("حسناً، تابع", "Okay continue"),
                     onCancel() {
                         clicked = true;
                     },
