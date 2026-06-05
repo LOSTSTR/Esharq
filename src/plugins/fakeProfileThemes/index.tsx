@@ -28,6 +28,7 @@ import { HeadingSecondary } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import { Devs } from "@utils/constants";
 import { copyWithToast, fetchUserProfile } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
 import { useAwaiter } from "@utils/react";
@@ -119,22 +120,21 @@ function SettingsAboutComponent() {
 
     return (
         <section>
-            <HeadingSecondary>Usage</HeadingSecondary>
+            <HeadingSecondary>{t("الاستخدام", "Usage")}</HeadingSecondary>
             <Paragraph>
-                After enabling this plugin, you will see custom colors in
-                the profiles of other people using compatible plugins.{" "}
+                {t("بعد تفعيل هذه الإضافة، سترى ألواناً مخصّصة في ملفات الأشخاص الآخرين الذين يستخدمون إضافات متوافقة.", "After enabling this plugin, you will see custom colors in the profiles of other people using compatible plugins.")}{" "}
             </Paragraph>
             <Paragraph className={Margins.top8}>
-                <strong>To set your own profile theme colors:</strong>
+                <strong>{t("لتعيين ألوان قالب ملفك الشخصي:", "To set your own profile theme colors:")}</strong>
                 <ul>
-                    <li>&mdash; use the color pickers below to choose your colors</li>
-                    <li>&mdash; click the "Copy 3y3" button</li>
-                    <li>&mdash; paste the invisible text anywhere in your bio</li>
+                    <li>&mdash; {t("استخدم منتقيات الألوان أدناه لاختيار ألوانك", "use the color pickers below to choose your colors")}</li>
+                    <li>&mdash; {t("اضغط زرّ «Copy 3y3»", "click the \"Copy 3y3\" button")}</li>
+                    <li>&mdash; {t("الصق النص المخفي في أي مكان في سيرتك الذاتية", "paste the invisible text anywhere in your bio")}</li>
                 </ul>
                 <Divider
                     className={classes(Margins.top8, Margins.bottom8)}
                 />
-                <Forms.FormTitle tag="h3">Color pickers</Forms.FormTitle>
+                <Forms.FormTitle tag="h3">{t("منتقيات الألوان", "Color pickers")}</Forms.FormTitle>
                 <Flex gap="1em">
                     <ColorPicker
                         color={color1}
@@ -143,7 +143,7 @@ function SettingsAboutComponent() {
                                 size="xs"
                                 style={{ marginTop: "4px" }}
                             >
-                                Primary
+                                {t("أساسي", "Primary")}
                             </BaseText>
                         }
                         onChange={(color: number) => {
@@ -157,7 +157,7 @@ function SettingsAboutComponent() {
                                 size="xs"
                                 style={{ marginTop: "4px" }}
                             >
-                                Accent
+                                {t("مميّز", "Accent")}
                             </BaseText>
                         }
                         onChange={(color: number) => {
