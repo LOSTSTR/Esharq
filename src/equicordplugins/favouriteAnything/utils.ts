@@ -6,6 +6,7 @@
 
 import { classNameFactory } from "@utils/css";
 import { sendMessage } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { proxyLazy } from "@utils/lazy";
 import { Queue } from "@utils/Queue";
 import { useForceUpdater } from "@utils/react";
@@ -155,13 +156,13 @@ async function fetchAttachment(attachment: MessageAttachment): Promise<File> {
 export async function sendAttachment(attachment: MessageAttachment, channel: Channel) {
     const { filename, title, description } = attachment;
     const file = await fetchAttachment(attachment).catch(() =>
-        Toasts.show({ message: `Couldn't fetch ${filename}`, id: Toasts.genId(), type: Toasts.Type.FAILURE })
+        Toasts.show({ message: t(`تعذّر جلب ${filename}`, `Couldn't fetch ${filename}`), id: Toasts.genId(), type: Toasts.Type.FAILURE })
     );
     if (!file) return;
 
     // Using promptToUpload instead of addFiles directly since it has file size checks with error popups
     await UploadHandler.promptToUpload([file], channel, DraftType.ChannelMessage).catch(() =>
-        Toasts.show({ message: `Couldn't upload ${filename}`, id: Toasts.genId(), type: Toasts.Type.FAILURE })
+        Toasts.show({ message: t(`تعذّر رفع ${filename}`, `Couldn't upload ${filename}`), id: Toasts.genId(), type: Toasts.Type.FAILURE })
     );
 
     const uploads = [...UploadAttachmentStore.getUploads(channel.id, DraftType.ChannelMessage)];
