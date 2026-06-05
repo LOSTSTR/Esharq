@@ -1837,7 +1837,7 @@ export async function executeCommandAction(entry: CommandEntry, actionKey: strin
             return false;
         }
         Toasts.show({
-            message: `Command failed: ${entry.label}`,
+            message: t(`فشل الأمر: ${entry.label}`, `Command failed: ${entry.label}`),
             type: Toasts.Type.FAILURE,
             id: Toasts.genId(),
         });

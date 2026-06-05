@@ -7,6 +7,7 @@
 import { definePluginSettings } from "@api/Settings";
 import { Button } from "@components/Button";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { makeRange, OptionType } from "@utils/types";
 import { Channel, Message } from "@vencord/discord-types";
 import { findByPropsLazy, findStore } from "@webpack";
@@ -228,8 +229,8 @@ function shouldNotifyForGuildMessage(message: Message, channel: Channel): boolea
 
 function showExampleNotification(): Promise<void> {
     return showNotification({
-        title: "Example Notification",
-        body: "This is an example toast notification!",
+        title: t("إشعار تجريبي", "Example Notification"),
+        body: t("هذا مثال على إشعار منبثق!", "This is an example toast notification!"),
         icon: IconUtils.getUserAvatarURL(UserStore.getCurrentUser()),
         permanent: false
     });
