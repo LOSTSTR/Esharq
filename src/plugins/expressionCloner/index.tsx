@@ -25,6 +25,7 @@ import { Heading } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import { Devs } from "@utils/constants";
 import { getGuildAcronym } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import definePlugin from "@utils/types";
 import { Guild, GuildSticker } from "@vencord/discord-types";
@@ -193,19 +194,19 @@ async function doClone(guildId: string, data: Sticker | Emoji) {
             await cloneEmoji(guildId, data);
 
         Toasts.show({
-            message: `Successfully cloned ${data.name} to ${GuildStore.getGuild(guildId)?.name ?? "your server"}!`,
+            message: t(`تم استنساخ ${data.name} إلى ${GuildStore.getGuild(guildId)?.name ?? "سيرفرك"} بنجاح!`, `Successfully cloned ${data.name} to ${GuildStore.getGuild(guildId)?.name ?? "your server"}!`),
             type: Toasts.Type.SUCCESS,
             id: Toasts.genId()
         });
     } catch (e: any) {
-        let message = "Something went wrong (check console!)";
+        let message = t("حدث خطأ ما (تحقّق من الكونسول!)", "Something went wrong (check console!)");
         try {
             message = JSON.parse(e.text).message;
         } catch { }
 
         new Logger("ExpressionCloner").error("Failed to clone", data.name, "to", guildId, e);
         Toasts.show({
-            message: "Failed to clone: " + message,
+            message: t("فشل الاستنساخ: ", "Failed to clone: ") + message,
             type: Toasts.Type.FAILURE,
             id: Toasts.genId()
         });

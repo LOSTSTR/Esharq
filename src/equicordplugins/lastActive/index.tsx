@@ -6,6 +6,7 @@
 
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { Menu, NavigationRouter, RestAPI, Toasts, UserStore } from "@webpack/common";
 
@@ -22,7 +23,7 @@ async function findLastMessageFromUser(guildId: string, channelId: string, userI
 
         Toasts.show({
             type: Toasts.Type.FAILURE,
-            message: "Couldn't find any recent messages from this user.",
+            message: t("لم يُعثَر على أي رسائل حديثة من هذا المستخدم.", "Couldn't find any recent messages from this user."),
             id: Toasts.genId()
         });
         return null;
@@ -30,7 +31,7 @@ async function findLastMessageFromUser(guildId: string, channelId: string, userI
         console.error("Error finding last message:", error);
         Toasts.show({
             type: Toasts.Type.FAILURE,
-            message: "Failed to find messages. Check console for details.",
+            message: t("فشل العثور على الرسائل. تحقّق من الكونسول للتفاصيل.", "Failed to find messages. Check console for details."),
             id: Toasts.genId()
         });
         return null;
@@ -42,7 +43,7 @@ async function jumpToLastActive(channel: any, targetUserId?: string) {
         if (!channel) {
             Toasts.show({
                 type: Toasts.Type.FAILURE,
-                message: "Channel information not available.",
+                message: t("معلومات القناة غير متاحة.", "Channel information not available."),
                 id: Toasts.genId()
             });
             return;
@@ -66,7 +67,7 @@ async function jumpToLastActive(channel: any, targetUserId?: string) {
         console.error("Error in jumpToLastActive:", error);
         Toasts.show({
             type: Toasts.Type.FAILURE,
-            message: "Failed to jump to message. Check console for details.",
+            message: t("فشل الانتقال إلى الرسالة. تحقّق من الكونسول للتفاصيل.", "Failed to jump to message. Check console for details."),
             id: Toasts.genId()
         });
     }

@@ -17,6 +17,7 @@ import { isV1, migrate } from "@equicordplugins/moreStickers/migrate-v1";
 import { deleteStickerPack, getStickerPack, getStickerPackMetas, saveStickerPack } from "@equicordplugins/moreStickers/stickers";
 import { SettingsTabsKey, Sticker, StickerPack, StickerPackMeta } from "@equicordplugins/moreStickers/types";
 import { cl, clPicker, Mutex } from "@equicordplugins/moreStickers/utils";
+import { t } from "@utils/esharqI18n";
 import { Button, React, TabBar, TextArea, Toasts } from "@webpack/common";
 import { JSX } from "react";
 
@@ -59,7 +60,7 @@ const StickerPackMetadata = ({ meta, hoveredStickerPackId, setHoveredStickerPack
                     try {
                         await deleteStickerPack(meta.id);
                         Toasts.show({
-                            message: "Sticker Pack deleted",
+                            message: t("حُذفت حزمة الملصقات", "Sticker Pack deleted"),
                             type: Toasts.Type.SUCCESS,
                             id: Toasts.genId(),
                             options: {
@@ -220,7 +221,7 @@ export const Packs = () => {
                                     });
                                 } else {
                                     Toasts.show({
-                                        message: "Sticker Pack added",
+                                        message: t("أُضيفت حزمة الملصقات", "Sticker Pack added"),
                                         type: Toasts.Type.SUCCESS,
                                         id: Toasts.genId(),
                                         options: {
@@ -298,7 +299,7 @@ export const Packs = () => {
                                     });
                                 } else {
                                     Toasts.show({
-                                        message: "Sticker Pack added",
+                                        message: t("أُضيفت حزمة الملصقات", "Sticker Pack added"),
                                         type: Toasts.Type.SUCCESS,
                                         id: Toasts.genId(),
                                         options: {
