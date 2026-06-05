@@ -22,7 +22,10 @@ export default definePluginI18n({
         },
         "sortOrder": {
             "ar": "طريقة الترتيب",
-            "en": "Sort order for the theme list."
+            "en": "Sort order for the theme list.",
+            "choices": {
+                "recent": { "ar": "الأحدث", "en": "Recent" }
+            }
         },
         "autoRefresh": {
             "ar": "تحديث قائمة الثيمات تلقائياً عند اكتشاف تغييرات",

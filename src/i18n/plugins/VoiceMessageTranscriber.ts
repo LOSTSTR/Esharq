@@ -14,7 +14,13 @@ export default definePluginI18n({
     "options": {
         "selectedModel": {
             "ar": "حجم النموذج",
-            "en": "Whisper model size."
+            "en": "Whisper model size.",
+            "choices": {
+                "Xenova/whisper-tiny": { "ar": "صغير جداً (الأسرع، أقل دقّة)", "en": "Tiny (Fastest, lowest accuracy)" },
+                "Xenova/whisper-base": { "ar": "أساسي (موصى به)", "en": "Base (Recommended)" },
+                "Xenova/whisper-small": { "ar": "صغير", "en": "Small" },
+                "Xenova/whisper-medium": { "ar": "متوسط (الأبطأ، أفضل دقّة)", "en": "Medium (Slowest, best accuracy)" }
+            }
         },
         "quantized": {
             "ar": "استخدام النموذج المضغوط (حجم أصغر، دقة أقل قليلاً)",

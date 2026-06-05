@@ -14,7 +14,11 @@ export default definePluginI18n({
     "options": {
         "clickMethod": {
             "ar": "تغيير زر فك تشفير محتوى Base64 في أي رسالة.",
-            "en": "Change the decode Base64 button interaction method."
+            "en": "Change the decode Base64 button interaction method.",
+            "choices": {
+                "Left": { "ar": "النقر الأيسر لفكّ ترميز محتوى base64.", "en": "Left Click to decode the base64 content." },
+                "Right": { "ar": "النقر الأيمن لفكّ ترميز محتوى base64.", "en": "Right click to decode the base64 content." }
+            }
         }
     }
 });
