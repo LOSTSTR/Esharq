@@ -41,7 +41,7 @@ function copyProfileColors(userId: string, guildId?: string) {
     if (!colors) {
         Toasts.show({
             type: Toasts.Type.FAILURE,
-            message: "No profile colors found!",
+            message: t("لم يُعثَر على ألوان للملف الشخصي!", "No profile colors found!"),
             id: Toasts.genId()
         });
         return;
@@ -56,7 +56,7 @@ function copyProfileColors(userId: string, guildId?: string) {
         copyToClipboard(formattedColors);
         Toasts.show({
             type: Toasts.Type.SUCCESS,
-            message: "Profile colors copied to clipboard!",
+            message: t("تم نسخ ألوان الملف الشخصي إلى الحافظة!", "Profile colors copied to clipboard!"),
             id: Toasts.genId()
         });
     } catch (e) {

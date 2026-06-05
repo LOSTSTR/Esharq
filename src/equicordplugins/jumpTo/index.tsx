@@ -41,7 +41,7 @@ async function jumpToUserMessage(channelId: string, guildId: string, userId: str
         if (!messageId) {
             Toasts.show({
                 type: Toasts.Type.FAILURE,
-                message: "No messages found from this user in this channel.",
+                message: t("لم يُعثَر على رسائل من هذا المستخدم في هذه القناة.", "No messages found from this user in this channel."),
                 id: Toasts.genId()
             });
             return;
@@ -51,7 +51,7 @@ async function jumpToUserMessage(channelId: string, guildId: string, userId: str
     } catch (e) {
         Toasts.show({
             type: Toasts.Type.FAILURE,
-            message: "Failed to search for messages.",
+            message: t("فشل البحث عن الرسائل.", "Failed to search for messages."),
             id: Toasts.genId()
         });
     }

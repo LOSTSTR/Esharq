@@ -117,14 +117,14 @@ export default definePlugin({
                         if (replies.length > 1) {
                             Toasts.show({
                                 id: Toasts.genId(),
-                                message: "Use the bottom panel to navigate between replies.",
+                                message: t("استخدم اللوحة السفلية للتنقّل بين الردود.", "Use the bottom panel to navigate between replies."),
                                 type: Toasts.Type.MESSAGE
                             });
                             const container = document.querySelector("[class*=channelBottomBarArea_]");
                             if (!container) {
                                 Toasts.show({
                                     id: Toasts.genId(),
-                                    message: "Couldn't find the container element.",
+                                    message: t("تعذّر العثور على عنصر الحاوية.", "Couldn't find the container element."),
                                     type: Toasts.Type.FAILURE
                                 });
                                 return;

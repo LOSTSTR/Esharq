@@ -63,7 +63,7 @@ export async function importLogs() {
         if (count === 0) {
             Toasts.show({
                 id: Toasts.genId(),
-                message: "No messages found in log file",
+                message: t("لم يُعثَر على رسائل في ملف السجل", "No messages found in log file"),
                 type: Toasts.Type.FAILURE
             });
             return;
@@ -71,7 +71,7 @@ export async function importLogs() {
 
         Toasts.show({
             id: Toasts.genId(),
-            message: `Successfully imported ${count} logs`,
+            message: t(`تم استيراد ${count} سجلّ بنجاح`, `Successfully imported ${count} logs`),
             type: Toasts.Type.SUCCESS
         });
     } catch (e) {
@@ -79,7 +79,7 @@ export async function importLogs() {
 
         Toasts.show({
             id: Toasts.genId(),
-            message: "Error importing logs. Check the console for more information",
+            message: t("خطأ في استيراد السجلات. تحقّق من الكونسول لمزيد من المعلومات", "Error importing logs. Check the console for more information"),
             type: Toasts.Type.FAILURE
         });
     }
@@ -109,7 +109,7 @@ export async function exportLogs() {
 
             Toasts.show({
                 id: Toasts.genId(),
-                message: "Successfully exported logs",
+                message: t("تم تصدير السجلات بنجاح", "Successfully exported logs"),
                 type: Toasts.Type.SUCCESS
             });
             return;
@@ -146,7 +146,7 @@ export async function exportLogs() {
 
             Toasts.show({
                 id: Toasts.genId(),
-                message: `Successfully exported ${count} logs`,
+                message: t(`تم تصدير ${count} سجلّ بنجاح`, `Successfully exported ${count} logs`),
                 type: Toasts.Type.SUCCESS
             });
         }
@@ -155,7 +155,7 @@ export async function exportLogs() {
 
         Toasts.show({
             id: Toasts.genId(),
-            message: "Error exporting logs. Check the console for more information",
+            message: t("خطأ في تصدير السجلات. تحقّق من الكونسول لمزيد من المعلومات", "Error exporting logs. Check the console for more information"),
             type: Toasts.Type.FAILURE
         });
     }

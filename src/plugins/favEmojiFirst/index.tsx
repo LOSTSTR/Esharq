@@ -15,6 +15,7 @@ import { PencilIcon } from "@components/Icons";
 import { Paragraph } from "@components/Paragraph";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
 import { Emoji, Message } from "@vencord/discord-types";
@@ -702,14 +703,14 @@ async function removeAlias(alias: string) {
         await persistAliases(nextMap);
         Toasts.show({
             id: Toasts.genId(),
-            message: `Removed alias :${alias}:`,
+            message: t(`أُزيل الاسم المستعار :${alias}:`, `Removed alias :${alias}:`),
             type: Toasts.Type.SUCCESS
         });
     } catch (error) {
         logger.error("Failed to remove emoji alias.", error);
         Toasts.show({
             id: Toasts.genId(),
-            message: "Failed to remove alias.",
+            message: t("فشل إزالة الاسم المستعار.", "Failed to remove alias."),
             type: Toasts.Type.FAILURE
         });
     }
@@ -722,14 +723,14 @@ async function clearAliases() {
         await persistAliases({});
         Toasts.show({
             id: Toasts.genId(),
-            message: "Deleted all emoji aliases.",
+            message: t("حُذفت كل الأسماء المستعارة للإيموجي.", "Deleted all emoji aliases."),
             type: Toasts.Type.SUCCESS
         });
     } catch (error) {
         logger.error("Failed to clear emoji aliases.", error);
         Toasts.show({
             id: Toasts.genId(),
-            message: "Failed to delete aliases.",
+            message: t("فشل حذف الأسماء المستعارة.", "Failed to delete aliases."),
             type: Toasts.Type.FAILURE
         });
     }
@@ -752,7 +753,7 @@ function openSetAliasModal(ref: StoredEmojiRef) {
                 if (!result.ok) return result;
                 Toasts.show({
                     id: Toasts.genId(),
-                    message: `Alias set for ${getEmojiDisplayName(ref)}.`,
+                    message: t(`تم تعيين اسم مستعار لـ ${getEmojiDisplayName(ref)}.`, `Alias set for ${getEmojiDisplayName(ref)}.`),
                     type: Toasts.Type.SUCCESS
                 });
                 return result;
