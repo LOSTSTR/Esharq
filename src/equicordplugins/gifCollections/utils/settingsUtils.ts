@@ -5,6 +5,7 @@
  */
 
 import { DataStore } from "@api/index";
+import { t } from "@utils/esharqI18n";
 import { chooseFile, saveFile } from "@utils/web";
 import { Toasts } from "@webpack/common";
 
@@ -72,12 +73,12 @@ export async function uploadGifCollections(showToast = true): Promise<void> {
 
 const toastSuccess = () => Toasts.show({
     type: Toasts.Type.SUCCESS,
-    message: "Collections imported successfully.",
+    message: t("تم استيراد المجموعات بنجاح.", "Collections imported successfully."),
     id: Toasts.genId(),
 });
 
 const toastFailure = (err: unknown) => Toasts.show({
     type: Toasts.Type.FAILURE,
-    message: `Failed to import collections: ${String(err)}`,
+    message: t(`فشل استيراد المجموعات: ${String(err)}`, `Failed to import collections: ${String(err)}`),
     id: Toasts.genId(),
 });

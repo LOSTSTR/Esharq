@@ -6,6 +6,7 @@
 
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { ChannelStore, FluxDispatcher, GuildMemberStore, StreamerModeStore, Toasts, UserStore, VoiceStateStore } from "@webpack/common";
 
@@ -293,7 +294,7 @@ const createWebsocket = () => {
     setTimeout(() => {
         if (ws?.readyState !== WebSocket.OPEN) {
             Toasts.show({
-                message: "Orbolay websocket could not connect. Is it running?",
+                message: t("تعذّر اتصال Orbolay websocket. هل هو قيد التشغيل؟", "Orbolay websocket could not connect. Is it running?"),
                 type: Toasts.Type.FAILURE,
                 id: Toasts.genId(),
             });
@@ -316,7 +317,7 @@ const createWebsocket = () => {
     };
     ws.onopen = async () => {
         Toasts.show({
-            message: "Connected to Orbolay server",
+            message: t("تم الاتصال بخادم Orbolay", "Connected to Orbolay server"),
             type: Toasts.Type.SUCCESS,
             id: Toasts.genId(),
         });

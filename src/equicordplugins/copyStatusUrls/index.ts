@@ -6,6 +6,7 @@
 
 import { copyToClipboard } from "@utils/clipboard";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { User } from "@vencord/discord-types";
 import { findByCodeLazy } from "@webpack";
@@ -46,7 +47,7 @@ export default definePlugin({
                 copyToClipboard(button_urls[index]);
                 Toasts.show({
                     id: Toasts.genId(),
-                    message: "Copied URL",
+                    message: t("تم نسخ الرابط", "Copied URL"),
                     type: Toasts.Type.SUCCESS,
                     options: {
                         position: Toasts.Position.TOP
@@ -56,7 +57,7 @@ export default definePlugin({
                 console.error(e);
                 Toasts.show({
                     id: Toasts.genId(),
-                    message: "Error copying URL, check console for more info",
+                    message: t("خطأ في نسخ الرابط، تحقّق من الكونسول لمزيد من المعلومات", "Error copying URL, check console for more info"),
                     type: Toasts.Type.FAILURE,
                     options: {
                         position: Toasts.Position.TOP
