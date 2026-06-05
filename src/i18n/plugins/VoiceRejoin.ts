@@ -22,7 +22,13 @@ export default definePluginI18n({
         },
         "preventReconnectIfCallEnded": {
             "ar": "لا تعيد الاتصال إذا انتهت المكالمة أو كانت القناة الصوتية فارغة أو غير موجودة.",
-            "en": "Don't reconnect if the call ended or the voice channel is empty or gone."
+            "en": "Don't reconnect if the call ended or the voice channel is empty or gone.",
+            "choices": {
+                "none": { "ar": "لا شيء", "en": "None" },
+                "dms": { "ar": "الرسائل الخاصة فقط", "en": "DMs only" },
+                "servers": { "ar": "السيرفرات فقط", "en": "Servers only" },
+                "both": { "ar": "الرسائل الخاصة والسيرفرات", "en": "DMs and Servers" }
+            }
         },
         "applyOnlyToDms": {
             "ar": "التطبيق على الرسائل المباشرة فقط.",

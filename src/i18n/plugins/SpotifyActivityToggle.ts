@@ -14,7 +14,11 @@ export default definePluginI18n({
     "options": {
         "location": {
             "ar": "مكان عرض زر تبديل Spotify.",
-            "en": "Where to show the Spotify activity toggle button."
+            "en": "Where to show the Spotify activity toggle button.",
+            "choices": {
+                "PANEL": { "ar": "بجانب الكتم/الإصمام", "en": "Next to Mute/Deafen" },
+                "TOOLBOX": { "ar": "Equicord Toolbox", "en": "Equicord Toolbox" }
+            }
         }
     }
 });
