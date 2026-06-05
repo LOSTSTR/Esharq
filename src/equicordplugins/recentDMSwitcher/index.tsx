@@ -10,6 +10,7 @@ import * as DataStore from "@api/DataStore";
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs, IS_MAC } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { makeRange, OptionType } from "@utils/types";
 import { Button, ChannelRouter, ChannelStore, closeModal, IconUtils, openModal,React, RelationshipStore, SelectedChannelStore, Toasts, UserStore } from "@webpack/common";
 
@@ -76,7 +77,7 @@ const settings = definePluginSettings({
                     cycleSnapshot = [];
                     cycleIndex = -1;
                     await DataStore.set(STORAGE_KEY, []);
-                    Toasts.show({ id: Toasts.genId(), type: Toasts.Type.SUCCESS, message: "Cleared RDMS history" });
+                    Toasts.show({ id: Toasts.genId(), type: Toasts.Type.SUCCESS, message: t("تم مسح سجل RDMS", "Cleared RDMS history") });
                 }}>
                 "Clear RDMS History
             </Button>
@@ -322,7 +323,7 @@ function showCycleToast() {
     if (!activeToastId) activeToastId = Toasts.genId();
     Toasts.show({
         id: activeToastId,
-        message: `Switching to: ${name}`,
+        message: t(`التبديل إلى: ${name}`, `Switching to: ${name}`),
         type: Toasts.Type.MESSAGE,
         options: { position: Toasts.Position.BOTTOM, duration: settings.store.toastDurationMs }
     });

@@ -23,6 +23,7 @@ import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Paragraph } from "@components/Paragraph";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { findComponentByCodeLazy, findCssClassesLazy, findStoreLazy } from "@webpack";
 import { Constants, React, RestAPI, SettingsRouter, Tooltip } from "@webpack/common";
@@ -161,7 +162,7 @@ export default definePlugin({
             savedSessionsCache.set(session.id_hash, { name: "", isNew: true });
             showNotification({
                 title: "BetterSessions",
-                body: `New session:\n${session.client_info.os} · ${session.client_info.platform} · ${session.client_info.location}`,
+                body: t(`جلسة جديدة:\n${session.client_info.os} · ${session.client_info.platform} · ${session.client_info.location}`, `New session:\n${session.client_info.os} · ${session.client_info.platform} · ${session.client_info.location}`),
                 permanent: true,
                 onClick: () => SettingsRouter.openUserSettings("sessions_panel")
             });

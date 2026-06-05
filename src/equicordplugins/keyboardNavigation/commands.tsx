@@ -8,6 +8,7 @@ import { showNotification } from "@api/Notifications";
 import { Settings } from "@api/Settings";
 import { gitHashShort } from "@shared/vencordUserAgent";
 import { copyToClipboard } from "@utils/clipboard";
+import { t } from "@utils/esharqI18n";
 import { relaunch, showItemInFolder } from "@utils/native";
 import { checkForUpdates, getRepo } from "@utils/updater";
 import { GuildStore, NavigationRouter, SettingsRouter, Toasts } from "@webpack/common";
@@ -47,7 +48,7 @@ export const actions: ButtonAction[] = [
                 VencordNative.native.openExternal(newUrl);
             } catch {
                 Toasts.show({
-                    message: "Invalid URL",
+                    message: t("رابط غير صالح", "Invalid URL"),
                     type: Toasts.Type.FAILURE,
                     id: Toasts.genId(),
                     options: {
@@ -93,7 +94,7 @@ export const actions: ButtonAction[] = [
                 copyToClipboard(text);
 
                 Toasts.show({
-                    message: "Copied response to clipboard!",
+                    message: t("تم نسخ الاستجابة إلى الحافظة!", "Copied response to clipboard!"),
                     type: Toasts.Type.SUCCESS,
                     id: Toasts.genId(),
                     options: {
@@ -103,7 +104,7 @@ export const actions: ButtonAction[] = [
 
             } catch (e) {
                 Toasts.show({
-                    message: "Issue fetching URL",
+                    message: t("مشكلة في جلب الرابط", "Issue fetching URL"),
                     type: Toasts.Type.FAILURE,
                     id: Toasts.genId(),
                     options: {
