@@ -10,5 +10,8 @@ export default definePluginI18n({
     "description": {
         "ar": "مكتبة ثيمات لـ Vencord.",
         "en": "A theme library for Vencord."
+    },
+    "toolboxActions": {
+        "Open Theme Library": { "ar": "فتح مكتبة القوالب", "en": "Open Theme Library" }
     }
 });

@@ -28,5 +28,8 @@ export default definePluginI18n({
             "ar": "إظهار الرسائل المجدولة كرسائل وهمية في الشات.",
             "en": "Show a preview of the scheduled message in the chat."
         }
+    },
+    "toolboxActions": {
+        "View Scheduled Messages": { "ar": "عرض الرسائل المجدولة", "en": "View Scheduled Messages" }
     }
 });

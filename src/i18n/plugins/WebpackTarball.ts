@@ -16,5 +16,8 @@ export default definePluginI18n({
             "ar": "تضمين الوحدات المُعدَّلة في الأرشيف",
             "en": "Include patched modules in the archive."
         }
+    },
+    "toolboxActions": {
+        "Webpack Tarball": { "ar": "أرشيف Webpack", "en": "Webpack Tarball" }
     }
 });

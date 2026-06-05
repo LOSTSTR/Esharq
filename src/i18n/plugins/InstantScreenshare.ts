@@ -10,5 +10,9 @@ export default definePluginI18n({
     "description": {
         "ar": "يبدأ مشاركة الشاشة فوراً عند الانضمام لقناة صوتية، مع دعم سطح المكتب والنوافذ وكاميرات الفيديو وكروت التقاط الفيديو",
         "en": "Instantly starts screen sharing when you join a voice channel, supporting desktop, windows, cameras, and capture cards."
+    },
+    "toolboxActions": {
+        "Instant Screenshare Enabled": { "ar": "البث الفوري مُفعَّل", "en": "Instant Screenshare Enabled" },
+        "Instant Screenshare Disabled": { "ar": "البث الفوري مُعطَّل", "en": "Instant Screenshare Disabled" }
     }
 });

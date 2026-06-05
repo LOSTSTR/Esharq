@@ -10,5 +10,8 @@ export default definePluginI18n({
     "description": {
         "ar": "يضيف تبويباً جديداً في الإعدادات لمعاينة جميع الأيقونات",
         "en": "Adds a new tab in settings to preview all icons."
+    },
+    "toolboxActions": {
+        "Open Icons Tab": { "ar": "فتح تبويب الأيقونات", "en": "Open Icons Tab" }
     }
 });

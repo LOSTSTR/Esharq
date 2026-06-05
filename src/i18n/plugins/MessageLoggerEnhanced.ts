@@ -10,5 +10,8 @@ export default definePluginI18n({
     "description": {
         "ar": "يُحسّن MessageLogger بإضافة سجل تعديلات الرسائل وكشف الـ Ghost Ping والمزيد",
         "en": "Enhances MessageLogger with edit history, ghost-ping detection, and more."
+    },
+    "toolboxActions": {
+        "Message Logger": { "ar": "سجل الرسائل", "en": "Message Logger" }
     }
 });

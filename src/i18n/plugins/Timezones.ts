@@ -56,5 +56,8 @@ export default definePluginI18n({
             "ar": "ما إذا كان قد تم سؤال المستخدم عن ضبط منطقته الزمنية",
             "en": "Whether you've been asked to set a timezone."
         }
+    },
+    "toolboxActions": {
+        "Set Database Timezone": { "ar": "تعيين المنطقة الزمنية لقاعدة البيانات", "en": "Set Database Timezone" }
     }
 });

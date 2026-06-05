@@ -10,5 +10,8 @@ export default definePluginI18n({
     "description": {
         "ar": "واجهة برمجية لإضافة شارات للمستخدمين",
         "en": "API for adding badges to users."
+    },
+    "toolboxActions": {
+        "Refetch Badges": { "ar": "إعادة جلب الشارات", "en": "Refetch Badges" }
     }
 });

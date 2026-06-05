@@ -68,5 +68,15 @@ export function resolvePluginSelectLabel(pluginName: string, key: string, value:
     return choice ? pick(choice, original) : original;
 }
 
+/**
+ * Resolve a `toolboxActions` label (Esharq Toolbox quick-action menu), keyed by
+ * the original English label. Override-or-original: a label with no overlay
+ * entry stays English. Called per-render so it toggles with the language.
+ */
+export function resolvePluginToolboxAction(pluginName: string, label: string): string {
+    const entry = pluginI18n[pluginName]?.toolboxActions?.[label];
+    return entry ? pick(entry, label) : label;
+}
+
 /** Local-only snapshot of drifted keys observed this session, for a debug view. */
 export const getMissedI18nKeys = (): string[] => [...missedKeys];

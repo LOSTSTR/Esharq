@@ -9,5 +9,8 @@ import { definePluginI18n } from "@utils/i18n/types";
 export default definePluginI18n({
     description: {
         ar: "يتتبع نشاطك الشخصي على Discord محلياً ويعرض لوحة إحصاءات جميلة تشمل النشاط اليومي وأكثر القنوات نشاطاً وخريطة النشاط بالساعة. يمكنك مشاركة إحصاءاتك كصورة غير قابلة للتعديل."
+    },
+    toolboxActions: {
+        "Open Analytics": { ar: "فتح التحليلات", en: "Open Analytics" }
     }
 });
