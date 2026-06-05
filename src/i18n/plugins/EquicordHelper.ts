@@ -12,6 +12,10 @@ export default definePluginI18n({
         "en": "Used to provide support and fix issues caused by Discord and various other features."
     },
     "options": {
+        "hideVoiceIndicatorForMutedChannels": {
+            "ar": "إخفاء مؤشّر الصوت في قائمة الخوادم عندما تكون القنوات النشطة مكتومة فقط",
+            "en": "Hide voice indicator in server list when only active channels are muted"
+        },
         "noMirroredCamera": {
             "ar": "يمنع عكس صورة الكاميرا على شاشتك",
             "en": "Prevent the camera image from being mirrored on your screen."

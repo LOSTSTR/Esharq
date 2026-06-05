@@ -12,6 +12,10 @@ export default definePluginI18n({
         "en": "Adds a button next to the mute button to join a random voice channel."
     },
     "options": {
+        "keybindEnabled": {
+            "ar": "إظهار عناصر التحكّم باختصار الصوت العشوائي",
+            "en": "Show the random voice keybind controls"
+        },
         "UserAmountOperation": {
             "ar": "اختر عملية لعدد المستخدمين",
             "en": "Choose a comparison operator for the user count filter."

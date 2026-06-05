@@ -12,6 +12,9 @@ export default definePluginI18n({
         "en": "Allows ignoring specific activities from showing in your status."
     },
     "options": {
+        "ignoredActivities": {
+            "ar": "الأنشطة المتجاهَلة"
+        },
         "listMode": {
             "ar": "تغيير وضع قائمة الفلتر",
             "en": "Whether to use the list as a blacklist (ignore listed) or whitelist (only show listed)."

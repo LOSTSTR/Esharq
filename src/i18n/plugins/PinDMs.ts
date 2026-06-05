@@ -12,6 +12,9 @@ export default definePluginI18n({
         "en": "Allows pinning DM conversations to the top of the list."
     },
     "options": {
+        "userBasedCategoryList": {
+            "ar": "قائمة الفئات حسب المستخدم"
+        },
         "pinOrder": {
             "ar": "ترتيب عرض المحادثات الخاصة المثبتة",
             "en": "How pinned DMs are sorted."

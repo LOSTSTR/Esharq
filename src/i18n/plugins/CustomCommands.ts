@@ -10,5 +10,10 @@ export default definePluginI18n({
     "description": {
         "ar": "يُضيف أوامر مخصصة لاستبدال النصوص في رسائلك",
         "en": "Adds custom commands to replace text in your messages."
+    },
+    "options": {
+        "tagsList": {
+            "ar": "قائمة الأوامر المخصّصة"
+        }
     }
 });

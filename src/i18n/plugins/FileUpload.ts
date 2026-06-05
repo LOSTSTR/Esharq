@@ -10,5 +10,31 @@ export default definePluginI18n({
     "description": {
         "ar": "يرفع الصور والفيديوهات إلى خدمات استضافة الملفات مثل Zipline وNest",
         "en": "Upload images and videos to file-hosting services like Zipline and Nest."
+    },
+    "options": {
+        "encryptingHostKey": {
+            "ar": "مفتاح API لخدمة Encrypting.host",
+            "en": "Encrypting.host API key"
+        },
+        "encryptingHostUrlStyle": {
+            "ar": "نمط رابط Encrypting.host",
+            "en": "Encrypting.host URL style"
+        },
+        "encryptingHostDomains": {
+            "ar": "قائمة نطاقات Encrypting.host بصيغة JSON",
+            "en": "Encrypting.host domains JSON list"
+        },
+        "encryptingHostTitle": {
+            "ar": "عنوان البطاقة في Encrypting.host (اختياري)",
+            "en": "Optional Encrypting.host embed title"
+        },
+        "encryptingHostColor": {
+            "ar": "لون البطاقة في Encrypting.host (اختياري)",
+            "en": "Optional Encrypting.host embed color"
+        },
+        "encryptingHostFakelink": {
+            "ar": "رابط وهمي لـ Encrypting.host (اختياري)",
+            "en": "Optional Encrypting.host fake link"
+        }
     }
 });

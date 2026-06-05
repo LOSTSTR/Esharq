@@ -90,11 +90,18 @@ export function buildPluginMenuEntries(includeEmpty = false) {
 
                         const s = pluginSettings[p.name];
 
+                        // أسماء الإضافات تبقى إنجليزية؛ أمّا خياراتها فتُعرَّب. نستخدم وصف الخيار (المُعرَّب
+                        // أصلاً عبر t()/الـoverlay) كتسمية مثل نافذة الإعدادات؛ فإن لم يكن للخيار وصف
+                        // (مثل FakeDeafen) نسقط للعنوان المُشتقّ من المفتاح، والذي يُعرَّب من الـoverlay إن وُجد.
+                        const rawDesc = (option as { description?: unknown; }).description;
+                        const fallbackLabel = typeof rawDesc === "string" && rawDesc.trim()
+                            ? rawDesc
+                            : wordsToTitle(wordsFromCamel(key));
+
                         const baseProps = {
                             id: `${p.name}-${key}`,
                             key: key,
-                            // أسماء الإضافات تبقى إنجليزية؛ أمّا خياراتها فتُعرَّب من الـoverlay (وصف الخيار العربي) عند تفعيل العربية.
-                            label: resolvePluginOption(p.name, key, wordsToTitle(wordsFromCamel(key))),
+                            label: resolvePluginOption(p.name, key, fallbackLabel),
                             disabled: isSettingDisabled(p.settings, option)
                         };
 

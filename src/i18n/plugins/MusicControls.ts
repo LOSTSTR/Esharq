@@ -10,5 +10,10 @@ export default definePluginI18n({
     "description": {
         "ar": "أدوات التحكم بالموسيقى وكلمات الأغاني لخدمات متعددة",
         "en": "Music controls and lyrics for multiple streaming services."
+    },
+    "options": {
+        "lyricDelay": {
+            "ar": "تأخير كلمات الأغنية"
+        }
     }
 });

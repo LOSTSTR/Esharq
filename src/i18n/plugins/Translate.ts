@@ -10,5 +10,10 @@ export default definePluginI18n({
     "description": {
         "ar": "ترجمة الرسائل باستخدام Google Translate أو DeepL أو Kagi.",
         "en": "Translate messages using Google Translate, DeepL, or Kagi."
+    },
+    "options": {
+        "service": {
+            "ar": "الخدمة"
+        }
     }
 });

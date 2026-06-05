@@ -10,5 +10,31 @@ export default definePluginI18n({
     "description": {
         "ar": "تظهر كأنك صامّ للصوت لكنك في الحقيقة لست كذلك.",
         "en": "Appear deafened to others while still hearing everything."
+    },
+    "options": {
+        "hideIcon": {
+            "ar": "إخفاء الأيقونة"
+        },
+        "keybind": {
+            "ar": "اختصار لوحة المفاتيح"
+        },
+        "muteUponFakeDeafen": {
+            "ar": "الكتم عند التصامّ الوهمي"
+        },
+        "mute": {
+            "ar": "كتم"
+        },
+        "deafen": {
+            "ar": "إصمام"
+        },
+        "cam": {
+            "ar": "الكاميرا"
+        },
+        "useCustomKeybind": {
+            "ar": "استخدام اختصار مخصّص"
+        },
+        "customKeybind": {
+            "ar": "اختصار مخصّص"
+        }
     }
 });

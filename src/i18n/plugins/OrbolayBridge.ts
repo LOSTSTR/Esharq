@@ -12,6 +12,22 @@ export default definePluginI18n({
         "en": "Bridge plugin for connecting Orbolay to Discord."
     },
     "options": {
+        "messageOffsetX": {
+            "ar": "الإزاحة الأفقية للرسائل، بالبكسل",
+            "en": "Horizontal offset for messages, in pixels"
+        },
+        "messageOffsetY": {
+            "ar": "الإزاحة الرأسية للرسائل، بالبكسل",
+            "en": "Vertical offset for messages, in pixels"
+        },
+        "userOffsetX": {
+            "ar": "الإزاحة الأفقية للمستخدمين، بالبكسل",
+            "en": "Horizontal offset for users, in pixels"
+        },
+        "userOffsetY": {
+            "ar": "الإزاحة الرأسية للمستخدمين، بالبكسل",
+            "en": "Vertical offset for users, in pixels"
+        },
         "port": {
             "ar": "المنفذ للاتصال به",
             "en": "The port to connect to."
