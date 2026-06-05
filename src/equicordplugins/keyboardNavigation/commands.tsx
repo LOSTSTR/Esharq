@@ -120,7 +120,7 @@ export const actions: ButtonAction[] = [
             copyToClipboard(`gitHash: ${gitHashShort}\ngitRemote: ${gitRemote}`);
 
             Toasts.show({
-                message: "Copied git info to clipboard!",
+                message: t("تم نسخ معلومات git إلى الحافظة!", "Copied git info to clipboard!"),
                 type: Toasts.Type.SUCCESS,
                 id: Toasts.genId(),
                 options: {
@@ -146,7 +146,7 @@ export const actions: ButtonAction[] = [
                 }), 10_000);
             } else {
                 Toasts.show({
-                    message: "No updates available",
+                    message: t("لا توجد تحديثات متاحة", "No updates available"),
                     type: Toasts.Type.MESSAGE,
                     id: Toasts.genId(),
                     options: {
@@ -183,7 +183,7 @@ function togglePlugin(plugin: ButtonAction, enabled: boolean) {
     Settings.plugins[plugin.id].enabled = enabled;
 
     Toasts.show({
-        message: `Successfully ${enabled ? "enabled" : "disabled"} ${plugin.id}`,
+        message: t(`تم ${enabled ? "تفعيل" : "تعطيل"} ${plugin.id} بنجاح`, `Successfully ${enabled ? "enabled" : "disabled"} ${plugin.id}`),
         type: Toasts.Type.SUCCESS,
         id: Toasts.genId(),
         options: {

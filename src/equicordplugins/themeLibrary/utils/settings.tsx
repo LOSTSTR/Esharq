@@ -34,7 +34,7 @@ export const settings = definePluginSettings({
                 const token = await DataStore.get("ThemeLibrary_uniqueToken");
 
                 if (!token) return Toasts.show({
-                    message: "No token to copy, try authorizing first!",
+                    message: t("لا يوجد رمز للنسخ، جرّب التفويض أولاً!", "No token to copy, try authorizing first!"),
                     id: Toasts.genId(),
                     type: Toasts.Type.FAILURE,
                     options: {
@@ -46,7 +46,7 @@ export const settings = definePluginSettings({
                 copyToClipboard(token);
 
                 Toasts.show({
-                    message: "Copied to Clipboard!",
+                    message: t("تم النسخ إلى الحافظة!", "Copied to Clipboard!"),
                     id: Toasts.genId(),
                     type: Toasts.Type.SUCCESS,
                     options: {

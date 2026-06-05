@@ -10,6 +10,7 @@ import { Heading } from "@components/Heading";
 import { IS_MAC } from "@utils/constants";
 import { classNameFactory, classNameToSelector } from "@utils/css";
 import { copyWithToast } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import { classes } from "@utils/misc";
 import { RenderModalProps } from "@vencord/discord-types";
@@ -705,7 +706,7 @@ export function CommandPaletteModal({ modalProps, instanceKey }: { modalProps: R
             success = true;
         } catch (error) {
             Toasts.show({
-                message: "Unable to complete prompt action.",
+                message: t("تعذّر إكمال إجراء الموجّه.", "Unable to complete prompt action."),
                 type: Toasts.Type.FAILURE,
                 id: Toasts.genId(),
                 options: { position: Toasts.Position.BOTTOM }
@@ -915,7 +916,7 @@ export function CommandPaletteModal({ modalProps, instanceKey }: { modalProps: R
         const result = await togglePinned(commandId);
         if (result === null) {
             Toasts.show({
-                message: "Unable to toggle pin for this command.",
+                message: t("تعذّر تبديل التثبيت لهذا الأمر.", "Unable to toggle pin for this command."),
                 type: Toasts.Type.FAILURE,
                 id: Toasts.genId(),
                 options: { position: Toasts.Position.BOTTOM }
@@ -927,7 +928,7 @@ export function CommandPaletteModal({ modalProps, instanceKey }: { modalProps: R
         const label = command?.id === commandId ? command.label : "Command";
 
         Toasts.show({
-            message: `${label} ${result ? "pinned" : "unpinned"}.`,
+            message: t(`${label} ${result ? "مُثبَّت" : "غير مُثبَّت"}.`, `${label} ${result ? "pinned" : "unpinned"}.`),
             type: Toasts.Type.SUCCESS,
             id: Toasts.genId(),
             options: { position: Toasts.Position.BOTTOM }

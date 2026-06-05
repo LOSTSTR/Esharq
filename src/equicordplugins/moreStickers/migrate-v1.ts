@@ -5,6 +5,7 @@
  */
 
 import { DataStore } from "@api/index";
+import { t } from "@utils/esharqI18n";
 import { Toasts } from "@webpack/common";
 
 import { getRecentStickers, setRecentStickers } from "./components/misc";
@@ -75,7 +76,7 @@ export async function migrate() {
     const newPackMetas = await getStickerPackMetas(PACKS_KEY);
     if (newPackMetas.length > 0) {
         Toasts.show({
-            message: "New sticker packs already exist, migration not needed",
+            message: t("حزم الملصقات الجديدة موجودة بالفعل، لا حاجة للترحيل", "New sticker packs already exist, migration not needed"),
             type: Toasts.Type.FAILURE,
             id: Toasts.genId(),
             options: {
@@ -88,7 +89,7 @@ export async function migrate() {
     let oldPackMetas = await getStickerPackMetas(PACKS_KEY_OLD);
     if (oldPackMetas.length === 0) {
         Toasts.show({
-            message: "Old sticker packs not found, nothing to migrate",
+            message: t("لم يُعثَر على حزم ملصقات قديمة، لا شيء للترحيل", "Old sticker packs not found, nothing to migrate"),
             type: Toasts.Type.FAILURE,
             id: Toasts.genId(),
             options: {
@@ -113,7 +114,7 @@ export async function migrate() {
         } catch (e) {
             console.error(e);
             Toasts.show({
-                message: `Migration failed: ${oldStickerPackMeta.title} (${oldStickerPackMeta.id})`,
+                message: t(`فشل الترحيل: ${oldStickerPackMeta.title} (${oldStickerPackMeta.id})`, `Migration failed: ${oldStickerPackMeta.title} (${oldStickerPackMeta.id})`),
                 type: Toasts.Type.FAILURE,
                 id: Toasts.genId(),
                 options: {
@@ -137,7 +138,7 @@ export async function migrate() {
 
     console.log("Migration complete");
     Toasts.show({
-        message: "Sticker Pack Migration Complete",
+        message: t("اكتمل ترحيل حزم الملصقات", "Sticker Pack Migration Complete"),
         type: Toasts.Type.SUCCESS,
         id: Toasts.genId(),
         options: {
