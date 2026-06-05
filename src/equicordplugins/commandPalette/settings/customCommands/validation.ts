@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "@utils/esharqI18n";
+
 import { type CustomCommandDefinition, getCommandById, getSettingsCommandMetaByRoute } from "../../registry";
 import type { ValidationIssue } from "./types";
 
@@ -11,57 +13,57 @@ export function validateCustomCommand(command: CustomCommandDefinition): Validat
     const issues: ValidationIssue[] = [];
 
     if (!command.label.trim()) {
-        issues.push({ field: "label", message: "Enter a command name.", severity: "error" });
+        issues.push({ field: "label", message: t("أدخل اسم الأمر.", "Enter a command name."), severity: "error" });
     }
 
     switch (command.action.type) {
         case "command": {
             const targetId = command.action.commandId.trim();
             if (!targetId) {
-                issues.push({ field: "action.commandId", message: "Pick a command to run.", severity: "error" });
+                issues.push({ field: "action.commandId", message: t("اختر أمراً لتشغيله.", "Pick a command to run."), severity: "error" });
                 break;
             }
 
             if (!getCommandById(targetId)) {
-                issues.push({ field: "action.commandId", message: "That command does not exist in the palette.", severity: "error" });
+                issues.push({ field: "action.commandId", message: t("هذا الأمر غير موجود في اللوحة.", "That command does not exist in the palette."), severity: "error" });
             }
             break;
         }
         case "settings": {
             const route = command.action.route.trim();
             if (!route) {
-                issues.push({ field: "action.route", message: "Pick a settings page.", severity: "error" });
+                issues.push({ field: "action.route", message: t("اختر صفحة إعدادات.", "Pick a settings page."), severity: "error" });
                 break;
             }
 
             if (!getSettingsCommandMetaByRoute(route)) {
-                issues.push({ field: "action.route", message: "That settings page is not available right now.", severity: "warning" });
+                issues.push({ field: "action.route", message: t("صفحة الإعدادات هذه غير متاحة حالياً.", "That settings page is not available right now."), severity: "warning" });
             }
             break;
         }
         case "url": {
             const url = command.action.url.trim();
             if (!url) {
-                issues.push({ field: "action.url", message: "Enter a URL.", severity: "error" });
+                issues.push({ field: "action.url", message: t("أدخل رابطاً.", "Enter a URL."), severity: "error" });
                 break;
             }
 
             if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                issues.push({ field: "action.url", message: "Use a URL that starts with http:// or https://.", severity: "error" });
+                issues.push({ field: "action.url", message: t("استخدم رابطاً يبدأ بـ http:// أو https://.", "Use a URL that starts with http:// or https://."), severity: "error" });
                 break;
             }
 
             try {
                 new URL(url);
             } catch {
-                issues.push({ field: "action.url", message: "Enter a valid URL.", severity: "error" });
+                issues.push({ field: "action.url", message: t("أدخل رابطاً صالحاً.", "Enter a valid URL."), severity: "error" });
             }
             break;
         }
         case "macro": {
             const { steps } = command.action;
             if (!steps.length) {
-                issues.push({ field: "action.steps", message: "Add at least one macro step.", severity: "error" });
+                issues.push({ field: "action.steps", message: t("أضف خطوة ماكرو واحدة على الأقل.", "Add at least one macro step."), severity: "error" });
                 break;
             }
 
@@ -69,7 +71,7 @@ export function validateCustomCommand(command: CustomCommandDefinition): Validat
             if (missing.length) {
                 issues.push({
                     field: "action.steps",
-                    message: `Some macro steps do not exist: ${missing.join(", ")}.`,
+                    message: t(`بعض خطوات الماكرو غير موجودة: ${missing.join(", ")}.`, `Some macro steps do not exist: ${missing.join(", ")}.`),
                     severity: "error"
                 });
             }
@@ -99,7 +101,7 @@ export function summarizeCommandAction(command: CustomCommandDefinition): string
     switch (command.action.type) {
         case "command": {
             const target = command.action.commandId.trim();
-            if (!target) return "Runs another palette command.";
+            if (!target) return t("يشغّل أمر لوحة آخر.", "Runs another palette command.");
             const entry = getCommandById(target);
             return entry
                 ? `Runs “${entry.label}” (${entry.id}).`
@@ -110,7 +112,7 @@ export function summarizeCommandAction(command: CustomCommandDefinition): string
         case "url":
             return `Opens URL “${command.action.url || "(not set)"}” ${command.action.openExternal ? "externally" : "inside Discord when possible"}.`;
         case "macro": {
-            if (!command.action.steps.length) return "Runs a macro with no configured steps.";
+            if (!command.action.steps.length) return t("يشغّل ماكرو بلا خطوات مُعدّة.", "Runs a macro with no configured steps.");
             const stepSummary = command.action.steps.map((step, index) => {
                 const entry = getCommandById(step);
                 return `${index + 1}. ${entry?.label ?? "Unknown command"} (${step})`;
@@ -118,6 +120,6 @@ export function summarizeCommandAction(command: CustomCommandDefinition): string
             return `Runs macro steps: ${stepSummary}`;
         }
         default:
-            return "Runs a custom command action.";
+            return t("يشغّل إجراء أمر مخصّص.", "Runs a custom command action.");
     }
 }
