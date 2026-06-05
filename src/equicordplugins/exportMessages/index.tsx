@@ -83,13 +83,13 @@ async function exportMessage(message: Message) {
 
         showNotification({
             title: "Export Messages",
-            body: `Message exported successfully as ${filename}`,
+            body: t(`تم تصدير الرسالة بنجاح باسم ${filename}`, `Message exported successfully as ${filename}`),
             icon: "📄"
         });
     } catch (error) {
         showNotification({
             title: "Export Messages",
-            body: "Failed to export message",
+            body: t("فشل تصدير الرسالة", "Failed to export message"),
             icon: "❌"
         });
     }
@@ -174,7 +174,7 @@ export default definePlugin({
         if (this.contactList) {
             copyToClipboard(JSON.stringify(this.contactList));
             Toasts.show({
-                message: "Contacts copied to clipboard successfully.",
+                message: t("تم نسخ جهات الاتصال إلى الحافظة بنجاح.", "Contacts copied to clipboard successfully."),
                 type: Toasts.Type.SUCCESS,
                 id: Toasts.genId(),
                 options: {
@@ -188,7 +188,7 @@ export default definePlugin({
         // the request itself when you fetch all your friends. this is done to avoid sending a
         // manual request to discord, which may raise suspicion and might even get you terminated.
         Toasts.show({
-            message: "Contact list is undefined. Click on the \"All\" tab before exporting.",
+            message: t("قائمة جهات الاتصال غير معرّفة. اضغط على تبويب \"All\" قبل التصدير.", "Contact list is undefined. Click on the \"All\" tab before exporting."),
             type: Toasts.Type.FAILURE,
             id: Toasts.genId(),
             options: {

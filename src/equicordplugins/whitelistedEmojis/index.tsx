@@ -89,7 +89,7 @@ function addBulkToAllowedList(items: ContextMenuEmoji[]) {
         const validItemsToAdd = items.filter(item => !itemAlreadyInList(item)).map(buildSaveData);
         await setAllowedList([...cache_allowedList, ...validItemsToAdd]);
 
-        showToast(`Added ${validItemsToAdd.length} emojis to the list, ${items.length - validItemsToAdd.length} already in the list`);
+        showToast(t(`أُضيف ${validItemsToAdd.length} إيموجي للقائمة، ${items.length - validItemsToAdd.length} موجودة أصلاً`, `Added ${validItemsToAdd.length} emojis to the list, ${items.length - validItemsToAdd.length} already in the list`));
     });
 }
 
@@ -98,31 +98,31 @@ function removeBulkFromAllowedList(items: ContextMenuEmoji[]) {
         const itemsToRemove = items.filter(item => itemAlreadyInList(item));
         await setAllowedList(cache_allowedList.filter(emoji => !itemsToRemove.some(item => item.name === emoji.name)));
 
-        showToast(`Removed ${itemsToRemove.length} emojis from the list`);
+        showToast(t(`أُزيل ${itemsToRemove.length} إيموجي من القائمة`, `Removed ${itemsToRemove.length} emojis from the list`));
     });
 }
 
 function addToAllowedList(item: ContextMenuEmoji) {
     return withWriteLock(async () => {
         if (itemAlreadyInList(item)) {
-            showToast(`"${item.name}" is already in the list`, Toasts.Type.FAILURE);
+            showToast(t(`"${item.name}" موجود في القائمة بالفعل`, `"${item.name}" is already in the list`), Toasts.Type.FAILURE);
             return;
         }
 
         await setAllowedList([...cache_allowedList, buildSaveData(item)]);
-        showToast(`Added "${item.name}" to the list`);
+        showToast(t(`أُضيف "${item.name}" للقائمة`, `Added "${item.name}" to the list`));
     });
 }
 
 function removeFromAllowedList(item: ContextMenuEmoji) {
     return withWriteLock(async () => {
         if (!itemAlreadyInList(item)) {
-            showToast(`"${item.name}" is not in the list`, Toasts.Type.FAILURE);
+            showToast(t(`"${item.name}" غير موجود في القائمة`, `"${item.name}" is not in the list`), Toasts.Type.FAILURE);
             return;
         }
 
         await setAllowedList(cache_allowedList.filter(emoji => emoji.name !== item.name));
-        showToast(`Removed "${item.name}" from the list`);
+        showToast(t(`أُزيل "${item.name}" من القائمة`, `Removed "${item.name}" from the list`));
     });
 }
 
@@ -293,7 +293,7 @@ const exportEmojis = async () => {
         DiscordNative.fileManager.saveWithDialog(new TextEncoder().encode(json), fileName);
     }
 
-    showToast("Successfully exported emojis");
+    showToast(t("تم تصدير الإيموجي بنجاح", "Successfully exported emojis"));
 };
 
 const uploadEmojis = async () => {
@@ -322,18 +322,18 @@ const importEmojis = (data: string) => withWriteLock(async () => {
         const parsed = JSON.parse(data);
         if (parsed && typeof parsed === "object" && Array.isArray(parsed.emojis)) {
             await setAllowedList(parsed.emojis);
-            showToast("Successfully imported emojis");
+            showToast(t("تم استيراد الإيموجي بنجاح", "Successfully imported emojis"));
         } else {
-            showToast("Invalid JSON data", Toasts.Type.FAILURE);
+            showToast(t("بيانات JSON غير صالحة", "Invalid JSON data"), Toasts.Type.FAILURE);
         }
     } catch (err) {
-        showToast(`Failed to import emojis: ${err}`, Toasts.Type.FAILURE);
+        showToast(t(`فشل استيراد الإيموجي: ${err}`, `Failed to import emojis: ${err}`), Toasts.Type.FAILURE);
     }
 });
 
 const resetEmojis = () => withWriteLock(async () => {
     await setAllowedList([]);
-    showToast("Reset emojis");
+    showToast(t("تمت إعادة تعيين الإيموجي", "Reset emojis"));
 });
 
 const settings = definePluginSettings({

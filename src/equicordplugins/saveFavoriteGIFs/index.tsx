@@ -27,14 +27,14 @@ async function saveContentToFile(content: string, filename: string) {
 
         showNotification({
             title: "Save Favorite GIFs",
-            body: `Saved GIFs successfully as ${filename}`,
+            body: t(`تم حفظ الصور المتحركة بنجاح باسم ${filename}`, `Saved GIFs successfully as ${filename}`),
             color: "var(--text-positive)",
         });
     } catch (error) {
         console.error(error);
         showNotification({
             title: "Save Favorite GIFs",
-            body: "Failed to save GIFs",
+            body: t("فشل حفظ الصور المتحركة", "Failed to save GIFs"),
             color: "var(--text-danger)",
         });
     }
@@ -49,7 +49,7 @@ async function saveAllGifs() {
     const gifUrls = getGifUrls();
 
     if (gifUrls.length === 0) {
-        showNotification({ title: "Save Favorite GIFs", body: "No favorite GIFs found..?" });
+        showNotification({ title: "Save Favorite GIFs", body: t("لا توجد صور متحركة مفضّلة..؟", "No favorite GIFs found..?") });
         return;
     }
 
@@ -61,13 +61,13 @@ async function saveWorkingGifs() {
     const gifUrls = getGifUrls();
 
     if (gifUrls.length === 0) {
-        showNotification({ title: "Save Favorite GIFs", body: "No favorite GIFs found?" });
+        showNotification({ title: "Save Favorite GIFs", body: t("لا توجد صور متحركة مفضّلة؟", "No favorite GIFs found?") });
         return;
     }
 
     showNotification({
         title: "Save Favorite GIFs",
-        body: `Testing ${gifUrls.length} GIFs.. This may take a moment...`,
+        body: t(`جارٍ اختبار ${gifUrls.length} صورة متحركة.. قد يستغرق لحظة...`, `Testing ${gifUrls.length} GIFs.. This may take a moment...`),
     });
 
     const workingUrls: string[] = [];
@@ -85,7 +85,7 @@ async function saveWorkingGifs() {
     }));
 
     if (workingUrls.length === 0) {
-        showNotification({ title: "Save Favorite GIFs", body: "None of your saved GIFs appear to be working." });
+        showNotification({ title: "Save Favorite GIFs", body: t("لا يبدو أن أيّاً من صورك المتحركة المحفوظة يعمل.", "None of your saved GIFs appear to be working.") });
         return;
     }
 
@@ -96,7 +96,7 @@ async function saveWorkingGifs() {
 
     showNotification({
         title: "Save Favorite GIFs",
-        body: `Filtered ${gifUrls.length - workingUrls.length} possibly broken GIFs. Saved ${workingUrls.length} working GIFs.`,
+        body: t(`تمت تصفية ${gifUrls.length - workingUrls.length} صورة متحركة قد تكون معطوبة. حُفظت ${workingUrls.length} صورة عاملة.`, `Filtered ${gifUrls.length - workingUrls.length} possibly broken GIFs. Saved ${workingUrls.length} working GIFs.`),
         color: "var(--text-positive)",
     });
 }
