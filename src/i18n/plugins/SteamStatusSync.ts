@@ -14,11 +14,23 @@ export default definePluginI18n({
     "options": {
         "onlineStatus": {
             "ar": "حالة Steam عند الاتصال",
-            "en": "Discord status to sync when Steam is Online."
+            "en": "Discord status to sync when Steam is Online.",
+            "choices": {
+                "online": { "ar": "متصل", "en": "Online" },
+                "offline": { "ar": "غير متصل (قطع دردشة Steam)", "en": "Offline (Disconnect Steam Chat)" },
+                "none": { "ar": "معطّل", "en": "Disabled" }
+            }
         },
         "idleStatus": {
             "ar": "حالة Steam عند الخمول",
-            "en": "Discord status to sync when Steam is Away."
+            "en": "Discord status to sync when Steam is Away.",
+            "choices": {
+                "online": { "ar": "متصل", "en": "Online" },
+                "away": { "ar": "بعيد", "en": "Away" },
+                "invisible": { "ar": "خفي", "en": "Invisible" },
+                "offline": { "ar": "غير متصل (قطع دردشة Steam)", "en": "Offline (Disconnect Steam Chat)" },
+                "none": { "ar": "معطّل", "en": "Disabled" }
+            }
         },
         "dndStatus": {
             "ar": "حالة Steam عند 'عدم الإزعاج'",
