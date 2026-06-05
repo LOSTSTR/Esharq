@@ -14,7 +14,12 @@ export default definePluginI18n({
     "options": {
         "typeOfSnow": {
             "ar": "يغيّر نوع الثلج المعروض (يؤثر على الأداء).",
-            "en": "Type of snowflakes."
+            "en": "Type of snowflakes.",
+            "choices": {
+                "solid": { "ar": "صلب (أعلى أداء)", "en": "Solid (Highest Performance)" },
+                "text": { "ar": "نص (أداء متوسط)", "en": "Text (Medium Performance)" },
+                "image": { "ar": "صورة (أقل أداء)", "en": "Image (Lowest Performance)" }
+            }
         },
         "maxSize": {
             "ar": "الحد الأقصى لحجم رقاقة الثلج",

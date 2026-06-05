@@ -18,7 +18,11 @@ export default definePluginI18n({
         },
         "location": {
             "ar": "مكان عرض زر تبديل نشاط اللعبة",
-            "en": "Where to show the game activity toggle button."
+            "en": "Where to show the game activity toggle button.",
+            "choices": {
+                "PANEL": { "ar": "بجانب الكتم/الإصمام", "en": "Next to Mute/Deafen" },
+                "TOOLBOX": { "ar": "Equicord Toolbox", "en": "Equicord Toolbox" }
+            }
         }
     }
 });

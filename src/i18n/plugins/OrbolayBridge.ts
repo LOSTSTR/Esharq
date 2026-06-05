@@ -22,7 +22,15 @@ export default definePluginI18n({
         },
         "messageAlignment": {
             "ar": "محاذاة الرسائل في التراكب",
-            "en": "Alignment of messages in the overlay."
+            "en": "Alignment of messages in the overlay.",
+            "choices": {
+                "topleft": { "ar": "أعلى اليسار", "en": "Top left" },
+                "topright": { "ar": "أعلى اليمين", "en": "Top right" },
+                "bottomleft": { "ar": "أسفل اليسار", "en": "Bottom left" },
+                "bottomright": { "ar": "أسفل اليمين", "en": "Bottom right" },
+                "topcenter": { "ar": "أعلى الوسط", "en": "Top center" },
+                "bottomcenter": { "ar": "أسفل الوسط", "en": "Bottom center" }
+            }
         },
         "userAlignment": {
             "ar": "محاذاة المستخدمين في التراكب",

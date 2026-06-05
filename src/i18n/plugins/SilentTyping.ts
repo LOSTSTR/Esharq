@@ -30,15 +30,33 @@ export default definePluginI18n({
         },
         "chatIconLeftClickAction": {
             "ar": "ما يحدث عند النقر بالزر الأيسر على أيقونة الدردشة.",
-            "en": "What happens when left-clicking the chat icon."
+            "en": "What happens when left-clicking the chat icon.",
+            "choices": {
+                "global": { "ar": "تبديل الكتابة عالمياً", "en": "Toggle Typing Globally" },
+                "channel": { "ar": "تبديل الكتابة في القناة", "en": "Toggle Typing in Channel" },
+                "guild": { "ar": "تبديل الكتابة في السيرفر", "en": "Toggle Typing in Guild" },
+                "settings": { "ar": "فتح إعدادات الإضافة", "en": "Open Plugin Settings" }
+            }
         },
         "chatIconMiddleClickAction": {
             "ar": "ما يحدث عند النقر بزر الفأرة الأوسط على أيقونة الدردشة.",
-            "en": "What happens when middle-clicking the chat icon."
+            "en": "What happens when middle-clicking the chat icon.",
+            "choices": {
+                "global": { "ar": "تبديل الكتابة عالمياً", "en": "Toggle Typing Globally" },
+                "channel": { "ar": "تبديل الكتابة في القناة", "en": "Toggle Typing in Channel" },
+                "guild": { "ar": "تبديل الكتابة في السيرفر", "en": "Toggle Typing in Guild" },
+                "settings": { "ar": "فتح إعدادات الإضافة", "en": "Open Plugin Settings" }
+            }
         },
         "chatIconRightClickAction": {
             "ar": "ما يحدث عند النقر بالزر الأيمن على أيقونة الدردشة.",
-            "en": "What happens when right-clicking the chat icon."
+            "en": "What happens when right-clicking the chat icon.",
+            "choices": {
+                "global": { "ar": "تبديل الكتابة عالمياً", "en": "Toggle Typing Globally" },
+                "channel": { "ar": "تبديل الكتابة في القناة", "en": "Toggle Typing in Channel" },
+                "guild": { "ar": "تبديل الكتابة في السيرفر", "en": "Toggle Typing in Guild" },
+                "settings": { "ar": "فتح إعدادات الإضافة", "en": "Open Plugin Settings" }
+            }
         },
         "chatContextMenu": {
             "ar": "إظهار قائمة منسدلة في قائمة سياق الدردشة لتعديل إعدادات الإضافة أثناء الاستخدام.",
