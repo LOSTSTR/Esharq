@@ -12,6 +12,7 @@ import { ErrorCard } from "@components/ErrorCard";
 import { HeadingPrimary, HeadingSecondary } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import { Devs, IS_MAC } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import definePlugin, { OptionType } from "@utils/types";
 import { findByPropsLazy } from "@webpack";
@@ -159,9 +160,9 @@ export default definePlugin({
     settingsAboutComponent: () => {
         return (
             <React.Fragment>
-                <HeadingSecondary>More Information</HeadingSecondary>
+                <HeadingSecondary>{t("معلومات إضافية", "More Information")}</HeadingSecondary>
                 <BaseText size="md">
-                    You can open Discord's DevTools via {" "}
+                    {t("يمكنك فتح أدوات مطوّري Discord عبر", "You can open Discord's DevTools via")} {" "}
                     <div className={KbdStyles.combo} style={{ display: "inline-flex" }}>
                         <kbd className={KbdStyles.key}>{modKey}</kbd>{" "}
                         <kbd className={KbdStyles.key}>{altKey}</kbd>{" "}
@@ -174,16 +175,14 @@ export default definePlugin({
 
     WarningCard: ErrorBoundary.wrap(() => (
         <ErrorCard id="vc-experiments-warning-card" className={Margins.bottom16}>
-            <HeadingPrimary>Hold on!!</HeadingPrimary>
+            <HeadingPrimary>{t("تمهّل!!", "Hold on!!")}</HeadingPrimary>
 
             <Paragraph>
-                Experiments are unreleased Discord features. They might not work, or even break your client or get your account disabled.
+                {t("التجارب (Experiments) ميزات Discord غير المُطلَقة. قد لا تعمل، بل قد تعطّل عميلك أو تعطّل حسابك.", "Experiments are unreleased Discord features. They might not work, or even break your client or get your account disabled.")}
             </Paragraph>
 
             <Paragraph className={Margins.top8}>
-                Only use experiments if you know what you're doing. Equicord is not responsible for any damage caused by enabling experiments.
-
-                If you don't know what an experiment does, ignore it. Do not ask us what experiments do either, we probably don't know.
+                {t("لا تستخدم التجارب إلا إن كنت تعرف ما تفعله. Equicord غير مسؤول عن أي ضرر ناتج عن تفعيل التجارب. إن كنت لا تعرف ما تفعله تجربة ما، فتجاهلها. ولا تسألنا عمّا تفعله التجارب أيضاً، فالأرجح أننا لا نعرف.", "Only use experiments if you know what you're doing. Equicord is not responsible for any damage caused by enabling experiments. If you don't know what an experiment does, ignore it. Do not ask us what experiments do either, we probably don't know.")}
             </Paragraph>
 
             <Paragraph className={Margins.top8}>

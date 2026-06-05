@@ -22,6 +22,7 @@ import { HeadingSecondary } from "@components/Heading";
 import { Link } from "@components/Link";
 import { Paragraph } from "@components/Paragraph";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { ReporterTestable } from "@utils/types";
 import { ApplicationAssetUtils, fetchApplicationsRPC, FluxDispatcher, Toasts } from "@webpack/common";
 
@@ -49,9 +50,9 @@ export default definePlugin({
 
     settingsAboutComponent: () => (
         <>
-            <HeadingSecondary>How to use arRPC</HeadingSecondary>
+            <HeadingSecondary>{t("كيفية استخدام arRPC", "How to use arRPC")}</HeadingSecondary>
             <Paragraph>
-                <Link href="https://github.com/OpenAsar/arrpc/tree/main#server">Follow the instructions in the GitHub repo</Link> to get the server running, and then enable the plugin.
+                <Link href="https://github.com/OpenAsar/arrpc/tree/main#server">{t("اتبع التعليمات في مستودع GitHub", "Follow the instructions in the GitHub repo")}</Link> {t("لتشغيل الخادم، ثم فعّل الإضافة.", "to get the server running, and then enable the plugin.")}
             </Paragraph>
         </>
     ),

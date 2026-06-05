@@ -20,6 +20,7 @@ import { ErrorCard } from "@components/ErrorCard";
 import { HeadingSecondary } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import { Devs, IS_LINUX } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import { Margins } from "@utils/margins";
 import { wordsToTitle } from "@utils/text";
@@ -222,13 +223,13 @@ export default definePlugin({
 
         let errorComponent: ReactElement<any> | null = null;
         if (!hasVoices) {
-            let error = "No narrator voices found. ";
+            let error = t("لم يُعثَر على أصوات للراوي. ", "No narrator voices found. ");
             error += IS_LINUX
-                ? "Install speech-dispatcher or espeak and run Discord with the --enable-speech-dispatcher flag"
-                : "Try installing some in the Narrator settings of your Operating System";
+                ? t("ثبّت speech-dispatcher أو espeak وشغّل Discord بالعَلَم --enable-speech-dispatcher", "Install speech-dispatcher or espeak and run Discord with the --enable-speech-dispatcher flag")
+                : t("جرّب تثبيت بعضها من إعدادات الراوي في نظام التشغيل", "Try installing some in the Narrator settings of your Operating System");
             errorComponent = <ErrorCard>{error}</ErrorCard>;
         } else if (!hasEnglishVoices) {
-            errorComponent = <ErrorCard>You don't have any English voices installed, so the narrator might sound weird</ErrorCard>;
+            errorComponent = <ErrorCard>{t("ليست لديك أي أصوات إنجليزية مثبّتة، لذا قد يبدو الراوي غريباً", "You don't have any English voices installed, so the narrator might sound weird")}</ErrorCard>;
         }
 
         return (
