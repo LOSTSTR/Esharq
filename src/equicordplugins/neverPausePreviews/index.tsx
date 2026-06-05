@@ -18,6 +18,7 @@
 
 import { Notice } from "@components/Notice";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 
 export default definePlugin({
@@ -27,7 +28,7 @@ export default definePlugin({
     authors: [EquicordDevs.vappstar],
     settingsAboutComponent: () => (
         <Notice.Warning>
-            This plugin will cause discord to use more resources than normal
+            {t("هذه الإضافة ستجعل Discord يستهلك موارد أكثر من المعتاد", "This plugin will cause discord to use more resources than normal")}
         </Notice.Warning>
     ),
     patches: [

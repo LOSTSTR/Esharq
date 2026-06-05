@@ -7,6 +7,7 @@
 import { definePluginSettings } from "@api/Settings";
 import { Notice } from "@components/Notice";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { User } from "@vencord/discord-types";
 import { ChannelStore, UserStore } from "@webpack/common";
@@ -43,7 +44,7 @@ export default definePlugin({
     settings,
     settingsAboutComponent: () => (
         <Notice.Warning>
-            Using Global Mention can cause performance issues and show an absurd amount of users in the autocomplete.
+            {t("استخدام الإشارة الشاملة قد يسبّب مشاكل في الأداء ويُظهر عدداً هائلاً من المستخدمين في الإكمال التلقائي.", "Using Global Mention can cause performance issues and show an absurd amount of users in the autocomplete.")}
         </Notice.Warning>
     ),
 

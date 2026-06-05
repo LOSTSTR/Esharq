@@ -45,11 +45,11 @@ export default definePlugin({
     settingsAboutComponent: () => {
         return (
             <>
-                <Paragraph style={{ fontSize: "1.2rem", marginTop: "15px", fontWeight: "bold" }}>{Parser.parse(":warning:")} Limitations</Paragraph>
-                <Paragraph style={{ marginTop: "10px", fontWeight: "500" }} >If you don't have mod permissions on the server, and that server is large (over 100 members), the plugin may be limited in the following ways:</Paragraph>
-                <Paragraph>• Offline members won't be listed</Paragraph>
-                <Paragraph>• Up to 100 members will be listed by default. To get more, scroll down in the member list to load more members.</Paragraph>
-                <Paragraph>• However, friends will always be shown regardless of their status.</Paragraph>
+                <Paragraph style={{ fontSize: "1.2rem", marginTop: "15px", fontWeight: "bold" }}>{Parser.parse(":warning:")} {t("القيود", "Limitations")}</Paragraph>
+                <Paragraph style={{ marginTop: "10px", fontWeight: "500" }} >{t("إن لم تكن لديك صلاحيات إشراف في السيرفر، وكان السيرفر كبيراً (أكثر من 100 عضو)، فقد تكون الإضافة محدودة بالطرق التالية:", "If you don't have mod permissions on the server, and that server is large (over 100 members), the plugin may be limited in the following ways:")}</Paragraph>
+                <Paragraph>{t("• لن يُدرَج الأعضاء غير المتصلين", "• Offline members won't be listed")}</Paragraph>
+                <Paragraph>{t("• سيُدرَج حتى 100 عضو افتراضياً. للمزيد، مرّر للأسفل في قائمة الأعضاء لتحميل المزيد.", "• Up to 100 members will be listed by default. To get more, scroll down in the member list to load more members.")}</Paragraph>
+                <Paragraph>{t("• مع ذلك، سيظهر الأصدقاء دائماً بغضّ النظر عن حالتهم.", "• However, friends will always be shown regardless of their status.")}</Paragraph>
             </>
         );
     },

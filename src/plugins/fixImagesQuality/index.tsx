@@ -10,6 +10,7 @@ import { Flex } from "@components/Flex";
 import { Margins } from "@components/margins";
 import { Paragraph } from "@components/Paragraph";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
 
@@ -42,18 +43,18 @@ export default definePlugin({
         return (
             <Card variant="primary">
                 <Flex flexDirection="column" gap="4px">
-                    <Paragraph size="md" weight="semibold">The default behaviour is the following:</Paragraph>
+                    <Paragraph size="md" weight="semibold">{t("السلوك الافتراضي كالتالي:", "The default behaviour is the following:")}</Paragraph>
                     <Paragraph>
                         <ul>
-                            <li>&mdash; In chat, optimised but full resolution images will be loaded.</li>
-                            <li>&mdash; In the image modal, the original image will be loaded.</li>
+                            <li>&mdash; {t("في الدردشة، تُحمَّل صور مُحسَّنة لكن بدقّة كاملة.", "In chat, optimised but full resolution images will be loaded.")}</li>
+                            <li>&mdash; {t("في نافذة الصورة، تُحمَّل الصورة الأصلية.", "In the image modal, the original image will be loaded.")}</li>
                         </ul>
                     </Paragraph>
-                    <Paragraph size="md" weight="semibold" className={Margins.top8}>You can also enable original image in chat, but beware of the following caveats:</Paragraph>
+                    <Paragraph size="md" weight="semibold" className={Margins.top8}>{t("يمكنك أيضاً تفعيل الصورة الأصلية في الدردشة، لكن انتبه للمحاذير التالية:", "You can also enable original image in chat, but beware of the following caveats:")}</Paragraph>
                     <Paragraph>
                         <ul>
-                            <li>&mdash; Animated images (GIF, WebP, etc.) in chat will always animate, regardless of if the App is focused.</li>
-                            <li>&mdash; May cause lag.</li>
+                            <li>&mdash; {t("الصور المتحركة (GIF، WebP، إلخ) في الدردشة ستتحرّك دائماً، بغضّ النظر عن تركيز التطبيق.", "Animated images (GIF, WebP, etc.) in chat will always animate, regardless of if the App is focused.")}</li>
+                            <li>&mdash; {t("قد يسبّب بطئاً.", "May cause lag.")}</li>
                         </ul>
                     </Paragraph>
                 </Flex>
