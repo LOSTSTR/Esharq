@@ -21,6 +21,7 @@ import DecorationGridNone from "@plugins/decor/ui/components/DecorationGridNone"
 import DecorDecorationGridDecoration from "@plugins/decor/ui/components/DecorDecorationGridDecoration";
 import SectionedGridList from "@plugins/decor/ui/components/SectionedGridList";
 import { copyWithToast, openInviteModal } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { Queue } from "@utils/Queue";
 import { RenderModalProps, User } from "@vencord/discord-types";
@@ -122,8 +123,8 @@ function ChangeDecorationModal(props: RenderModalProps) {
 
     const data = [
         {
-            title: "Your Decorations",
-            subtitle: "You can delete your own decorations by right clicking on them.",
+            title: t("زخارفك", "Your Decorations"),
+            subtitle: t("يمكنك حذف زخارفك الخاصة بالنقر عليها بالزر الأيمن.", "You can delete your own decorations by right clicking on them."),
             sectionKey: "ownDecorations",
             items: ["none", ...ownDecorations, "create"]
         },
