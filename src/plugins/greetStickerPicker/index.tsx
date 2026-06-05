@@ -18,6 +18,7 @@
 
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { Channel, Message } from "@vencord/discord-types";
 import { ContextMenuApi, FluxDispatcher, Menu, MessageActions } from "@webpack/common";
@@ -77,7 +78,7 @@ function GreetMenu({ channel, message }: { message: Message, channel: Channel; }
             aria-label="Greet Sticker Picker"
         >
             <Menu.MenuGroup
-                label="Greet Mode"
+                label={t("وضع الترحيب", "Greet Mode")}
             >
                 {Object.values(GreetMode).map(mode => (
                     <Menu.MenuRadioItem
@@ -94,7 +95,7 @@ function GreetMenu({ channel, message }: { message: Message, channel: Channel; }
             <Menu.MenuSeparator />
 
             <Menu.MenuGroup
-                label="Greet Stickers"
+                label={t("ملصقات الترحيب", "Greet Stickers")}
             >
                 {WELCOME_STICKERS.map(sticker => (
                     <Menu.MenuItem
@@ -111,7 +112,7 @@ function GreetMenu({ channel, message }: { message: Message, channel: Channel; }
                     <Menu.MenuSeparator />
 
                     <Menu.MenuItem
-                        label="Unholy Multi-Greet"
+                        label={t("ترحيب متعدّد", "Unholy Multi-Greet")}
                         id="unholy-multi-greet"
                     >
                         {WELCOME_STICKERS.map(sticker => {
@@ -136,7 +137,7 @@ function GreetMenu({ channel, message }: { message: Message, channel: Channel; }
                         <Menu.MenuSeparator />
                         <Menu.MenuItem
                             id="multi-greet-submit"
-                            label="Send Greets"
+                            label={t("إرسال الترحيبات", "Send Greets")}
                             action={() => greet(channel, message, multiGreetChoices!)}
                             disabled={multiGreetChoices.length === 0}
                         />

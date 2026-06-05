@@ -9,6 +9,7 @@ import "./styles.css";
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType, StartAt } from "@utils/types";
 import { Channel } from "@vencord/discord-types";
@@ -272,7 +273,7 @@ export default definePlugin({
                         >
                             <Menu.MenuItem
                                 id="vc-pindms-edit-category"
-                                label="Edit Category"
+                                label={t("تعديل الفئة", "Edit Category")}
                                 action={() => openCategoryModal(category.id, null)}
                             />
 
@@ -282,14 +283,14 @@ export default definePlugin({
                                         {
                                             canMoveCategoryInDirection(category.id, -1) && <Menu.MenuItem
                                                 id="vc-pindms-move-category-up"
-                                                label="Move Up"
+                                                label={t("تحريك لأعلى", "Move Up")}
                                                 action={() => moveCategory(category.id, -1)}
                                             />
                                         }
                                         {
                                             canMoveCategoryInDirection(category.id, 1) && <Menu.MenuItem
                                                 id="vc-pindms-move-category-down"
-                                                label="Move Down"
+                                                label={t("تحريك لأسفل", "Move Down")}
                                                 action={() => moveCategory(category.id, 1)}
                                             />
                                         }
@@ -302,7 +303,7 @@ export default definePlugin({
                             <Menu.MenuItem
                                 id="vc-pindms-delete-category"
                                 color="danger"
-                                label="Delete Category"
+                                label={t("حذف الفئة", "Delete Category")}
                                 action={() => removeCategory(category.id)}
                             />
 

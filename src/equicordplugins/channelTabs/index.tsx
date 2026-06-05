@@ -9,6 +9,7 @@ import "./style.css";
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs, EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { Channel, Message } from "@vencord/discord-types";
 import { ChannelStore, Menu } from "@webpack/common";
@@ -23,7 +24,7 @@ const contextMenuPatch: NavContextMenuPatchCallback = (children, props: { channe
 
     const menuItem = (
         <Menu.MenuItem
-            label="Open in New Tab"
+            label={t("فتح في تبويب جديد", "Open in New Tab")}
             id="open-link-in-tab"
             action={() => createTab({
                 guildId: channel.guild_id || "@me", // Normalize for DMs/Group Chats

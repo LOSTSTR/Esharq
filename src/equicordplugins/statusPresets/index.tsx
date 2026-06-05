@@ -22,6 +22,7 @@ import { definePluginSettings } from "@api/Settings";
 import { getUserSettingLazy } from "@api/UserSettings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { proxyLazy } from "@utils/lazy";
 import { useForceUpdater } from "@utils/react";
 import definePlugin, { OptionType, StartAt } from "@utils/types";
@@ -95,7 +96,7 @@ const StatusSubMenuComponent = () => {
                     >
                         <Menu.MenuItem
                             id={"status-presets-delete-" + index}
-                            label="Delete Preset"
+                            label={t("حذف الإعداد المسبق", "Delete Preset")}
                             action={() => {
                                 const newPresets = JSON.parse(JSON.stringify(settings.store.StatusPresets));
                                 delete newPresets[status.text];
@@ -161,7 +162,7 @@ export default definePlugin({
                         action="PRESS_SET_STATUS"
                         onClick={openCustomStatusModalLazy}
                         icon={() => <div />}
-                        label="Set Custom Status"
+                        label={t("تعيين حالة مخصّصة", "Set Custom Status")}
                         renderSubmenu={StatusSubMenuComponent}
                     />
                     :
@@ -172,7 +173,7 @@ export default definePlugin({
                         icon={() => status.emoji != null ? (
                             <EmojiComponent emoji={status.emoji} animate={false} hideTooltip={false} />
                         ) : null}
-                        label="Edit Custom Status"
+                        label={t("تعديل الحالة المخصّصة", "Edit Custom Status")}
                         renderSubmenu={StatusSubMenuComponent}
                     />
                 }
