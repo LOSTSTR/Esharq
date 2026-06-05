@@ -15,6 +15,7 @@ import { PlaceholderIcon } from "@components/Icons";
 import { Paragraph } from "@components/Paragraph";
 import { Switch } from "@components/Switch";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
 import { IconComponent } from "@utils/types";
@@ -29,10 +30,10 @@ export function UIElementsButton() {
             <Card className={cl("button")} defaultPadding>
                 <div className={cl("button-description")}>
                     <Paragraph size="md" weight="semibold">
-                        Manage plugin UI elements
+                        {t("إدارة عناصر واجهة الإضافات", "Manage plugin UI elements")}
                     </Paragraph>
                     <Paragraph size="xs">
-                        Allows you to hide buttons you don't like
+                        {t("يتيح لك إخفاء الأزرار التي لا تريدها", "Allows you to hide buttons you don't like")}
                     </Paragraph>
                 </div>
                 <svg
@@ -80,7 +81,7 @@ function Section(props: {
             <div className={cl("switches")}>
                 {switches.length === 0 && (
                     <Paragraph weight="medium" className={cl("switches-row")} style={{ color: "var(--text-muted)" }}>
-                        Buttons of enabled plugins will appear here.
+                        {t("ستظهر هنا أزرار الإضافات المُفعّلة.", "Buttons of enabled plugins will appear here.")}
                     </Paragraph>
                 )}
                 {switches}
@@ -93,17 +94,17 @@ function UIElementsModal(props: RenderModalProps) {
     const { uiElements } = useSettings(["uiElements.*"]);
 
     return (
-        <Modal {...props} size="md" title="Manage plugin UI elements">
+        <Modal {...props} size="md" title={t("إدارة عناصر واجهة الإضافات", "Manage plugin UI elements")}>
             <div className={cl("modal-content")}>
                 <Section
-                    title="Chatbar Buttons"
-                    description="These are the buttons on the right side of the chat input bar"
+                    title={t("أزرار شريط الدردشة", "Chatbar Buttons")}
+                    description={t("هذه هي الأزرار على الجانب الأيمن من شريط إدخال الدردشة", "These are the buttons on the right side of the chat input bar")}
                     buttonMap={ChatBarButtonMap}
                     settings={uiElements.chatBarButtons}
                 />
                 <Section
-                    title="Message Popover Buttons"
-                    description="These are the floating buttons on the right when you hover over a message"
+                    title={t("أزرار نافذة الرسالة المنبثقة", "Message Popover Buttons")}
+                    description={t("هذه هي الأزرار العائمة على اليمين عند تمرير المؤشر فوق رسالة", "These are the floating buttons on the right when you hover over a message")}
                     buttonMap={MessagePopoverButtonMap}
                     settings={uiElements.messagePopoverButtons}
                 />

@@ -844,13 +844,13 @@ function ThemesTab() {
                     Icon={RestartIcon}
                 />
                 <QuickAction
-                    text="Edit QuickCSS"
+                    text={t("تعديل QuickCSS", "Edit QuickCSS")}
                     action={() => VencordNative.quickCss.openEditor()}
                     Icon={PaintbrushIcon}
                 />
                 {Settings.plugins.ClientTheme.enabled && (
                     <QuickAction
-                        text="Edit ClientTheme"
+                        text={t("تعديل ClientTheme", "Edit ClientTheme")}
                         action={() => openPluginModal(Plugins.ClientTheme)}
                         Icon={PencilIcon}
                     />
@@ -906,7 +906,7 @@ function ThemesTab() {
                 {t("أدِر قوالبك من هنا. تُحمَّل القوالب المحلية من مجلد القوالب، والقوالب الإلكترونية من روابط URL. القوالب التي تحتوي على أيقونة الترس لها إعدادات قابلة للتخصيص.", "Manage your themes here. Local themes are loaded from the themes folder, and online themes from URLs. Themes with a gear icon have customizable settings.")}
             </Paragraph>
             <Paragraph color="text-subtle" className={Margins.bottom16}>
-                {allThemes.length} theme{allThemes.length !== 1 ? "s" : ""} installed ({localCount} local, {onlineCount} online) · {enabledCount} enabled
+                {allThemes.length} {t("قالب مثبَّت", `theme${allThemes.length !== 1 ? "s" : ""} installed`)} ({localCount} {t("محلي", "local")}، {onlineCount} {t("إلكتروني", "online")}) · {enabledCount} {t("مُفعَّل", "enabled")}
             </Paragraph>
 
             <div className={cl("filter-row")}>
