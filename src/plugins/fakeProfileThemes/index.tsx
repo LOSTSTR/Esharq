@@ -179,7 +179,7 @@ function SettingsAboutComponent() {
                 <Divider
                     className={classes(Margins.top8, Margins.bottom8)}
                 />
-                <HeadingSecondary>Preview</HeadingSecondary>
+                <HeadingSecondary>{t("معاينة", "Preview")}</HeadingSecondary>
                 <div className="vc-fpt-preview">
                     <ProfileModal
                         user={UserStore.getCurrentUser()}
