@@ -141,7 +141,7 @@ export default definePlugin({
                     } else {
                         Toasts.show({
                             id: Toasts.genId(),
-                            message: "Couldn't find a reply.",
+                            message: t("تعذّر العثور على ردّ.", "Couldn't find a reply."),
                             type: Toasts.Type.FAILURE
                         });
                     }

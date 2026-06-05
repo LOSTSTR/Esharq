@@ -175,7 +175,7 @@ export default definePlugin({
             await loadAllBadges(true);
             Toasts.show({
                 id: Toasts.genId(),
-                message: "Successfully refetched badges!",
+                message: t("تمت إعادة جلب الشارات بنجاح!", "Successfully refetched badges!"),
                 type: Toasts.Type.SUCCESS
             });
         }

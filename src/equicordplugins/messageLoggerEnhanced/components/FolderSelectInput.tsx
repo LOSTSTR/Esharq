@@ -21,6 +21,7 @@ import { Heading } from "@components/Heading";
 import { cl, Native, settings } from "@equicordplugins/messageLoggerEnhanced/index";
 import { DEFAULT_IMAGE_CACHE_DIR } from "@equicordplugins/messageLoggerEnhanced/utils/constants";
 import { copyWithToast } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import { findCssClassesLazy } from "@webpack";
 import { Toasts } from "@webpack/common";
@@ -74,7 +75,7 @@ export function SelectFolderInput({ settingsKey, successMessage }: Props) {
             Toasts.show({
                 id: Toasts.genId(),
                 type: Toasts.Type.FAILURE,
-                message: "Failed to update directory"
+                message: t("فشل تحديث المجلد", "Failed to update directory")
             });
         }
     }

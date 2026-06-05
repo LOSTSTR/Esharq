@@ -63,7 +63,7 @@ function copyProfileColors(userId: string, guildId?: string) {
         logger.error("Failed to copy to clipboard:", e);
         Toasts.show({
             type: Toasts.Type.FAILURE,
-            message: "Error copying profile colors!",
+            message: t("خطأ في نسخ ألوان الملف الشخصي!", "Error copying profile colors!"),
             id: Toasts.genId()
         });
     }

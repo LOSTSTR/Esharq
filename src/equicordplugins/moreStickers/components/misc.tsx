@@ -342,7 +342,7 @@ export const Packs = () => {
                                     }
 
                                     Toasts.show({
-                                        message: "Sticker Packs added",
+                                        message: t("أُضيفت حزم الملصقات", "Sticker Packs added"),
                                         type: Toasts.Type.SUCCESS,
                                         id: Toasts.genId(),
                                         options: {
@@ -395,7 +395,7 @@ export const Packs = () => {
                                 a.click();
 
                                 Toasts.show({
-                                    message: "Sticker Packs exported",
+                                    message: t("صُدّرت حزم الملصقات", "Sticker Packs exported"),
                                     type: Toasts.Type.SUCCESS,
                                     id: Toasts.genId(),
                                     options: {
