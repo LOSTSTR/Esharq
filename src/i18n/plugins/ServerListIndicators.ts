@@ -14,7 +14,12 @@ export default definePluginI18n({
     "options": {
         "mode": {
             "ar": "وضع العرض",
-            "en": "Which indicator mode to use."
+            "en": "Which indicator mode to use.",
+            "choices": {
+                "2": { "ar": "عدد الأصدقاء المتصلين فقط", "en": "Only online friend count" },
+                "1": { "ar": "عدد السيرفرات فقط", "en": "Only server count" },
+                "3": { "ar": "عدد السيرفرات والأصدقاء المتصلين معاً", "en": "Both server and online friend counts" }
+            }
         },
         "useCompact": {
             "ar": "جعل المؤشر يظهر بالنص فقط",

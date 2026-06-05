@@ -50,7 +50,12 @@ export default definePluginI18n({
         },
         "showFolderIcon": {
             "ar": "إظهار أيقونة المجلد فوق سيرفرات المجلد في الشريط الجانبي لـ BetterFolders",
-            "en": "Show the folder icon above folder servers in the BetterFolders sidebar."
+            "en": "Show the folder icon above folder servers in the BetterFolders sidebar.",
+            "choices": {
+                "0": { "ar": "أبداً", "en": "Never" },
+                "1": { "ar": "دائماً", "en": "Always" },
+                "2": { "ar": "عند توسيع أكثر من مجلد", "en": "When more than one folder is expanded" }
+            }
         }
     }
 });
