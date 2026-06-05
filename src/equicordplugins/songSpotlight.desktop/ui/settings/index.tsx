@@ -10,6 +10,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { Flex } from "@components/Flex";
 import { apiConstants, deleteData, getData, saveData } from "@equicordplugins/songSpotlight.desktop/lib/api";
 import { presentOAuth2Modal } from "@equicordplugins/songSpotlight.desktop/lib/oauth2";
+import { t } from "@utils/esharqI18n";
 import { useAuthorizationStore } from "@equicordplugins/songSpotlight.desktop/lib/stores/AuthorizationStore";
 import { useSongStore } from "@equicordplugins/songSpotlight.desktop/lib/stores/SongStore";
 import { cl } from "@equicordplugins/songSpotlight.desktop/lib/utils";
@@ -65,17 +66,17 @@ function ImportButton({ overwrite, pending, setPending, onImport }: ImportButton
             onClick={async () => {
                 if (overwrite) {
                     Alerts.show({
-                        title: "Are you sure?",
-                        body: "This will overwrite your current songs.",
+                        title: t("هل أنت متأكد؟", "Are you sure?"),
+                        body: t("سيستبدل هذا أغانيك الحالية.", "This will overwrite your current songs."),
                         onConfirm: checkClipboard,
-                        confirmText: "Continue",
-                        cancelText: "Nevermind",
+                        confirmText: t("متابعة", "Continue"),
+                        cancelText: t("لا عليك", "Nevermind"),
                     });
                 } else checkClipboard();
             }}
             disabled={pending}
         >
-            Import from clipboard
+            {t("استيراد من الحافظة", "Import from clipboard")}
         </Button>
     );
 }
@@ -183,15 +184,15 @@ export default function Settings({ templateData }: SettingsProps) {
                         variant="dangerSecondary"
                         onClick={() =>
                             Alerts.show({
-                                title: "Are you sure?",
-                                body: "This will permanently delete all of your songs.",
+                                title: t("هل أنت متأكد؟", "Are you sure?"),
+                                body: t("سيحذف هذا جميع أغانيك نهائياً.", "This will permanently delete all of your songs."),
                                 onConfirm: async () => {
                                     setPending(true);
                                     try {
                                         await deleteData();
                                         deleteTokens();
 
-                                        showToast("Successfully deleted songs!", Toasts.Type.SUCCESS);
+                                        showToast(t("تم حذف الأغاني بنجاح!", "Successfully deleted songs!"), Toasts.Type.SUCCESS);
                                     } finally {
                                         setPending(false);
                                     }
