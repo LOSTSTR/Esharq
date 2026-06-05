@@ -95,7 +95,7 @@ export default definePlugin({
 
         Toasts.show({
             // show toast on success
-            message: "Connected to arRPC",
+            message: t("تم الاتصال بـ arRPC", "Connected to arRPC"),
             type: Toasts.Type.SUCCESS,
             id: Toasts.genId(),
             options: {

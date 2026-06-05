@@ -7,6 +7,7 @@
 import * as DataStore from "@api/DataStore";
 import { showNotification } from "@api/Notifications";
 import { logger, themeRequest } from "@equicordplugins/themeLibrary/components/ThemeTab";
+import { t } from "@utils/esharqI18n";
 import { OAuth2AuthorizeModal, openModal,Toasts, UserStore } from "@webpack/common";
 
 export async function authorizeUser(triggerModal: boolean = true) {
@@ -65,7 +66,7 @@ export async function deauthorizeUser() {
     const uniqueToken = await DataStore.get<Record<string, string>>("ThemeLibrary_uniqueToken");
 
     if (!uniqueToken) return Toasts.show({
-        message: "No uniqueToken present, try authorizing first!",
+        message: t("لا يوجد uniqueToken، جرّب التفويض أولاً!", "No uniqueToken present, try authorizing first!"),
         id: Toasts.genId(),
         type: Toasts.Type.FAILURE,
         options: {
