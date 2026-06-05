@@ -14,11 +14,20 @@ export default definePluginI18n({
     "options": {
         "visualStyle": {
             "ar": "نمط المؤشر البصري أثناء التنقل",
-            "en": "Visual indicator style while cycling."
+            "en": "Visual indicator style while cycling.",
+            "choices": {
+                "overlay": { "ar": "تراكب (نمط Alt+Tab)", "en": "Overlay (Alt+Tab style)" },
+                "toast": { "ar": "إشعار منبثق (رسالة حالة)", "en": "Toast (status message)" },
+                "off": { "ar": "معطّل", "en": "Off" }
+            }
         },
         "overlayMode": {
             "ar": "محتوى التراكب",
-            "en": "Overlay content to display."
+            "en": "Overlay content to display.",
+            "choices": {
+                "row": { "ar": "صف من الأخيرة", "en": "Row of recent" },
+                "current": { "ar": "الحالي فقط", "en": "Current only" }
+            }
         },
         "amountOfUsers": {
             "ar": "عدد المستخدمين المعروضين في التراكب",
