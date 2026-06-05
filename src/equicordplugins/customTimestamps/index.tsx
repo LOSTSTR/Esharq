@@ -12,6 +12,7 @@ import { Heading, HeadingPrimary } from "@components/Heading";
 import { Link } from "@components/Link";
 import { Paragraph } from "@components/Paragraph";
 import { Devs, EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { useForceUpdater } from "@utils/react";
 import definePlugin, { OptionType } from "@utils/types";
@@ -130,14 +131,13 @@ export default definePlugin({
     settings,
     settingsAboutComponent: () => (
         <div className={"vc-cmt-info-card"}>
-            <HeadingPrimary>How to use:</HeadingPrimary>
+            <HeadingPrimary>{t("كيفية الاستخدام:", "How to use:")}</HeadingPrimary>
             <Paragraph>
-                <Link href="https://momentjs.com/docs/#/displaying/format/">Moment.js formatting documentation</Link>
+                <Link href="https://momentjs.com/docs/#/displaying/format/">{t("توثيق تنسيق Moment.js", "Moment.js formatting documentation")}</Link>
                 <div className={Margins.top8}>
-                    Additionally you can use these in your inputs:<br />
-                    <b>[calendar]</b> enables dynamic date formatting such
-                    as &quot;Today&quot; or &quot;Yesterday&quot;.<br />
-                    <b>[relative]</b> gives you times such as &quot;4 hours ago&quot;.<br />
+                    {t("بالإضافة، يمكنك استخدام هذه في مدخلاتك:", "Additionally you can use these in your inputs:")}<br />
+                    <b>[calendar]</b> {t("يُفعّل تنسيق التاريخ الديناميكي مثل «اليوم» أو «أمس».", "enables dynamic date formatting such as \"Today\" or \"Yesterday\".")}<br />
+                    <b>[relative]</b> {t("يعطيك أوقاتاً مثل «قبل 4 ساعات».", "gives you times such as \"4 hours ago\".")}<br />
                 </div>
             </Paragraph>
         </div>
