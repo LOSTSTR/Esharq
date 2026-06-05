@@ -371,9 +371,9 @@ export default definePlugin({
             if (!selfId || isAnyPluginDev(selfId)) return;
             if (VC_SUPPORT_CHANNEL_IDS.includes(channelId) && !clicked) {
                 return Alerts.show({
-                    title: "Vencord Support Channel Warning",
-                    body: "Before asking for help. Check updates and if this issue is actually caused by Equicord!",
-                    confirmText: "Equicord Support",
+                    title: t("تحذير قناة دعم Vencord", "Vencord Support Channel Warning"),
+                    body: t("قبل طلب المساعدة: تحقّق من التحديثات وما إذا كانت المشكلة فعلاً بسبب Equicord!", "Before asking for help. Check updates and if this issue is actually caused by Equicord!"),
+                    confirmText: t("دعم Equicord", "Equicord Support"),
                     onConfirm() {
                         NavigationRouter.transitionTo(`/channels/${GUILD_ID}/${SUPPORT_CHANNEL_ID}`);
                     },

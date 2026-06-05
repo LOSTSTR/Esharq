@@ -13,6 +13,7 @@ import { HeadingSecondary } from "@components/Heading";
 import { Notice } from "@components/Notice";
 import decor from "@plugins/decor";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { Devs, EquicordDevs } from "@utils/index";
 import definePlugin, { OptionType } from "@utils/types";
 import { Alerts } from "@webpack/common";
@@ -145,8 +146,8 @@ export default definePlugin({
             settings.store.removeAvatarDecoration = false;
             Alerts.show({
                 title: "Declutter",
-                body: "Avatar decoration removal has been disabled to prevent conflicts with Decor plugin.",
-                confirmText: "OK",
+                body: t("تم تعطيل إزالة زخرفة الصورة الرمزية لمنع التعارض مع إضافة Decor.", "Avatar decoration removal has been disabled to prevent conflicts with Decor plugin."),
+                confirmText: t("حسناً", "OK"),
                 confirmVariant: "critical-primary"
             });
         }

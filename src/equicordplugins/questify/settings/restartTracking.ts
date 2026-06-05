@@ -5,6 +5,7 @@
  */
 
 import { SettingsStore } from "@api/Settings";
+import { t } from "@utils/esharqI18n";
 import type { DefinedSettings, SettingsDefinition } from "@utils/types";
 
 import { Alerts } from "../utils/ui";
@@ -58,10 +59,10 @@ export function promptToRestartIfDirty(): boolean {
     }
 
     Alerts.show({
-        title: "Restart Required",
-        body: "A change you've made to Questify's settings requires a restart.",
-        confirmText: "Restart",
-        cancelText: "Later",
+        title: t("إعادة التشغيل مطلوبة", "Restart Required"),
+        body: t("تغيير أجريته على إعدادات Questify يتطلّب إعادة تشغيل.", "A change you've made to Questify's settings requires a restart."),
+        confirmText: t("إعادة التشغيل", "Restart"),
+        cancelText: t("لاحقاً", "Later"),
         onConfirm: () => location.reload(),
     });
 

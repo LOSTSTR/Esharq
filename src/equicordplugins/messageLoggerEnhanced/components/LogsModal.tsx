@@ -9,6 +9,7 @@ import { Button } from "@components/Button";
 import { Flex } from "@components/Flex";
 import { InfoIcon } from "@components/Icons";
 import { copyWithToast, openUserProfile } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { LazyComponent } from "@utils/react";
 import { RenderModalProps, type User } from "@vencord/discord-types";
 import { find, findByCode, findByCodeLazy } from "@webpack";
@@ -128,15 +129,15 @@ export function LogsModal({ modalProps, initalQuery }: Props) {
                     }
                 },
                 {
-                    text: "Clear Visible Logs",
+                    text: t("مسح السجلات المرئية", "Clear Visible Logs"),
                     variant: "critical-secondary",
                     disabled: messages?.length === 0,
                     onClick: () => Alerts.show({
-                        title: "Clear Logs",
-                        body: `Are you sure you want to clear ${messages.length} logs`,
-                        confirmText: "Clear",
+                        title: t("مسح السجلات", "Clear Logs"),
+                        body: t(`هل أنت متأكد أنك تريد مسح ${messages.length} سجلّ`, `Are you sure you want to clear ${messages.length} logs`),
+                        confirmText: t("مسح", "Clear"),
                         confirmVariant: "critical-primary",
-                        cancelText: "Cancel",
+                        cancelText: t("إلغاء", "Cancel"),
                         onConfirm: async () => {
                             await deleteMessagesBulkIDB(messages.map(e => e.message_id));
                             reset();
@@ -144,14 +145,14 @@ export function LogsModal({ modalProps, initalQuery }: Props) {
                     })
                 },
                 {
-                    text: "Clear All Logs",
+                    text: t("مسح جميع السجلات", "Clear All Logs"),
                     variant: "critical-primary",
                     onClick: () => Alerts.show({
-                        title: "Clear Logs",
-                        body: "Are you sure you want to clear all the logs",
-                        confirmText: "Clear",
+                        title: t("مسح السجلات", "Clear Logs"),
+                        body: t("هل أنت متأكد أنك تريد مسح جميع السجلات", "Are you sure you want to clear all the logs"),
+                        confirmText: t("مسح", "Clear"),
                         confirmVariant: "critical-primary",
-                        cancelText: "Cancel",
+                        cancelText: t("إلغاء", "Cancel"),
                         onConfirm: async () => {
                             await clearLogs();
                             reset();

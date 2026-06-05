@@ -151,11 +151,11 @@ export function RemoveItemContextMenu({ type, nameOrId, instance }: { type: "col
                     }
 
                     Alerts.show({
-                        title: "Are you sure?",
-                        body: `Do you really want to ${type === "collection" ? "delete this collection" : "remove this item"}?`,
-                        confirmText: type === "collection" ? "Delete" : "Remove",
+                        title: t("هل أنت متأكد؟", "Are you sure?"),
+                        body: t(`هل تريد حقاً ${type === "collection" ? "حذف هذه المجموعة" : "إزالة هذا العنصر"}؟`, `Do you really want to ${type === "collection" ? "delete this collection" : "remove this item"}?`),
+                        confirmText: type === "collection" ? t("حذف", "Delete") : t("إزالة", "Remove"),
                         confirmColor: Button.Colors.RED,
-                        cancelText: "Nevermind",
+                        cancelText: t("لا عليك", "Nevermind"),
                         onConfirm: doDelete,
                     });
                 }}

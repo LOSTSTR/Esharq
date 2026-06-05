@@ -136,8 +136,8 @@ export const actions: ButtonAction[] = [
 
             if (isOutdated) {
                 setTimeout(() => showNotification({
-                    title: "A Equicord update is available!",
-                    body: "Click here to view the update",
+                    title: t("يتوفّر تحديث Equicord!", "A Equicord update is available!"),
+                    body: t("اضغط هنا لعرض التحديث", "Click here to view the update"),
                     permanent: true,
                     noPersist: true,
                     onClick() {
