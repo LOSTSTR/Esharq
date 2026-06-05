@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "@utils/esharqI18n";
 import { openModal } from "@utils/index";
 import { OAuth2AuthorizeModal, showToast, Toasts } from "@webpack/common";
 
@@ -31,7 +32,7 @@ async function safeJsonParse(response: Response): Promise<any> {
         return await response.json();
     } catch (e) {
         console.warn("Failed to parse JSON response:", e);
-        return { message: "Invalid response format" };
+        return { message: t("تنسيق استجابة غير صالح", "Invalid response format") };
     }
 }
 

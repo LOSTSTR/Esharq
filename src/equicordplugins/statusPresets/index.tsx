@@ -187,7 +187,7 @@ export default definePlugin({
             onClick: () => {
                 settings.store.StatusPresets[status.text] = status;
                 Toasts.show({
-                    message: "Successfully Saved Status",
+                    message: t("تم حفظ الحالة بنجاح", "Successfully Saved Status"),
                     type: Toasts.Type.SUCCESS,
                     id: Toasts.genId()
                 });

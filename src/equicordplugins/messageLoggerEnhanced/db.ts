@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "@utils/esharqI18n";
 import { ChannelStore, Toasts } from "@webpack/common";
 import { DBSchema, IDBPDatabase, openDB } from "idb";
 
@@ -263,7 +264,7 @@ export async function clearMessagesIDB(showToast = true) {
 
     Toasts.show({
         type: Toasts.Type.MESSAGE,
-        message: "Cleared message log database and cache.",
+        message: t("تم مسح قاعدة بيانات سجل الرسائل والذاكرة المؤقتة.", "Cleared message log database and cache."),
         id: Toasts.genId()
     });
 }

@@ -8,6 +8,7 @@ import { Button } from "@components/Button";
 import { Flex } from "@components/Flex";
 import { Heading } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
+import { t } from "@utils/esharqI18n";
 import type { RenderModalProps } from "@vencord/discord-types";
 import { Modal, openModal, showToast, Toasts, useEffect, useState } from "@webpack/common";
 
@@ -40,7 +41,7 @@ function UploadClipFileModal({ modalProps, channelId, clip }: { modalProps: Rend
 
     const canUpload = Boolean(file && fileName.trim() && title.trim() && isValidDate(createdAt)) && !uploading;
     const notice = createdAt && !isValidDate(createdAt)
-        ? { message: "Created at must be a valid date.", type: "critical" as const }
+        ? { message: t("يجب أن يكون «تاريخ الإنشاء» تاريخاً صالحاً.", "Created at must be a valid date."), type: "critical" as const }
         : undefined;
 
     useEffect(() => abortActiveClipUploads, []);

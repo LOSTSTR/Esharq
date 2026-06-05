@@ -12,6 +12,7 @@ import { Button } from "@components/Button";
 import { BadgeContextMenu } from "@plugins/_api/badges";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { openInviteModal } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { ContextMenuApi, React, Toasts, UserStore } from "@webpack/common";
 
@@ -52,7 +53,7 @@ export default definePlugin({
             await loadBadges();
             Toasts.show({
                 id: Toasts.genId(),
-                message: "Successfully refetched global badges!",
+                message: t("تمت إعادة جلب الشارات العامة بنجاح!", "Successfully refetched global badges!"),
                 type: Toasts.Type.SUCCESS
             });
         }

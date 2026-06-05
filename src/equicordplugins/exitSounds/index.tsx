@@ -132,7 +132,7 @@ export default definePlugin({
                     await new Promise(r => setTimeout(r, 500));
                 } catch {
                     Toasts.show({
-                        message: "Oops! Something went wrong.",
+                        message: t("عذراً! حدث خطأ ما.", "Oops! Something went wrong."),
                         id: Toasts.genId(),
                         type: Toasts.Type.FAILURE
                     });

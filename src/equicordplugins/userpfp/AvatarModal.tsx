@@ -8,6 +8,7 @@ import { set } from "@api/DataStore";
 import { Heading } from "@components/Heading";
 import { Margins } from "@components/margins";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { RenderModalProps } from "@vencord/discord-types";
 import { IconUtils, Modal, React, TextInput, Toasts, UserStore, useState } from "@webpack/common";
 
@@ -48,7 +49,7 @@ export function SetAvatarModal({ userId, modalProps }: { userId: string; modalPr
 
         if (file.type === "image/gif" || file.type === "image/webp") {
             Toasts.show({
-                message: "GIFs/WebP must be added via URL. Upload your GIF/WebP to a image hosting service and paste the link.",
+                message: t("يجب إضافة GIF/WebP عبر رابط. ارفع ملف GIF/WebP إلى خدمة استضافة صور والصق الرابط.", "GIFs/WebP must be added via URL. Upload your GIF/WebP to a image hosting service and paste the link."),
                 type: Toasts.Type.FAILURE,
                 id: Toasts.genId(),
             });
