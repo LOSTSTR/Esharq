@@ -17,6 +17,7 @@ import AddSong from "@equicordplugins/songSpotlight.desktop/ui/settings/AddSong"
 import { Song, UserData } from "@song-spotlight/api/structs";
 import { sid } from "@song-spotlight/api/util";
 import { copyWithToast } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import {
     ContextMenuApi,
     FluxDispatcher,
@@ -55,7 +56,7 @@ function EditableSong({ song, insert, setSongRef, onDrag, onDrop, onRemove }: Ed
                     >
                         <Menu.MenuItem
                             id="copy-link"
-                            label="Copy link"
+                            label={t("نسخ الرابط", "Copy link")}
                             icon={LinkIcon}
                             action={() => render && copyWithToast(render.link)}
                             disabled={!render}
@@ -63,7 +64,7 @@ function EditableSong({ song, insert, setSongRef, onDrag, onDrop, onRemove }: Ed
                         <Menu.MenuItem
                             id="remove-song"
                             color="danger"
-                            label="Remove song"
+                            label={t("إزالة الأغنية", "Remove song")}
                             icon={TrashIcon}
                             action={() => onRemove(song)}
                         />

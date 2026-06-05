@@ -29,6 +29,7 @@ import { RenderInfoEntryBased, RenderSongInfo } from "@song-spotlight/api/handle
 import { Song as SongType } from "@song-spotlight/api/structs";
 import { isListLayout, sid } from "@song-spotlight/api/util";
 import { copyWithToast } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import {
     Clickable,
@@ -70,13 +71,13 @@ function SongEntry({ entry, number, isLoaded, isPlaying, big, onClick }: SongEnt
                     >
                         <Menu.MenuItem
                             id="copy-link"
-                            label="Copy link"
+                            label={t("نسخ الرابط", "Copy link")}
                             icon={LinkIcon}
                             action={() => copyWithToast(entry.link)}
                         />
                         <Menu.MenuItem
                             id="steal-song"
-                            label="Steal song"
+                            label={t("سرقة الأغنية", "Steal song")}
                             icon={PuzzlePieceIcon}
                             action={async () => {
                                 const self = useSongStore.getState().self?.data ?? [];
@@ -183,7 +184,7 @@ function SongInfo({ owned, song, render, big }: SongInfoProps) {
                                         >
                                             <Menu.MenuItem
                                                 id="copy-link"
-                                                label="Copy link"
+                                                label={t("نسخ الرابط", "Copy link")}
                                                 icon={LinkIcon}
                                                 action={() => copyWithToast(render.link)}
                                             />
@@ -191,7 +192,7 @@ function SongInfo({ owned, song, render, big }: SongInfoProps) {
                                                 ? (
                                                     <Menu.MenuItem
                                                         id="steal-song"
-                                                        label="Steal song"
+                                                        label={t("سرقة الأغنية", "Steal song")}
                                                         icon={PuzzlePieceIcon}
                                                         action={() => {
                                                             const self = useSongStore.getState().self?.data ?? [];
@@ -210,7 +211,7 @@ function SongInfo({ owned, song, render, big }: SongInfoProps) {
                                                     <Menu.MenuItem
                                                         id="remove-song"
                                                         color="danger"
-                                                        label="Remove song"
+                                                        label={t("إزالة الأغنية", "Remove song")}
                                                         icon={TrashIcon}
                                                         action={() => {
                                                             const self = useSongStore.getState().self?.data ?? [];

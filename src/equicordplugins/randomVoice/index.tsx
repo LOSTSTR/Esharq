@@ -14,6 +14,7 @@ import { Switch } from "@components/Switch";
 import { debounce } from "@shared/debounce";
 import { Devs, EquicordDevs, IS_MAC } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { makeRange, OptionType } from "@utils/types";
 import type { Channel, VoiceState } from "@vencord/discord-types";
 import { findByCodeLazy, findByPropsLazy } from "@webpack";
@@ -681,18 +682,18 @@ function RandomVoiceMenu({ onClose }: { onClose(): void; }) {
 
     return (
         <Menu.Menu navId="random-voice" onClose={onClose} aria-label="Random Voice">
-            <Menu.MenuItem id="random-voice-servers" label="Servers">
+            <Menu.MenuItem id="random-voice-servers" label={t("السيرفرات", "Servers")}>
                 <>
                     <Menu.MenuCheckboxItem
                         id="random-voice-select-all-servers"
-                        label="Select All"
+                        label={t("تحديد الكل", "Select All")}
                         checked={selectedServerIds.length === allServerIds.length}
                         disabled={selectedServerIds.length === allServerIds.length}
                         action={selectAllServers}
                     />
                     <Menu.MenuCheckboxItem
                         id="random-voice-reset-servers"
-                        label="Reset"
+                        label={t("إعادة تعيين", "Reset")}
                         checked={selectedServerIds.length === 0}
                         disabled={!selectedServerIds.length}
                         action={resetServers}
@@ -710,7 +711,7 @@ function RandomVoiceMenu({ onClose }: { onClose(): void; }) {
                 </>
             </Menu.MenuItem>
 
-            <Menu.MenuItem id="random-voice-state-filters" label="State Filters">
+            <Menu.MenuItem id="random-voice-state-filters" label={t("مرشّحات الحالة", "State Filters")}>
                 <>
                     {stateFilters.map(({ key, label }) => (
                         <Menu.MenuCheckboxItem
@@ -724,14 +725,14 @@ function RandomVoiceMenu({ onClose }: { onClose(): void; }) {
                     <Menu.MenuSeparator />
                     <Menu.MenuCheckboxItem
                         id="random-voice-include-states"
-                        label="Include Filters"
+                        label={t("مرشّحات التضمين", "Include Filters")}
                         checked={store.includeStates}
                         disabled={store.avoidStates || !hasStateFilters(store)}
                         action={() => toggle("includeStates")}
                     />
                     <Menu.MenuCheckboxItem
                         id="random-voice-avoid-states"
-                        label="Avoid Filters"
+                        label={t("مرشّحات التجنّب", "Avoid Filters")}
                         checked={store.avoidStates}
                         disabled={store.includeStates || !hasStateFilters(store)}
                         action={() => toggle("avoidStates")}
@@ -780,7 +781,7 @@ function RandomVoiceMenu({ onClose }: { onClose(): void; }) {
 
             <Menu.MenuSeparator />
 
-            <Menu.MenuItem id="random-voice-self-settings" label="Join Settings">
+            <Menu.MenuItem id="random-voice-self-settings" label={t("إعدادات الانضمام", "Join Settings")}>
                 <>
                     {selfSettings.map(({ key, label }) => (
                         <Menu.MenuCheckboxItem
@@ -833,7 +834,7 @@ function renderOperationGroup({
                     />
                 )}
             />
-            <Menu.MenuItem id={`random-voice-operation-${operationKey}`} label="Parameters">
+            <Menu.MenuItem id={`random-voice-operation-${operationKey}`} label={t("المعاملات", "Parameters")}>
                 <>
                     {operationOptions.map(option => (
                         <Menu.MenuRadioItem
