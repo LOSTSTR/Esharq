@@ -38,20 +38,20 @@ export async function authorizeUser(triggerModal: boolean = true) {
                         await DataStore.set("ThemeLibrary_uniqueToken", token);
                         showNotification({
                             title: "ThemeLibrary",
-                            body: "Successfully authorized with ThemeLibrary!"
+                            body: t("تم التفويض بنجاح مع ThemeLibrary!", "Successfully authorized with ThemeLibrary!")
                         });
                     } else {
                         logger.debug("Tried to authorize via OAuth2, but no token returned");
                         showNotification({
                             title: "ThemeLibrary",
-                            body: "Failed to authorize, check console"
+                            body: t("فشل التفويض، تحقّق من الكونسول", "Failed to authorize, check console")
                         });
                     }
                 } catch (e: any) {
                     logger.error("Failed to authorize", e);
                     showNotification({
                         title: "ThemeLibrary",
-                        body: "Failed to authorize, check console"
+                        body: t("فشل التفويض، تحقّق من الكونسول", "Failed to authorize, check console")
                     });
                 }
             }
@@ -88,7 +88,7 @@ export async function deauthorizeUser() {
         await DataStore.del("ThemeLibrary_uniqueToken");
         showNotification({
             title: "ThemeLibrary",
-            body: "Successfully deauthorized from ThemeLibrary!"
+            body: t("تم إلغاء التفويض بنجاح من ThemeLibrary!", "Successfully deauthorized from ThemeLibrary!")
         });
     } else {
         // try to delete anyway
@@ -98,7 +98,7 @@ export async function deauthorizeUser() {
             logger.error("Failed to delete token", e);
             showNotification({
                 title: "ThemeLibrary",
-                body: "Failed to deauthorize, check console"
+                body: t("فشل إلغاء التفويض، تحقّق من الكونسول", "Failed to deauthorize, check console")
             });
         }
     }
