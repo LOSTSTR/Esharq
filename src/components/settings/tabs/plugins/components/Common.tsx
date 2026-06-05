@@ -6,6 +6,7 @@
 
 import { BaseText } from "@components/BaseText";
 import { classNameFactory } from "@utils/css";
+import { isArabicMode } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import { wordsFromCamel, wordsToTitle } from "@utils/text";
 import { DefinedSettings, PluginSettingDefCommon } from "@utils/types";
@@ -43,12 +44,16 @@ interface SettingsSectionProps extends PropsWithChildren {
 }
 
 export function SettingsSection({ tag: Tag = "div", name, description, error, inlineSetting, children }: SettingsSectionProps) {
+    // عند تفعيل العربية: نعرض الوصف المُعرَّب (من الـoverlay) كعنوان غامق ونُخفي السطر المكرّر،
+    // بدل العنوان الإنجليزي المُشتقّ من مفتاح الإعداد. عند الإنجليزية: السلوك القياسي (عنوان من المفتاح + وصف).
+    const arabic = isArabicMode();
+    const title = arabic && description ? description : wordsToTitle(wordsFromCamel(name));
     return (
         <Tag className={cl("section")}>
             <div className={classes(cl("content"), inlineSetting && cl("inline"))}>
                 <div className={cl("label")}>
-                    {name && <BaseText className={cl("title")} size="md" weight="medium">{wordsToTitle(wordsFromCamel(name))}</BaseText>}
-                    {description && <BaseText className={cl("description")} size="sm">{description}</BaseText>}
+                    {name && <BaseText className={cl("title")} size="md" weight="medium">{title}</BaseText>}
+                    {!arabic && description && <BaseText className={cl("description")} size="sm">{description}</BaseText>}
                 </div>
                 {children}
             </div>
