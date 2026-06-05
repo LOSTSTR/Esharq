@@ -7,6 +7,7 @@
 import { showNotice } from "@api/Notices";
 import { plugins, startDependenciesRecursive, startPlugin, stopPlugin } from "@api/PluginManager";
 import { Settings } from "@api/Settings";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import { Alerts, Toasts } from "@webpack/common";
 
@@ -26,17 +27,17 @@ function showErrorToast(message: string) {
 function restartPrompt(): Promise<boolean> {
     return new Promise(resolve => {
         Alerts.show({
-            title: "Restart Required",
+            title: t("إعادة التشغيل مطلوبة", "Restart Required"),
             body: (
                 <>
                     <p style={{ textAlign: "center" }}>
-                        Some plugins require a restart to fully disable.
+                        {t("بعض الإضافات تتطلّب إعادة تشغيل لتعطيلها بالكامل.", "Some plugins require a restart to fully disable.")}
                     </p>
-                    <p style={{ textAlign: "center" }}>Would you like to restart now?</p>
+                    <p style={{ textAlign: "center" }}>{t("هل تريد إعادة التشغيل الآن؟", "Would you like to restart now?")}</p>
                 </>
             ),
-            confirmText: "Restart Now",
-            cancelText: "Later",
+            confirmText: t("إعادة التشغيل الآن", "Restart Now"),
+            cancelText: t("لاحقاً", "Later"),
             onConfirm: () => resolve(true),
             onCancel: () => resolve(false),
         });

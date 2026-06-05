@@ -2803,14 +2803,14 @@ function describeCustomAction(command: CustomCommandDefinition): string {
 function confirmCustomCommand(command: CustomCommandDefinition): Promise<boolean> {
     return new Promise(resolve => {
         Alerts.show({
-            title: command.label || "Confirm command",
+            title: command.label || t("تأكيد الأمر", "Confirm command"),
             body: (
                 <div style={{ whiteSpace: "pre-wrap" }}>
                     {describeCustomAction(command)}
                 </div>
             ),
-            confirmText: "Yes",
-            cancelText: "Cancel",
+            confirmText: t("نعم", "Yes"),
+            cancelText: t("إلغاء", "Cancel"),
             onConfirm: () => resolve(true),
             onCancel: () => resolve(false)
         });

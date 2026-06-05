@@ -18,6 +18,7 @@
 
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { findByPropsLazy } from "@webpack";
 import { Alerts, Button, GuildStore } from "@webpack/common";
@@ -93,12 +94,12 @@ export default definePlugin({
     async HandleGuildDeleteModal(server) {
         if (settings.store.confirmModal) {
             return Alerts.show({
-                title: "Delete server?",
-                body: <p>It's permanent, if that wasn't obvious.</p>,
+                title: t("حذف السيرفر؟", "Delete server?"),
+                body: <p>{t("إنه دائم، إن لم يكن ذلك واضحاً.", "It's permanent, if that wasn't obvious.")}</p>,
                 confirmColor: Button.Colors.RED,
-                confirmText: "Delete",
+                confirmText: t("حذف", "Delete"),
                 onConfirm: () => GetPropsAndDeleteGuild(server.id),
-                cancelText: "Cancel"
+                cancelText: t("إلغاء", "Cancel")
             });
         } else {
             return GetPropsAndDeleteGuild(server.id);

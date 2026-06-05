@@ -230,16 +230,16 @@ function generatePluginList() {
 
     if (enabledPlugins.length > 100 && !isAnyPluginDev(user.id)) {
         Alerts.show({
-            title: "Warning: High Plugin Count",
+            title: t("تحذير: عدد إضافات مرتفع", "Warning: High Plugin Count"),
             body: <div>
                 <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
                     <img src="https://media.tenor.com/QtGqjwBpRzwAAAAi/wumpus-dancing.gif" />
                 </div>
-                <Paragraph>You have more than 100 plugins enabled.</Paragraph>
-                <Paragraph>Due to the sheer amount of plugins, you may not receive support.</Paragraph>
-                <Paragraph>Your issue is likely caused by plugin conflicts.</Paragraph>
-                <Paragraph>Please consider disabling some plugins to troubleshoot.</Paragraph>
-                <Paragraph className={Margins.top8}>Your plugin list will be sent as a text file.</Paragraph>
+                <Paragraph>{t("لديك أكثر من 100 إضافة مُفعّلة.", "You have more than 100 plugins enabled.")}</Paragraph>
+                <Paragraph>{t("بسبب الكمّ الهائل من الإضافات، قد لا تتلقّى دعماً.", "Due to the sheer amount of plugins, you may not receive support.")}</Paragraph>
+                <Paragraph>{t("مشكلتك على الأرجح ناتجة عن تعارض الإضافات.", "Your issue is likely caused by plugin conflicts.")}</Paragraph>
+                <Paragraph>{t("يُرجى التفكير في تعطيل بعض الإضافات لاستكشاف المشكلة.", "Please consider disabling some plugins to troubleshoot.")}</Paragraph>
+                <Paragraph className={Margins.top8}>{t("ستُرسَل قائمة إضافاتك كملف نصّي.", "Your plugin list will be sent as a text file.")}</Paragraph>
             </div>
         });
 

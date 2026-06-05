@@ -111,8 +111,8 @@ export default definePlugin({
             const { notification } = user;
             if (notification) {
                 const props = notification.type === NotificationType.Ban ? {
-                    cancelText: "Appeal",
-                    confirmText: "Ok",
+                    cancelText: t("استئناف", "Appeal"),
+                    confirmText: t("حسناً", "Ok"),
                     onCancel: async () =>
                         VencordNative.native.openExternal(
                             "https://reviewdb.mantikafasi.dev/api/redirect?"

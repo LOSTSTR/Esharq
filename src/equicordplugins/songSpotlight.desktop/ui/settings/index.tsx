@@ -10,7 +10,6 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { Flex } from "@components/Flex";
 import { apiConstants, deleteData, getData, saveData } from "@equicordplugins/songSpotlight.desktop/lib/api";
 import { presentOAuth2Modal } from "@equicordplugins/songSpotlight.desktop/lib/oauth2";
-import { t } from "@utils/esharqI18n";
 import { useAuthorizationStore } from "@equicordplugins/songSpotlight.desktop/lib/stores/AuthorizationStore";
 import { useSongStore } from "@equicordplugins/songSpotlight.desktop/lib/stores/SongStore";
 import { cl } from "@equicordplugins/songSpotlight.desktop/lib/utils";
@@ -21,6 +20,7 @@ import { UserData, UserDataSchema } from "@song-spotlight/api/structs";
 import { sid } from "@song-spotlight/api/util";
 import { readClipboard } from "@utils/clipboard";
 import { copyWithToast } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { RenderModalProps } from "@vencord/discord-types";
 import { Alerts, Modal,openModal, Parser, showToast, Toasts, useCallback, useEffect, useMemo, useRef, useState } from "@webpack/common";
 
@@ -198,8 +198,8 @@ export default function Settings({ templateData }: SettingsProps) {
                                     }
                                 },
                                 confirmColor: "danger",
-                                confirmText: "Delete",
-                                cancelText: "Nevermind",
+                                confirmText: t("حذف", "Delete"),
+                                cancelText: t("لا عليك", "Nevermind"),
                             })}
                         disabled={!self?.data[0] || pending}
                     >
