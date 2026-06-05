@@ -36,7 +36,7 @@ export interface PluginI18n {
     description?: LocalizedString;
     options?: Record<string, PluginOptionI18n>;
     /**
-     * Translations for `toolboxActions` labels (the Esharq Toolbox quick-action
+     * Translations for `toolboxActions` labels (the toolbox quick-action
      * menu), keyed by the original English action label. Resolved at render time
      * so they toggle with the language; unlisted actions stay English.
      */

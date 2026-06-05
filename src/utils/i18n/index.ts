@@ -69,7 +69,7 @@ export function resolvePluginSelectLabel(pluginName: string, key: string, value:
 }
 
 /**
- * Resolve a `toolboxActions` label (Esharq Toolbox quick-action menu), keyed by
+ * Resolve a `toolboxActions` label (the toolbox quick-action menu), keyed by
  * the original English label. Override-or-original: a label with no overlay
  * entry stays English. Called per-render so it toggles with the language.
  */
