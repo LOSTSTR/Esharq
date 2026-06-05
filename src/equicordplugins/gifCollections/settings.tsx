@@ -85,14 +85,14 @@ export const settings = definePluginSettings({
         component: () =>
             <Button onClick={async () =>
                 (await getCollections()).length ? Alerts.show({
-                    title: "Are you sure?",
-                    body: "Importing collections will overwrite your current collections.",
-                    confirmText: "Import",
+                    title: t("هل أنت متأكد؟", "Are you sure?"),
+                    body: t("استيراد المجموعات سيستبدل مجموعاتك الحالية.", "Importing collections will overwrite your current collections."),
+                    confirmText: t("استيراد", "Import"),
                     confirmColor: Button.Colors.RED,
-                    cancelText: "Nevermind",
+                    cancelText: t("لا عليك", "Nevermind"),
                     onConfirm: () => uploadGifCollections(),
                 }) : uploadGifCollections()}>
-                Import Collections
+                {t("استيراد المجموعات", "Import Collections")}
             </Button>,
     },
     exportGifs: {
@@ -100,7 +100,7 @@ export const settings = definePluginSettings({
         description: t("تصدير المجموعات.", "Export collections."),
         component: () =>
             <Button onClick={downloadCollections}>
-                Export Collections
+                {t("تصدير المجموعات", "Export Collections")}
             </Button>,
     },
     resetCollections: {
@@ -109,11 +109,11 @@ export const settings = definePluginSettings({
         component: () =>
             <Button onClick={() =>
                 Alerts.show({
-                    title: "Are you sure?",
-                    body: "Resetting collections will remove all your collections.",
-                    confirmText: "Reset",
+                    title: t("هل أنت متأكد؟", "Are you sure?"),
+                    body: t("إعادة تعيين المجموعات ستزيل جميع مجموعاتك.", "Resetting collections will remove all your collections."),
+                    confirmText: t("إعادة تعيين", "Reset"),
                     confirmColor: Button.Colors.RED,
-                    cancelText: "Nevermind",
+                    cancelText: t("لا عليك", "Nevermind"),
                     onConfirm: async () => {
                         await DataStore.set(DATA_COLLECTION_NAME, []);
                         refreshCacheCollection();

@@ -370,14 +370,14 @@ const settings = definePluginSettings({
         component: () => (
             <Button onClick={() =>
                 Alerts.show({
-                    title: "Are you sure?",
-                    body: "This will overwrite your current whitelist.",
-                    confirmText: "Import",
+                    title: t("هل أنت متأكد؟", "Are you sure?"),
+                    body: t("سيستبدل هذا قائمتك البيضاء الحالية.", "This will overwrite your current whitelist."),
+                    confirmText: t("استيراد", "Import"),
                     confirmColor: Button.Colors.RED,
-                    cancelText: "Cancel",
+                    cancelText: t("إلغاء", "Cancel"),
                     onConfirm: uploadEmojis
                 })}>
-                Import Emojis
+                {t("استيراد الإيموجي", "Import Emojis")}
             </Button>
         )
     },
@@ -387,11 +387,11 @@ const settings = definePluginSettings({
         component: () => (
             <Button onClick={() =>
                 Alerts.show({
-                    title: "Are you sure?",
-                    body: "This will remove all emojis from your whitelist.",
-                    confirmText: "Reset",
+                    title: t("هل أنت متأكد؟", "Are you sure?"),
+                    body: t("سيزيل هذا جميع الإيموجي من قائمتك البيضاء.", "This will remove all emojis from your whitelist."),
+                    confirmText: t("إعادة تعيين", "Reset"),
                     confirmColor: Button.Colors.RED,
-                    cancelText: "Cancel",
+                    cancelText: t("إلغاء", "Cancel"),
                     onConfirm: resetEmojis
                 })}>
                 Reset Emojis

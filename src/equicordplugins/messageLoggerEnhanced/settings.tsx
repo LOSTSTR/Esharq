@@ -305,17 +305,17 @@ export const settings = definePluginSettings({
             <Button
                 variant="dangerPrimary"
                 onClick={() => Alerts.show({
-                    title: "Clear Logs",
-                    body: "Are you sure you want to clear all logs?",
+                    title: t("مسح السجلات", "Clear Logs"),
+                    body: t("هل أنت متأكد أنك تريد مسح جميع السجلات؟", "Are you sure you want to clear all logs?"),
                     confirmVariant: "critical-primary",
-                    confirmText: "Clear",
-                    cancelText: "Cancel",
+                    confirmText: t("مسح", "Clear"),
+                    cancelText: t("إلغاء", "Cancel"),
                     onConfirm: async () => {
                         await clearLogs();
                     },
                 })}
             >
-                Clear Logs
+                {t("مسح السجلات", "Clear Logs")}
             </Button>
     },
 
