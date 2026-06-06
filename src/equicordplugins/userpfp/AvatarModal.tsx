@@ -97,7 +97,7 @@ export function SetAvatarModal({ userId, modalProps }: { userId: string; modalPr
         <Modal
             {...modalProps}
             size="sm"
-            title="Custom Avatar"
+            title={t("صورة رمزية مخصّصة", "Custom Avatar")}
             actions={actions}
         >
             <div onKeyDown={handleKey}>

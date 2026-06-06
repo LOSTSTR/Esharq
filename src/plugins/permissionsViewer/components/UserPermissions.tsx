@@ -21,6 +21,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { HeadingTertiary } from "@components/Heading";
 import { cl, getGuildPermissionSpecMap, getSortedRolesForMember, sortUserRoles } from "@plugins/permissionsViewer/utils";
 import { getIntlMessage } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import type { Guild, GuildMember, RoleOrUserPermission } from "@vencord/discord-types";
 import { PermissionOverwriteType } from "@vencord/discord-types/enums";
@@ -161,7 +162,7 @@ function UserPermissionsComponent({ guild, guildMember, closePopout }: { guild: 
                         </div>
                     )}
                 </Tooltip>
-                <Tooltip text="Role Details">
+                <Tooltip text={t("تفاصيل الدور", "Role Details")}>
                     {tooltipProps => (
                         <div
                             {...tooltipProps}

@@ -9,7 +9,7 @@ import { Card } from "@components/Card";
 import { Flex } from "@components/Flex";
 import { FormSwitch } from "@components/FormSwitch";
 import { Paragraph } from "@components/Paragraph";
-import { t } from "@utils/esharqI18n";
+import { t as tr } from "@utils/esharqI18n"; // aliased: the tags.map() callback param is named `t`
 import { Margins } from "@utils/margins";
 import { OptionType } from "@utils/types";
 import { Forms, TextInput, Tooltip } from "@webpack/common";
@@ -75,14 +75,14 @@ function SettingsComponent() {
                         />
 
                         <FormSwitch
-                            title="Show in messages"
+                            title={tr("إظهار في الرسائل", "Show in messages")}
                             value={tagSettings[t.name]?.showInChat ?? true}
                             onChange={v => tagSettings[t.name].showInChat = v}
                             hideBorder
                         />
 
                         <FormSwitch
-                            title="Show in member list and profiles"
+                            title={tr("إظهار في قائمة الأعضاء والملفات الشخصية", "Show in member list and profiles")}
                             value={tagSettings[t.name]?.showInNotChat ?? true}
                             onChange={v => tagSettings[t.name].showInNotChat = v}
                             hideBorder
@@ -96,28 +96,28 @@ function SettingsComponent() {
 
 export const settings = definePluginSettings({
     dontShowForBots: {
-        description: t("عدم إظهار شارات إضافية للبوتات (باستثناء الـ webhooks)", "Do not show extra tags for bots (except webhooks)"),
+        description: tr("عدم إظهار شارات إضافية للبوتات (باستثناء الـ webhooks)", "Do not show extra tags for bots (except webhooks)"),
         type: OptionType.BOOLEAN,
         default: false
     },
     dontShowBotTag: {
-        description: t("إظهار الوسوم الإضافية للبوتات فقط / إخفاء نص [APP]", "Only show extra tags for bots / hide [APP] text"),
+        description: tr("إظهار الوسوم الإضافية للبوتات فقط / إخفاء نص [APP]", "Only show extra tags for bots / hide [APP] text"),
         type: OptionType.BOOLEAN,
         default: false,
         restartNeeded: true
     },
     showWebhookTagFully: {
-        description: t("إظهار وسم Webhook في القنوات المتابعة مثل قنوات الإعلانات", "Show Webhook tag in followed channels like announcement channels"),
+        description: tr("إظهار وسم Webhook في القنوات المتابعة مثل قنوات الإعلانات", "Show Webhook tag in followed channels like announcement channels"),
         type: OptionType.BOOLEAN,
         default: false
     },
     tagSettings: {
         type: OptionType.COMPONENT,
         component: SettingsComponent,
-        description: t("إعدادات الوسوم", "Tag settings")
+        description: tr("إعدادات الوسوم", "Tag settings")
     },
     noAppsAllowed: {
-        description: t("يستبدل كلمة 'app' بكلمة 'bot'", "Replace 'app' with 'bot'"),
+        description: tr("يستبدل كلمة 'app' بكلمة 'bot'", "Replace 'app' with 'bot'"),
         type: OptionType.BOOLEAN,
         default: false,
         restartNeeded: true

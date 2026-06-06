@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { t } from "@utils/esharqI18n";
 import { Flex } from "@components/Flex";
 import { PluginSettings, ProfilableStore } from "@plugins/philsPluginLibrary";
 import { CopyButton, DeleteButton, NewButton, SaveButton } from "@plugins/philsPluginLibrary/components/buttons";
@@ -87,7 +88,7 @@ export const SettingsModalProfilesCard = <T extends PluginSettings = {},>(props:
                         {isSaving
                             ? <TextInput
                                 style={{ width: "100%" }}
-                                placeholder="Insert name"
+                                placeholder={t("إدراج الاسم", "Insert name")}
                                 value={profileNameInput}
                                 onChange={setProfileNameInput} />
                             : <Select

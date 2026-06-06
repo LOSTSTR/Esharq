@@ -9,6 +9,7 @@ import { CheckedTextInput } from "@components/CheckedTextInput";
 import { FormSwitch } from "@components/FormSwitch";
 import { Heading, HeadingSecondary } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { identity } from "@utils/misc";
 import { Activity } from "@vencord/discord-types";
@@ -83,7 +84,7 @@ export function ReplaceSettings({ appIds, update, save }: SettingsProps) {
                         {
                             isValidSnowflake(setting.appId) ?
                                 <FormSwitch
-                                    title="Apply edits to app"
+                                    title={t("تطبيق التعديلات على التطبيق", "Apply edits to app")}
                                     value={setting.enabled}
                                     onChange={value => {
                                         onChange(value, i, "enabled");
@@ -205,7 +206,7 @@ export function ReplaceSettings({ appIds, update, save }: SettingsProps) {
                                     </>
                                 }
                                 <FormSwitch
-                                    title="Hide assets (large & small images)"
+                                    title={t("إخفاء الأصول (الصور الكبيرة والصغيرة)", "Hide assets (large & small images)")}
                                     value={setting.disableAssets}
                                     onChange={value => {
                                         onChange(value, i, "disableAssets");
@@ -214,7 +215,7 @@ export function ReplaceSettings({ appIds, update, save }: SettingsProps) {
                                     hideBorder={true}
                                 />
                                 <FormSwitch
-                                    title="Hide timestamps"
+                                    title={t("إخفاء الطوابع الزمنية", "Hide timestamps")}
                                     value={setting.disableTimestamps}
                                     onChange={value => {
                                         onChange(value, i, "disableTimestamps");

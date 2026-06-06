@@ -53,7 +53,7 @@ export function OpenSettingsEditor({ command, onChange, showAdvanced }: OpenSett
                 <TextInput
                     label={t("مسار الإعدادات", "Settings Route")}
                     value={route}
-                    placeholder="My Account"
+                    placeholder={t("حسابي", "My Account")}
                     onChange={value => onChange({
                         ...command,
                         action: { type: "settings", route: value }

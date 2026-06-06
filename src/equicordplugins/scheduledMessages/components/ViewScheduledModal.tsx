@@ -7,6 +7,7 @@
 import { Button } from "@components/Button";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { RenderModalProps } from "@vencord/discord-types";
 import { ChannelStore, closeModal, Modal, openModal, showToast, Toasts, useState } from "@webpack/common";
 
@@ -55,7 +56,7 @@ function ViewScheduledModalInner({ rootProps, close }: ViewScheduledModalProps) 
         <Modal
             {...rootProps}
             size="md"
-            title="Scheduled Messages"
+            title={t("الرسائل المجدولة", "Scheduled Messages")}
             actions={actions}
         >
             {!messages.length ? (

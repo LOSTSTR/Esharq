@@ -9,13 +9,14 @@ import { Auth } from "@plugins/reviewDB/auth";
 import { ReviewDBUser } from "@plugins/reviewDB/entities";
 import { fetchBlocks, unblockUser } from "@plugins/reviewDB/reviewDbApi";
 import { cl } from "@plugins/reviewDB/utils";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import { useAwaiter } from "@utils/react";
 import { Modal, openModal, Tooltip, useState } from "@webpack/common";
 
 function UnblockButton(props: { onClick?(): void; }) {
     return (
-        <Tooltip text="Unblock user">
+        <Tooltip text={t("إلغاء حظر المستخدم", "Unblock user")}>
             {tooltipProps => (
                 <div
                     {...tooltipProps}
@@ -87,7 +88,7 @@ export function openBlockModal() {
     openModal(modalProps => (
         <Modal
             {...modalProps}
-            title="Blocked Users"
+            title={t("المستخدمون المحظورون", "Blocked Users")}
         >
             <div className={cl("block-modal")}>
                 {Auth.token ? <BlockedUsersList /> : <Paragraph>You are not logged into ReviewDB!</Paragraph>}

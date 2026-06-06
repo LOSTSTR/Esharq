@@ -6,6 +6,7 @@
 
 import { Button } from "@components/Button";
 import { Heading } from "@components/Heading";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import { openModal, React, SelectedGuildStore, TextInput, useStateFromStores } from "@webpack/common";
 
@@ -126,7 +127,7 @@ export function PresetManager({ section, guildId }: PresetManagerProps) {
             openModal(props => (
                 <ImportProfilesModal
                     {...props}
-                    title="Import Profiles"
+                    title={t("استيراد الملفات الشخصية", "Import Profiles")}
                     message={`You have ${existingCount} existing profiles in this section. Do you want to override them or merge with imported profiles?`}
                     onOverride={() => resolve("override")}
                     onMerge={() => resolve("merge")}

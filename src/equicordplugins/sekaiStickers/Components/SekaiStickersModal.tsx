@@ -8,6 +8,7 @@ import { Flex } from "@components/Flex";
 import { FormSwitch } from "@components/FormSwitch";
 import { Heading } from "@components/Heading";
 import { characters } from "@equicordplugins/sekaiStickers/characters.json";
+import { t } from "@utils/esharqI18n";
 import { RenderModalProps } from "@vencord/discord-types";
 import { ChannelStore, Modal, openModal, React, SelectedChannelStore, Slider, TextArea, UploadHandler } from "@webpack/common";
 
@@ -138,7 +139,7 @@ export default function SekaiStickersModal({ modalProps, settings }: { modalProp
                     <Slider minValue={10} asValueChanges={val => setFontSize(Math.round(val))} maxValue={100} initialValue={fontSize} keyboardStep={1} orientation={"horizontal"} onValueRender={(v: number) => String(Math.round(v))} />
                     <Heading>Spacing</Heading>
                     <Slider markers={[18, 36, 72, 100]} stickToMarkers={false} minValue={18} maxValue={100} initialValue={spaceSize} asValueChanges={e => setSpaceSize(e)} onValueRender={e => String(Math.round(e))} />
-                    <FormSwitch title="Enable curve" value={curve} onChange={val => setCurve(val)} />
+                    <FormSwitch title={t("تفعيل المنحنى", "Enable curve")} value={curve} onChange={val => setCurve(val)} />
                 </div>
             </Flex>
         </Modal>

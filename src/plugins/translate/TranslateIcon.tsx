@@ -18,6 +18,7 @@
 
 import { ChatBarButton, ChatBarButtonFactory } from "@api/ChatButtons";
 import { TooltipContainer } from "@components/TooltipContainer";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import { IconComponent } from "@utils/types";
 import { RenderModalProps } from "@vencord/discord-types";
@@ -48,11 +49,11 @@ function AutoTranslateConfirmModal(props: RenderModalProps) {
     return (
         <ConfirmModal
             {...props}
-            title="Vencord Auto-Translate Enabled"
+            title={t("ترجمة Vencord التلقائية مُفعّلة", "Vencord Auto-Translate Enabled")}
             subtitle="You just enabled Auto Translate! Any message will automatically be translated before being sent."
-            confirmText="Disable Auto-Translate"
+            confirmText={t("تعطيل الترجمة التلقائية", "Disable Auto-Translate")}
             onConfirm={() => settings.store.autoTranslate = false}
-            cancelText="Got it"
+            cancelText={t("فهمت", "Got it")}
             variant="primary"
             checkboxProps={{
                 checked: s.dismissedAutoTranslateAlert === true,
@@ -98,7 +99,7 @@ export const TranslateChatBarIcon: ChatBarButtonFactory = ({ isMainChat }) => {
 
     if (shouldShowTranslateEnabledTooltip && settings.store.showAutoTranslateTooltip)
         return (
-            <TooltipContainer text="Auto Translate Enabled" forceOpen>
+            <TooltipContainer text={t("الترجمة التلقائية مُفعّلة", "Auto Translate Enabled")} forceOpen>
                 {button}
             </TooltipContainer>
         );

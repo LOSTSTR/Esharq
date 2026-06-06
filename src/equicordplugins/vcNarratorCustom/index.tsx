@@ -14,6 +14,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { HeadingSecondary } from "@components/Heading";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { useForceUpdater } from "@utils/react";
 import { wordsToTitle } from "@utils/text";
@@ -903,7 +904,7 @@ function VoiceSelectModal({ modalProps, user }: { modalProps: RenderModalProps; 
         <Modal
             {...modalProps}
             size="md"
-            title="VC Narrator Voice"
+            title={t("صوت VC Narrator", "VC Narrator Voice")}
             actions={[
                 {
                     text: "Cancel",
@@ -929,7 +930,7 @@ function VoiceSelectModal({ modalProps, user }: { modalProps: RenderModalProps; 
                 <SearchableSelect
                     options={options}
                     value={options.find(o => o.value === currentValue)?.value}
-                    placeholder="Select a voice"
+                    placeholder={t("اختر صوتاً", "Select a voice")}
                     maxVisibleItems={6}
                     closeOnSelect={true}
                     onChange={v => setCurrentValue(v as any)}

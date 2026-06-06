@@ -5,6 +5,7 @@
  */
 
 import { Paragraph } from "@components/Paragraph";
+import { t } from "@utils/esharqI18n";
 import { Modal } from "@webpack/common";
 
 import { ClearAliasesConfirmModalProps } from "./types";
@@ -14,7 +15,7 @@ export function ClearAliasesConfirmModal({ modalProps, onConfirm }: ClearAliases
         <Modal
             {...modalProps}
             size="sm"
-            title="Delete all aliases"
+            title={t("حذف كل الأسماء المستعارة", "Delete all aliases")}
             actions={[
                 {
                     text: "Delete all aliases",

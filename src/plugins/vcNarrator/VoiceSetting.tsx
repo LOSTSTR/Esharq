@@ -6,6 +6,7 @@
 
 import { Heading } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
+import { t } from "@utils/esharqI18n";
 import { SearchableSelect, useMemo, useState } from "@webpack/common";
 
 import { getCurrentVoice, settings } from "./settings";
@@ -35,7 +36,7 @@ function SimplePicker({ voice, voices }: PickerProps) {
 
     return (
         <SearchableSelect
-            placeholder="Select a voice"
+            placeholder={t("اختر صوتاً", "Select a voice")}
             maxVisibleItems={5}
             options={options}
             value={options.find(o => o.value === voice)?.value}
@@ -87,7 +88,7 @@ function ComplexPicker({ voice, voices }: PickerProps) {
         <>
             <Heading>Language</Heading>
             <SearchableSelect
-                placeholder="Select a language"
+                placeholder={t("اختر لغة", "Select a language")}
                 options={languageOptions}
                 value={languageOptions.find(l => l.value === selectedLanguage)?.value}
                 onChange={v => setSelectedLanguage(v)}

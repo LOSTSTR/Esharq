@@ -13,6 +13,7 @@ import { ErrorBoundary } from "@components/index";
 import { Margins } from "@components/margins";
 import { EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import { Message } from "@vencord/discord-types";
@@ -54,7 +55,7 @@ function RegexHelper() {
             <HeadingTertiary className={Margins.bottom8}>Regex Helper</HeadingTertiary>
             <TextInput
                 type="text"
-                placeholder="Input to test..."
+                placeholder={t("نصّ للاختبار...", "Input to test...")}
                 value={testInput}
                 onChange={setTestInput}
                 maxLength={null}

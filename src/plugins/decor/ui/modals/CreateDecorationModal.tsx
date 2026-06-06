@@ -14,6 +14,7 @@ import { useCurrentUserDecorationsStore } from "@plugins/decor/lib/stores/Curren
 import { cl, DecorationModalClasses, requireAvatarDecorationModal, requireCreateStickerModal } from "@plugins/decor/ui";
 import { AvatarDecorationModalPreview } from "@plugins/decor/ui/components";
 import { openInviteModal } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { RenderModalProps } from "@vencord/discord-types";
 import { filters, findComponentByCodeLazy, mapMangledModuleLazy } from "@webpack";
@@ -63,7 +64,7 @@ function CreateDecorationModal(props: RenderModalProps) {
     return <Modal
         {...props}
         size="lg"
-        title="Create Decoration"
+        title={t("إنشاء زينة", "Create Decoration")}
         actions={[
             {
                 text: "Cancel",
@@ -98,7 +99,7 @@ function CreateDecorationModal(props: RenderModalProps) {
                             <Heading>File</Heading>
                             <FileUpload
                                 filename={file?.name}
-                                placeholder="Choose a file"
+                                placeholder={t("اختر ملفاً", "Choose a file")}
                                 buttonText="Browse"
                                 filters={[{ name: "Decoration file", extensions: ["png", "apng"] }]}
                                 onFileSelect={setFile}

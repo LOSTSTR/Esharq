@@ -6,6 +6,7 @@
 
 import { BaseText } from "@components/BaseText";
 import { Paragraph } from "@components/Paragraph";
+import { t } from "@utils/esharqI18n";
 import { Modal, TextInput, useState } from "@webpack/common";
 
 import { SetAliasModalProps } from "./types";
@@ -30,7 +31,7 @@ export function SetAliasModal({
         <Modal
             {...modalProps}
             size="sm"
-            title="Set alias"
+            title={t("تعيين اسم مستعار", "Set alias")}
             actions={[
                 {
                     text: "Save",

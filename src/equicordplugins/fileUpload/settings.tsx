@@ -538,14 +538,14 @@ export function SettingsComponent() {
                         description="Your Zipline API authorization token"
                         value={store.ziplineToken}
                         onChange={v => store.ziplineToken = v}
-                        placeholder="Your Zipline API token"
+                        placeholder={t("رمز API الخاص بـ Zipline", "Your Zipline API token")}
                     />
                     <SettingTextInput
                         name="Folder ID"
                         description="Folder ID for uploads (leave empty for no folder)"
                         value={store.folderId}
                         onChange={v => store.folderId = v}
-                        placeholder="Leave empty for no folder"
+                        placeholder={t("اتركه فارغاً لعدم استخدام مجلد", "Leave empty for no folder")}
                     />
                 </SettingGroup>
             )}
@@ -557,7 +557,7 @@ export function SettingsComponent() {
                         description="Your E-Z Host API key"
                         value={store.ezHostKey}
                         onChange={v => store.ezHostKey = v}
-                        placeholder="Your E-Z Host API key"
+                        placeholder={t("مفتاح API الخاص بـ E-Z Host", "Your E-Z Host API key")}
                     />
                 </SettingGroup>
             )}
@@ -569,7 +569,7 @@ export function SettingsComponent() {
                         description="Your Nest API authorization token"
                         value={store.nestToken}
                         onChange={v => store.nestToken = v}
-                        placeholder="Your Nest API token"
+                        placeholder={t("رمز API الخاص بـ Nest", "Your Nest API token")}
                     />
                 </SettingGroup>
             )}
@@ -581,7 +581,7 @@ export function SettingsComponent() {
                         description="Your Encrypting.host API key"
                         value={(store as { encryptingHostKey?: string; }).encryptingHostKey || ""}
                         onChange={v => (store as { encryptingHostKey?: string; }).encryptingHostKey = v}
-                        placeholder="Your Encrypting.host API key"
+                        placeholder={t("مفتاح API الخاص بـ Encrypting.host", "Your Encrypting.host API key")}
                     />
                     <SettingsSection name="URL Style" description="How Encrypting.host should format returned links.">
                         <Select
@@ -592,7 +592,7 @@ export function SettingsComponent() {
                                 update();
                             }}
                             serialize={v => v}
-                            placeholder="Select URL style"
+                            placeholder={t("اختر نمط الرابط", "Select URL style")}
                         />
                     </SettingsSection>
                     <SettingsSection name="Domains JSON" description={"JSON array of domains to use, for example [\"offensive\"]."}>
@@ -608,21 +608,21 @@ export function SettingsComponent() {
                         description="Optional title for embed style responses."
                         value={(store as { encryptingHostTitle?: string; }).encryptingHostTitle || ""}
                         onChange={v => (store as { encryptingHostTitle?: string; }).encryptingHostTitle = v}
-                        placeholder="Optional title"
+                        placeholder={t("عنوان (اختياري)", "Optional title")}
                     />
                     <SettingTextInput
                         name="Embed Color"
                         description="Optional color for embed style responses."
                         value={(store as { encryptingHostColor?: string; }).encryptingHostColor || ""}
                         onChange={v => (store as { encryptingHostColor?: string; }).encryptingHostColor = v}
-                        placeholder="Optional color"
+                        placeholder={t("لون (اختياري)", "Optional color")}
                     />
                     <SettingTextInput
                         name="Fake Link"
                         description="Optional fake link value for fakelink style responses."
                         value={(store as { encryptingHostFakelink?: string; }).encryptingHostFakelink || ""}
                         onChange={v => (store as { encryptingHostFakelink?: string; }).encryptingHostFakelink = v}
-                        placeholder="Optional fake link"
+                        placeholder={t("رابط وهمي (اختياري)", "Optional fake link")}
                     />
                 </SettingGroup>
             )}
@@ -655,21 +655,21 @@ export function SettingsComponent() {
                         description="S3-compatible access key"
                         value={store.s3AccessKeyId}
                         onChange={v => store.s3AccessKeyId = v}
-                        placeholder="Your access key ID"
+                        placeholder={t("معرّف مفتاح الوصول الخاص بك", "Your access key ID")}
                     />
                     <SettingTextInput
                         name="Secret Access Key"
                         description="S3-compatible secret key"
                         value={store.s3SecretAccessKey}
                         onChange={v => store.s3SecretAccessKey = v}
-                        placeholder="Your secret access key"
+                        placeholder={t("مفتاح الوصول السرّي الخاص بك", "Your secret access key")}
                     />
                     <SettingTextInput
                         name="Session Token"
                         description="Optional temporary credential token"
                         value={store.s3SessionToken}
                         onChange={v => store.s3SessionToken = v}
-                        placeholder="Optional session token"
+                        placeholder={t("رمز جلسة (اختياري)", "Optional session token")}
                     />
                     <SettingTextInput
                         name="Public Base URL"
@@ -701,7 +701,7 @@ export function SettingsComponent() {
                         description="Your Catbox userhash for account binding, leave empty for anonymous uploads."
                         value={store.catboxUserhash}
                         onChange={v => store.catboxUserhash = v}
-                        placeholder="Your Catbox userhash"
+                        placeholder={t("رمز userhash الخاص بـ Catbox", "Your Catbox userhash")}
                     />
                 </SettingGroup>
             )}
@@ -716,7 +716,7 @@ export function SettingsComponent() {
                             update();
                         }}
                         serialize={v => v}
-                        placeholder="Select expiry"
+                        placeholder={t("اختر مدّة الانتهاء", "Select expiry")}
                     />
                 </SettingsSection>
             )}
@@ -728,7 +728,7 @@ export function SettingsComponent() {
                         description="Optional GoFile token to upload into your account."
                         value={store.gofileToken}
                         onChange={v => store.gofileToken = v}
-                        placeholder="Optional GoFile token"
+                        placeholder={t("رمز GoFile (اختياري)", "Optional GoFile token")}
                     />
                 </SettingGroup>
             )}
@@ -740,7 +740,7 @@ export function SettingsComponent() {
                         description="Your PixelVault authorization key."
                         value={store.pixelVaultKey}
                         onChange={v => store.pixelVaultKey = v}
-                        placeholder="Your PixelVault upload key"
+                        placeholder={t("مفتاح الرفع الخاص بـ PixelVault", "Your PixelVault upload key")}
                     />
                 </SettingGroup>
             )}
@@ -752,7 +752,7 @@ export function SettingsComponent() {
                         description="Optional PixelDrain API key for authenticated uploads. Leave empty for anonymous uploads."
                         value={store.pixelDrainKey}
                         onChange={v => store.pixelDrainKey = v}
-                        placeholder="Your PixelDrain API key"
+                        placeholder={t("مفتاح API الخاص بـ PixelDrain", "Your PixelDrain API key")}
                     />
                 </SettingGroup>
             )}
@@ -814,7 +814,7 @@ export function SettingsComponent() {
                                 update();
                             }}
                             serialize={v => v}
-                            placeholder="Select an embed proxy service"
+                            placeholder={t("اختر خدمة وكيل التضمين", "Select an embed proxy service")}
                         />
                     </SettingsSection>
                 )}
@@ -913,7 +913,7 @@ export function SettingsComponent() {
                             update();
                         }}
                         serialize={v => v}
-                        placeholder="Select timeout"
+                        placeholder={t("اختر المهلة", "Select timeout")}
                     />
                 </SettingsSection>
             </SettingGroup>

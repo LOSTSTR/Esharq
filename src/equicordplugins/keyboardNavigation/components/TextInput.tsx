@@ -6,6 +6,7 @@
 
 import "./style.css";
 
+import { t } from "@utils/esharqI18n";
 import { RenderModalProps } from "@vencord/discord-types";
 import { closeAllModals, Modal,openModal, React, TextInput, useEffect, useState } from "@webpack/common";
 
@@ -35,7 +36,7 @@ export function SimpleTextInput({ modalProps, onSelect, placeholder, info }: Sim
     }, []);
 
     return (
-        <Modal {...modalProps} size="sm" title="Text Input">
+        <Modal {...modalProps} size="sm" title={t("إدخال نصّي", "Text Input")}>
             <div className="vc-command-palette-simple-text" onKeyDown={handleKeyDown}>
                 <TextInput
                     value={inputValue}

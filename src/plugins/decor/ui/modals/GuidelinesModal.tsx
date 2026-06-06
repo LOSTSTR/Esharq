@@ -8,6 +8,7 @@ import { Link } from "@components/Link";
 import { Paragraph } from "@components/Paragraph";
 import { settings } from "@plugins/decor/settings";
 import { DecorationModalClasses, requireAvatarDecorationModal } from "@plugins/decor/ui";
+import { t } from "@utils/esharqI18n";
 import { RenderModalProps } from "@vencord/discord-types";
 import { ConfirmModal, openModal } from "@webpack/common";
 
@@ -17,7 +18,7 @@ function GuidelinesModal(props: RenderModalProps) {
     return (
         <ConfirmModal
             {...props}
-            title="Hold on"
+            title={t("تمهّل", "Hold on")}
             confirmText="Continue"
             variant="primary"
             onConfirm={() => {

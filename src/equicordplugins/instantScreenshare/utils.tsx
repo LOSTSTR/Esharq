@@ -103,7 +103,7 @@ function StreamSimplePicker({ streamMediaSelection, streamMedia }: PickerProps) 
 
     return (
         <SearchableSelect
-            placeholder="Select a media source to stream "
+            placeholder={t("اختر مصدر وسائط للبثّ ", "Select a media source to stream ")}
             maxVisibleItems={5}
             options={options}
             value={options.find(o => o.value === streamMedia)?.value}

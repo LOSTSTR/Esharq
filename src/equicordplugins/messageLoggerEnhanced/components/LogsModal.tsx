@@ -111,7 +111,7 @@ export function LogsModal({ modalProps, initalQuery }: Props) {
                         </TabBar.Item>
                     </TabBar>
                     <div className={cl("modal-filter")}>
-                        <TextInput value={queryEh} onChange={e => setQuery(e)} placeholder="Filter Messages" />
+                        <TextInput value={queryEh} onChange={e => setQuery(e)} placeholder={t("تصفية الرسائل", "Filter Messages")} />
                     </div>
                 </div>
             }
@@ -267,7 +267,7 @@ function EmptyLogs({ hasQuery, reset: forceUpdate }: { hasQuery: boolean; reset:
 
                 {!hasQuery && (
                     <>
-                        <Tooltip text="ML Enhanced now stores logs in indexeddb. You need to import your old logs from the logs directory. Importing wont overwrite existing logs">
+                        <Tooltip text={t("يخزّن ML Enhanced السجلّات الآن في indexeddb. عليك استيراد سجلّاتك القديمة من مجلد السجلّات. الاستيراد لن يطمس السجلّات الموجودة", "ML Enhanced now stores logs in indexeddb. You need to import your old logs from the logs directory. Importing wont overwrite existing logs")}>
                             {({ onMouseEnter, onMouseLeave }) => (
                                 <div
                                     className={cl("modal-info-icon")}

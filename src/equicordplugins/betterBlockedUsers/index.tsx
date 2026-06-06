@@ -8,6 +8,7 @@ import "./styles.css";
 
 import { EquicordDevs } from "@utils/constants";
 import { getIntlMessage, openUserProfile } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { Button, React, RelationshipStore, TextInput, UserStore } from "@webpack/common";
 
@@ -53,7 +54,7 @@ export default definePlugin({
 
         return <div className="vc-bbu-search">
             <TextInput
-                placeholder="Search users..."
+                placeholder={t("بحث في المستخدمين...", "Search users...")}
                 style={{ width: "200px" }}
                 onInput={e => {
                     const search = (e.target as HTMLInputElement).value.toLowerCase().trim();

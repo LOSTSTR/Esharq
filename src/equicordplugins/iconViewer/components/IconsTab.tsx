@@ -10,6 +10,7 @@ import { SettingsTab, wrapTab } from "@components/settings";
 import { TooltipContainer } from "@components/TooltipContainer";
 import { iconsModule } from "@equicordplugins/_core/concatenatedModules";
 import { debounce } from "@shared/debounce";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
 import { useIntersection } from "@utils/react";
@@ -107,7 +108,7 @@ function IconsTab() {
         <SettingsTab>
             <div className={classes(Margins.top16, "vc-icon-tab-search-bar-grid")}>
                 <TextInput autoFocus value={searchInput} placeholder={`Search ${Object.keys(icons).length} icons...`} onChange={onSearch} />
-                <TooltipContainer text="Search by function context">
+                <TooltipContainer text={t("بحث حسب سياق الدالة", "Search by function context")}>
                     <Button
                         size="small"
                         aria-label="Search by function context"

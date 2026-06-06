@@ -238,7 +238,7 @@ function VoiceMessageModal({ modalProps }: { modalProps: RenderModalProps; }) {
     return (
         <Modal
             {...modalProps}
-            title="Record Voice Message"
+            title={t("تسجيل رسالة صوتية", "Record Voice Message")}
             actions={[{
                 text: "Send",
                 variant: "primary",

@@ -19,6 +19,7 @@
 import { FormSwitch } from "@components/FormSwitch";
 import { Heading } from "@components/Heading";
 import { insertTextIntoChatInputBox } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { RenderModalProps } from "@vencord/discord-types";
 import { Modal, openModal, React, TextInput } from "@webpack/common";
 
@@ -47,7 +48,7 @@ function EncModal(props: RenderModalProps) {
         <Modal
             {...props}
             size="sm"
-            title="Encrypt Message"
+            title={t("تشفير الرسالة", "Encrypt Message")}
             actions={[
                 {
                     text: "Send",
@@ -84,7 +85,7 @@ function EncModal(props: RenderModalProps) {
                 }}
             />
             <FormSwitch
-                title="Don't use a Cover"
+                title={t("بلا غلاف", "Don't use a Cover")}
                 value={noCover}
                 onChange={(e: boolean) => {
                     setNoCover(e);

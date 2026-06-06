@@ -19,6 +19,7 @@
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { useCallback, useEffect, useRef, useState } from "@webpack/common";
 
@@ -186,7 +187,7 @@ function SearchBar({ instance, SearchBarComponent }: { instance: Instance; Searc
                 }
             }}
             query={query}
-            placeholder="Search Favorite Gifs"
+            placeholder={t("بحث في الصور المفضّلة", "Search Favorite Gifs")}
         />
     );
 }

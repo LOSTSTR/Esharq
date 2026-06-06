@@ -755,7 +755,7 @@ export default function BookmarkContainer(props: BasicChannelTabsProps & { userI
                         style={{ width: "100%" }}
                         value={searchQuery}
                         onChange={setSearchQuery}
-                        placeholder="Search bookmarks"
+                        placeholder={t("بحث في الإشارات المرجعية", "Search bookmarks")}
                         onBlur={() => {
                             if (!searchQuery.trim()) setIsSearchOpen(false);
                         }}
@@ -769,7 +769,7 @@ export default function BookmarkContainer(props: BasicChannelTabsProps & { userI
                         }}
                     />
                 </div>
-                <Tooltip text="Search bookmarks" position="left">
+                <Tooltip text={t("بحث في الإشارات المرجعية", "Search bookmarks")} position="left">
                     {p => <button
                         className={classes(cl("button"), cl("bookmark-search-button"))}
                         {...p}

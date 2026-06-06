@@ -6,6 +6,7 @@
 
 import { BaseText } from "@components/BaseText";
 import { Button } from "@components/Button";
+import { t } from "@utils/esharqI18n";
 import { LazyComponentWrapper } from "@utils/lazyReact";
 import { Message, MessageAttachment, ScrollerBaseRef } from "@vencord/discord-types";
 import { ChannelType } from "@vencord/discord-types/enums";
@@ -111,7 +112,7 @@ export function FilePicker({ onSelectItem }: FilePickerProps) {
             <div className={cl("container-header")}>
                 <ManaSearchBar
                     autoFocus
-                    placeholder="Search files"
+                    placeholder={t("بحث في الملفات", "Search files")}
                     query={query}
                     onChange={query => ExpressionPickerStore.setSearchQuery(query)}
                     onClear={() => ExpressionPickerStore.setSearchQuery("")}

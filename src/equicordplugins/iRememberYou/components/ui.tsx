@@ -112,7 +112,7 @@ function SearchElement({ usersCollection }: { usersCollection: Data["usersCollec
 
     return (
         <section className={cl("search")}>
-            <TextInput placeholder="Filter by tag, username" name="Filter" onChange={setCurrent} />
+            <TextInput placeholder={t("تصفية حسب الوسم أو اسم المستخدم", "Filter by tag, username")} name="Filter" onChange={setCurrent} />
             {current && (
                 <div className={cl("search-user")}>
                     {list.filter(user => user.tag.includes(current) || user.username.includes(current))

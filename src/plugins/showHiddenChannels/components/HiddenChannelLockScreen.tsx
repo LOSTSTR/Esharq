@@ -22,6 +22,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import PermissionsViewerPlugin from "@plugins/permissionsViewer";
 import openRolesAndUsersPermissionsModal from "@plugins/permissionsViewer/components/RolesAndUsersPermissions";
 import { sortPermissionOverwrites } from "@plugins/permissionsViewer/utils";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import { formatDuration } from "@utils/text";
 import type { Channel, RoleOrUserPermission } from "@vencord/discord-types";
@@ -274,7 +275,7 @@ function HiddenChannelLockScreen({ channel }: { channel: Channel; }) {
                 <div className={cl("allowed-users-and-roles-container")}>
                     <div className={cl("allowed-users-and-roles-container-title")}>
                         {isPluginEnabled(PermissionsViewerPlugin.name) && (
-                            <Tooltip text="Permission Details">
+                            <Tooltip text={t("تفاصيل الصلاحية", "Permission Details")}>
                                 {({ onMouseLeave, onMouseEnter }) => (
                                     <button
                                         onMouseLeave={onMouseLeave}

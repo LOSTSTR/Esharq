@@ -22,6 +22,7 @@ import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Channel, Role } from "@vencord/discord-types";
@@ -594,7 +595,7 @@ export default definePlugin({
     ), { noop: true }),
 
     EyeRightIcon: ErrorBoundary.wrap(() => (
-        <Tooltip text="Hidden Channel">
+        <Tooltip text={t("قناة مخفية", "Hidden Channel")}>
             {({ onMouseLeave, onMouseEnter }) => (
                 <svg
                     onMouseLeave={onMouseLeave}
@@ -613,7 +614,7 @@ export default definePlugin({
     ), { noop: true }),
 
     LockRightIcon: ErrorBoundary.wrap(() => (
-        <Tooltip text="Hidden Channel">
+        <Tooltip text={t("قناة مخفية", "Hidden Channel")}>
             {({ onMouseLeave, onMouseEnter }) => (
                 <svg
                     onMouseLeave={onMouseLeave}

@@ -12,6 +12,7 @@ import { cl, logger } from "@equicordplugins/songSpotlight.desktop/lib/utils";
 import { Native } from "@equicordplugins/songSpotlight.desktop/service";
 import { parsers } from "@song-spotlight/api/handlers";
 import { Song } from "@song-spotlight/api/structs";
+import { t } from "@utils/esharqI18n";
 import { RenderModalProps } from "@vencord/discord-types";
 import { Clickable, closeModal, Modal, openModal, TextInput, useState } from "@webpack/common";
 
@@ -31,7 +32,7 @@ function AddSongModal({ modalProps, close, onAdd }: AddSongModalProps) {
             <Modal
                 {...modalProps}
                 size="md"
-                title="Add a new song"
+                title={t("إضافة أغنية جديدة", "Add a new song")}
                 actions={[
                     {
                         text: "Add song",

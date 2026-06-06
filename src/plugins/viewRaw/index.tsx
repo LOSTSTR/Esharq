@@ -74,7 +74,7 @@ function openViewRawModal(json: string, type: string, msgContent?: string) {
         <ErrorBoundary>
             <Modal
                 {...props}
-                title="View Raw"
+                title={t("عرض الخام", "View Raw")}
                 size="xl"
                 actions={[
                     {

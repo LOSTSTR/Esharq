@@ -8,6 +8,7 @@ import { Flex } from "@components/Flex";
 import { Heading } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import { getTheme, Theme } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { ApplicationStore, Checkbox, IconUtils, lodash, RelationshipStore, RunningGameStore, SearchableSelect, TextArea, TextInput, UserStore, useStateFromStores } from "@webpack/common";
 import type { PointerEvent as ReactPointerEvent } from "react";
@@ -134,7 +135,7 @@ export function ParticipantField({ value, onChange, disabled }: ParticipantField
                     value={value}
                     onChange={(selected: unknown) => onChange(getSelectedParticipantIds(selected))}
                     closeOnSelect={false}
-                    placeholder="Select friends"
+                    placeholder={t("اختر أصدقاء", "Select friends")}
                     isDisabled={disabled}
                     multi
                     renderOptionPrefix={option => {
@@ -194,7 +195,7 @@ export function ApplicationField({ value, onChange, disabled }: ApplicationField
                     options={options}
                     value={value || undefined}
                     onChange={(selected: unknown) => onChange(getString(selected) ?? "")}
-                    placeholder="Select a game"
+                    placeholder={t("اختر لعبة", "Select a game")}
                     isDisabled={disabled}
                     clearable
                     renderOptionPrefix={option => {
@@ -215,7 +216,7 @@ export function ApplicationField({ value, onChange, disabled }: ApplicationField
                 <TextInput
                     value={value}
                     onChange={onChange}
-                    placeholder="Custom application ID"
+                    placeholder={t("معرّف تطبيق مخصّص", "Custom application ID")}
                     disabled={disabled}
                 />
             </Flex>

@@ -8,6 +8,7 @@ import "./style.css";
 
 import { ButtonAction } from "@equicordplugins/keyboardNavigation/commands";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { RenderModalProps } from "@vencord/discord-types";
 import { closeAllModals, Modal,openModal, React, TextInput, useEffect, useState } from "@webpack/common";
 
@@ -99,13 +100,13 @@ export function MultipleChoice({ modalProps, onSelect, choices }: MultipleChoice
     }, [queryEh]);
 
     return (
-        <Modal {...modalProps} size="md" title="Multiple Choice">
+        <Modal {...modalProps} size="md" title={t("اختيار من متعدّد", "Multiple Choice")}>
             <div className={cl("root")} onKeyDown={handleKeyDown} onWheel={handleWheel}>
                 <TextInput
                     value={queryEh}
                     onChange={e => setQuery(e)}
                     style={{ width: "100%", borderBottomLeftRadius: "0", borderBottomRightRadius: "0", paddingLeft: "0.9rem" }}
-                    placeholder="Search the Command Palette"
+                    placeholder={t("بحث في لوحة الأوامر", "Search the Command Palette")}
                 />
                 <div className={cl("option-container")}>
                     {visibleActions.map((action, index) => (

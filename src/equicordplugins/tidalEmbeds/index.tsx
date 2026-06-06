@@ -5,6 +5,7 @@
  */
 
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 
 export default definePlugin({
@@ -53,7 +54,7 @@ export default definePlugin({
                     height={height}
                     allow="encrypted-media"
                     sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-                    title="TIDAL Embed Player"
+                    title={t("مشغّل TIDAL المضمّن", "TIDAL Embed Player")}
                 />
             </div>
         );

@@ -11,6 +11,7 @@ import { Card } from "@components/Card";
 import { HeadingPrimary } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import type { Theme, ThemeLikeProps } from "@equicordplugins/themeLibrary/types";
+import { t } from "@utils/esharqI18n";
 import { proxyLazy } from "@utils/lazy";
 import { Margins } from "@utils/margins";
 import { User } from "@vencord/discord-types";
@@ -67,7 +68,7 @@ export const ThemeCard: React.FC<ThemeCardProps> = ({ theme, themeLinks, likedTh
                 <Modal
                     {...modalProps}
                     size="sm"
-                    title="Hold on!"
+                    title={t("تمهّل!", "Hold on!")}
                     actions={[
                         {
                             text: "Enable Plugin",

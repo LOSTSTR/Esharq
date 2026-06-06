@@ -6,6 +6,7 @@
 
 import { CogWheel } from "@components/Icons";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import { TextInput, useCallback, useEffect, useMemo, useRef, useState } from "@webpack/common";
 import type { KeyboardEvent } from "react";
@@ -194,7 +195,7 @@ export function CommandPaletteActionsMenu({ actions, title, onClose, onAction, i
                     inputRef={searchInputRef}
                     value={searchQuery}
                     onChange={setSearchQuery}
-                    placeholder="Search for actions..."
+                    placeholder={t("بحث عن إجراءات...", "Search for actions...")}
                     className={cl("actions-search-input")}
                 />
             </div>

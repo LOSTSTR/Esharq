@@ -14,6 +14,7 @@ import { OpenExternalIcon } from "@components/Icons";
 import { Paragraph } from "@components/Paragraph";
 import { SettingsTab, wrapTab } from "@components/settings";
 import { SearchStatus, Theme, ThemeLikeProps } from "@equicordplugins/themeLibrary/types";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
@@ -215,7 +216,7 @@ function ThemeTab() {
                             Themes
                         </HeadingPrimary>
                         <div className={classes(Margins.bottom20, "vce-search-grid")}>
-                            <TextInput value={searchValue.value} placeholder="Search for a theme..." onChange={onSearch} />
+                            <TextInput value={searchValue.value} placeholder={t("بحث عن قالب...", "Search for a theme...")} onChange={onSearch} />
                             <div className={InputStyles.inputWrapper}>
                                 <SearchableSelect
                                     options={[

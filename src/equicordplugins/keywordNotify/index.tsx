@@ -15,6 +15,7 @@ import { Heading } from "@components/Heading";
 import { DeleteIcon } from "@components/Icons";
 import { EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
 import { useForceUpdater } from "@utils/react";
@@ -237,7 +238,7 @@ function KeywordEntries() {
                         </Button>
                     </Flex>
                     <FormSwitch
-                        title="Ignore Case"
+                        title={t("تجاهل حالة الأحرف", "Ignore Case")}
                         className={cl("ignoreCaseSwitch")}
                         value={values[i].ignoreCase}
                         onChange={() => {
@@ -516,7 +517,7 @@ export default definePlugin({
 
     keywordClearButton() {
         return (
-            <Tooltip text="Clear All">
+            <Tooltip text={t("مسح الكل", "Clear All")}>
                 {({ onMouseLeave, onMouseEnter }) => (
                     <Button
                         variant="secondary"

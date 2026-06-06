@@ -7,6 +7,7 @@
 import { Flex } from "@components/Flex";
 import { Heading } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import { RenderModalProps } from "@vencord/discord-types";
 import { Button, FluxDispatcher, Modal, openModal, TextInput, useCallback, useState } from "@webpack/common";
@@ -18,7 +19,7 @@ import { cl, stripPrefix } from "../utils/misc";
 
 export function openCollectionInfoModal(collection: Collection) {
     openModal(props => (
-        <InfoModal props={props} title="Collection Information" rows={[
+        <InfoModal props={props} title={t("معلومات المجموعة", "Collection Information")} rows={[
             { label: "Name", value: stripPrefix(collection.name) },
             { label: "Gifs", value: String(collection.gifs.length) },
             { label: "Created At", value: collection.createdAt ? new Date(collection.createdAt).toLocaleString() : "Unknown" },
@@ -76,7 +77,7 @@ function MoveToCollectionModal({ props, gifId }: { props: RenderModalProps; gifI
         <Modal
             {...props}
             size="sm"
-            title="Move To Collection"
+            title={t("نقل إلى المجموعة", "Move To Collection")}
             actions={[
                 { text: "Close", variant: "secondary", onClick: props.onClose }
             ]}
@@ -119,7 +120,7 @@ function CreateCollectionModal({ props, gif }: { props: RenderModalProps; gif: G
         <Modal
             {...props}
             size="sm"
-            title="Create Collection"
+            title={t("إنشاء مجموعة", "Create Collection")}
             actions={[
                 { text: "Create", onClick: onSubmit, disabled: !name.length, variant: "primary" }
             ]}
@@ -149,7 +150,7 @@ function RenameCollectionModal({ props, name }: { props: RenderModalProps; name:
         <Modal
             {...props}
             size="sm"
-            title="Rename Collection"
+            title={t("إعادة تسمية المجموعة", "Rename Collection")}
             actions={[
                 { text: "Rename", onClick: onSubmit, disabled: !newName.length || tooLong, variant: "primary" }
             ]}

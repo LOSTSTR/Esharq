@@ -16,6 +16,7 @@ import { Heading } from "@components/Heading";
 import { Span } from "@components/Span";
 import { copyToClipboard } from "@utils/clipboard";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType, PluginNative } from "@utils/types";
 import { RenderModalProps } from "@vencord/discord-types";
 import { findComponentByCodeLazy } from "@webpack";
@@ -121,7 +122,7 @@ function LanguageSelectionModal(props: { modalProps: RenderModalProps, src: stri
         <Modal
             {...modalProps}
             size="md"
-            title="Transcription Options"
+            title={t("خيارات النسخ النصّي", "Transcription Options")}
             actions={[
                 {
                     text: "Start",
@@ -297,7 +298,7 @@ function TranscriptionModal(props: { modalProps: RenderModalProps, src: string, 
                         <Flex flexDirection="row" gap={12} alignItems="center">
                             <div style={{ flexGrow: 1 }}>
                                 <FormSwitch
-                                    title="Show Timestamps"
+                                    title={t("إظهار الطوابع الزمنية", "Show Timestamps")}
                                     value={showTimestamps}
                                     onChange={setShowTimestamps}
                                 />

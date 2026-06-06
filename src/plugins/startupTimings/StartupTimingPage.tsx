@@ -19,6 +19,7 @@
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Flex } from "@components/Flex";
 import { HeadingPrimary, HeadingSecondary } from "@components/Heading";
+import { t } from "@utils/esharqI18n";
 import { findByPropsLazy } from "@webpack";
 import { React } from "@webpack/common";
 
@@ -140,7 +141,7 @@ function StartupTimingPage() {
     return (
         <React.Fragment>
             <TimingSection
-                title="Startup Timings"
+                title={t("أوقات بدء التشغيل", "Startup Timings")}
                 logs={AppStartPerformance.logs}
                 traceEnd={AppStartPerformance.endTime_}
             />

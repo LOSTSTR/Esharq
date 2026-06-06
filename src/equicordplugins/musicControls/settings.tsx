@@ -53,7 +53,7 @@ function LyricsProviderSettings() {
                     isSelected={v => v === store.lyricsProvider}
                     select={v => { store.lyricsProvider = v as Provider; }}
                     serialize={v => v}
-                    placeholder="Select a lyrics provider"
+                    placeholder={t("اختر مزوّد كلمات", "Select a lyrics provider")}
                 />
             </SettingsSection>
 

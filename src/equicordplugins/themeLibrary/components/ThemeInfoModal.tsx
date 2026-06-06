@@ -12,6 +12,7 @@ import { Theme, ThemeInfoModalProps } from "@equicordplugins/themeLibrary/types"
 import { ClockIcon, WarningIcon } from "@equicordplugins/themeLibrary/utils/Icons";
 import { copyToClipboard } from "@utils/clipboard";
 import { openInviteModal } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import type { PluginNative } from "@utils/types";
 import { findComponentByCodeLazy } from "@webpack";
@@ -73,7 +74,7 @@ export const ThemeInfoModal: React.FC<ThemeInfoModalProps> = ({ author, theme, .
                                 <Modal
                                     {...modalProps}
                                     size="sm"
-                                    title="Conflict!"
+                                    title={t("تعارُض!", "Conflict!")}
                                     actions={[
                                         {
                                             text: "Overwrite",
@@ -186,7 +187,7 @@ export const ThemeInfoModal: React.FC<ThemeInfoModalProps> = ({ author, theme, .
                                 <Modal
                                     {...modalProps}
                                     size="lg"
-                                    title="Theme Source"
+                                    title={t("مصدر القالب", "Theme Source")}
                                     actions={[
                                         {
                                             text: "Close",

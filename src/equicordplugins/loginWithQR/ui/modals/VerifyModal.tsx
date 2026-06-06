@@ -8,6 +8,7 @@ import { BaseText } from "@components/BaseText";
 import { Button, TextButton } from "@components/Button";
 import { images } from "@equicordplugins/loginWithQR/images";
 import { getIntlMessage } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { RenderModalProps } from "@vencord/discord-types";
 import { findByPropsLazy } from "@webpack";
 import {
@@ -106,7 +107,7 @@ function VerifyModal({
     }, [state]);
 
     return (
-        <Modal size="sm" {...props} title="Verify Login">
+        <Modal size="sm" {...props} title={t("التحقّق من تسجيل الدخول", "Verify Login")}>
             <div className={cl("device-content")}>
                 {state === VerifyState.LoggedIn ? (
                     <>

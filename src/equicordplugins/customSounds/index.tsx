@@ -12,6 +12,7 @@ import { definePluginSettings } from "@api/Settings";
 import { Heading } from "@components/Heading";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType, StartAt } from "@utils/types";
 import { Button, React, showToast, TextInput } from "@webpack/common";
@@ -343,7 +344,7 @@ const settings = definePluginSettings({
                         <TextInput
                             value={searchQuery}
                             onChange={e => setSearchQuery(e)}
-                            placeholder="Search by name or ID"
+                            placeholder={t("بحث بالاسم أو المعرّف", "Search by name or ID")}
                         />
                     </div>
 

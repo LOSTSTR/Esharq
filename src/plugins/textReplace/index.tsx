@@ -78,12 +78,12 @@ const settings = definePluginSettings({
                 <>
                     <TextReplaceTesting />
                     <TextReplace
-                        title="Simple Replacements"
+                        title={t("استبدالات بسيطة", "Simple Replacements")}
                         description="Simple find and replace rules. For example, find 'brb' and replace it with 'be right back'"
                         rulesArray={stringRules}
                     />
                     <TextReplace
-                        title="Regex Replacements"
+                        title={t("استبدالات Regex", "Regex Replacements")}
                         description="More powerful replacements using Regular Expressions. This section is for advanced users. If you don't understand it, just ignore it"
                         rulesArray={regexRules}
                         isRegex
@@ -215,7 +215,7 @@ function TextReplace({ title, description, rulesArray, isRegex = false }: TextRe
                 <HeadingSecondary>{title}</HeadingSecondary>
                 <Paragraph>{description}</Paragraph>
                 <TextInput
-                    placeholder="Search for a rule..."
+                    placeholder={t("بحث عن قاعدة...", "Search for a rule...")}
                     value={searchQuery}
                     onChange={setSearchQuery}
                 />
@@ -305,8 +305,8 @@ function TextReplaceTesting() {
         <div>
             <HeadingSecondary>Rule Tester</HeadingSecondary>
             <Flex flexDirection="column" gap={6}>
-                <TextInput placeholder="Type a message to test rules on" onChange={setValue} />
-                <TextInput placeholder="Message with rules applied" editable={false} value={applyRules(value, "allMessages")} style={{ opacity: 0.7 }} />
+                <TextInput placeholder={t("اكتب رسالة لاختبار القواعد عليها", "Type a message to test rules on")} onChange={setValue} />
+                <TextInput placeholder={t("الرسالة بعد تطبيق القواعد", "Message with rules applied")} editable={false} value={applyRules(value, "allMessages")} style={{ opacity: 0.7 }} />
             </Flex>
         </div>
     );

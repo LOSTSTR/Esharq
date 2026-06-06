@@ -45,7 +45,7 @@ export function RunCommandEditor({ command, onChange, showAdvanced }: RunCommand
                 <TextInput
                     label={t("معرّف الأمر المستهدف", "Target Command ID")}
                     value={targetId}
-                    placeholder="Existing command id"
+                    placeholder={t("معرّف أمر موجود", "Existing command id")}
                     onChange={value => onChange({
                         ...command,
                         action: { type: "command", commandId: value }

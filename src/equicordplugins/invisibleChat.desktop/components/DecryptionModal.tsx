@@ -17,6 +17,7 @@
 */
 
 import { Heading } from "@components/Heading";
+import { t } from "@utils/esharqI18n";
 import { RenderModalProps } from "@vencord/discord-types";
 import { Modal, openModal, React, TextInput } from "@webpack/common";
 
@@ -37,7 +38,7 @@ export function DecModal(props: RenderModalProps & { message: any; }) {
         <Modal
             {...props}
             size="sm"
-            title="Decrypt Message"
+            title={t("فكّ تشفير الرسالة", "Decrypt Message")}
             actions={[
                 {
                     text: "Decrypt",

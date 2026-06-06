@@ -93,7 +93,7 @@ function AnimationSettings(): JSX.Element {
             </Paragraph>
             <div style={{ marginTop: "8px" }}>
                 <SearchableSelect
-                    placeholder="Select which animations to enable..."
+                    placeholder={t("اختر الرسوم المتحركة لتفعيلها...", "Select which animations to enable...")}
                     maxVisibleItems={12}
                     clearable={true}
                     multi={true}

@@ -6,6 +6,7 @@
 
 import { SettingsSection } from "@components/settings/tabs/plugins/components/Common";
 import { Switch } from "@components/Switch";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
 import { Select, Slider, TabBar, TextInput, useState } from "@webpack/common";
@@ -84,7 +85,7 @@ function StatsFmSettings() {
     return (
         <>
             <SettingsSection name="" description="Show what you're currently listening to via stats.fm. Requires your listening history to be public." />
-            <TextSetting name="Username" description="Stats.fm username." settingsKey="sfm_username" placeholder="stats.fm username" />
+            <TextSetting name="Username" description="Stats.fm username." settingsKey="sfm_username" placeholder={t("اسم مستخدم stats.fm", "stats.fm username")} />
             <TextSetting name="Custom Status Text" description="Custom status text." settingsKey="sfm_statusName" placeholder="Stats.fm" />
             <SelectSetting name="Name Format" description="Name format." settingsKey="sfm_nameFormat" options={nameFormatOptions} />
             <SelectSetting name="Missing Art Fallback" description="Fallback when art is missing." settingsKey="sfm_missingArt" options={[
@@ -108,7 +109,7 @@ function JellyfinSettings() {
             <SettingsSection name="" description="Show what you're playing on Jellyfin. To get your API key: open your Jellyfin web UI, press F12 to open Developer Tools, go to the Network tab, look for requests to your server, and find the X-MediaBrowser-Token header (Ctrl+F to search). Your user ID can be found in your profile page URL." />
             <TextSetting name="Server URL" description="Jellyfin server URL." settingsKey="jf_serverUrl" placeholder="https://jellyfin.example.com" />
             <TextSetting name="API Key" description="Jellyfin API key." settingsKey="jf_apiKey" placeholder="X-MediaBrowser-Token" />
-            <TextSetting name="User ID" description="Jellyfin user ID." settingsKey="jf_userId" placeholder="User ID from profile URL" />
+            <TextSetting name="User ID" description="Jellyfin user ID." settingsKey="jf_userId" placeholder={t("معرّف المستخدم من رابط الملف الشخصي", "User ID from profile URL")} />
             <SelectSetting name="Name Display" description="Name display format." settingsKey="jf_nameDisplay" options={[
                 { label: "Series/Movie Name", value: "default" },
                 { label: "Series - Episode/Track/Movie Name", value: "full" },
@@ -142,7 +143,7 @@ function ListenBrainzSettings() {
     return (
         <>
             <SettingsSection name="" description="Show what you're currently listening to via ListenBrainz. The MusicBrainz API requires a meaningful user agent string (an email usually works)." />
-            <TextSetting name="Username" description="ListenBrainz username." settingsKey="lb_username" placeholder="ListenBrainz username" />
+            <TextSetting name="Username" description="ListenBrainz username." settingsKey="lb_username" placeholder={t("اسم مستخدم ListenBrainz", "ListenBrainz username")} />
             <TextSetting name="MusicBrainz Contact" description="MusicBrainz contact for user agent." settingsKey="lb_mbContact" placeholder="your@email.com" />
             <TextSetting name="Custom Status Text" description="Custom status text." settingsKey="lb_statusName" placeholder="some music" />
             <SelectSetting name="Name Format" description="Name format." settingsKey="lb_nameFormat" options={nameFormatOptions} />

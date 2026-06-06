@@ -54,7 +54,7 @@ export function AdvancedSection({ command, categoryOptions, onChange }: Advanced
             <TextInput
                 label={t("كلمات مفتاحية", "Keywords")}
                 value={keywordsInput}
-                placeholder="Comma-separated keywords"
+                placeholder={t("كلمات مفتاحية مفصولة بفواصل", "Comma-separated keywords")}
                 onChange={value => {
                     setKeywordsInput(value);
                     keywordsRef.current = value;

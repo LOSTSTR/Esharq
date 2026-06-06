@@ -8,6 +8,7 @@ import { PickerContent, PickerContentHeader, PickerContentRow, PickerContentRowG
 import { sendSticker } from "@equicordplugins/moreStickers/upload";
 import { clPicker, FFmpegStateContext } from "@equicordplugins/moreStickers/utils";
 import { debounce } from "@shared/debounce";
+import { t } from "@utils/esharqI18n";
 import { Modal,openModal, React, TextInput } from "@webpack/common";
 import { JSX } from "react";
 
@@ -443,7 +444,7 @@ export const PickerHeader = ({ onQueryChange }: PickerHeaderProps) => {
                         <TextInput
                             style={{ height: "30px", border: "none" }}
 
-                            placeholder="Search stickers"
+                            placeholder={t("بحث في الملصقات", "Search stickers")}
                             autoFocus={true}
                             value={query}
 

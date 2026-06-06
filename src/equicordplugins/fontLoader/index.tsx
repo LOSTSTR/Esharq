@@ -141,7 +141,7 @@ function GoogleFontSearch({ onSelect }: { onSelect: (font: GoogleFontMetadata) =
             <TextInput
                 value={query}
                 onChange={e => handleSearch(e)}
-                placeholder="Search fonts..."
+                placeholder={t("بحث في الخطوط...", "Search fonts...")}
                 disabled={loading}
             />
 

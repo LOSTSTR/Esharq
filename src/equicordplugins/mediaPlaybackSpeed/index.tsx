@@ -103,7 +103,7 @@ export default definePlugin({
         }, [mediaRef]);
 
         return (
-            <Tooltip text="Playback speed">
+            <Tooltip text={t("سرعة التشغيل", "Playback speed")}>
                 {tooltipProps => (
                     <button
                         {...tooltipProps}

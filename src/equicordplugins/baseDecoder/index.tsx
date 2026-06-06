@@ -22,6 +22,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { Heading } from "@components/Heading";
 import { EquicordDevs } from "@utils/constants";
 import { copyWithToast } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
 import { ChannelStore, Modal, openModal } from "@webpack/common";
@@ -69,7 +70,7 @@ function openDecodedBase64Modal(decodedContent) {
             <Modal
                 {...props}
                 size="lg"
-                title="Decoded Base64 Content"
+                title={t("محتوى Base64 المفكوك", "Decoded Base64 Content")}
                 actions={decodedContent.map((content, index) => ({
                     text: `Copy Decoded Content ${index + 1}`,
                     variant: "primary",

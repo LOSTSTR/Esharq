@@ -32,7 +32,7 @@ function GuildSelector() {
         <SearchableSelect
             options={options}
             value={options.find(o => o.value === soundGuildId)?.value}
-            placeholder="Select a server..."
+            placeholder={t("اختر خادماً...", "Select a server...")}
             maxVisibleItems={6}
             closeOnSelect={true}
             onChange={v => settings.store.soundGuildId = v}
@@ -59,7 +59,7 @@ function SoundIdInput() {
                 <TextInput
                     value={soundId}
                     onChange={v => settings.store.soundId = v}
-                    placeholder="Enter sound ID..."
+                    placeholder={t("أدخل معرّف الصوت...", "Enter sound ID...")}
                 />
             </div>
             <Button

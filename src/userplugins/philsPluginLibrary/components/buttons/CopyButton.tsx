@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { t } from "@utils/esharqI18n";
 import { Button } from "@webpack/common";
 import React from "react";
 
@@ -25,7 +26,7 @@ export const CopyButton = (props: React.ComponentProps<typeof Button>) => {
     return (
         <IconTooltipButton
             color={Button.Colors.PRIMARY}
-            tooltipText="Copy Profile"
+            tooltipText={t("نسخ الملف الشخصي", "Copy Profile")}
             icon={
                 <svg width="18" height="18" viewBox="0 0 24 24">
                     <path d="M7.024 3.75c0-.966.784-1.75 1.75-1.75H20.25c.966 0 1.75.784 1.75 1.75v11.498a1.75 1.75 0 0 1-1.75 1.75H8.774a1.75 1.75 0 0 1-1.75-1.75Zm1.75-.25a.25.25 0 0 0-.25.25v11.498c0 .139.112.25.25.25H20.25a.25.25 0 0 0 .25-.25V3.75a.25.25 0 0 0-.25-.25Z" fill="currentColor"></path>

@@ -8,6 +8,7 @@ import { Button } from "@components/Button";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Heading } from "@components/Heading";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { RenderModalProps } from "@vencord/discord-types";
 import { findByPropsLazy } from "@webpack";
 import { ChannelStore, closeModal, DraftType, Modal, openModal, showToast, TextInput, Toasts, UploadManager, useState } from "@webpack/common";
@@ -72,7 +73,7 @@ function ScheduleTimeModalInner({ channelId, content, attachments, rootProps, cl
         <Modal
             {...rootProps}
             size="sm"
-            title="Schedule Message"
+            title={t("جدولة الرسالة", "Schedule Message")}
             actions={[
                 {
                     text: "Schedule",

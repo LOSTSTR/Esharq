@@ -7,6 +7,7 @@
 import { Heading } from "@components/Heading";
 import { CogWheel } from "@components/Icons";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import { RenderModalProps } from "@vencord/discord-types";
 import { Modal, openModal, TextInput, useCallback, useEffect, useMemo, useRef, useState } from "@webpack/common";
@@ -355,7 +356,7 @@ function CommandPickerModal({ modalProps, commands: providedCommands, allowMulti
                             autoFocus
                             value={query}
                             onChange={setQuery}
-                            placeholder="Search commands"
+                            placeholder={t("بحث في الأوامر", "Search commands")}
                         />
                     </div>
                 </div>

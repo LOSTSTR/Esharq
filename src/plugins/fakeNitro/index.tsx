@@ -22,6 +22,7 @@ import { Paragraph } from "@components/Paragraph";
 import { ApngBlendOp, ApngDisposeOp, parseAPNG } from "@utils/apng";
 import { Devs } from "@utils/constants";
 import { getCurrentGuild } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Emoji, Message, RenderModalProps, Sticker } from "@vencord/discord-types";
@@ -166,9 +167,9 @@ function CannotEmbedNoticeModal({ modalProps, resolve }: { modalProps: RenderMod
     return (
         <ConfirmModal
             {...modalProps}
-            title="Hold on!"
+            title={t("تمهّل!", "Hold on!")}
             subtitle="You are trying to send/edit a message that contains a FakeNitro emoji or sticker, however you do not have permissions to embed links in the current channel. Are you sure you want to send this message? Your FakeNitro items will appear as a link only."
-            confirmText="Send Anyway"
+            confirmText={t("إرسال على أي حال", "Send Anyway")}
             cancelText="Cancel"
             onConfirm={() => resolve(true)}
             onCloseCallback={() => setImmediate(() => resolve(false))}
@@ -855,7 +856,7 @@ export default definePlugin({
                         openModal(props => (
                             <ConfirmModal
                                 {...props}
-                                title="Hold on!"
+                                title={t("تمهّل!", "Hold on!")}
                                 confirmText="OK"
                                 variant="primary"
                             >

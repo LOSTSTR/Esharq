@@ -291,7 +291,7 @@ function DevBuildConfirmModal(props: RenderModalProps) {
     return (
         <ConfirmModal
             {...props}
-            title="Hold on!"
+            title={t("تمهّل!", "Hold on!")}
             confirmText="Understood"
             variant="primary"
             checkboxProps={{
@@ -379,9 +379,9 @@ export default definePlugin({
                         <ConfirmModal
                             {...props}
                             variant="primary"
-                            title="Hold on!"
-                            confirmText="Update & Restart Now"
-                            cancelText="View Updates"
+                            title={t("تمهّل!", "Hold on!")}
+                            confirmText={t("تحديث وإعادة تشغيل الآن", "Update & Restart Now")}
+                            cancelText={t("عرض التحديثات", "View Updates")}
                             onConfirm={forceUpdate}
                             onCancel={() => openSettingsTabModal(UpdaterTab!)}
                         >
@@ -407,7 +407,7 @@ export default definePlugin({
                 openModal(props => (
                     <ConfirmModal
                         {...props}
-                        title="Hold on!"
+                        title={t("تمهّل!", "Hold on!")}
                         confirmText="OK"
                         variant="primary"
                     >

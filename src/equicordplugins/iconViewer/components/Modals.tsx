@@ -276,7 +276,7 @@ function IconModal({ iconName, Icon, onClose, transitionState }: { iconName: str
                             </TooltipContainer>
                         ))}
                     </Flex>
-                    <TooltipContainer text="Right-click icon to change">
+                    <TooltipContainer text={t("انقر بزرّ الفأرة الأيمن على الأيقونة لتغييرها", "Right-click icon to change")}>
                         <BaseText size="sm" color="text-muted" className="vc-ic-color-label">
                             {colorData?.name}
                         </BaseText>

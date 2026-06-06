@@ -22,6 +22,7 @@ import { blockUser, deleteReview, reportReview, unblockUser } from "@plugins/rev
 import { settings } from "@plugins/reviewDB/settings";
 import { canBlockReviewAuthor, canDeleteReview, canReportReview, cl, showToast } from "@plugins/reviewDB/utils";
 import { openUserProfile } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import { findCssClassesLazy } from "@webpack";
 import { ConfirmModal,IconUtils, openModal as openVencordModal, Parser, Timestamp, useState } from "@webpack/common";
@@ -49,7 +50,7 @@ export default function ReviewComponent({ review, refetch, profileId }: { review
         openVencordModal(props => (
             <ConfirmModal
                 {...props}
-                title="Are you sure?"
+                title={t("هل أنت متأكّد؟", "Are you sure?")}
                 subtitle="Do you really want to delete this review?"
                 confirmText="Delete"
                 cancelText="Nevermind"
@@ -72,7 +73,7 @@ export default function ReviewComponent({ review, refetch, profileId }: { review
         openVencordModal(props => (
             <ConfirmModal
                 {...props}
-                title="Are you sure?"
+                title={t("هل أنت متأكّد؟", "Are you sure?")}
                 subtitle="Do you really want to report this review?"
                 confirmText="Report"
                 cancelText="Nevermind"
@@ -96,7 +97,7 @@ export default function ReviewComponent({ review, refetch, profileId }: { review
         openVencordModal(props => (
             <ConfirmModal
                 {...props}
-                title="Are you sure?"
+                title={t("هل أنت متأكّد؟", "Are you sure?")}
                 subtitle="Do you really want to block this user? They will be unable to leave further reviews on your profile. You can unblock users in the plugin settings."
                 confirmText="Block"
                 cancelText="Nevermind"

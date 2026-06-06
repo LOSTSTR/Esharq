@@ -6,6 +6,7 @@
 
 import { Flex } from "@components/Flex";
 import { characters } from "@equicordplugins/sekaiStickers/characters.json";
+import { t } from "@utils/esharqI18n";
 import { RenderModalProps } from "@vencord/discord-types";
 import { Modal,React, ScrollerThin, TextInput } from "@webpack/common";
 
@@ -29,7 +30,7 @@ export default function CharSelectModal({ modalProps, setCharacter }: { modalPro
         });
     }, [search, characters]);
     return (
-        <Modal {...modalProps} size="lg" title="Select character menu">
+        <Modal {...modalProps} size="lg" title={t("قائمة اختيار الشخصية", "Select character menu")}>
             <Flex flexDirection="column" style={{ paddingTop: 12 }}>
                 <TextInput content="mafuyu" placeholder="Mafuyu" onChange={(e: string) => setSearch(e)} />
                 <ScrollerThin style={{ height: 520 }}>

@@ -194,7 +194,7 @@ export default definePlugin({
                 )}
             >
                 {popoutProps => (
-                    <TooltipContainer text="View Permissions">
+                    <TooltipContainer text={t("عرض الصلاحيات", "View Permissions")}>
                         <Button
                             {...popoutProps}
                             ref={buttonRef}

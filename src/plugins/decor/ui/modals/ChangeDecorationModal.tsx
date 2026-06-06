@@ -139,7 +139,7 @@ function ChangeDecorationModal(props: RenderModalProps) {
 
     return <Modal
         {...props}
-        title="Change Decoration"
+        title={t("تغيير الزينة", "Change Decoration")}
         size="lg"
         actions={[
             {
@@ -158,7 +158,7 @@ function ChangeDecorationModal(props: RenderModalProps) {
         ]}
         preview={
             <div className={cl("modal-footer-btn-container", Margins.top8)}>
-                <Tooltip text="Join Decor's Discord Server for notifications on your decoration's review, and when new presets are released">
+                <Tooltip text={t("انضمّ إلى خادم Decor على ديسكورد لتصلك إشعارات مراجعة زينتك وعند إصدار قوالب جديدة", "Join Decor's Discord Server for notifications on your decoration's review, and when new presets are released")}>
                     {tooltipProps => <NewButton
                         {...tooltipProps}
                         onClick={async () => {
@@ -183,9 +183,9 @@ function ChangeDecorationModal(props: RenderModalProps) {
                     onClick={() => openModal(modalProps => (
                         <ConfirmModal
                             {...modalProps}
-                            title="Log Out"
+                            title={t("تسجيل الخروج", "Log Out")}
                             subtitle="Are you sure you want to log out of Decor?"
-                            confirmText="Log Out"
+                            confirmText={t("تسجيل الخروج", "Log Out")}
                             cancelText="Cancel"
                             onConfirm={() => {
                                 useAuthorizationStore.getState().remove(UserStore.getCurrentUser().id);
@@ -212,7 +212,7 @@ function ChangeDecorationModal(props: RenderModalProps) {
                                     onSelect={() => setTryingDecoration(null)}
                                 />;
                             case "create":
-                                return <Tooltip text="You already have a decoration pending review" shouldShow={hasDecorationPendingReview}>
+                                return <Tooltip text={t("لديك زينة قيد المراجعة بالفعل", "You already have a decoration pending review")} shouldShow={hasDecorationPendingReview}>
                                     {tooltipProps => <DecorationGridCreate
                                         className={cl("change-decoration-modal-decoration")}
                                         {...tooltipProps}

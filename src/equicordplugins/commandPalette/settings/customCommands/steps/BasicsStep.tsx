@@ -26,7 +26,7 @@ export function BasicsStep({ command, onChange }: BasicsStepProps) {
             <TextInput
                 label={t("الوصف (اختياري)", "Description (optional)")}
                 value={command.description ?? ""}
-                placeholder="Short subtitle shown in palette"
+                placeholder={t("عنوان فرعي قصير يظهر في اللوحة", "Short subtitle shown in palette")}
                 onChange={value => onChange({ ...command, description: value })}
             />
         </div>

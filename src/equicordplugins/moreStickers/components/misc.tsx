@@ -159,7 +159,7 @@ export const Packs = () => {
 
                                     return "Invalid URL";
                                 }}
-                                placeholder="Sticker Pack URL"
+                                placeholder={t("رابط حزمة الملصقات", "Sticker Pack URL")}
                             />
                         </span>
                         <Button
@@ -255,7 +255,7 @@ export const Packs = () => {
                             <TextArea
                                 value={addStickerHtml}
                                 onChange={setAddStickerHtml}
-                                placeholder="Paste HTML here"
+                                placeholder={t("ألصق HTML هنا", "Paste HTML here")}
                                 rows={1}
                             />
                         </span>

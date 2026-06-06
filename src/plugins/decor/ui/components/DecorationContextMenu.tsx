@@ -35,7 +35,7 @@ export default function DecorationContextMenu({ decoration }: { decoration: Deco
                 action={() => openModal(props => (
                     <ConfirmModal
                         {...props}
-                        title="Delete Decoration"
+                        title={t("حذف الزينة", "Delete Decoration")}
                         subtitle={`Are you sure you want to delete ${decoration.alt}?`}
                         confirmText="Delete"
                         cancelText="Cancel"

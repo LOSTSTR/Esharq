@@ -186,13 +186,13 @@ function QuoteModal({ message, ...props }: RenderModalProps & { message: Message
 
             <FormSwitch title="Grayscale" value={gray} onChange={setGray} />
             <FormSwitch
-                title="Save as GIF"
+                title={t("حفظ كـ GIF", "Save as GIF")}
                 value={saveAsGif}
                 onChange={setSaveAsGif}
                 description="Saves/Sends the image as a GIF instead of a PNG"
             />
             <FormSwitch
-                title="Show Watermark"
+                title={t("إظهار العلامة المائية", "Show Watermark")}
                 value={showWatermark}
                 onChange={setShowWatermark}
                 hideBorder={showWatermark}
@@ -202,7 +202,7 @@ function QuoteModal({ message, ...props }: RenderModalProps & { message: Message
                     <TextInput
                         value={watermarkText}
                         onChange={setWatermarkText}
-                        placeholder="Watermark text (max 32 characters)"
+                        placeholder={t("نصّ العلامة المائية (٣٢ حرفاً كحدّ أقصى)", "Watermark text (max 32 characters)")}
                         maxLength={32}
                     />
                 </div>

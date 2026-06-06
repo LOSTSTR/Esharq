@@ -92,7 +92,7 @@ function UploadClipFileModal({ modalProps, channelId, clip }: { modalProps: Rend
     return (
         <Modal
             {...modalProps}
-            title="Upload Clip File"
+            title={t("رفع ملف المقطع", "Upload Clip File")}
             notice={notice}
             actions={[
                 {
@@ -120,7 +120,7 @@ function UploadClipFileModal({ modalProps, channelId, clip }: { modalProps: Rend
                     </Flex>
                 </section>
 
-                <TextField title="File name" value={fileName} onChange={setFileName} placeholder="my_clip.mp4" disabled={uploading} />
+                <TextField title={t("اسم الملف", "File name")} value={fileName} onChange={setFileName} placeholder="my_clip.mp4" disabled={uploading} />
                 <TextField title="Title" value={title} onChange={setTitle} placeholder="Epic Moment" disabled={uploading} />
                 <ParticipantField value={participants} onChange={setParticipants} disabled={uploading} />
                 <DateTimeField value={createdAt} onChange={setCreatedAt} disabled={uploading} />

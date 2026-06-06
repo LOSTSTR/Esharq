@@ -98,7 +98,7 @@ export function makeContextItem(a: folderProp) {
                         <Modal
                             {...props}
                             size="sm"
-                            title="Set a New Icon."
+                            title={t("تعيين أيقونة جديدة.", "Set a New Icon.")}
                         >
                             <ImageModal folderId={a.folderId} folderColor={a.folderColor} />
                             <div style={{
