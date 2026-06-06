@@ -6,6 +6,7 @@
 
 import { Button } from "@components/Button";
 import { Paragraph } from "@components/Paragraph";
+import { t } from "@utils/esharqI18n";
 import { TextInput } from "@webpack/common";
 
 import { openCommandPicker } from "../../../CommandPicker";
@@ -50,7 +51,7 @@ export function OpenSettingsEditor({ command, onChange, showAdvanced }: OpenSett
             </Button>
             {showAdvanced && (
                 <TextInput
-                    label="Settings Route"
+                    label={t("مسار الإعدادات", "Settings Route")}
                     value={route}
                     placeholder="My Account"
                     onChange={value => onChange({

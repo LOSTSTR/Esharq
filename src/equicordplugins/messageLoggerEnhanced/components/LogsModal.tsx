@@ -316,7 +316,7 @@ function LMessage({ log, isGroupStart, reset, }: LMessageProps) {
                         <Menu.MenuItem
                             key="jump-to-message"
                             id="jump-to-message"
-                            label="Jump To Message"
+                            label={t("الانتقال إلى الرسالة", "Jump To Message")}
                             action={() => {
                                 NavigationRouter.transitionTo(`/channels/${ChannelStore.getChannel(message.channel_id)?.guild_id ?? "@me"}/${message.channel_id}${message.id ? "/" + message.id : ""}`);
                                 closeAllModals();
@@ -325,7 +325,7 @@ function LMessage({ log, isGroupStart, reset, }: LMessageProps) {
                         <Menu.MenuItem
                             key="open-user-profile"
                             id="open-user-profile"
-                            label="Open user profile"
+                            label={t("فتح الملف الشخصي للمستخدم", "Open user profile")}
                             action={() => {
                                 closeAllModals();
                                 openUserProfile(message.author.id);
@@ -335,28 +335,28 @@ function LMessage({ log, isGroupStart, reset, }: LMessageProps) {
                         <Menu.MenuItem
                             key="copy-content"
                             id="copy-content"
-                            label="Copy Content"
+                            label={t("نسخ المحتوى", "Copy Content")}
                             action={() => copyWithToast(message.content)}
                         />
 
                         <Menu.MenuItem
                             key="copy-user-id"
                             id="copy-user-id"
-                            label="Copy User ID"
+                            label={t("نسخ معرّف المستخدم", "Copy User ID")}
                             action={() => copyWithToast(message.author.id)}
                         />
 
                         <Menu.MenuItem
                             key="copy-message-id"
                             id="copy-message-id"
-                            label="Copy Message ID"
+                            label={t("نسخ معرّف الرسالة", "Copy Message ID")}
                             action={() => copyWithToast(message.id)}
                         />
 
                         <Menu.MenuItem
                             key="copy-channel-id"
                             id="copy-channel-id"
-                            label="Copy Channel ID"
+                            label={t("نسخ معرّف القناة", "Copy Channel ID")}
                             action={() => copyWithToast(message.channel_id)}
                         />
 
@@ -366,7 +366,7 @@ function LMessage({ log, isGroupStart, reset, }: LMessageProps) {
                                 <Menu.MenuItem
                                     key="copy-server-id"
                                     id="copy-server-id"
-                                    label="Copy Server ID"
+                                    label={t("نسخ معرّف الخادم", "Copy Server ID")}
                                     action={() => copyWithToast(log.message.guildId!)}
                                 />
                             )
@@ -375,7 +375,7 @@ function LMessage({ log, isGroupStart, reset, }: LMessageProps) {
                         <Menu.MenuItem
                             key="delete-log"
                             id="delete-log"
-                            label="Delete Log"
+                            label={t("حذف السجلّ", "Delete Log")}
                             color="danger"
                             action={() =>
                                 deleteMessageIDB(log.message.id).then(() => reset())

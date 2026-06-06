@@ -10,6 +10,7 @@ import { Heading } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import { settings } from "@equicordplugins/channelTabs/util";
 import { IS_MAC } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { Button, React, Text, useEffect, useRef, useState } from "@webpack/common";
 import { JSX } from "react";
 
@@ -187,28 +188,28 @@ export function KeybindSettings(): JSX.Element {
                 </Paragraph>
 
                 <KeybindInput
-                    label="Close Tab"
+                    label={t("إغلاق التبويب", "Close Tab")}
                     description="Close the currently active tab"
                     settingKey="closeTabKeybind"
                     enabledKey="enableCloseTabShortcut"
                 />
 
                 <KeybindInput
-                    label="New Tab"
+                    label={t("تبويب جديد", "New Tab")}
                     description="Open a new tab with the current channel"
                     settingKey="newTabKeybind"
                     enabledKey="enableNewTabShortcut"
                 />
 
                 <KeybindInput
-                    label="Cycle Tabs Forward"
+                    label={t("التنقّل بين التبويبات للأمام", "Cycle Tabs Forward")}
                     description="Switch to the next tab (wraps around to first)"
                     settingKey="cycleTabForwardKeybind"
                     enabledKey="enableTabCycleShortcut"
                 />
 
                 <KeybindInput
-                    label="Cycle Tabs Backward"
+                    label={t("التنقّل بين التبويبات للخلف", "Cycle Tabs Backward")}
                     description="Switch to the previous tab (wraps around to last)"
                     settingKey="cycleTabBackwardKeybind"
                     enabledKey="enableTabCycleShortcut"

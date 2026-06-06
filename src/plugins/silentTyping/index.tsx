@@ -354,7 +354,7 @@ const ChatBarContextCheckbox: NavContextMenuPatchCallback = children => {
                 action={() => settings.store.hideMembersListTypingIndicators = !settings.store.hideMembersListTypingIndicators} />
             <Menu.MenuCheckboxItem id="vc-silent-typing-chat-icon" label={t("أيقونة الدردشة", "Chat Icon")} checked={chatIcon}
                 action={() => settings.store.chatIcon = !settings.store.chatIcon} />
-            <Menu.MenuCheckboxItem id="vc-silent-typing-default" label="Default Hidden" checked={defaultHidden}
+            <Menu.MenuCheckboxItem id="vc-silent-typing-default" label={t("مخفي افتراضياً", "Default Hidden")} checked={defaultHidden}
                 action={() => settings.store.defaultHidden = !settings.store.defaultHidden} />
         </Menu.MenuItem>
     );

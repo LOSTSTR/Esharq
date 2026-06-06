@@ -536,7 +536,7 @@ export function TabContextMenu({ tab }: { tab: ChannelTabsProps; }) {
                 <Menu.MenuCheckboxItem
                     checked={compact}
                     id="toggle-compact-tab"
-                    label="Compact"
+                    label={t("مُدمج", "Compact")}
                     action={() => {
                         setCompact(compact => !compact);
                         toggleCompactTab(tab.id);
@@ -546,29 +546,29 @@ export function TabContextMenu({ tab }: { tab: ChannelTabsProps; }) {
             {openedTabs.length !== 1 && <Menu.MenuGroup>
                 <Menu.MenuItem
                     id="close-tab"
-                    label="Close Tab"
+                    label={t("إغلاق التبويب", "Close Tab")}
                     action={() => closeTab(tab.id)}
                 />
                 <Menu.MenuItem
                     id="close-other-tabs"
-                    label="Close Other Tabs"
+                    label={t("إغلاق التبويبات الأخرى", "Close Other Tabs")}
                     action={() => closeOtherTabs(tab.id)}
                 />
                 <Menu.MenuItem
                     id="close-right-tabs"
-                    label="Close Tabs to the Right"
+                    label={t("إغلاق التبويبات على اليمين", "Close Tabs to the Right")}
                     disabled={openedTabs.indexOf(tab) === openedTabs.length - 1}
                     action={() => closeTabsToTheRight(tab.id)}
                 />
                 <Menu.MenuItem
                     id="close-left-tabs"
-                    label="Close Tabs to the Left"
+                    label={t("إغلاق التبويبات على اليسار", "Close Tabs to the Left")}
                     disabled={openedTabs.indexOf(tab) === 0}
                     action={() => closeTabsToTheLeft(tab.id)}
                 />
                 <Menu.MenuItem
                     id="reopen-closed-tab"
-                    label="Reopen Closed Tab"
+                    label={t("إعادة فتح التبويب المغلق", "Reopen Closed Tab")}
                     disabled={!hasClosedTabs()}
                     action={() => reopenClosedTab()}
                 />

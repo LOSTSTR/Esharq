@@ -11,6 +11,7 @@ import { HeadingSecondary } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import { TooltipContainer } from "@components/TooltipContainer";
 import { copyWithToast, getIntlMessage } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import { saveFile } from "@utils/web";
 import { Icon, RenderModalProps } from "@vencord/discord-types";
@@ -177,11 +178,11 @@ function OtherContextMenu({ iconName, Icon, color }: { iconName: string; Icon: I
         >
             <Menu.MenuItem
                 id="log-console"
-                label="Log to Console"
+                label={t("الطباعة في الكونسول", "Log to Console")}
                 icon={BugIcon}
                 action={() => logger.info(Icon)}
             />
-            <Menu.MenuItem id="save" label="Save As...">
+            <Menu.MenuItem id="save" label={t("حفظ باسم...", "Save As...")}>
                 <Menu.MenuItem
                     id="save-png"
                     label="PNG"

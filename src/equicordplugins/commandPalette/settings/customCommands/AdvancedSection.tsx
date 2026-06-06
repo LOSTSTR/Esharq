@@ -6,6 +6,7 @@
 
 import { Paragraph } from "@components/Paragraph";
 import { Switch } from "@components/Switch";
+import { t } from "@utils/esharqI18n";
 import { React, Select, TextInput } from "@webpack/common";
 
 import { type CustomCommandIconId,getCustomCommandIconMetaList } from "../../customCommandIcons";
@@ -51,7 +52,7 @@ export function AdvancedSection({ command, categoryOptions, onChange }: Advanced
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: 12, background: "var(--background-secondary)", borderRadius: 8, padding: 12 }}>
             <TextInput
-                label="Keywords"
+                label={t("كلمات مفتاحية", "Keywords")}
                 value={keywordsInput}
                 placeholder="Comma-separated keywords"
                 onChange={value => {

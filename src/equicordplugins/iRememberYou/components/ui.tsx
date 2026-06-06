@@ -11,6 +11,7 @@ import { Paragraph } from "@components/Paragraph";
 import { SettingsTab, wrapTab } from "@components/settings";
 import { classNameFactory } from "@utils/css";
 import { copyWithToast, openUserProfile } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { Avatar, Clickable, ContextMenuApi, Menu, React, TextInput, Tooltip, UserStore } from "@webpack/common";
 
 import { Data, IStorageUser } from "./data";
@@ -80,12 +81,12 @@ function UserRow({ user, allowOwner = true }: { user: IStorageUser, allowOwner?:
                                     >
                                         <Menu.MenuItem
                                             id="copy-user-id"
-                                            label="Copy User ID"
+                                            label={t("نسخ معرّف المستخدم", "Copy User ID")}
                                             action={() => copyWithToast(user.id, "User ID copied to clipboard")}
                                         />
                                         <Menu.MenuItem
                                             id="view-profile"
-                                            label="View Profile"
+                                            label={t("عرض الملف الشخصي", "View Profile")}
                                             action={() => openUserProfile(user.id)}
                                         />
                                     </Menu.Menu>

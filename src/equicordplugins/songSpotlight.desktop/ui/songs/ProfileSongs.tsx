@@ -22,6 +22,7 @@ import {
 import { openSettingsModal } from "@equicordplugins/songSpotlight.desktop/ui/settings";
 import { sid } from "@song-spotlight/api/util";
 import { copyWithToast } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/index";
 import { User } from "@vencord/discord-types";
 import {
@@ -108,14 +109,14 @@ export default function ProfileSongs({ user, isSideBar }: ProfileSongsProps) {
                                         {owned && (
                                             <Menu.MenuItem
                                                 id="edit-songs"
-                                                label="Edit songs"
+                                                label={t("تعديل الأغاني", "Edit songs")}
                                                 icon={PencilIcon}
                                                 action={() => openSettingsModal()}
                                             />
                                         )}
                                         <Menu.MenuItem
                                             id="copy-link"
-                                            label="Copy JSON"
+                                            label={t("نسخ JSON", "Copy JSON")}
                                             icon={LinkIcon}
                                             action={() => copyWithToast(JSON.stringify(data))}
                                         />

@@ -6,6 +6,7 @@
 
 import { Button } from "@components/Button";
 import { Paragraph } from "@components/Paragraph";
+import { t } from "@utils/esharqI18n";
 import { TextInput } from "@webpack/common";
 
 import { openCommandPicker } from "../../../CommandPicker";
@@ -42,7 +43,7 @@ export function RunCommandEditor({ command, onChange, showAdvanced }: RunCommand
             </Button>
             {showAdvanced && (
                 <TextInput
-                    label="Target Command ID"
+                    label={t("معرّف الأمر المستهدف", "Target Command ID")}
                     value={targetId}
                     placeholder="Existing command id"
                     onChange={value => onChange({

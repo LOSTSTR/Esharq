@@ -6,6 +6,7 @@
 
 import { plugins } from "@api/PluginManager";
 import { ErrorBoundary } from "@components/index";
+import { t } from "@utils/esharqI18n";
 import { findComponentByCodeLazy } from "@webpack";
 import { ContextMenuApi, Menu, NavigationRouter, useState } from "@webpack/common";
 import type { CSSProperties, JSX, MouseEvent } from "react";
@@ -202,19 +203,19 @@ export function QuestButtonContextMenu({ dummy = false }: { dummy?: boolean; }):
         >
             <Menu.MenuItem
                 id={q(`${navId}-mark-all-ignored`)}
-                label="Mark All Ignored"
+                label={t("تمييز الكل كمتجاهَل", "Mark All Ignored")}
                 action={ignoreAllQuests}
                 disabled={markAllIgnoredDisabled}
             />
             <Menu.MenuItem
                 id={q(`${navId}-reset-ignored-list`)}
-                label="Reset Ignored List"
+                label={t("إعادة ضبط قائمة المتجاهَل", "Reset Ignored List")}
                 action={resetIgnoredQuests}
                 disabled={resetIgnoredDisabled}
             />
             <Menu.MenuItem
                 id={q(`${navId}-fetch-quests`)}
-                label="Fetch Quests"
+                label={t("جلب المهام", "Fetch Quests")}
                 action={() => { void fetchAndAlertQuests("MANUAL_FETCH"); }}
                 disabled={fetchQuestsDisabled}
             />

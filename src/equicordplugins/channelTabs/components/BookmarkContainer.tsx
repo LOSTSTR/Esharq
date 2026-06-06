@@ -9,6 +9,7 @@ import { BasicChannelTabsProps, Bookmark, BookmarkFolder, BookmarkProps, getDisc
 import { CircleQuestionIcon, DiscoveryIcon, EnvelopeIcon, FriendsIcon, NitroIcon, QuestIcon, ShopIcon } from "@equicordplugins/channelTabs/util/icons";
 import { classNameFactory } from "@utils/css";
 import { getGuildAcronym, getIntlMessage } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import { findComponentByCodeLazy } from "@webpack";
 import { Avatar, ChannelStore, closeModal, ContextMenuApi, FluxDispatcher, GuildStore, Menu, openModal,React, ReadStateStore, ReadStateUtils, SelectedChannelStore, SelectedGuildStore, TextInput, Tooltip, useDrag, useDrop, useEffect, useRef, UserStore, useState } from "@webpack/common";
@@ -174,7 +175,7 @@ function BookmarkFolderOpenMenu(props: BookmarkProps) {
                         <Menu.MenuItem
                             key="edit-bookmark"
                             id="edit-bookmark"
-                            label="Edit Bookmark"
+                            label={t("تعديل الإشارة المرجعية", "Edit Bookmark")}
                             action={() => {
                                 const key = openModal(modalProps =>
                                     <EditModal
@@ -194,7 +195,7 @@ function BookmarkFolderOpenMenu(props: BookmarkProps) {
                         <Menu.MenuItem
                             key="delete-bookmark"
                             id="delete-bookmark"
-                            label="Delete Bookmark"
+                            label={t("حذف الإشارة المرجعية", "Delete Bookmark")}
                             action={() => {
                                 methods.deleteBookmark(i, index);
                             }}
@@ -202,7 +203,7 @@ function BookmarkFolderOpenMenu(props: BookmarkProps) {
                         <Menu.MenuItem
                             key="remove-bookmark-from-folder"
                             id="remove-bookmark-from-folder"
-                            label="Remove Bookmark from Folder"
+                            label={t("إزالة الإشارة من المجلّد", "Remove Bookmark from Folder")}
                             action={() => {
                                 const newBookmarks = [...bookmark.bookmarks];
                                 newBookmarks.splice(i, 1);
@@ -316,7 +317,7 @@ function FolderBookmarkItem({ bookmark, bookmarks, folderIndex, bookmarkIndex, m
                         <Menu.MenuItem
                             key="edit-bookmark"
                             id="edit-bookmark"
-                            label="Edit Bookmark"
+                            label={t("تعديل الإشارة المرجعية", "Edit Bookmark")}
                             action={() => {
                                 const key = openModal(modalProps =>
                                     <EditModal
@@ -339,13 +340,13 @@ function FolderBookmarkItem({ bookmark, bookmarks, folderIndex, bookmarkIndex, m
                         <Menu.MenuItem
                             key="delete-bookmark"
                             id="delete-bookmark"
-                            label="Delete Bookmark"
+                            label={t("حذف الإشارة المرجعية", "Delete Bookmark")}
                             action={() => methods.deleteBookmark(bookmarkIndex, folderIndex)}
                         />
                         <Menu.MenuItem
                             key="remove-from-folder"
                             id="remove-from-folder"
-                            label="Remove from Folder"
+                            label={t("إزالة من المجلّد", "Remove from Folder")}
                             action={() => {
                                 methods.addBookmark(bookmark);
                                 methods.deleteBookmark(bookmarkIndex, folderIndex);

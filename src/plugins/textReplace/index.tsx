@@ -27,6 +27,7 @@ import { Paragraph } from "@components/Paragraph";
 import { Span } from "@components/Span";
 import { TooltipContainer } from "@components/TooltipContainer";
 import { Devs, EquicordDevs, SUPPORT_CHANNEL_IDS } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { classNameFactory } from "@utils/index";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
@@ -230,25 +231,25 @@ function TextReplace({ title, description, rulesArray, isRegex = false }: TextRe
                             <>
                                 <div className={cl("input-grid")}>
                                     <TextRow
-                                        label="Name"
+                                        label={t("الاسم", "Name")}
                                         description="An optional name to help you identify this rule."
                                         value={rule.name ?? ""}
                                         onChange={e => onChange(e, index, "name")}
                                     />
                                     <TextRow
-                                        label="Find"
+                                        label={t("بحث", "Find")}
                                         description={isRegex ? "The regex pattern" : "The text to replace"}
                                         value={rule.find}
                                         onChange={e => onChange(e, index, "find")}
                                     />
                                     <TextRow
-                                        label="Replace"
+                                        label={t("استبدال", "Replace")}
                                         description="The text to replace the found text with"
                                         value={rule.replace}
                                         onChange={e => onChange(e, index, "replace")}
                                     />
                                     <TextRow
-                                        label="Only if includes"
+                                        label={t("فقط إذا تضمّن", "Only if includes")}
                                         description="Optionally, only apply this rule if the message includes this text."
                                         value={rule.onlyIfIncludes}
                                         onChange={e => onChange(e, index, "onlyIfIncludes")}

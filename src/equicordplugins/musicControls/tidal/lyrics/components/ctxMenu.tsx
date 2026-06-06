@@ -5,6 +5,7 @@
  */
 
 import { copyWithToast } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { findComponentByCodeLazy } from "@webpack";
 import { FluxDispatcher, Menu } from "@webpack/common";
 
@@ -25,7 +26,7 @@ export function LyricsContextMenu() {
             <Menu.MenuItem
                 key="copy-lyric"
                 id="copy-lyric"
-                label="Copy current lyric"
+                label={t("نسخ السطر الحالي", "Copy current lyric")}
                 disabled={!currLyric?.text}
                 action={() => copyWithToast(currLyric!.text!, "Lyric copied!")}
                 icon={CopyIcon}

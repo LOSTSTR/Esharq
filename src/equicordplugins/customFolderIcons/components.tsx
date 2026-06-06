@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "@utils/esharqI18n";
 import { Button, closeModal, Menu, Modal,openModalLazy, Slider, TextInput, useState } from "@webpack/common";
 
 import { folderIconsData, settings } from "./settings";
@@ -90,7 +91,7 @@ export function makeContextItem(a: folderProp) {
         <Menu.MenuItem
             id="custom-folder-icons"
             key="custom-folder-icons"
-            label="Change Icon"
+            label={t("تغيير الأيقونة", "Change Icon")}
             action={() => {
                 openModalLazy(async () => {
                     return props => (

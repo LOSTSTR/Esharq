@@ -12,6 +12,7 @@ import { Heading } from "@components/Heading";
 import { resolveError } from "@components/settings/tabs/plugins/components/Common";
 import { debounce } from "@shared/debounce";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { ActivityType } from "@vencord/discord-types/enums";
 import { Select, Text, TextInput, useState } from "@webpack/common";
 
@@ -155,7 +156,7 @@ export function RPCSettings() {
         <div className={cl("root")}>
             <SelectSetting
                 settingsKey="type"
-                label="Activity Type"
+                label={t("نوع النشاط", "Activity Type")}
                 options={[
                     {
                         label: "Playing",
@@ -198,7 +199,7 @@ export function RPCSettings() {
 
             <SingleSetting
                 settingsKey="streamLink"
-                label="Stream Link (Twitch or YouTube, only if activity type is Streaming)"
+                label={t("رابط البثّ (Twitch أو YouTube، فقط إذا كان نوع النشاط بثّاً)", "Stream Link (Twitch or YouTube, only if activity type is Streaming)")}
                 disabled={s.type !== ActivityType.STREAMING}
                 isValid={isStreamLinkValid}
             />
@@ -226,13 +227,13 @@ export function RPCSettings() {
                 { settingsKey: "imageBig", label: "Large Image URL/Key", isValid: isImageKeyValid },
                 { settingsKey: "imageBigTooltip", label: "Large Image Text", isValid: maxLength128 },
             ]} />
-            <SingleSetting settingsKey="imageBigURL" label="Large Image clickable URL" isValid={isUrlValid} />
+            <SingleSetting settingsKey="imageBigURL" label={t("رابط قابل للنقر للصورة الكبيرة", "Large Image clickable URL")} isValid={isUrlValid} />
 
             <PairSetting data={[
                 { settingsKey: "imageSmall", label: "Small Image URL/Key", isValid: isImageKeyValid },
                 { settingsKey: "imageSmallTooltip", label: "Small Image Text", isValid: maxLength128 },
             ]} />
-            <SingleSetting settingsKey="imageSmallURL" label="Small Image clickable URL" isValid={isUrlValid} />
+            <SingleSetting settingsKey="imageSmallURL" label={t("رابط قابل للنقر للصورة الصغيرة", "Small Image clickable URL")} isValid={isUrlValid} />
 
             <Divider />
 
@@ -249,7 +250,7 @@ export function RPCSettings() {
 
             <SelectSetting
                 settingsKey="timestampMode"
-                label="Timestamp Mode"
+                label={t("نمط الطابع الزمني", "Timestamp Mode")}
                 options={[
                     {
                         label: "None",

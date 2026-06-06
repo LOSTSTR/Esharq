@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "@utils/esharqI18n";
 import { isNonNullish } from "@utils/guards";
 import { classes } from "@utils/misc";
 import { ProfilePreset } from "@vencord/discord-types";
@@ -143,7 +144,7 @@ export function PresetList({
                                         <Menu.Menu navId="preset-options" onClose={ContextMenuApi.closeContextMenu}>
                                             <Menu.MenuItem
                                                 id="rename"
-                                                label="Rename"
+                                                label={t("إعادة تسمية", "Rename")}
                                                 action={() => {
                                                     setRenaming(actualIndex);
                                                     setRenameText(preset.name);
@@ -151,7 +152,7 @@ export function PresetList({
                                             />
                                             <Menu.MenuItem
                                                 id="update"
-                                                label="Update"
+                                                label={t("تحديث", "Update")}
                                                 action={async () => {
                                                     const profile = await getCurrentProfile(guildId, { isGuildProfile });
                                                     await Promise.all(
@@ -166,7 +167,7 @@ export function PresetList({
                                             {actualIndex > 0 && (
                                                 <Menu.MenuItem
                                                     id="move-up"
-                                                    label="Move Up"
+                                                    label={t("تحريك لأعلى", "Move Up")}
                                                     action={() => {
                                                         movePreset(actualIndex, actualIndex - 1, section, guildId);
                                                         onUpdate();
@@ -176,7 +177,7 @@ export function PresetList({
                                             {actualIndex < allPresets.length - 1 && (
                                                 <Menu.MenuItem
                                                     id="move-down"
-                                                    label="Move Down"
+                                                    label={t("تحريك لأسفل", "Move Down")}
                                                     action={() => {
                                                         movePreset(actualIndex, actualIndex + 1, section, guildId);
                                                         onUpdate();
@@ -186,7 +187,7 @@ export function PresetList({
                                             {currentPage > 1 && (
                                                 <Menu.MenuItem
                                                     id="move-to-page-1"
-                                                    label="Move to Page 1"
+                                                    label={t("النقل إلى الصفحة 1", "Move to Page 1")}
                                                     action={() => {
                                                         movePreset(actualIndex, 0, section, guildId);
                                                         onPageChange(1);
@@ -197,7 +198,7 @@ export function PresetList({
                                             {showMoveOptions && <Menu.MenuSeparator />}
                                             <Menu.MenuItem
                                                 id="delete"
-                                                label="Delete"
+                                                label={t("حذف", "Delete")}
                                                 color="danger"
                                                 action={async () => {
                                                     await deletePreset(actualIndex, section, guildId);

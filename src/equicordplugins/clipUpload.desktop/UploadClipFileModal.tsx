@@ -130,7 +130,7 @@ function UploadClipFileModal({ modalProps, channelId, clip }: { modalProps: Rend
                 <Flex flexDirection="column" gap={8}>
                     <BooleanField label="Spoiler" value={spoiler} onChange={setSpoiler} disabled={uploading} />
                     <BooleanField label="Remix" value={remix} onChange={setRemix} disabled={uploading} />
-                    <BooleanField label="Thumbnail" value={thumbnail} onChange={setThumbnail} disabled={uploading} />
+                    <BooleanField label={t("صورة مصغّرة", "Thumbnail")} value={thumbnail} onChange={setThumbnail} disabled={uploading} />
                 </Flex>
             </Flex>
         </Modal>

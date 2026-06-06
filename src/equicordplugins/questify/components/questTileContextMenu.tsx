@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "@utils/esharqI18n";
 import { copyToClipboard } from "@utils/index";
 import type { Quest } from "@vencord/discord-types";
 import { Menu } from "@webpack/common";
@@ -35,20 +36,20 @@ export function QuestTileContextMenu(
             {!isClaimedMenu && (!isIgnored ? (
                 <Menu.MenuItem
                     id={q("ignore-quest")}
-                    label="Mark as Ignored"
+                    label={t("تمييز كمتجاهَل", "Mark as Ignored")}
                     action={() => addIgnoredQuest(quest.id)}
                 />
             ) : (
                 <Menu.MenuItem
                     id={q("unignore-quest")}
-                    label="Unmark as Ignored"
+                    label={t("إلغاء تمييز المتجاهَل", "Unmark as Ignored")}
                     action={() => removeIgnoredQuest(quest.id)}
                 />
             ))}
             {isAutoCompleting ? (
                 <Menu.MenuItem
                     id={q("stop-auto-complete")}
-                    label="Stop Auto-Complete"
+                    label={t("إيقاف الإكمال التلقائي", "Stop Auto-Complete")}
                     action={() => {
                         stopQuestAutoComplete(quest, {
                             manual: true,
@@ -61,7 +62,7 @@ export function QuestTileContextMenu(
             ) : canStartAutoComplete ? (
                 <Menu.MenuItem
                     id={q("start-auto-complete")}
-                    label="Start Auto-Complete"
+                    label={t("بدء الإكمال التلقائي", "Start Auto-Complete")}
                     action={() => {
                         processQuestForAutoComplete(quest, {
                             force: true,
@@ -73,7 +74,7 @@ export function QuestTileContextMenu(
             ) : null}
             <Menu.MenuItem
                 id={q("copy-quest-id")}
-                label="Copy Quest ID"
+                label={t("نسخ معرّف المهمة", "Copy Quest ID")}
                 action={() => copyToClipboard(quest.id)}
             />
         </Menu.MenuGroup>

@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "@utils/esharqI18n";
 import { TextInput } from "@webpack/common";
 
 import type { CustomCommandDefinition } from "../../../registry";
@@ -17,13 +18,13 @@ export function BasicsStep({ command, onChange }: BasicsStepProps) {
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <TextInput
-                label="Command Name"
+                label={t("اسم الأمر", "Command Name")}
                 value={command.label}
                 placeholder="e.g. Open Team Notes"
                 onChange={value => onChange({ ...command, label: value })}
             />
             <TextInput
-                label="Description (optional)"
+                label={t("الوصف (اختياري)", "Description (optional)")}
                 value={command.description ?? ""}
                 placeholder="Short subtitle shown in palette"
                 onChange={value => onChange({ ...command, description: value })}

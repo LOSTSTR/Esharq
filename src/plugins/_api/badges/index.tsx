@@ -113,14 +113,14 @@ export function BadgeContextMenu({ badge }: { badge: Omit<ProfileBadge, "id"> & 
             {badge.description && (
                 <Menu.MenuItem
                     id="vc-badge-copy-name"
-                    label="Copy Badge Name"
+                    label={t("نسخ اسم الشارة", "Copy Badge Name")}
                     action={() => copyWithToast(badge.description!)}
                 />
             )}
             {badge.iconSrc && (
                 <Menu.MenuItem
                     id="vc-badge-copy-link"
-                    label="Copy Badge Image Link"
+                    label={t("نسخ رابط صورة الشارة", "Copy Badge Image Link")}
                     action={() => copyWithToast(badge.iconSrc!)}
                 />
             )}

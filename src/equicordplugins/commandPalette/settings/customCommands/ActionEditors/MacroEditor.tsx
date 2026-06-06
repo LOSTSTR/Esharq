@@ -6,6 +6,7 @@
 
 import { Button, TextButton } from "@components/Button";
 import { Paragraph } from "@components/Paragraph";
+import { t } from "@utils/esharqI18n";
 import { TextInput } from "@webpack/common";
 
 import { openCommandPicker } from "../../../CommandPicker";
@@ -138,7 +139,7 @@ export function MacroEditor({ command, onChange, showAdvanced }: MacroEditorProp
 
             {showAdvanced && (
                 <TextInput
-                    label="Raw Macro IDs"
+                    label={t("معرّفات الماكرو الخام", "Raw Macro IDs")}
                     value={steps.join(", ")}
                     placeholder="command-a, command-b"
                     onChange={value => onChange({

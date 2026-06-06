@@ -13,6 +13,7 @@ import { ImageIcon, LinkIcon, OpenExternalIcon } from "@components/Icons";
 import { SeekBar } from "@equicordplugins/musicControls/spotify/SeekBar";
 import { debounce } from "@shared/debounce";
 import { copyWithToast, openImageModal } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import { ContextMenuApi, FluxDispatcher, Menu, React, useEffect, useState, useStateFromStores } from "@webpack/common";
 
@@ -219,14 +220,14 @@ function AlbumContextMenu({ track }: { track: PlayerState["track"]; }) {
             <Menu.MenuItem
                 key="view-cover"
                 id="view-cover"
-                label="View Album Cover"
+                label={t("عرض غلاف الألبوم", "View Album Cover")}
                 action={() => track?.imageSrc && openImageModal({ url: track.imageSrc })}
                 icon={ImageIcon}
             />
             <Menu.MenuControlItem
                 id="tdl-volume"
                 key="tdl-volume"
-                label="Volume"
+                label={t("مستوى الصوت", "Volume")}
                 control={(props, ref) => (
                     <Menu.MenuSliderControl
                         {...props}
