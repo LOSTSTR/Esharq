@@ -23,7 +23,7 @@
 
 > **A Note of Thanks & Respect**
 >
-> I am a beginner who is still learning and experimenting. I use AI tools to help me improve, add features, and test things out. If you find any mistakes or issues, please kindly let me know so I can learn and do better.
+> I'm a beginner, still learning and experimenting. If you find any issue, please let me know.
 >
 > This project is a fork of the original [Equicord](https://github.com/Equicord/Equicord). I deeply thank **thororen1234** and the entire Equicord team for their incredible work and for building such a solid foundation.
 >
