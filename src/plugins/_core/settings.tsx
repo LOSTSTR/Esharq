@@ -98,9 +98,9 @@ interface SettingsLayoutBuilder {
 const settings = definePluginSettings({
     arabicMode: {
         type: OptionType.BOOLEAN,
-        description: "Arabic Mode — Show plugin names and descriptions in Arabic. Disable to switch to English.",
+        description: "Arabic Mode — Show plugin names and descriptions in Arabic. Disable to switch to English. Requires a restart so every translation re-renders in the chosen language.",
         default: false,
-        restartNeeded: false,
+        restartNeeded: true,
     },
     settingsLocation: {
         type: OptionType.SELECT,
