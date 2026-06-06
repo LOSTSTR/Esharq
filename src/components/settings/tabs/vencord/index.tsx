@@ -312,6 +312,18 @@ function EquicordSettings() {
                 value={arabicMode}
                 onChange={v => {
                     (Settings.plugins as any).Settings.arabicMode = v;
+                    // اللغة مُجمّدة حتى إعادة التشغيل، فنُظهر التنبيه فوراً. نصّ t() يأتي باللغة
+                    // الحالية للجلسة (المُجمّدة): إنجليزي إن كان العميل إنجليزياً وفعّلنا العربية، والعكس.
+                    Alerts.show({
+                        title: t("إعادة تشغيل مطلوبة", "Restart Required"),
+                        body: t(
+                            "يلزم إعادة تشغيل ديسكورد لتطبيق تغيير اللغة.",
+                            "A Discord restart is required to apply the language change."
+                        ),
+                        confirmText: t("إعادة التشغيل الآن", "Restart Now"),
+                        cancelText: t("لاحقاً", "Later"),
+                        onConfirm: relaunch
+                    });
                 }}
                 title="وضع اللغة العربية / Arabic Mode"
                 description={t(
