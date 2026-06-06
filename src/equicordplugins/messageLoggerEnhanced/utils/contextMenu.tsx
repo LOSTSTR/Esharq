@@ -81,7 +81,7 @@ export const contextMenuPath: NavContextMenuPatchCallback = (children, props) =>
             <Menu.MenuSeparator />,
             <Menu.MenuItem
                 id="message-logger"
-                label="Message Logger"
+                label={t("سجل الرسائل", "Message Logger")}
             >
 
                 <Menu.MenuItem
