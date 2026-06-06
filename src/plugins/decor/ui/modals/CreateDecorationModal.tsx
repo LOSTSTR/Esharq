@@ -104,9 +104,7 @@ function CreateDecorationModal(props: RenderModalProps) {
                                 filters={[{ name: "Decoration file", extensions: ["png", "apng"] }]}
                                 onFileSelect={setFile}
                             />
-                            <Paragraph className={Margins.top8}>
-                                File should be APNG or PNG.
-                            </Paragraph>
+                            <Paragraph className={Margins.top8}>{t("يجب أن يكون الملف بصيغة APNG أو PNG.", "File should be APNG or PNG.")}</Paragraph>
                         </section>
                         <section>
                             <Heading>Name</Heading>
@@ -115,9 +113,7 @@ function CreateDecorationModal(props: RenderModalProps) {
                                 value={name}
                                 onChange={setName}
                             />
-                            <Paragraph className={Margins.top8}>
-                                This name will be used when referring to this decoration.
-                            </Paragraph>
+                            <Paragraph className={Margins.top8}>{t("سيُستخدم هذا الاسم عند الإشارة إلى هذه الزينة.", "This name will be used when referring to this decoration.")}</Paragraph>
                         </section>
                     </div>
                     <div>
@@ -144,9 +140,7 @@ function CreateDecorationModal(props: RenderModalProps) {
                                 NavigationRouter.transitionToGuild(GUILD_ID);
                             }
                         }}
-                    >
-                        Decor's Discord server
-                    </Link> and allow direct messages.
+                    >{t("خادم Decor على ديسكورد", "Decor's Discord server")}</Link> and allow direct messages.
                 </HelpMessage>
             </ErrorBoundary>
         </div>

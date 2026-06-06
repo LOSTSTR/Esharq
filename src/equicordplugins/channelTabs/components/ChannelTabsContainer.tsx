@@ -9,6 +9,7 @@ import { Heading } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import { BasicChannelTabsProps, ChannelTabsProps, clearStaleNavigationContext, closeTab, createTab, handleChannelSwitch, isNavigationFromSource, isTabSelected, moveToTab, openedTabs, openStartupTabs, saveTabs, settings, setUpdaterFunction, useGhostTabs } from "@equicordplugins/channelTabs/util";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import { useForceUpdater } from "@utils/react";
 import { findComponentByCodeLazy, findStoreLazy } from "@webpack";
@@ -352,7 +353,7 @@ export default function ChannelsTabsContainer(props: BasicChannelTabsProps) {
 
 export function ChannelTabsPreview(p: { setValue: (v: TabSet) => void; }) {
     const id = UserStore.getCurrentUser()?.id;
-    if (!id) return <Paragraph>there's no logged in account?????</Paragraph>;
+    if (!id) return <Paragraph>{t("لا يوجد حساب مسجّل الدخول؟؟؟؟؟", "there's no logged in account?????")}</Paragraph>;
 
     const { setValue } = p;
     const { tabSet }: { tabSet: TabSet; } = settings.use(["tabSet"]);
@@ -362,7 +363,7 @@ export function ChannelTabsPreview(p: { setValue: (v: TabSet) => void; }) {
 
     return (
         <>
-            <Heading>Startup tabs</Heading>
+            <Heading>{t("تبويبات بدء التشغيل", "Startup tabs")}</Heading>
             <Flex flexDirection="row" style={{ gap: "2px" }}>
                 {currentTabs.map(t => <>
                     <PreviewTab {...t} />
@@ -374,7 +375,7 @@ export function ChannelTabsPreview(p: { setValue: (v: TabSet) => void; }) {
                         setCurrentTabs([...openedTabs]);
                         setValue({ ...tabSet, [id]: [...openedTabs] });
                     }}
-                >Set to currently open tabs</Button>
+                >{t("تعيين على التبويبات المفتوحة حالياً", "Set to currently open tabs")}</Button>
             </Flex>
         </>
     );

@@ -87,10 +87,8 @@ function AnimationSettings(): JSX.Element {
 
     return (
         <section>
-            <Heading>Animation Controls</Heading>
-            <Paragraph>
-                Enable or disable specific animations for channel tabs. Each option can be toggled independently.
-            </Paragraph>
+            <Heading>{t("عناصر التحكّم بالحركة", "Animation Controls")}</Heading>
+            <Paragraph>{t("فعّل أو عطّل رسوماً متحركة معيّنة لتبويبات القنوات. كل خيار يمكن تبديله على حدة.", "Enable or disable specific animations for channel tabs. Each option can be toggled independently.")}</Paragraph>
             <div style={{ marginTop: "8px" }}>
                 <SearchableSelect
                     placeholder={t("اختر الرسوم المتحركة لتفعيلها...", "Select which animations to enable...")}

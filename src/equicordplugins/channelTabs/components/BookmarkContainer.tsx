@@ -667,12 +667,8 @@ export default function BookmarkContainer(props: BasicChannelTabsProps & { userI
     return (
         <div className={cl("bookmark-container")}>
             <HorizontalScroller className={classes(cl("bookmarks"), isOver && cl("bookmarks-drop-target"))} customRef={dropRef}>
-                {!bookmarks && <BaseText className={cl("bookmark-placeholder-text")} size="xs">
-                    Loading bookmarks...
-                </BaseText>}
-                {bookmarks && !bookmarks.length && <BaseText className={cl("bookmark-placeholder-text")} size="xs">
-                    You have no bookmarks. You can add an open tab or hide this by right clicking it
-                </BaseText>}
+                {!bookmarks && <BaseText className={cl("bookmark-placeholder-text")} size="xs">{t("جارٍ تحميل الإشارات...", "Loading bookmarks...")}</BaseText>}
+                {bookmarks && !bookmarks.length && <BaseText className={cl("bookmark-placeholder-text")} size="xs">{t("ليس لديك إشارات مرجعية. يمكنك إضافة تبويب مفتوح أو إخفاء هذا بالنقر بزرّ الفأرة الأيمن عليه", "You have no bookmarks. You can add an open tab or hide this by right clicking it")}</BaseText>}
                 {Array.isArray(bookmarks) && bookmarks.length > 0 &&
                     bookmarks.flatMap((bookmark, i) => {
                         if (!isBookmarkFolder(bookmark)) {

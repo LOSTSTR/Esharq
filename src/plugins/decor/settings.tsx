@@ -20,9 +20,7 @@ export const settings = definePluginSettings({
     changeDecoration: {
         type: OptionType.COMPONENT,
         component({ closePluginSettings }) {
-            if (!DecorPlugin.started) return <Paragraph>
-                Enable Decor and restart your client to change your avatar decoration.
-            </Paragraph>;
+            if (!DecorPlugin.started) return <Paragraph>{t("فعّل Decor وأعد تشغيل العميل لتغيير زينة صورتك الرمزية.", "Enable Decor and restart your client to change your avatar decoration.")}</Paragraph>;
 
             return <div>
                 <DecorSection hideTitle hideDivider noMargin />
@@ -33,7 +31,7 @@ export const settings = definePluginSettings({
                             closePluginSettings();
                             SettingsRouter.openUserSettings("profile_panel");
                         }}
-                    >Profiles</TextButton> page.
+                    >{t("الملفات الشخصية", "Profiles")}</TextButton> page.
                 </Paragraph>
             </div>;
         }

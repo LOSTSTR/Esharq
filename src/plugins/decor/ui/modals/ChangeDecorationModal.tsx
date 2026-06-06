@@ -175,9 +175,7 @@ function ChangeDecorationModal(props: RenderModalProps) {
                             }
                         }}
                         variant="link"
-                    >
-                        Discord Server
-                    </NewButton>}
+                    >{t("خادم ديسكورد", "Discord Server")}</NewButton>}
                 </Tooltip>
                 <NewButton
                     onClick={() => openModal(modalProps => (
@@ -194,9 +192,7 @@ function ChangeDecorationModal(props: RenderModalProps) {
                         />
                     ))}
                     variant="dangerSecondary"
-                >
-                    Log Out
-                </NewButton>
+                >{t("تسجيل الخروج", "Log Out")}</NewButton>
             </div>
         }
     >
@@ -261,9 +257,7 @@ function ChangeDecorationModal(props: RenderModalProps) {
                     </BaseText>
                 )}
                 {isActiveDecorationPreset && (
-                    <Button onClick={() => copyWithToast(activeDecorationPreset.id)}>
-                        Copy Preset ID
-                    </Button>
+                    <Button onClick={() => copyWithToast(activeDecorationPreset.id)}>{t("نسخ معرّف القالب الجاهز", "Copy Preset ID")}</Button>
                 )}
             </div>
 

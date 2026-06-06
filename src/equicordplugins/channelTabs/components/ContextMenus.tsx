@@ -137,7 +137,7 @@ function FolderIconPickerModal({ modalProps, modalKey, name, color, iconName, on
         <Modal
             {...modalProps}
             size="sm"
-            title={<BaseText size="lg" weight="semibold">Choose Folder Icon</BaseText>}
+            title={<BaseText size="lg" weight="semibold">{t("اختر أيقونة المجلّد", "Choose Folder Icon")}</BaseText>}
             actions={[
                 {
                     text: "Close",
@@ -146,9 +146,9 @@ function FolderIconPickerModal({ modalProps, modalKey, name, color, iconName, on
                 }
             ]}
         >
-            <Heading className={Margins.top16}>Preview</Heading>
+            <Heading className={Margins.top16}>{t("معاينة", "Preview")}</Heading>
             <FolderChipPreview name={name} color={localColor} iconName={iconName} />
-            <Heading className={Margins.top16}>Icon Color</Heading>
+            <Heading className={Margins.top16}>{t("لون الأيقونة", "Icon Color")}</Heading>
             <div className={Margins.top8}>
                 <ColorPicker
                     color={colorToInt(localColor)}
@@ -160,7 +160,7 @@ function FolderIconPickerModal({ modalProps, modalKey, name, color, iconName, on
                     showEyeDropper={false}
                 />
             </div>
-            <Heading className={Margins.top16}>Search</Heading>
+            <Heading className={Margins.top16}>{t("بحث", "Search")}</Heading>
             <TextInput
                 value={search}
                 placeholder={`Search ${iconNames.length} icons...`}
@@ -221,13 +221,13 @@ function FolderAppearanceFields({
     placeholder?: string;
 }) {
     return <>
-        <Heading className={Margins.top16}>Folder Name</Heading>
+        <Heading className={Margins.top16}>{t("اسم المجلّد", "Folder Name")}</Heading>
         <TextInput
             value={name === placeholder ? undefined : name}
             placeholder={placeholder}
             onChange={setName}
         />
-        <Heading className={Margins.top16}>Folder Color</Heading>
+        <Heading className={Margins.top16}>{t("لون المجلّد", "Folder Color")}</Heading>
         <div className={Margins.top8}>
             <ColorPicker
                 color={colorToInt(color)}
@@ -235,7 +235,7 @@ function FolderAppearanceFields({
                 showEyeDropper={false}
             />
         </div>
-        <Heading className={Margins.top16}>Folder Icon</Heading>
+        <Heading className={Margins.top16}>{t("أيقونة المجلّد", "Folder Icon")}</Heading>
         <FolderChipPreview name={name} color={color} iconName={iconName} />
         <Button
             className={Margins.top8}
@@ -252,13 +252,13 @@ function FolderAppearanceFields({
                     />
                 ));
             }}
-        >Choose Icon</Button>
+        >{t("اختر أيقونة", "Choose Icon")}</Button>
         {iconName && <Button
             className={Margins.top8}
             color={Button.Colors.TRANSPARENT}
             look={Button.Looks.FILLED}
             onClick={() => setIconName(undefined)}
-        >Use Default Icon</Button>}
+        >{t("استخدام الأيقونة الافتراضية", "Use Default Icon")}</Button>}
     </>;
 }
 
@@ -277,7 +277,7 @@ export function EditModal({ modalProps, modalKey, bookmark, onSave }: {
         <Modal
             {...modalProps}
             size="sm"
-            title={<BaseText size="lg" weight="semibold">Edit Bookmark</BaseText>}
+            title={<BaseText size="lg" weight="semibold">{t("تعديل الإشارة المرجعية", "Edit Bookmark")}</BaseText>}
             actions={[
                 {
                     text: "Save",
@@ -302,7 +302,7 @@ export function EditModal({ modalProps, modalKey, bookmark, onSave }: {
                     placeholder={placeholder}
                 />
                 : <>
-                    <Heading className={Margins.top16}>Bookmark Name</Heading>
+                    <Heading className={Margins.top16}>{t("اسم الإشارة المرجعية", "Bookmark Name")}</Heading>
                     <TextInput
                         value={name === placeholder ? undefined : name}
                         placeholder={placeholder}
@@ -328,7 +328,7 @@ function AddToFolderModal({ modalProps, modalKey, bookmarks, onSave }: {
         <Modal
             {...modalProps}
             size="sm"
-            title={<BaseText size="lg" weight="semibold">Add Bookmark to Folder</BaseText>}
+            title={<BaseText size="lg" weight="semibold">{t("إضافة الإشارة إلى مجلّد", "Add Bookmark to Folder")}</BaseText>}
             actions={[
                 {
                     text: "Save",
@@ -342,7 +342,7 @@ function AddToFolderModal({ modalProps, modalKey, bookmarks, onSave }: {
                 }
             ]}
         >
-            <Heading className={Margins.top16}>Select a folder</Heading>
+            <Heading className={Margins.top16}>{t("اختر مجلّداً", "Select a folder")}</Heading>
             <Select
                 options={[...Object.entries(bookmarks)
                     .filter(([, bookmark]) => isBookmarkFolder(bookmark))
@@ -380,7 +380,7 @@ function DeleteFolderConfirmationModal({ modalProps, modalKey, onConfirm }: {
         <Modal
             {...modalProps}
             size="sm"
-            title={<BaseText size="lg" weight="semibold">Are you sure?</BaseText>}
+            title={<BaseText size="lg" weight="semibold">{t("هل أنت متأكّد؟", "Are you sure?")}</BaseText>}
             actions={[
                 {
                     text: "Delete",
@@ -394,9 +394,7 @@ function DeleteFolderConfirmationModal({ modalProps, modalKey, onConfirm }: {
                 }
             ]}
         >
-            <Paragraph className={Margins.top16}>
-                Deleting a bookmark folder will also delete all bookmarks within it.
-            </Paragraph>
+            <Paragraph className={Margins.top16}>{t("حذف مجلّد الإشارات سيحذف أيضاً كل الإشارات بداخله.", "Deleting a bookmark folder will also delete all bookmarks within it.")}</Paragraph>
         </Modal>
     );
 }

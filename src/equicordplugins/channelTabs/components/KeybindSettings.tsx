@@ -121,9 +121,7 @@ function KeybindInput({ label, description, settingKey, enabledKey }: KeybindInp
                     {description}
                 </Text>
                 {!isEnabled && (
-                    <Text variant="text-xs/normal" style={{ color: "var(--text-feedback-critical)" }}>
-                        This shortcut is currently disabled
-                    </Text>
+                    <Text variant="text-xs/normal" style={{ color: "var(--text-feedback-critical)" }}>{t("هذا الاختصار مُعطَّل حالياً", "This shortcut is currently disabled")}</Text>
                 )}
                 {error && (
                     <Text variant="text-xs/normal" className="channelTabs-keybind-conflict">
@@ -182,10 +180,8 @@ export function KeybindSettings(): JSX.Element {
         <ErrorBoundary>
             <Divider />
             <div className="channelTabs-keybind-settings">
-                <Heading>Keyboard Shortcuts</Heading>
-                <Paragraph>
-                    Click a button and press your desired key combination. Modifiers like CTRL, SHIFT, and ALT are supported.
-                </Paragraph>
+                <Heading>{t("اختصارات لوحة المفاتيح", "Keyboard Shortcuts")}</Heading>
+                <Paragraph>{t("انقر زرّاً ثم اضغط تركيبة المفاتيح المطلوبة. المُعدِّلات مثل CTRL وSHIFT وALT مدعومة.", "Click a button and press your desired key combination. Modifiers like CTRL, SHIFT, and ALT are supported.")}</Paragraph>
 
                 <KeybindInput
                     label={t("إغلاق التبويب", "Close Tab")}
@@ -219,9 +215,7 @@ export function KeybindSettings(): JSX.Element {
                     <Button
                         color={Button.Colors.RED}
                         onClick={handleResetAll}
-                    >
-                        Reset All to Defaults
-                    </Button>
+                    >{t("إعادة الكل للافتراضي", "Reset All to Defaults")}</Button>
                 </div>
             </div>
         </ErrorBoundary>

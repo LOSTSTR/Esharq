@@ -10,6 +10,7 @@ import { Paragraph } from "@components/Paragraph";
 import { relativeLuminance } from "@plugins/clientTheme/utils/colorUtils";
 import { createOrUpdateThemeColorVars } from "@plugins/clientTheme/utils/styleUtils";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { findByCodeLazy, findStoreLazy } from "@webpack";
 import { Button, ColorPicker, ThemeStore, useStateFromStores } from "@webpack/common";
@@ -69,8 +70,8 @@ export function ThemeSettingsComponent() {
         <div className={cl("settings")}>
             <div className={cl("container")}>
                 <div className={cl("settings-labels")}>
-                    <HeadingSecondary>Theme Color</HeadingSecondary>
-                    <Paragraph>Add a color to your Discord client theme</Paragraph>
+                    <HeadingSecondary>{t("لون القالب", "Theme Color")}</HeadingSecondary>
+                    <Paragraph>{t("أضف لوناً لقالب عميل ديسكورد الخاص بك", "Add a color to your Discord client theme")}</Paragraph>
                 </div>
                 <ColorPicker
                     color={parseInt(settings.store.color, 16)}
@@ -81,14 +82,14 @@ export function ThemeSettingsComponent() {
             </div>
             {(contrastWarning || nitroThemeEnabled) && (<>
                 <ErrorCard className={Margins.top8}>
-                    <HeadingPrimary>Your theme won't look good!</HeadingPrimary>
+                    <HeadingPrimary>{t("قالبك لن يبدو جيداً!", "Your theme won't look good!")}</HeadingPrimary>
 
                     {contrastWarning && <Paragraph>{">"} Selected color won't contrast well with text</Paragraph>}
                     {nitroThemeEnabled && <Paragraph>{">"} Nitro themes aren't supported</Paragraph>}
 
                     <div className={cl("buttons-container")}>
                         {(contrastWarning && fixableContrast) && <Button onClick={() => setDiscordTheme(oppositeTheme)} color={Button.Colors.RED}>Switch to {oppositeTheme} mode</Button>}
-                        {(nitroThemeEnabled) && <Button onClick={() => setDiscordTheme(currentTheme)} color={Button.Colors.RED}>Disable Nitro Theme</Button>}
+                        {(nitroThemeEnabled) && <Button onClick={() => setDiscordTheme(currentTheme)} color={Button.Colors.RED}>{t("تعطيل قالب Nitro", "Disable Nitro Theme")}</Button>}
                     </div>
                 </ErrorCard>
             </>)}
@@ -98,8 +99,6 @@ export function ThemeSettingsComponent() {
 
 export function ResetThemeColorComponent() {
     return (
-        <Button onClick={() => onPickColor(0x313338)}>
-            Reset Theme Color
-        </Button>
+        <Button onClick={() => onPickColor(0x313338)}>{t("إعادة ضبط لون القالب", "Reset Theme Color")}</Button>
     );
 }
