@@ -9,6 +9,7 @@ import { BaseText } from "@components/BaseText";
 import ErrorBoundary from "@components/ErrorBoundary";
 import ShowHiddenChannelsPlugin from "@plugins/showHiddenChannels";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import { Channel } from "@vencord/discord-types";
 import { findByPropsLazy, findCssClassesLazy } from "@webpack";
@@ -99,7 +100,7 @@ function VoiceChannelTooltip({ channel, isLocked }: VoiceChannelTooltipProps) {
     const Icon = isLocked ? LockedSpeakerIcon : SpeakerIcon;
     return (
         <>
-            <BaseText size="sm" weight="bold">In Voice Chat</BaseText>
+            <BaseText size="sm" weight="bold">{t("في الدردشة الصوتية", "In Voice Chat")}</BaseText>
             <BaseText size="sm" weight="bold">{Parser.parse(`<#${channel.id}>`)}</BaseText>
             <div className={cl("vc-members")}>
                 <Icon size={18} />

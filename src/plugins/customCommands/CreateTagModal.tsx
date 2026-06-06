@@ -10,6 +10,7 @@ import { Flex } from "@components/Flex";
 import { HeadingSecondary } from "@components/Heading";
 import { InfoIcon } from "@components/Icons";
 import { Paragraph } from "@components/Paragraph";
+import { t } from "@utils/esharqI18n";
 import { RenderModalProps } from "@vencord/discord-types";
 import { Modal,openModal, TextArea, TextInput, useState } from "@webpack/common";
 
@@ -71,13 +72,13 @@ function CreateTagDialog({ initialValue, modalProps }: { initialValue: Tag; moda
                 </section>
 
                 <section>
-                    <HeadingSecondary>Response</HeadingSecondary>
+                    <HeadingSecondary>{t("الردّ", "Response")}</HeadingSecondary>
                     <TextArea value={message} onChange={setMessage} placeholder={EXAMPLE_RESPONSE} autosize />
                 </section>
 
                 {detectedArguments.length > 0 && (
                     <section>
-                        <HeadingSecondary>Detected Arguments</HeadingSecondary>
+                        <HeadingSecondary>{t("الوسائط المُكتشَفة", "Detected Arguments")}</HeadingSecondary>
                         <Paragraph>
                             <ul>
                                 {detectedArguments.map(arg => (
@@ -101,17 +102,15 @@ function CreateTagDialog({ initialValue, modalProps }: { initialValue: Tag; moda
                             </Paragraph>
 
                             <section>
-                                <Paragraph><b>Example Command response:</b> <InlineCode>{EXAMPLE_RESPONSE}</InlineCode></Paragraph>
-                                <Paragraph><b>Example usage:</b> <InlineCode>{"/greet user:@Clyde"}</InlineCode></Paragraph>
-                                <Paragraph><b>Example output:</b> <InlineCode>{"Hello @Clyde! I am feeling great."}</InlineCode></Paragraph>
+                                <Paragraph><b>{t("مثال على ردّ الأمر:", "Example Command response:")}</b> <InlineCode>{EXAMPLE_RESPONSE}</InlineCode></Paragraph>
+                                <Paragraph><b>{t("مثال على الاستخدام:", "Example usage:")}</b> <InlineCode>{"/greet user:@Clyde"}</InlineCode></Paragraph>
+                                <Paragraph><b>{t("مثال على الخرج:", "Example output:")}</b> <InlineCode>{"Hello @Clyde! I am feeling great."}</InlineCode></Paragraph>
                             </section>
                         </Flex>
                     )}
                 >
                     <Flex alignItems="center" gap={8}>
-                        <InfoIcon color="var(--text-muted)" height={16} width={16} />
-                        View Arguments guide
-                    </Flex>
+                        <InfoIcon color="var(--text-muted)" height={16} width={16} />{t("عرض دليل الوسائط", "View Arguments guide")}</Flex>
                 </ExpandableSection>
             </Flex>
         </Modal>

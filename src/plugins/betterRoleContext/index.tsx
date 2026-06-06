@@ -170,7 +170,7 @@ export function buildExtraRoleContextMenuItems(role: Role, guild: Guild, popoutR
                                 role="menuitem"
                                 {...popoutProps}
                             >
-                                <div className={MenuItemClasses.label}>View Role Members</div>
+                                <div className={MenuItemClasses.label}>{t("عرض أعضاء الدور", "View Role Members")}</div>
                                 <div className={MenuItemClasses.iconContainer}>
                                     <RoleMembersIcon />
                                 </div>

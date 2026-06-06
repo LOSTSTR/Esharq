@@ -148,8 +148,8 @@ function ScreenSetting() {
         return () => { active = false; };
     }, [includeVideoDevices]);
 
-    if (loading) return <Paragraph>Loading media sources...</Paragraph>;
-    if (!streamMediaSelection.length) return <Paragraph>No Media found.</Paragraph>;
+    if (loading) return <Paragraph>{t("جارٍ تحميل مصادر الوسائط...", "Loading media sources...")}</Paragraph>;
+    if (!streamMediaSelection.length) return <Paragraph>{t("لم يُعثر على وسائط.", "No Media found.")}</Paragraph>;
 
     return <StreamSimplePicker streamMediaSelection={streamMediaSelection} streamMedia={streamMedia} />;
 }
@@ -157,8 +157,8 @@ function ScreenSetting() {
 function SettingSection() {
     return (
         <section>
-            <Heading>Media source to stream</Heading>
-            <Paragraph className={Margins.bottom20}>Resets to main screen if not found</Paragraph>
+            <Heading>{t("مصدر الوسائط للبثّ", "Media source to stream")}</Heading>
+            <Paragraph className={Margins.bottom20}>{t("يعود للشاشة الرئيسية إن لم يُعثر عليه", "Resets to main screen if not found")}</Paragraph>
             <ScreenSetting />
         </section>
     );

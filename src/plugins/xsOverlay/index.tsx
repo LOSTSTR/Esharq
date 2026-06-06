@@ -6,6 +6,7 @@
 
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import definePlugin, { makeRange, OptionType, PluginNative, ReporterTestable } from "@utils/types";
 import type { Channel, Embed, GuildMember, MessageAttachment, User } from "@vencord/discord-types";
@@ -304,9 +305,7 @@ export default definePlugin({
 
     settingsAboutComponent: () => (
         <>
-            <Button onClick={() => sendOtherNotif("This is a test notification! explode", "Hello from Vendor!")}>
-                Send test notification
-            </Button>
+            <Button onClick={() => sendOtherNotif("This is a test notification! explode", "Hello from Vendor!")}>{t("إرسال إشعار تجريبي", "Send test notification")}</Button>
         </>
     )
 });

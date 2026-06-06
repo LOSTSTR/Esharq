@@ -6,6 +6,7 @@
 
 import { Button, TextButton } from "@components/Button";
 import { Paragraph } from "@components/Paragraph";
+import { t } from "@utils/esharqI18n";
 import { React } from "@webpack/common";
 
 import type { CustomCommandDefinition } from "../../registry";
@@ -107,9 +108,7 @@ export function CustomCommandWizard({ command, categoryOptions, onDraftChange, o
             )}
 
             {showStepWarning && hasBlockingForStep && (
-                <Paragraph size="sm" style={{ color: "var(--status-danger-text, #f04747)" }}>
-                    Resolve required fields before moving forward.
-                </Paragraph>
+                <Paragraph size="sm" style={{ color: "var(--status-danger-text, #f04747)" }}>{t("أكمِل الحقول المطلوبة قبل المتابعة.", "Resolve required fields before moving forward.")}</Paragraph>
             )}
 
             <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>

@@ -13,6 +13,7 @@ import { HeadingTertiary } from "@components/Heading";
 import { DeleteIcon } from "@components/Icons";
 import { EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { useForceUpdater } from "@utils/react";
 import definePlugin, { OptionType } from "@utils/types";
 import { Button, TextInput, useState } from "@webpack/common";
@@ -130,7 +131,7 @@ function FlaggedWords() {
 
     return (
         <>
-            <HeadingTertiary>Flagged Words</HeadingTertiary>
+            <HeadingTertiary>{t("الكلمات المُعلَّمة", "Flagged Words")}</HeadingTertiary>
             {inputs}
         </>
     );

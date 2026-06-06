@@ -8,6 +8,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { HeadingTertiary } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import { openInviteModal } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { RenderModalProps, User } from "@vencord/discord-types";
 import { Modal, openModal, React, Tooltip } from "@webpack/common";
 
@@ -72,9 +73,7 @@ export function openBadgeModal(user: User) {
                             </div>
                         </>
                     ) : (
-                        <Paragraph>
-                            No global badges.
-                        </Paragraph>
+                        <Paragraph>{t("لا توجد شارات عامّة.", "No global badges.")}</Paragraph>
                     )}
                 </div>
             </ErrorBoundary>

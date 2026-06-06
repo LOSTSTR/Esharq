@@ -143,9 +143,7 @@ export function PresetManager({ section, guildId }: PresetManagerProps) {
 
     return (
         <div className={classes(cl("section"), isServerSection ? cl("section-server") : "")} >
-            <Heading tag="h3" className={cl("heading")}>
-                Saved Profiles
-            </Heading>
+            <Heading tag="h3" className={cl("heading")}>{t("الملفات المحفوظة", "Saved Profiles")}</Heading>
 
             <div className={cl("text")}>
                 <TextInput
@@ -194,16 +192,12 @@ export function PresetManager({ section, guildId }: PresetManagerProps) {
                     variant="secondary"
                     onClick={() => importPresets(forceUpdate, showImportPrompt, resolvedSection, resolvedGuildId)}
                     disabled={!canUseGuild}
-                >
-                    Import
-                </Button>
+                >{t("استيراد", "Import")}</Button>
                 <Button
                     size="small"
                     variant="secondary"
                     onClick={() => exportPresets(resolvedSection)}
-                >
-                    Export All
-                </Button>
+                >{t("تصدير الكل", "Export All")}</Button>
             </div>
 
             {hasPresets && (

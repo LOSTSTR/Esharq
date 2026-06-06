@@ -23,6 +23,7 @@ import { buildExtraRoleContextMenuItems } from "@plugins/betterRoleContext";
 import { cl, getGuildPermissionSpecMap, loadGetGuildPermissionSpecMap } from "@plugins/permissionsViewer/utils";
 import { copyToClipboard } from "@utils/clipboard";
 import { getIntlMessage, getUniqueUsername } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { Guild, RenderModalProps, Role, RoleOrUserPermission, UnicodeEmoji, User } from "@vencord/discord-types";
 import { PermissionOverwriteType } from "@vencord/discord-types/enums";
 import { findByCodeLazy } from "@webpack";
@@ -81,7 +82,7 @@ function RolesAndUsersPermissionsComponent({ permissions, guild, modalProps, hea
         >
             {!selectedItem && (
                 <div className={cl("modal-no-perms")}>
-                    <Text variant="heading-lg/normal">No permissions to display!</Text>
+                    <Text variant="heading-lg/normal">{t("لا توجد صلاحيات للعرض!", "No permissions to display!")}</Text>
                 </div>
             )}
 

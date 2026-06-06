@@ -13,6 +13,7 @@ import { PluginDependencyList } from "@components/settings/tabs/plugins";
 import { PluginCard } from "@components/settings/tabs/plugins/PluginCard";
 import { ChangeList } from "@utils/ChangeList";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { useForceUpdater } from "@utils/react";
 import { RenderModalProps } from "@vencord/discord-types";
 import { findComponentByCodeLazy } from "@webpack";
@@ -127,9 +128,7 @@ function NewPluginsModal({ modalProps, newPlugins, newSettings }: ModalComponent
                     <BaseText size="lg" weight="semibold" className={cl("title")}>
                         New Plugins and Settings ({totalCount})
                     </BaseText>
-                    <BaseText size="sm" className={cl("description")}>
-                        New plugins have been added since your last visit. Enable any you'd like or continue to dismiss.
-                    </BaseText>
+                    <BaseText size="sm" className={cl("description")}>{t("أُضيفت إضافات جديدة منذ زيارتك الأخيرة. فعّل ما تريد أو تابِع للتجاهل.", "New plugins have been added since your last visit. Enable any you'd like or continue to dismiss.")}</BaseText>
                 </div>
             }
             actions={[

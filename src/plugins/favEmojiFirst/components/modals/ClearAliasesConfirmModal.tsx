@@ -27,7 +27,7 @@ export function ClearAliasesConfirmModal({ modalProps, onConfirm }: ClearAliases
                 }
             ]}
         >
-            <Paragraph>This will remove every emoji alias you saved.</Paragraph>
+            <Paragraph>{t("سيؤدّي هذا إلى إزالة كل اسم مستعار للإيموجي حفظته.", "This will remove every emoji alias you saved.")}</Paragraph>
         </Modal>
     );
 }

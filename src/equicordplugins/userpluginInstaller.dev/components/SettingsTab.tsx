@@ -18,6 +18,7 @@ import {
     SettingsTab as STab,
     wrapTab,
 } from "@components/settings/tabs/BaseTab";
+import { t } from "@utils/esharqI18n";
 import { classes, isObjectEmpty } from "@utils/misc";
 import { relaunch } from "@utils/native";
 import { Alerts, closeAllModals,NavigationRouter, Toasts, useEffect, useState } from "@webpack/common";
@@ -84,15 +85,13 @@ function UserPluginsTab() {
             <div className={cl("update-check-container")}>
                 {isObjectEmpty(pluginsWithUpdates) ? (
                     !updatesLoaded && (
-                        <BaseText>Checking for updates...</BaseText>
+                        <BaseText>{t("جارٍ التحقّق من التحديثات...", "Checking for updates...")}</BaseText>
                     )
                 ) : (
                     <Card
                         className={classes(cl("info-card"), "vc-warning-card")}
                     >
-                        <HeadingTertiary className={cl("install-title")}>
-                            Plugin Updates Available
-                        </HeadingTertiary>
+                        <HeadingTertiary className={cl("install-title")}>{t("تتوفّر تحديثات للإضافات", "Plugin Updates Available")}</HeadingTertiary>
                         <Paragraph className={cl("install-desc")}>
                             The following plugins are out-of-date:
                             <ul className={cl("outdated-list")}>
@@ -110,9 +109,7 @@ function UserPluginsTab() {
                 )}
             </div>
             <Card className={cl("info-card")}>
-                <HeadingTertiary className={cl("install-title")}>
-                    Install Plugin
-                </HeadingTertiary>
+                <HeadingTertiary className={cl("install-title")}>{t("تثبيت الإضافة", "Install Plugin")}</HeadingTertiary>
                 <Paragraph className={cl("install-desc")}>
                     You can install a plugin from GitHub, GitLab, Codeberg,
                     git.nin0.dev, or plugins.nin0.dev by pasting its clone URL
@@ -314,9 +311,7 @@ function UserPluginsTab() {
                                                         plugin.remote,
                                                     )
                                                 }
-                                            >
-                                                Source
-                                            </Button>
+                                            >{t("المصدر", "Source")}</Button>
                                             {plugin.supportChannelID && <Button variant="secondary" size="small" onClick={() => {
                                                 closeAllModals();
                                                 NavigationRouter.transitionTo(`/channels/1015060230222131221/${plugin.supportChannelID}`);
@@ -329,7 +324,7 @@ function UserPluginsTab() {
                             })}
                     </div>
                 ) : (
-                    <BaseText>Loading plugins...</BaseText>
+                    <BaseText>{t("جارٍ تحميل الإضافات...", "Loading plugins...")}</BaseText>
                 )}
             </div>
         </STab>

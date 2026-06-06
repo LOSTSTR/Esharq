@@ -7,6 +7,7 @@
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Paragraph } from "@components/Paragraph";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { GuildMember, RenderModalProps } from "@vencord/discord-types";
 import { Modal,openModal, Parser, React } from "@webpack/common";
 
@@ -32,7 +33,7 @@ export function showInRoleModal(members: GuildMember[], roleId: string, channelI
                                     {Parser.parse(`<@${member.userId}>`, true, { channelId, viewingChannelId: channelId })}
                                 </Paragraph>
                             </React.Fragment>
-                        ) : <Paragraph>Looks like no online cached members with that role were found. Try scrolling down on your member list to cache more users!</Paragraph>
+                        ) : <Paragraph>{t("يبدو أنه لم يُعثر على أعضاء متّصلين مخزّنين بهذا الدور. جرّب التمرير لأسفل في قائمة الأعضاء لتخزين المزيد من المستخدمين!", "Looks like no online cached members with that role were found. Try scrolling down on your member list to cache more users!")}</Paragraph>
                     }
                 </div>
             </Modal>

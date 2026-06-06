@@ -20,6 +20,7 @@ import { TextButton } from "@components/Button";
 import { Heading } from "@components/Heading";
 import { SessionInfo } from "@plugins/betterSessions/types";
 import { getDefaultName, savedSessionsCache, saveSessionsToDataStore } from "@plugins/betterSessions/utils";
+import { t } from "@utils/esharqI18n";
 import { RenderModalProps } from "@vencord/discord-types";
 import { Modal, React, TextInput } from "@webpack/common";
 import { KeyboardEvent } from "react";
@@ -58,7 +59,7 @@ export function RenameModal({ props, session, state }: { props: RenderModalProps
             ]}
         >
             <div>
-                <Heading tag="h5">New device name</Heading>
+                <Heading tag="h5">{t("اسم الجهاز الجديد", "New device name")}</Heading>
                 <TextInput
                     style={{ marginBottom: "10px" }}
                     placeholder={getDefaultName(session.client_info)}
@@ -76,9 +77,7 @@ export function RenameModal({ props, session, state }: { props: RenderModalProps
                         opacity: 0.6
                     }}
                     onClick={() => setValue("")}
-                >
-                    Reset Name
-                </TextButton>
+                >{t("إعادة ضبط الاسم", "Reset Name")}</TextButton>
             </div>
         </Modal>
     );

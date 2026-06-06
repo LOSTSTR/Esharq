@@ -149,9 +149,7 @@ export function CommandPaletteActionsMenu({ actions, title, onClose, onAction, i
 
             <div className={classes(cl("actions-dropdown-list"), cl("dropdown-list"))}>
                 {filteredActions.length === 0 ? (
-                    <div className={cl("actions-dropdown-empty")}>
-                        No actions found
-                    </div>
+                    <div className={cl("actions-dropdown-empty")}>{t("لم يُعثر على إجراءات", "No actions found")}</div>
                 ) : (
                     filteredActions.map((action, index) => {
                         const Icon = action.icon ?? CogWheel;

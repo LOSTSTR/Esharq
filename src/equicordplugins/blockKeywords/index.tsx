@@ -52,7 +52,7 @@ function RegexHelper() {
 
     return (
         <Card className={cl("regex")}>
-            <HeadingTertiary className={Margins.bottom8}>Regex Helper</HeadingTertiary>
+            <HeadingTertiary className={Margins.bottom8}>{t("مساعد Regex", "Regex Helper")}</HeadingTertiary>
             <TextInput
                 type="text"
                 placeholder={t("نصّ للاختبار...", "Input to test...")}
@@ -66,7 +66,7 @@ function RegexHelper() {
                     variant="warning"
                     className={classes(cl("card"), Margins.top8)}
                 >
-                    <code>No patterns configured</code>
+                    <code>{t("لا توجد أنماط مُهيّأة", "No patterns configured")}</code>
                 </Card> : (
                     results.map(({ pattern, matches, error }, i) => (
                         <Card

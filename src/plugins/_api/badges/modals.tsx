@@ -10,6 +10,7 @@ import { Heading } from "@components/Heading";
 import { Heart } from "@components/Heart";
 import { Paragraph } from "@components/Paragraph";
 import { DonateButton, TranslateButton } from "@components/settings";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { Modal, openModal } from "@webpack/common";
 
@@ -31,9 +32,7 @@ export function VencordDonorModal() {
                         }}
                     >
                         <Flex justifyContent="center" alignItems="center" gap="0.5em">
-                            <Heart />
-                            Vencord Donor
-                        </Flex>
+                            <Heart />{t("متبرّع Vencord", "Vencord Donor")}</Flex>
                     </Heading>
                 }
             >
@@ -53,12 +52,8 @@ export function VencordDonorModal() {
                         />
                     </Flex>
                     <div style={{ padding: "1em" }}>
-                        <Paragraph>
-                            This Badge is a special perk for Vencord Donors
-                        </Paragraph>
-                        <Paragraph className={Margins.top20}>
-                            Please consider supporting the development of Vencord by becoming a donor. It would mean a lot!!
-                        </Paragraph>
+                        <Paragraph>{t("هذه الشارة ميزة خاصّة لمتبرّعي Vencord", "This Badge is a special perk for Vencord Donors")}</Paragraph>
+                        <Paragraph className={Margins.top20}>{t("يُرجى التفكير في دعم تطوير Vencord بأن تصبح متبرّعاً. سيعني ذلك الكثير!!", "Please consider supporting the development of Vencord by becoming a donor. It would mean a lot!!")}</Paragraph>
                     </div>
                 </div>
                 <div>
@@ -89,9 +84,7 @@ export function EquicordDonorModal() {
                         }}
                     >
                         <Flex justifyContent="center" alignItems="center" gap="0.5em">
-                            <Heart />
-                            Equicord Donor
-                        </Flex>
+                            <Heart />{t("متبرّع Equicord", "Equicord Donor")}</Flex>
                     </Heading>
                 }
             >
@@ -111,12 +104,8 @@ export function EquicordDonorModal() {
                         />
                     </Flex>
                     <div style={{ padding: "1em" }}>
-                        <Paragraph>
-                            This Badge is a special perk for Equicord (Not Vencord) Donors
-                        </Paragraph>
-                        <Paragraph className={Margins.top20}>
-                            Please consider supporting the development of Equicord by becoming a donor. It would mean a lot! :3
-                        </Paragraph>
+                        <Paragraph>{t("هذه الشارة ميزة خاصّة لمتبرّعي Equicord (وليس Vencord)", "This Badge is a special perk for Equicord (Not Vencord) Donors")}</Paragraph>
+                        <Paragraph className={Margins.top20}>{t("يُرجى التفكير في دعم تطوير Equicord بأن تصبح متبرّعاً. سيعني ذلك الكثير! :3", "Please consider supporting the development of Equicord by becoming a donor. It would mean a lot! :3")}</Paragraph>
                     </div>
                 </div>
                 <div>
@@ -145,9 +134,7 @@ export function EquicordTranslatorModal() {
                             margin: 0
                         }}
                     >
-                        <Flex justifyContent="center" alignItems="center" gap="0.5em">
-                            Equicord Translator
-                        </Flex>
+                        <Flex justifyContent="center" alignItems="center" gap="0.5em">{t("مترجم Equicord", "Equicord Translator")}</Flex>
                     </Heading>
                 }
             >

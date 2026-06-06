@@ -10,6 +10,7 @@ import { Flex } from "@components/Flex";
 import { FormSwitch } from "@components/FormSwitch";
 import { Heading } from "@components/Heading";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { makeLazy } from "@utils/lazy";
 import definePlugin, { OptionType } from "@utils/types";
 import { RenderModalProps } from "@vencord/discord-types";
@@ -123,9 +124,7 @@ function TarModal({ modalProps }: { modalProps: RenderModalProps; }) {
             </div>
 
             <div style={{ marginTop: "8px", marginBottom: "24px" }}>
-                <Heading>
-                    Lazy chunks
-                </Heading>
+                <Heading>{t("الأجزاء الكسولة", "Lazy chunks")}</Heading>
                 <Flex alignItems="center">
                     <BaseText
                         size="md"

@@ -100,7 +100,7 @@ function TimingSection({ title, logs, traceEnd }: TimingSectionProps) {
                 )}
                 <div style={{ color: "var(--text-strong)", display: "grid", gridTemplateColumns: "repeat(3, auto) 1fr", gap: "2px 10px", userSelect: "text" }}>
                     <span>Start</span>
-                    <span>Interval</span>
+                    <span>{t("الفاصل الزمني", "Interval")}</span>
                     <span>Delta</span>
                     <span style={{ marginBottom: 5 }}>Event</span>
                     {AppStartPerformance.logs.map((log, i) => (
@@ -121,7 +121,7 @@ function ServerTrace({ trace }: ServerTraceProps) {
 
     return (
         <section>
-            <HeadingSecondary>Server Trace</HeadingSecondary>
+            <HeadingSecondary>{t("تتبّع الخادم", "Server Trace")}</HeadingSecondary>
             <code>
                 <Flex flexDirection="column" gap="5px" style={{ color: "var(--text-strong)", userSelect: "text" }}>
                     {lines.map((line, idx) => (
@@ -134,7 +134,7 @@ function ServerTrace({ trace }: ServerTraceProps) {
 }
 
 function StartupTimingPage() {
-    if (!AppStartPerformance?.logs) return <div>Loading...</div>;
+    if (!AppStartPerformance?.logs) return <div>{t("جارٍ التحميل...", "Loading...")}</div>;
 
     const serverTrace = AppStartPerformance.logGroups.find(g => g.serverTrace)?.serverTrace;
 

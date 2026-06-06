@@ -31,7 +31,7 @@ export function toggleHoverControls(value: boolean) {
 function InstallInstructions() {
     return (
         <section>
-            <HeadingSecondary>How to install</HeadingSecondary>
+            <HeadingSecondary>{t("كيفية التثبيت", "How to install")}</HeadingSecondary>
             <Paragraph>
                 Install <MaskedLink href="https://github.com/Inrixia/TidaLuna#installation">TidaLuna</MaskedLink> from here, then go to TidalLuna settings &rarr; Plugin stores &rarr; Install <code>@vmohammad/api</code>
             </Paragraph>
@@ -166,9 +166,7 @@ export const settings = definePluginSettings({
                     clearLyricsCache();
                     showToast("Lyrics cache purged", Toasts.Type.SUCCESS);
                 }}
-            >
-                Purge Cache
-            </ButtonCompat>
+            >{t("تفريغ الذاكرة المؤقّتة", "Purge Cache")}</ButtonCompat>
         ),
     },
     spotifySectionTitle: {

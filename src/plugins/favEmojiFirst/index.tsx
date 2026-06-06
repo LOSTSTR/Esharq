@@ -1020,7 +1020,7 @@ function AliasRow({ alias, emojiRef }: { alias: string; emojiRef: StoredEmojiRef
                 >
                     <PencilIcon width={14} height={14} />
                 </Button>
-                <Button variant="dangerSecondary" size="small" onClick={() => removeAlias(alias)}>Remove</Button>
+                <Button variant="dangerSecondary" size="small" onClick={() => removeAlias(alias)}>{t("إزالة", "Remove")}</Button>
             </div>
         </div>
     );
@@ -1034,7 +1034,7 @@ function AliasListSetting() {
     const entries = getAliasMapEntries();
 
     if (!entries.length) {
-        return <Paragraph>No aliases set yet.</Paragraph>;
+        return <Paragraph>{t("لم تُعيَّن أسماء مستعارة بعد.", "No aliases set yet.")}</Paragraph>;
     }
 
     return (
@@ -1054,9 +1054,7 @@ function ClearAllAliasesSetting() {
     const disabled = !Object.keys(aliasMap).length;
 
     return (
-        <Button variant="dangerPrimary" size="small" disabled={disabled} onClick={openClearAliasesConfirmModal}>
-            Delete all aliases
-        </Button>
+        <Button variant="dangerPrimary" size="small" disabled={disabled} onClick={openClearAliasesConfirmModal}>{t("حذف كل الأسماء المستعارة", "Delete all aliases")}</Button>
     );
 }
 

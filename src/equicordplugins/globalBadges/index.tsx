@@ -35,9 +35,7 @@ export default definePlugin({
                 variant="link"
                 className={cl("settings-button")}
                 onClick={() => openInviteModal(INVITE_LINK)}
-            >
-                Join GlobalBadges Server
-            </Button>
+            >{t("انضمّ إلى خادم GlobalBadges", "Join GlobalBadges Server")}</Button>
         </>
     ),
     async start() {

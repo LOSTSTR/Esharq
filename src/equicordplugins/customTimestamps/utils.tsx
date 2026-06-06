@@ -103,7 +103,7 @@ const DemoMessage = (props: { msgId, compact, message, date: Date | undefined, i
     ) : <div className="vc-cmt-demo-message">
         <Paragraph>
             {/* @ts-expect-error -- renderTimestamp is injected via patch and not in the module types */}
-            <b>Preview:</b> {customTimestamps.renderTimestamp(date, "cozy")}
+            <b>{t("معاينة:", "Preview:")}</b> {customTimestamps.renderTimestamp(date, "cozy")}
         </Paragraph>
     </div>;
 };

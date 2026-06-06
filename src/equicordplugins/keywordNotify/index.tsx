@@ -245,7 +245,7 @@ function KeywordEntries() {
                             setIgnoreCase(i, !values[i].ignoreCase);
                         }}
                     />
-                    <Heading tag="h5">Whitelist/Blacklist</Heading>
+                    <Heading tag="h5">{t("قائمة بيضاء/سوداء", "Whitelist/Blacklist")}</Heading>
                     <Flex flexDirection="row">
                         <div style={{ flexGrow: 1 }}>
                             <ListedIds listIds={values[i].listIds} setListIds={e => setListIds(i, e)} />
@@ -256,7 +256,7 @@ function KeywordEntries() {
                         <Button onClick={() => {
                             values[i].listIds.push("");
                             update();
-                        }}>Add ID</Button>
+                        }}>{t("إضافة معرّف", "Add ID")}</Button>
                         <div style={{ flexGrow: 1 }}>
                             <ListTypeSelector listType={values[i].listType} setListType={e => setListType(i, e)} />
                         </div>
@@ -269,7 +269,7 @@ function KeywordEntries() {
     return (
         <>
             {elements}
-            <div><Button onClick={() => addKeywordEntry(update)}>Add Keyword Entry</Button></div>
+            <div><Button onClick={() => addKeywordEntry(update)}>{t("إضافة مُدخل كلمة مفتاحية", "Add Keyword Entry")}</Button></div>
         </>
     );
 }

@@ -285,7 +285,7 @@ function IconModal({ iconName, Icon, onClose, transitionState }: { iconName: str
             </Flex>
             <div className="vc-ic-use-as">
                 <BaseText size="md" weight="semibold">Usage</BaseText>
-                <BaseText size="sm" color="text-muted">Click to copy</BaseText>
+                <BaseText size="sm" color="text-muted">{t("انقر للنسخ", "Click to copy")}</BaseText>
             </div>
             {/* for some reason i cant make this shit codeblock full width, FF 15 */}
             <Clickable className="vc-ic-codeblock-wrapper" onClick={() => copyWithToast(findCode, "Copied!")}>
@@ -302,18 +302,18 @@ export function openIconModal(iconName: string, Icon: Icon) {
 export function SettingsAbout() {
     return (
         <>
-            <HeadingSecondary>Features</HeadingSecondary>
+            <HeadingSecondary>{t("الميزات", "Features")}</HeadingSecondary>
             <Paragraph>
                 <ul className="vc-ic-unordered-list">
-                    <li>Preview icons</li>
-                    <li>Copy icon names and CSS variables</li>
-                    <li>Download icons in different formats (SVG, PNG, GIF, etc.)</li>
-                    <li>Copy pre-made icon finds for your plugins</li>
-                    <li>Find icons by function context</li>
-                    <li>Search for colors by right-clicking the color name</li>
+                    <li>{t("معاينة الأيقونات", "Preview icons")}</li>
+                    <li>{t("نسخ أسماء الأيقونات ومتغيّرات CSS", "Copy icon names and CSS variables")}</li>
+                    <li>{t("تنزيل الأيقونات بصيغ مختلفة (SVG، PNG، GIF، إلخ)", "Download icons in different formats (SVG, PNG, GIF, etc.)")}</li>
+                    <li>{t("نسخ عمليات بحث أيقونات جاهزة لإضافاتك", "Copy pre-made icon finds for your plugins")}</li>
+                    <li>{t("ابحث عن الأيقونات حسب سياق الدالة", "Find icons by function context")}</li>
+                    <li>{t("ابحث عن الألوان بالنقر بزرّ الفأرة الأيمن على اسم اللون", "Search for colors by right-clicking the color name")}</li>
                 </ul>
             </Paragraph>
-            <HeadingSecondary>Special thanks</HeadingSecondary>
+            <HeadingSecondary>{t("شكر خاصّ", "Special thanks")}</HeadingSecondary>
             <Paragraph>
                 <ul className="vc-ic-unordered-list">
                     <li>krystalskullofficial._.</li>

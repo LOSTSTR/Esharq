@@ -64,9 +64,7 @@ export function SetColorModal({ id, modalProps }: { id: string, modalProps: Rend
         >
             <div onKeyDown={handleKey} className={cl("modal-content")}>
                 <section className={Margins.bottom16}>
-                    <HeadingSecondary>
-                        Pick a Color
-                    </HeadingSecondary>
+                    <HeadingSecondary>{t("اختر لوناً", "Pick a Color")}</HeadingSecondary>
                     <ColorPicker
                         color={colorPickerColor}
                         onChange={setUserColor}

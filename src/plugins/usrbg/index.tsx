@@ -22,6 +22,7 @@ import { definePluginSettings } from "@api/Settings";
 import { Button } from "@components/Button";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 
 const cl = classNameFactory("vc-usrbg-");
@@ -92,9 +93,7 @@ export default definePlugin({
             variant="link"
             className={cl("settings-button")}
             onClick={() => VencordNative.native.openExternal("https://github.com/AutumnVN/usrbg#how-to-request-your-own-usrbg-banner")}
-        >
-            Get your own USRBG banner
-        </Button>
+        >{t("احصل على بانر USRBG الخاص بك", "Get your own USRBG banner")}</Button>
     ),
 
     getVoiceBackgroundStyles({ className, participantUserId }: any) {

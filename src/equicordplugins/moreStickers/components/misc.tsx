@@ -81,7 +81,7 @@ const StickerPackMetadata = ({ meta, hoveredStickerPackId, setHoveredStickerPack
                 }}
             >
                 <svg width="24" height="24" viewBox="0 0 24 24" style={{ fill: "var(--status-danger)" }}>
-                    <title>Delete</title>
+                    <title>{t("حذف", "Delete")}</title>
                     <path d="M15 3.999V2H9V3.999H3V5.999H21V3.999H15Z" />
                     <path d="M5 6.99902V18.999C5 20.101 5.897 20.999 7 20.999H17C18.103 20.999 19 20.101 19 18.999V6.99902H5ZM11 17H9V11H11V17ZM15 17H13V11H15V17Z" />
                 </svg>
@@ -129,7 +129,7 @@ export const Packs = () => {
 
             {tab === SettingsTabsKey.ADD_STICKER_PACK_URL &&
                 <div className="section">
-                    <Heading>Add Sticker Pack from URL</Heading>
+                    <Heading>{t("إضافة حزمة ملصقات من رابط", "Add Sticker Pack from URL")}</Heading>
                     <Paragraph>
                         <p>
                             Currently LINE stickers/emojis supported only. <br />
@@ -231,19 +231,17 @@ export const Packs = () => {
                                 }
 
                             }}
-                        >Insert</Button>
+                        >{t("إدراج", "Insert")}</Button>
                     </Flex>
                 </div>
             }
             {tab === SettingsTabsKey.ADD_STICKER_PACK_HTML &&
                 <div className="section">
-                    <Heading>Add Sticker Pack from HTML</Heading>
+                    <Heading>{t("إضافة حزمة ملصقات من HTML", "Add Sticker Pack from HTML")}</Heading>
                     <Paragraph>
                         <p>
                             When encountering errors while adding a sticker pack, you can try to add it using the HTML source code of the sticker pack page.<br />
-                            This applies to stickers which are region locked / OS locked / etc.<br />
-                            The region LINE recognized may vary from the region you are in due to the CORS proxy we're using.
-                        </p>
+                            This applies to stickers which are region locked / OS locked / etc.<br />{t("قد تختلف المنطقة التي تعرّفها LINE عن منطقتك بسبب وكيل CORS الذي نستخدمه.", "The region LINE recognized may vary from the region you are in due to the CORS proxy we're using.")}</p>
                     </Paragraph>
                     <Flex flexDirection="row" style={{
                         alignItems: "center",
@@ -308,14 +306,14 @@ export const Packs = () => {
                                     });
                                 }
                             }}
-                        >Insert from HTML</Button>
+                        >{t("إدراج من HTML", "Insert from HTML")}</Button>
                     </Flex>
                 </div>
             }
             {
                 tab === SettingsTabsKey.ADD_STICKER_PACK_FILE &&
                 <div className="section">
-                    <Heading>Add Sticker Pack from File</Heading>
+                    <Heading>{t("إضافة حزمة ملصقات من ملف", "Add Sticker Pack from File")}</Heading>
 
                     <Button
                         size={Button.Sizes.SMALL}
@@ -363,15 +361,13 @@ export const Packs = () => {
                             };
                             input.click();
                         }}
-                    >
-                        Open Sticker Pack File
-                    </Button>
+                    >{t("فتح ملف حزمة الملصقات", "Open Sticker Pack File")}</Button>
                 </div>
             }
             {
                 tab === SettingsTabsKey.MISC &&
                 <div className="section">
-                    <Heading>Misc tools</Heading>
+                    <Heading>{t("أدوات متنوّعة", "Misc tools")}</Heading>
 
                     <Flex flexDirection="row" style={{
                         alignItems: "center",
@@ -403,7 +399,7 @@ export const Packs = () => {
                                     }
                                 });
                             }}
-                        >Export Sticker Packs</Button>
+                        >{t("تصدير حزم الملصقات", "Export Sticker Packs")}</Button>
                         <Button
                             size={Button.Sizes.SMALL}
                             onClick={async e => {
@@ -412,7 +408,7 @@ export const Packs = () => {
                             style={{
                                 display: _isV1 ? "unset" : "none"
                             }}
-                        >Migrate from v1</Button>
+                        >{t("الترحيل من الإصدار 1", "Migrate from v1")}</Button>
                     </Flex>
                 </div>
             }
@@ -420,7 +416,7 @@ export const Packs = () => {
                 marginTop: "8px",
                 marginBottom: "8px"
             }} />
-            <Heading>Stickers Management</Heading>
+            <Heading>{t("إدارة الملصقات", "Stickers Management")}</Heading>
 
             <div className="section">
                 <div style={{

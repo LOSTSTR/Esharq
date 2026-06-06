@@ -242,9 +242,7 @@ const WhiteListedEmojisComponent = (): JSX.Element => {
                             look="outlined"
                             color="red"
                             onClick={() => handleRemoveAllEmojis(guildId)}
-                        >
-                            Remove All
-                        </Button>
+                        >{t("إزالة الكل", "Remove All")}</Button>
                     </div>
                     {!collapsedGroups[guildId] && (
                         <div className="guild-emojis">
@@ -266,9 +264,7 @@ const WhiteListedEmojisComponent = (): JSX.Element => {
                                         look="outlined"
                                         color="red"
                                         onClick={() => handleRemoveEmoji(emoji)}
-                                    >
-                                        Remove
-                                    </Button>
+                                    >{t("إزالة", "Remove")}</Button>
                                 </div>
                             ))}
                         </div>
@@ -276,7 +272,7 @@ const WhiteListedEmojisComponent = (): JSX.Element => {
                 </div>
             ))}
             {whitelistedEmojis.length === 0 && (
-                <span className="no-emoji-message">No emojis in the whitelist.</span>
+                <span className="no-emoji-message">{t("لا يوجد إيموجي في القائمة البيضاء.", "No emojis in the whitelist.")}</span>
             )}
         </div>
     );
@@ -361,7 +357,7 @@ const settings = definePluginSettings({
         type: OptionType.COMPONENT,
         description: "Export emojis",
         component: () => (
-            <Button onClick={exportEmojis}>Export Emojis</Button>
+            <Button onClick={exportEmojis}>{t("تصدير الإيموجي", "Export Emojis")}</Button>
         )
     },
     importEmojis: {
@@ -393,9 +389,7 @@ const settings = definePluginSettings({
                     confirmColor: Button.Colors.RED,
                     cancelText: t("إلغاء", "Cancel"),
                     onConfirm: resetEmojis
-                })}>
-                Reset Emojis
-            </Button>
+                })}>{t("إعادة ضبط الإيموجي", "Reset Emojis")}</Button>
         )
     }
 });

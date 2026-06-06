@@ -6,6 +6,7 @@
 
 import { IS_MAC } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { SVGProps } from "react";
 
 const cl = classNameFactory("vc-command-palette-");
@@ -38,7 +39,7 @@ export function CommandPaletteActionBar({ selectedLabel, onOpenActions }: Comman
                 {selectedLabel ? (
                     <span className={cl("row-subtitle")}>{selectedLabel}</span>
                 ) : (
-                    <span className={cl("action-bar-placeholder")}>No selection</span>
+                    <span className={cl("action-bar-placeholder")}>{t("لا يوجد تحديد", "No selection")}</span>
                 )}
             </div>
             <button
@@ -46,7 +47,7 @@ export function CommandPaletteActionBar({ selectedLabel, onOpenActions }: Comman
                 className={cl("action-bar-actions-button")}
                 onClick={onOpenActions}
             >
-                <span className={cl("action-bar-actions-label")}>Actions</span>
+                <span className={cl("action-bar-actions-label")}>{t("الإجراءات", "Actions")}</span>
                 <span className={cl("action-bar-key")}>{actionsShortcutLabel}</span>
             </button>
         </div>

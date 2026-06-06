@@ -9,6 +9,7 @@ import "./styles.css";
 import { Heading } from "@components/Heading";
 import { classNameFactory } from "@utils/css";
 import { getGuildAcronym, openImageModal, openUserProfile } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import { useAwaiter } from "@utils/react";
 import { Guild, RenderModalProps, User } from "@vencord/discord-types";
@@ -128,9 +129,7 @@ function GuildInfoModal({ guild, modalProps }: GuildProps & { modalProps: Render
                     id={Tabs.ServerInfo}
                 >
                     <div style={{ textAlign: "center" }}>
-                        <div>
-                            Server Info
-                        </div>
+                        <div>{t("معلومات الخادم", "Server Info")}</div>
                     </div>
                 </TabBar.Item>
                 <TabBar.Item
@@ -138,9 +137,7 @@ function GuildInfoModal({ guild, modalProps }: GuildProps & { modalProps: Render
                     id={Tabs.Friends}
                 >
                     <div style={{ textAlign: "center" }}>
-                        <div>
-                            Friends
-                        </div>
+                        <div>{t("الأصدقاء", "Friends")}</div>
                         {friendCount !== undefined ? ` (${friendCount})` : ""}
                     </div>
                 </TabBar.Item>
@@ -149,9 +146,7 @@ function GuildInfoModal({ guild, modalProps }: GuildProps & { modalProps: Render
                     id={Tabs.MutualMembers}
                 >
                     <div style={{ textAlign: "center" }}>
-                        <div>
-                            Mutual Users
-                        </div>{mutualMembersCount !== undefined ? ` (${mutualMembersCount})` : ""}
+                        <div>{t("المستخدمون المشتركون", "Mutual Users")}</div>{mutualMembersCount !== undefined ? ` (${mutualMembersCount})` : ""}
                     </div>
                 </TabBar.Item>
                 <TabBar.Item
@@ -159,9 +154,7 @@ function GuildInfoModal({ guild, modalProps }: GuildProps & { modalProps: Render
                     id={Tabs.BlockedUsers}
                 >
                     <div style={{ textAlign: "center" }}>
-                        <div>
-                            Blocked Users
-                        </div>
+                        <div>{t("المستخدمون المحظورون", "Blocked Users")}</div>
                         {blockedCount !== undefined ? ` (${blockedCount})` : ""}
                     </div>
                 </TabBar.Item>
@@ -170,9 +163,7 @@ function GuildInfoModal({ guild, modalProps }: GuildProps & { modalProps: Render
                     id={Tabs.IgnoredUsers}
                 >
                     <div style={{ textAlign: "center" }}>
-                        <div>
-                            Ignored Users
-                        </div>
+                        <div>{t("المستخدمون المتجاهَلون", "Ignored Users")}</div>
                         {ignoredCount !== undefined ? `(${ignoredCount})` : ""}
 
                     </div>

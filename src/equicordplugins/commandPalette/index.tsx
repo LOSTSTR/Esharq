@@ -9,6 +9,7 @@ import { BaseText } from "@components/BaseText";
 import { Button } from "@components/Button";
 import { EquicordDevs, IS_MAC } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { useEffect, useState } from "@webpack/common";
 
@@ -90,7 +91,7 @@ function KeybindRecorder() {
     return (
         <div className={cl("keybind-input")}>
             <div className={cl("keybind-info")}>
-                <BaseText size="md" weight="semibold">Keybind</BaseText>
+                <BaseText size="md" weight="semibold">{t("اختصار لوحة المفاتيح", "Keybind")}</BaseText>
             </div>
             <div className={cl("keybind-controls")}>
                 <Button

@@ -62,9 +62,7 @@ export const settings = definePluginSettings({
     accessibilityNotice: {
         type: OptionType.COMPONENT,
         component: () => (
-            <Notice.Info className={cl("accessibility-notice")}>
-                Discord already has a built-in username style option in Accessibility settings.
-            </Notice.Info>
+            <Notice.Info className={cl("accessibility-notice")}>{t("يحتوي ديسكورد أصلاً على خيار نمط اسم المستخدم في إعدادات إمكانية الوصول.", "Discord already has a built-in username style option in Accessibility settings.")}</Notice.Info>
         )
     },
     friendsListHeader: {

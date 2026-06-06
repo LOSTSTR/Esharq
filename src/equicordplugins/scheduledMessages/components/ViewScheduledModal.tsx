@@ -62,7 +62,7 @@ function ViewScheduledModalInner({ rootProps, close }: ViewScheduledModalProps) 
             {!messages.length ? (
                 <div className={cl("empty-state")}>
                     <CalendarIcon width={48} height={48} />
-                    <span>No scheduled messages</span>
+                    <span>{t("لا توجد رسائل مجدولة", "No scheduled messages")}</span>
                 </div>
             ) : (
                 <div className={cl("message-list")}>
@@ -95,9 +95,7 @@ function ViewScheduledModalInner({ rootProps, close }: ViewScheduledModalProps) 
                                     size="small"
                                     variant="dangerPrimary"
                                     onClick={() => handleDelete(msg.id)}
-                                >
-                                    Delete
-                                </Button>
+                                >{t("حذف", "Delete")}</Button>
                             </div>
                         );
                     })}

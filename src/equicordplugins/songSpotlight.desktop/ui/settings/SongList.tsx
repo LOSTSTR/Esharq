@@ -89,7 +89,7 @@ function EditableSong({ song, insert, setSongRef, onDrag, onDrop, onRemove }: Ed
             <Flex alignItems="center" gap="12px" className={cl("editable-song")}>
                 <ServiceIcon width={28} height={28} service={song.service} />
                 {failed
-                    ? <BaseText size="md" weight="normal" className={cl("errored")}>Failed to load!</BaseText>
+                    ? <BaseText size="md" weight="normal" className={cl("errored")}>{t("فشل التحميل!", "Failed to load!")}</BaseText>
                     : (
                         <Flex flexDirection="column" justifyContent="center" gap={0}>
                             <BaseText size="md" weight="medium" className={cl("clamped")}>

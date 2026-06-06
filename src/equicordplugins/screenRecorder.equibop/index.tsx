@@ -7,6 +7,7 @@
 import { addContextMenuPatch, removeContextMenuPatch } from "@api/ContextMenu";
 import { ScreenshareIcon } from "@components/Icons";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { Menu, UploadHandler } from "@webpack/common";
 
@@ -29,7 +30,7 @@ function startRecording(children) {
             label={
                 <div>
                     <ScreenshareIcon height={24} width={24} />
-                    <div>Start Recording</div>
+                    <div>{t("بدء التسجيل", "Start Recording")}</div>
                 </div>
             }
             action={async () => {
@@ -50,7 +51,7 @@ function stopRecording(children, props) {
             label={
                 <div>
                     <ScreenshareIcon height={24} width={24} />
-                    <div>Stop Recording</div>
+                    <div>{t("إيقاف التسجيل", "Stop Recording")}</div>
                 </div>
             }
             action={() => {

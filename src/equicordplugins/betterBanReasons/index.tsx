@@ -11,6 +11,7 @@ import { Heading } from "@components/Heading";
 import { DeleteIcon, PlusIcon } from "@components/Icons";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { Button, Select, TextInput, useState } from "@webpack/common";
 
@@ -50,7 +51,7 @@ function ReasonsComponent() {
 
     return (
         <section>
-            <Heading>Reasons</Heading>
+            <Heading>{t("الأسباب", "Reasons")}</Heading>
             {reasons.map((r, i) => (
                 <div key={i} className={cl("reason-wrapper")}>
                     <TextInput
@@ -68,7 +69,7 @@ function ReasonsComponent() {
                         <DeleteIcon />
                     </Button>
                     <div className={cl("duration-row")}>
-                        <span className="vc-text-base vc-text-sm vc-text-normal vc-text-defaultColor vc-plugins-setting-description">Message Auto-delete duration</span>
+                        <span className="vc-text-base vc-text-sm vc-text-normal vc-text-defaultColor vc-plugins-setting-description">{t("مدّة الحذف التلقائي للرسالة", "Message Auto-delete duration")}</span>
                         <Select
                             options={DELETE_DURATION_OPTIONS}
                             select={v => update(reasons.map((x, j) => j === i ? { ...x, deleteSeconds: v === null ? undefined : v } : x))}

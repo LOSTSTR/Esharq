@@ -9,6 +9,7 @@ import { DataStore } from "@api/index";
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import { findCssClassesLazy } from "@webpack";
@@ -155,6 +156,6 @@ export default definePlugin({
 
         return false;
     },
-    blockedComponent: ErrorBoundary.wrap(blockedComponentRender, { fallback: () => <p style={{ color: "red" }}>Failed to render :(</p> }),
+    blockedComponent: ErrorBoundary.wrap(blockedComponentRender, { fallback: () => <p style={{ color: "red" }}>{t("فشل العرض :(", "Failed to render :(")}</p> }),
     settings,
 });

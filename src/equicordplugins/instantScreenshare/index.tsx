@@ -8,6 +8,7 @@ import { getUserSettingLazy } from "@api/UserSettings";
 import { HeadingSecondary } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import { Devs, EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { VoiceState } from "@vencord/discord-types";
 import { findByCodeLazy, findStoreLazy } from "@webpack";
@@ -71,22 +72,16 @@ export default definePlugin({
 
     settingsAboutComponent: () => (
         <>
-            <HeadingSecondary>For Linux</HeadingSecondary>
+            <HeadingSecondary>{t("لنظام Linux", "For Linux")}</HeadingSecondary>
             <Paragraph>
                 For Wayland it only pops up the screenshare select
-                <br />
-                For X11 it may or may not work :shrug:
-            </Paragraph>
+                <br />{t("على X11 قد يعمل وقد لا يعمل :shrug:", "For X11 it may or may not work :shrug:")}</Paragraph>
             <br />
-            <HeadingSecondary>Video Devices</HeadingSecondary>
-            <Paragraph>
-                Supports cameras and capture cards (like Elgato HD60X) when enabled in settings
-            </Paragraph>
+            <HeadingSecondary>{t("أجهزة الفيديو", "Video Devices")}</HeadingSecondary>
+            <Paragraph>{t("يدعم الكاميرات وبطاقات الالتقاط (مثل Elgato HD60X) عند تفعيله في الإعدادات", "Supports cameras and capture cards (like Elgato HD60X) when enabled in settings")}</Paragraph>
             <br />
-            <HeadingSecondary>Regarding Sound & Preview Settings</HeadingSecondary>
-            <Paragraph>
-                We use the settings set and used by discord to decide if stream preview and sound should be enabled or not
-            </Paragraph>
+            <HeadingSecondary>{t("بخصوص إعدادات الصوت والمعاينة", "Regarding Sound & Preview Settings")}</HeadingSecondary>
+            <Paragraph>{t("نستخدم الإعدادات التي يضبطها ويستخدمها ديسكورد لتحديد ما إذا كان ينبغي تفعيل معاينة البثّ والصوت أم لا", "We use the settings set and used by discord to decide if stream preview and sound should be enabled or not")}</Paragraph>
         </>
     ),
 

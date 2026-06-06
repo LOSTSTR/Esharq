@@ -131,7 +131,7 @@ export const ThemeInfoModal: React.FC<ThemeInfoModalProps> = ({ author, theme, .
                     </div>
                     {version && (
                         <>
-                            <Heading style={{ marginTop: "10px" }}>Version</Heading>
+                            <Heading style={{ marginTop: "10px" }}>{t("الإصدار", "Version")}</Heading>
                             <Paragraph>
                                 {version}
                             </Paragraph>
@@ -143,21 +143,17 @@ export const ThemeInfoModal: React.FC<ThemeInfoModalProps> = ({ author, theme, .
                     </Paragraph>
                     {donate && (
                         <>
-                            <Heading style={{ marginTop: "10px" }}>Donate</Heading>
-                            <Paragraph>
-                                You can support the author by donating below!
-                            </Paragraph>
+                            <Heading style={{ marginTop: "10px" }}>{t("تبرّع", "Donate")}</Heading>
+                            <Paragraph>{t("يمكنك دعم المؤلّف بالتبرّع أدناه!", "You can support the author by donating below!")}</Paragraph>
                             <Paragraph style={{ marginTop: "10px" }}>
                                 <Button onClick={() => VencordNative.native.openExternal(donate)}>
-                                    <Heart />
-                                    Donate
-                                </Button>
+                                    <Heart />{t("تبرّع", "Donate")}</Button>
                             </Paragraph>
                         </>
                     )}
                     {(guild || invite) && (
                         <>
-                            <Heading style={{ marginTop: "10px" }}>Support Server</Heading>
+                            <Heading style={{ marginTop: "10px" }}>{t("خادم الدعم", "Support Server")}</Heading>
                             {guild && (
                                 <Paragraph>
                                     {guild.name}
@@ -173,13 +169,11 @@ export const ThemeInfoModal: React.FC<ThemeInfoModalProps> = ({ author, theme, .
                                         const useInvite = guild ? guild.invite_link?.split("discord.gg/")[1] : invite;
                                         useInvite != null && openInviteModal(useInvite).catch(() => showToast("Invalid or expired invite!", Toasts.Type.FAILURE));
                                     }}
-                                >
-                                    Join Discord Server
-                                </Button>
+                                >{t("انضمّ إلى خادم ديسكورد", "Join Discord Server")}</Button>
                             </Paragraph>
                         </>
                     )}
-                    <Heading style={{ marginTop: "10px" }}>Source</Heading>
+                    <Heading style={{ marginTop: "10px" }}>{t("المصدر", "Source")}</Heading>
                     <Paragraph>
                         <Button
                             disabled={!theme.content || theme.id === "preview"}
@@ -209,9 +203,7 @@ export const ThemeInfoModal: React.FC<ThemeInfoModalProps> = ({ author, theme, .
                                     </Paragraph>
                                 </Modal>
                             ))}
-                        >
-                            View Theme Source
-                        </Button>
+                        >{t("عرض مصدر القالب", "View Theme Source")}</Button>
                     </Paragraph>
                     {tags && (
                         <>

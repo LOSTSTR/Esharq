@@ -135,8 +135,8 @@ function GoogleFontSearch({ onSelect }: { onSelect: (font: GoogleFontMetadata) =
 
     return (
         <section>
-            <HeadingSecondary>Search Google Fonts</HeadingSecondary>
-            <Paragraph className={Margins.bottom8}>Click on any font to apply it.</Paragraph>
+            <HeadingSecondary>{t("البحث في خطوط Google", "Search Google Fonts")}</HeadingSecondary>
+            <Paragraph className={Margins.bottom8}>{t("انقر على أي خطّ لتطبيقه.", "Click on any font to apply it.")}</Paragraph>
 
             <TextInput
                 value={query}

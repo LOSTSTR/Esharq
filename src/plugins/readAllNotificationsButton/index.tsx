@@ -22,6 +22,7 @@ import { addServerListElement, removeServerListElement, ServerListRenderPosition
 import { TextButton } from "@components/Button";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs, EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { ActiveJoinedThreadsStore, FluxDispatcher, GuildChannelStore, GuildStore, React, ReadStateStore } from "@webpack/common";
 
@@ -58,9 +59,7 @@ const ReadAllButton = () => (
         variant="secondary"
         onClick={onClick}
         className="vc-ranb-button"
-    >
-        Read All
-    </TextButton>
+    >{t("تعليم الكل كمقروء", "Read All")}</TextButton>
 );
 
 export default definePlugin({

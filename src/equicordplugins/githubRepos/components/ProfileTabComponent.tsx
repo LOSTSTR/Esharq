@@ -7,6 +7,7 @@
 import { BaseText } from "@components/BaseText";
 import { fetchReposByUserId, fetchReposByUsername, fetchUserInfo, GitHubUserInfo } from "@equicordplugins/githubRepos/githubApi";
 import { GitHubRepo } from "@equicordplugins/githubRepos/types";
+import { t } from "@utils/esharqI18n";
 import { openModal,React, useEffect, UserProfileStore, useState } from "@webpack/common";
 
 import { cl, settings } from "..";
@@ -83,9 +84,7 @@ export function ProfileTabComponent({ id }: { id: string, theme: string; }) {
     }, [id]);
 
     if (loading) return;
-    <BaseText size="xs" weight="semibold" className={cl("loading")} >
-        Loading repositories...
-    </BaseText>;
+    <BaseText size="xs" weight="semibold" className={cl("loading")} >{t("جارٍ تحميل المستودعات...", "Loading repositories...")}</BaseText>;
 
     if (error) return;
     <BaseText size="xs" weight="semibold" className={cl("error")}>

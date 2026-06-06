@@ -8,6 +8,7 @@ import "./styles.css";
 
 import { Heading } from "@components/Heading";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import type { PluginSettingComponentProps } from "@utils/types";
 import type { Channel } from "@vencord/discord-types";
 import { findComponentByCodeLazy } from "@webpack";
@@ -171,7 +172,7 @@ function addEmojiToList(list: string, emoji: string) {
 
 function EmojiPreview({ value }: { value: string; }) {
     const renderedEmoji = toRenderedEmoji(value);
-    if (!renderedEmoji) return <>Pick Emoji</>;
+    if (!renderedEmoji) return <>{t("اختر إيموجي", "Pick Emoji")}</>;
 
     if (renderedEmoji.kind === "custom") {
         return (
@@ -191,7 +192,7 @@ export function ReactEmojiSetting({ setValue }: PluginSettingComponentProps) {
 
     return (
         <div>
-            <Heading>Select Emoji For Reactions</Heading>
+            <Heading>{t("اختر إيموجي للتفاعلات", "Select Emoji For Reactions")}</Heading>
             <div className={cl("primary-emoji-picker")}>
                 <EmojiPickerButton
                     onSelect={newValue => {
@@ -214,7 +215,7 @@ export function AdditionalReactEmojisSetting({ setValue }: PluginSettingComponen
 
     return (
         <div>
-            <Heading>Select Additional Emojis</Heading>
+            <Heading>{t("اختر إيموجي إضافية", "Select Additional Emojis")}</Heading>
             <div
                 style={{
                     marginTop: 8,

@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { t } from "@utils/esharqI18n";
 import { Message } from "@vencord/discord-types";
 import { Parser, useEffect, useState } from "@webpack/common";
 
@@ -33,9 +34,7 @@ function Dismiss({ onDismiss }: { onDismiss: () => void; }) {
         <button
             onClick={onDismiss}
             className={cl("dismiss")}
-        >
-            Dismiss
-        </button>
+        >{t("تجاهل", "Dismiss")}</button>
     );
 }
 

@@ -5,6 +5,7 @@
  */
 
 import { Paragraph } from "@components/Paragraph";
+import { t } from "@utils/esharqI18n";
 import { useState } from "@webpack/common";
 
 import { makeDevBanner, settings, settingVariables } from ".";
@@ -34,7 +35,7 @@ export function FormatSetting(setValue) {
                 {settingVariables.join("\n")}
             </Paragraph>
 
-            <Paragraph className="vc-discord-dev-banner-text">Preview:</Paragraph>
+            <Paragraph className="vc-discord-dev-banner-text">{t("معاينة:", "Preview:")}</Paragraph>
             <Paragraph style={{ padding: "2px" }}>{preview}</Paragraph>
             <textarea
                 className="vc-discord-dev-banner-input"

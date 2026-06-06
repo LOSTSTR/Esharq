@@ -6,6 +6,7 @@
 
 import { getLanguageColor } from "@equicordplugins/githubRepos/colors";
 import { GitHubRepo } from "@equicordplugins/githubRepos/types";
+import { t } from "@utils/esharqI18n";
 import { RenderModalProps } from "@vencord/discord-types";
 import { Modal, React } from "@webpack/common";
 
@@ -22,9 +23,9 @@ export function ReposModal({ repos, username, rootProps }: ReposModalProps & { r
     const renderTableHeader = () => (
         <thead>
             <tr>
-                <th>Repository</th>
-                <th>Description</th>
-                <th>Language</th>
+                <th>{t("المستودع", "Repository")}</th>
+                <th>{t("الوصف", "Description")}</th>
+                <th>{t("اللغة", "Language")}</th>
                 <th>Stars</th>
             </tr>
         </thead>

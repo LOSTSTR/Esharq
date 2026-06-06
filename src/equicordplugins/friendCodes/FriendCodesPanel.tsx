@@ -10,6 +10,7 @@ import { BaseText } from "@components/BaseText";
 import { Flex } from "@components/Flex";
 import { Heading, HeadingTertiary } from "@components/Heading";
 import { copyToClipboard } from "@utils/clipboard";
+import { t } from "@utils/esharqI18n";
 import { findByPropsLazy, findCssClassesLazy } from "@webpack";
 import { Button, Parser, useEffect, useState } from "@webpack/common";
 
@@ -80,9 +81,7 @@ export default function FriendCodesPanel() {
                 <Heading
                     tag="h2"
                     className={FormStyles.title}
-                >
-                    Your Friend Codes
-                </Heading>
+                >{t("رموز صداقتك", "Your Friend Codes")}</Heading>
 
                 <Flex
                     style={{ marginBottom: "16px" }}
@@ -94,18 +93,14 @@ export default function FriendCodesPanel() {
                             color={Button.Colors.GREEN}
                             look={Button.Looks.FILLED}
                             onClick={() => createFriendInvite().then((invite: FriendInvite) => setInvites([...invites, invite]))}
-                        >
-                            Create Friend Code
-                        </Button>
+                        >{t("إنشاء رمز صداقة", "Create Friend Code")}</Button>
                         <Button
                             style={{ marginLeft: "8px" }}
                             color={Button.Colors.RED}
                             look={Button.Looks.FILLED}
                             disabled={!invites.length}
                             onClick={() => revokeFriendInvites().then(setInvites([]))}
-                        >
-                            Revoke all Friend Codes
-                        </Button>
+                        >{t("إلغاء كل رموز الصداقة", "Revoke all Friend Codes")}</Button>
                     </Flex>
                 </Flex>
             </header>
@@ -114,17 +109,13 @@ export default function FriendCodesPanel() {
                     size="md"
                     weight="semibold"
                     className="vc-friend-codes-text"
-                >
-                    Loading...
-                </BaseText>
+                >{t("جارٍ التحميل...", "Loading...")}</BaseText>
             ) : invites.length === 0 ? (
                 <BaseText
                     size="md"
                     weight="semibold"
                     className="vc-friend-codes-text"
-                >
-                    You don't have any friend codes yet
-                </BaseText>
+                >{t("ليس لديك أي رموز صداقة بعد", "You don't have any friend codes yet")}</BaseText>
             ) : (
                 <div style={{ marginTop: "16px", display: "flex", flexWrap: "wrap", gap: "16px", justifyContent: "space-evenly" }}>
                     {invites.map(invite => (

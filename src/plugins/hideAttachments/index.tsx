@@ -23,6 +23,7 @@ import { updateMessage } from "@api/MessageUpdater";
 import { migratePluginSettings } from "@api/Settings";
 import { ImageInvisible, ImageVisible } from "@components/Icons";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import definePlugin from "@utils/types";
 import { Message } from "@vencord/discord-types";
@@ -89,9 +90,7 @@ export default definePlugin({
         if (!this.shouldHide(message.id)) return null;
 
         return (
-            <span className={classes("vc-hideAttachments-accessory", !message.content && "vc-hideAttachments-no-content")}>
-                Media Hidden
-            </span>
+            <span className={classes("vc-hideAttachments-accessory", !message.content && "vc-hideAttachments-no-content")}>{t("الوسائط مخفية", "Media Hidden")}</span>
         );
     },
 

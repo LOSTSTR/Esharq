@@ -196,7 +196,7 @@ export default definePlugin({
         return (
             <Card>
                 <Heading tag="h5">{t("كيفية إنشاء مفتاح API", "How to create an API key")}</Heading>
-                <Paragraph>{t("اضبط", "Set")} <strong>Application name</strong> {t("و", "and")} <strong>Application description</strong> {t("على أي شيء واترك الباقي فارغاً.", "to anything and leave the rest blank.")}</Paragraph>
+                <Paragraph>{t("اضبط", "Set")} <strong>{t("اسم التطبيق", "Application name")}</strong> {t("و", "and")} <strong>{t("وصف التطبيق", "Application description")}</strong> {t("على أي شيء واترك الباقي فارغاً.", "to anything and leave the rest blank.")}</Paragraph>
                 <LinkButton size="small" href="https://www.last.fm/api/account/create" className={Margins.top8}>{t("إنشاء مفتاح API", "Create API Key")}</LinkButton>
             </Card>
         );

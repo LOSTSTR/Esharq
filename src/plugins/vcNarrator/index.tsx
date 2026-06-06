@@ -234,16 +234,14 @@ export default definePlugin({
 
         return (
             <section>
-                <Paragraph>
-                    You can customise the spoken messages below. You can disable specific messages by setting them to nothing
-                </Paragraph>
+                <Paragraph>{t("يمكنك تخصيص الرسائل المنطوقة أدناه. يمكنك تعطيل رسائل معيّنة بتركها فارغة", "You can customise the spoken messages below. You can disable specific messages by setting them to nothing")}</Paragraph>
                 <Paragraph>
                     The special placeholders <code>{"{{USER}}"}</code>, <code>{"{{DISPLAY_NAME}}"}</code>, <code>{"{{NICKNAME}}"}</code> and <code>{"{{CHANNEL}}"}</code>{" "}
                     will be replaced with the user's name (nothing if it's yourself), the user's display name, the user's nickname on current server and the channel's name respectively
                 </Paragraph>
                 {hasEnglishVoices && (
                     <>
-                        <HeadingSecondary className={Margins.top20}>Play Example Sounds</HeadingSecondary>
+                        <HeadingSecondary className={Margins.top20}>{t("تشغيل أصوات تجريبية", "Play Example Sounds")}</HeadingSecondary>
                         <div
                             style={{
                                 display: "grid",

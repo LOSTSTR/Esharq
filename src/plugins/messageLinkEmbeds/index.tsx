@@ -22,6 +22,7 @@ import { definePluginSettings } from "@api/Settings";
 import { getUserSettingLazy } from "@api/UserSettings";
 import { BaseText } from "@components/BaseText";
 import { Devs } from "@utils/constants.js";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import { Queue } from "@utils/Queue";
 import definePlugin, { OptionType } from "@utils/types";
@@ -121,9 +122,7 @@ const settings = definePluginSettings({
     clearMessageCache: {
         type: OptionType.COMPONENT,
         component: () => (
-            <Button onClick={() => messageCache.clear()}>
-                Clear the linked message cache
-            </Button>
+            <Button onClick={() => messageCache.clear()}>{t("مسح الذاكرة المؤقّتة لروابط الرسائل", "Clear the linked message cache")}</Button>
         )
     }
 });

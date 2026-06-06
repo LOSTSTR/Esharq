@@ -326,9 +326,9 @@ const settings = definePluginSettings({
             return (
                 <div>
                     <div className="vc-custom-sounds-buttons">
-                        <Button color={Button.Colors.BRAND} onClick={triggerFileUpload}>Import</Button>
-                        <Button color={Button.Colors.PRIMARY} onClick={downloadSettings}>Export</Button>
-                        <Button color={Button.Colors.RED} onClick={resetOverrides}>Reset All</Button>
+                        <Button color={Button.Colors.BRAND} onClick={triggerFileUpload}>{t("استيراد", "Import")}</Button>
+                        <Button color={Button.Colors.PRIMARY} onClick={downloadSettings}>{t("تصدير", "Export")}</Button>
+                        <Button color={Button.Colors.RED} onClick={resetOverrides}>{t("إعادة الكل", "Reset All")}</Button>
                         <Button color={Button.Colors.WHITE} onClick={debugCustomSounds}>Debug</Button>
                         <input
                             ref={fileInputRef}
@@ -340,7 +340,7 @@ const settings = definePluginSettings({
                     </div>
 
                     <div className={cl("search")}>
-                        <Heading>Search Sounds</Heading>
+                        <Heading>{t("البحث في الأصوات", "Search Sounds")}</Heading>
                         <TextInput
                             value={searchQuery}
                             onChange={e => setSearchQuery(e)}

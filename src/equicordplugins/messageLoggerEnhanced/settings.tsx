@@ -278,9 +278,7 @@ export const settings = definePluginSettings({
         type: OptionType.COMPONENT,
         description: t("فتح السجلات", "Open logs"),
         component: () =>
-            <Button onClick={() => openLogModal()}>
-                Open Logs
-            </Button>
+            <Button onClick={() => openLogModal()}>{t("فتح السجلّات", "Open Logs")}</Button>
     },
     openImageCacheFolder: {
         type: OptionType.COMPONENT,
@@ -293,9 +291,7 @@ export const settings = definePluginSettings({
                     || settings.store.imageCacheDir === DEFAULT_IMAGE_CACHE_DIR
                 }
                 onClick={() => Native.showItemInFolder()}
-            >
-                Open Image Cache Folder
-            </Button>
+            >{t("فتح مجلّد ذاكرة الصور المؤقّتة", "Open Image Cache Folder")}</Button>
     },
 
     clearLogs: {

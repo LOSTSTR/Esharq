@@ -14,6 +14,7 @@ import { Paragraph } from "@components/Paragraph";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { getIntlMessage, openUserProfile } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { classes, getUserAvatarUrl } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
@@ -61,9 +62,7 @@ function Watching({ userIds, guildId }: WatchingProps): JSX.Element {
                     </div>
                 )
                 : (
-                    <span className={cl("no-viewers")}>
-                        No spectators
-                    </span>
+                    <span className={cl("no-viewers")}>{t("لا يوجد مشاهدون", "No spectators")}</span>
                 )
             }
         </div>
@@ -159,9 +158,7 @@ export default definePlugin({
                                 )}
                             />
                         </div>
-                        : <Paragraph>
-                            No spectators
-                        </Paragraph>
+                        : <Paragraph>{t("لا يوجد مشاهدون", "No spectators")}</Paragraph>
                     }
                 </div>
             </div>

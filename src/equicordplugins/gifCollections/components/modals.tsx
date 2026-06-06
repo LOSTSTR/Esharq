@@ -82,7 +82,7 @@ function MoveToCollectionModal({ props, gifId }: { props: RenderModalProps; gifI
                 { text: "Close", variant: "secondary", onClick: props.onClose }
             ]}
         >
-            <Heading style={{ marginBottom: "10px" }}>Select a collection to move the item to</Heading>
+            <Heading style={{ marginBottom: "10px" }}>{t("اختر مجموعة لنقل العنصر إليها", "Select a collection to move the item to")}</Heading>
             <div className={cl("buttons")}>
                 {cache_collections
                     .filter(col => col.name !== getItemCollectionNameFromId(gifId))
@@ -126,7 +126,7 @@ function CreateCollectionModal({ props, gif }: { props: RenderModalProps; gif: G
             ]}
         >
             <form onSubmit={onSubmit}>
-                <Heading className={cl("rename-text")}>Collection Name</Heading>
+                <Heading className={cl("rename-text")}>{t("اسم المجموعة", "Collection Name")}</Heading>
                 <TextInput onChange={setName} />
             </form>
         </Modal>
@@ -156,9 +156,9 @@ function RenameCollectionModal({ props, name }: { props: RenderModalProps; name:
             ]}
         >
             <form onSubmit={onSubmit}>
-                <Paragraph className={cl("rename-text")}>New Collection Name</Paragraph>
+                <Paragraph className={cl("rename-text")}>{t("اسم المجموعة الجديد", "New Collection Name")}</Paragraph>
                 <TextInput value={newName} className={classes(cl("rename-input"), tooLong ? cl("input-warning") : "")} onChange={setNewName} />
-                {tooLong && <Paragraph className={cl("warning-text")}>Name can't be longer than 24 characters</Paragraph>}
+                {tooLong && <Paragraph className={cl("warning-text")}>{t("لا يمكن أن يتجاوز الاسم 24 حرفاً", "Name can't be longer than 24 characters")}</Paragraph>}
             </form>
         </Modal>
     );

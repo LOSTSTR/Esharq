@@ -91,7 +91,7 @@ function PickerModal(props: RenderModalProps) {
                 }}
             />
 
-            <Heading tag="h5">Timestamp Format</Heading>
+            <Heading tag="h5">{t("تنسيق الطابع الزمني", "Timestamp Format")}</Heading>
             <div className={cl("format-select")}>
                 <Select
                     options={
@@ -112,7 +112,7 @@ function PickerModal(props: RenderModalProps) {
                 />
             </div>
 
-            <Heading tag="h5" className={Margins.bottom8}>Preview</Heading>
+            <Heading tag="h5" className={Margins.bottom8}>{t("معاينة", "Preview")}</Heading>
             <Paragraph className={cl("preview-text")}>
                 {rendered} ({formatted})
             </Paragraph>

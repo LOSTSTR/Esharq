@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import { Channel, RenderModalProps } from "@vencord/discord-types";
 import { findStoreLazy } from "@webpack";
@@ -55,7 +56,7 @@ export function VoiceChannelLogModal({ channel, props }: { channel: Channel; pro
 
                     return elements;
                 }) : (
-                    <div className={cl("empty")}>No logs to display.</div>
+                    <div className={cl("empty")}>{t("لا توجد سجلّات للعرض.", "No logs to display.")}</div>
                 )}
             </ScrollerThin>
         </Modal>

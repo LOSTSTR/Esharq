@@ -133,9 +133,7 @@ function LanguageSelectionModal(props: { modalProps: RenderModalProps, src: stri
         >
             <Flex flexDirection="column" gap={20} style={{ padding: "16px" }}>
                 <div>
-                    <BaseText size="sm" weight="semibold" style={{ marginBottom: "8px" }}>
-                        Audio Language
-                    </BaseText>
+                    <BaseText size="sm" weight="semibold" style={{ marginBottom: "8px" }}>{t("لغة الصوت", "Audio Language")}</BaseText>
                     <SearchableSelect
                         options={languageOptions}
                         value={languageOptions.find(o => o.value === language)?.value}
@@ -290,7 +288,7 @@ function TranscriptionModal(props: { modalProps: RenderModalProps, src: string, 
                 ) : (status === "complete" || (status === "transcribing" && result)) ? (
                     <Flex flexDirection="column" gap={16} style={{ paddingBottom: "20px" }}>
                         {status === "transcribing" && (
-                            <Span size="sm" color="text-muted">Transcribing in progress...</Span>
+                            <Span size="sm" color="text-muted">{t("جارٍ النسخ النصّي...", "Transcribing in progress...")}</Span>
                         )}
                         <ScrollerAuto className={cl("result")}>
                             <Span>{displayText}</Span>

@@ -71,17 +71,13 @@ export default definePlugin({
     data,
     settingsAboutComponent: () => (
         <>
-            <Notice.Info className={Margins.bottom8}>
-                Using the set avatar feature is local only meaning only you see it change.
-            </Notice.Info>
+            <Notice.Info className={Margins.bottom8}>{t("ميزة تعيين الصورة الرمزية محلية فقط، أي أنك وحدك من يرى التغيير.", "Using the set avatar feature is local only meaning only you see it change.")}</Notice.Info>
             <Flex className={cl("settings")}>
                 <Button
                     variant="link"
                     className={cl("settings-button")}
                     onClick={() => openInviteModal(INVITE_LINK)}
-                >
-                    Join UserPFP Server
-                </Button>
+                >{t("انضمّ إلى خادم UserPFP", "Join UserPFP Server")}</Button>
                 <Button
                     variant="secondary"
                     className={cl("settings-button")}

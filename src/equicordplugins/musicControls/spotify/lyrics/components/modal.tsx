@@ -7,6 +7,7 @@
 import { BaseText } from "@components/BaseText";
 import { SpotifyStore, Track } from "@equicordplugins/musicControls/spotify/SpotifyStore";
 import { openImageModal } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { RenderModalProps } from "@vencord/discord-types";
 import { Modal,React } from "@webpack/common";
 
@@ -20,7 +21,7 @@ const formatTime = (time: number) => {
 
 function getTitleNode(track: Track | null) {
     if (!track) {
-        return <BaseText size="sm" weight="semibold">No track playing</BaseText>;
+        return <BaseText size="sm" weight="semibold">{t("لا يوجد مقطع قيد التشغيل", "No track playing")}</BaseText>;
     }
     return (
         <div className={cl("header-content")}>

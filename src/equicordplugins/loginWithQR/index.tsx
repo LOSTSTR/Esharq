@@ -11,6 +11,7 @@ import { Paragraph } from "@components/Paragraph";
 import SettingsPlugin from "@plugins/_core/settings";
 import { EquicordDevs } from "@utils/constants";
 import { getIntlMessage } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { removeFromArray } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import { Button } from "@webpack/common";
@@ -25,9 +26,7 @@ const settings = definePluginSettings({
         component() {
             if (!plugins.LoginWithQR.started)
                 return (
-                    <Paragraph>
-                        Enable the plugin and restart your client to scan a login QR code
-                    </Paragraph>
+                    <Paragraph>{t("فعّل الإضافة وأعد تشغيل العميل لمسح رمز QR لتسجيل الدخول", "Enable the plugin and restart your client to scan a login QR code")}</Paragraph>
                 );
 
             return (

@@ -453,9 +453,7 @@ function FallbackOrderSettings() {
                 ))}
             </div>
             <div className={cl("fallback-order-actions")}>
-                <Button size="small" onClick={() => commitOrder(fallbackServiceOrder)}>
-                    Reset to default
-                </Button>
+                <Button size="small" onClick={() => commitOrder(fallbackServiceOrder)}>{t("إعادة للافتراضي", "Reset to default")}</Button>
             </div>
         </SettingsSection>
     );
@@ -772,8 +770,8 @@ export function SettingsComponent() {
                     </SettingsSection>
                     <SettingsSection name="ShareX Config Actions" description="Import from file or validate pasted config">
                         <div className={cl("actions")}>
-                            <Button size="small" onClick={triggerShareXFileUpload}>Import .sxcu/.json</Button>
-                            <Button size="small" onClick={validateShareXConfig}>Validate</Button>
+                            <Button size="small" onClick={triggerShareXFileUpload}>{t("استيراد .sxcu/.json", "Import .sxcu/.json")}</Button>
+                            <Button size="small" onClick={validateShareXConfig}>{t("تحقّق", "Validate")}</Button>
                         </div>
                         <input
                             ref={sharexFileInputRef}

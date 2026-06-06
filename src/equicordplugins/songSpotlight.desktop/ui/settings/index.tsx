@@ -177,9 +177,7 @@ export default function Settings({ templateData }: SettingsProps) {
                             showToast("Successfully signed out!", Toasts.Type.SUCCESS);
                         }}
                         disabled={pending}
-                    >
-                        Sign out
-                    </Button>
+                    >{t("تسجيل الخروج", "Sign out")}</Button>
                     <Button
                         variant="dangerSecondary"
                         onClick={() =>
@@ -202,9 +200,7 @@ export default function Settings({ templateData }: SettingsProps) {
                                 cancelText: t("لا عليك", "Nevermind"),
                             })}
                         disabled={!self?.data[0] || pending}
-                    >
-                        Delete songs
-                    </Button>
+                    >{t("حذف الأغاني", "Delete songs")}</Button>
                 </div>
             </Flex>
         </Flex>

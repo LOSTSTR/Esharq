@@ -172,9 +172,7 @@ function SettingsAboutComponent() {
                         color={Button.Colors.PRIMARY}
                         size={Button.Sizes.XLARGE}
                         style={{ marginBottom: "auto" }}
-                    >
-                        Copy 3y3
-                    </Button>
+                    >{t("نسخ 3y3", "Copy 3y3")}</Button>
                 </Flex>
                 <Divider
                     className={classes(Margins.top8, Margins.bottom8)}
@@ -245,7 +243,6 @@ export default definePlugin({
             color={Button.Colors.PRIMARY}
             size={Button.Sizes.XLARGE}
             className={Margins.left16}
-        >Copy 3y3
-        </Button >;
+        >{t("نسخ 3y3", "Copy 3y3")}</Button >;
     }, { noop: true }),
 });

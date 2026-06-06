@@ -107,7 +107,7 @@ export default function AddSong({ onAdd }: AddSongProps) {
             <Flex alignItems="center" gap="12px" className={cl("editable-song", "add-song")}>
                 <PlusIcon width={28} height={28} className={cl("icon")} />
                 <Flex flexDirection="column" justifyContent="center" gap={0}>
-                    <BaseText size="md" weight="medium">Add song</BaseText>
+                    <BaseText size="md" weight="medium">{t("إضافة أغنية", "Add song")}</BaseText>
                 </Flex>
             </Flex>
         </Clickable>

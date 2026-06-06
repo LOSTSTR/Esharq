@@ -78,7 +78,7 @@ interface GrantedByTooltipProps {
 function GrantedByTooltip({ roleName, roleColor }: GrantedByTooltipProps) {
     return (
         <>
-            <BaseText size="sm">Granted By</BaseText>
+            <BaseText size="sm">{t("مُنحت بواسطة", "Granted By")}</BaseText>
             <FakeRole text={roleName} color={roleColor} />
         </>
     );
@@ -138,7 +138,7 @@ function UserPermissionsComponent({ guild, guildMember, closePopout }: { guild: 
 
     return <div>
         <div className={cl("user-header-container")}>
-            <HeadingTertiary>Permissions</HeadingTertiary>
+            <HeadingTertiary>{t("الصلاحيات", "Permissions")}</HeadingTertiary>
             <div className={cl("user-header-btns")}>
                 <Tooltip text={`Sorting by ${permissionsSortOrder === PermissionsSortOrder.HighestRole ? "Highest Role" : "Lowest Role"}`}>
                     {tooltipProps => (

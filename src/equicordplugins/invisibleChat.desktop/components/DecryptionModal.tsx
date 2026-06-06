@@ -52,9 +52,9 @@ export function DecModal(props: RenderModalProps & { message: any; }) {
                 }
             ]}
         >
-            <Heading style={{ marginTop: "10px" }}>Message with Encryption</Heading>
+            <Heading style={{ marginTop: "10px" }}>{t("رسالة مشفّرة", "Message with Encryption")}</Heading>
             <TextInput defaultValue={encryptedMessage} disabled={true}></TextInput>
-            <Heading style={{ marginTop: "10px" }}>Password</Heading>
+            <Heading style={{ marginTop: "10px" }}>{t("كلمة المرور", "Password")}</Heading>
             <TextInput
                 style={{ marginBottom: "20px" }}
                 onChange={setPassword}

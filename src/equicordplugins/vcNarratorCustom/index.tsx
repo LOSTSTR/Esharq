@@ -144,17 +144,13 @@ function TroubleshootingSettings() {
         <div className={cl("troubleshooting")}>
             <Divider className={cl("divider")} />
 
-            <Forms.FormTitle tag="h3" className={cl("title")}>Troubleshooting</Forms.FormTitle>
+            <Forms.FormTitle tag="h3" className={cl("title")}>{t("استكشاف الأخطاء", "Troubleshooting")}</Forms.FormTitle>
 
             <div className={cl("row")}>
                 <div className={cl("buttons")}>
-                    <Button variant="dangerPrimary" size="small" onClick={onClearCache} disabled={cacheBusy}>
-                        Clear cache
-                    </Button>
+                    <Button variant="dangerPrimary" size="small" onClick={onClearCache} disabled={cacheBusy}>{t("مسح الذاكرة المؤقّتة", "Clear cache")}</Button>
 
-                    <Button variant="secondary" size="xs" onClick={refreshCacheStats} disabled={cacheBusy}>
-                        Refresh size
-                    </Button>
+                    <Button variant="secondary" size="xs" onClick={refreshCacheStats} disabled={cacheBusy}>{t("تحديث الحجم", "Refresh size")}</Button>
                 </div>
 
                 <Forms.FormText className={cl("cache-text")}>
@@ -163,7 +159,7 @@ function TroubleshootingSettings() {
             </div>
 
             <Forms.FormText className={cl("api-text")}>
-                <span>Last API call: </span>
+                <span>{t("آخر استدعاء API:", "Last API call:")}</span>
                 <span className={apiStatusClass}>{apiStatus.message}</span>
                 <span className={cl("api-time")}> • {lastApiAt}</span>
             </Forms.FormText>
@@ -240,12 +236,8 @@ function CustomSoundSettings({ soundKey, nameKey }: { soundKey: string; nameKey:
                 onChange={uploadSound}
             />
             <div className={cl("buttons")}>
-                <Button variant="secondary" size="small" disabled={busy} onClick={() => fileInputRef.current?.click()}>
-                    Choose file
-                </Button>
-                <Button variant="secondary" size="small" disabled={busy || !hasCustomSound} onClick={previewSound}>
-                    Preview
-                </Button>
+                <Button variant="secondary" size="small" disabled={busy} onClick={() => fileInputRef.current?.click()}>{t("اختر ملفاً", "Choose file")}</Button>
+                <Button variant="secondary" size="small" disabled={busy || !hasCustomSound} onClick={previewSound}>{t("معاينة", "Preview")}</Button>
                 <Button
                     variant="dangerPrimary"
                     size="small"
@@ -936,9 +928,7 @@ function VoiceSelectModal({ modalProps, user }: { modalProps: RenderModalProps; 
                     onChange={v => setCurrentValue(v as any)}
                 />
 
-                <Forms.FormText className={cl("preview-hint")}>
-                    Preview how this voice sounds with their name:
-                </Forms.FormText>
+                <Forms.FormText className={cl("preview-hint")}>{t("عاين كيف يبدو هذا الصوت مع اسمهم:", "Preview how this voice sounds with their name:")}</Forms.FormText>
                 <div className={cl("preview-buttons")}>
                     <Button
                         variant="secondary"
@@ -1245,9 +1235,7 @@ export default definePlugin({
                     <Forms.FormTitle tag="h3" className={cl("preview-title")}>
                         Preview Sounds {busy && "(playing...)"}
                     </Forms.FormTitle>
-                    <Forms.FormText className={cl("preview-subtitle")}>
-                        Uses your selected narrator voice
-                    </Forms.FormText>
+                    <Forms.FormText className={cl("preview-subtitle")}>{t("يستخدم صوت الراوي الذي اخترته", "Uses your selected narrator voice")}</Forms.FormText>
                     <div className={cl("preview-grid")}>
                         {allTypes.map(t => (
                             <Button

@@ -97,9 +97,7 @@ export const settings = definePluginSettings({
         component: () => (
             <Button onClick={() => {
                 openModal(modalProps => <SetTimezoneModal userId={UserStore.getCurrentUser().id} modalProps={modalProps} database={true} />);
-            }}>
-                Set Timezone on Database
-            </Button>
+            }}>{t("تعيين المنطقة الزمنية في قاعدة البيانات", "Set Timezone on Database")}</Button>
         )
     },
 
@@ -118,9 +116,7 @@ export const settings = definePluginSettings({
                         showToast("Failed to reset database timezone", Toasts.Type.FAILURE);
                     }
                 }}
-            >
-                Reset Database Timezone
-            </Button>
+            >{t("إعادة ضبط المنطقة الزمنية لقاعدة البيانات", "Reset Database Timezone")}</Button>
         )
     },
 
@@ -320,9 +316,7 @@ export default definePlugin({
                                 onClick={() => {
                                     openModal(modalProps => <SetTimezoneModal userId={UserStore.getCurrentUser().id} modalProps={modalProps} database={true} />);
                                 }}
-                            >
-                                Want to save your timezone to the database? Click here to set it.
-                            </Button>
+                            >{t("هل تريد حفظ منطقتك الزمنية في قاعدة البيانات؟ انقر هنا لتعيينها.", "Want to save your timezone to the database? Click here to set it.")}</Button>
                         ),
                         position: Toasts.Position.BOTTOM
                     }

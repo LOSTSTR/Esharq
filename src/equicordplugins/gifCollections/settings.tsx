@@ -118,9 +118,7 @@ export const settings = definePluginSettings({
                         await DataStore.set(DATA_COLLECTION_NAME, []);
                         refreshCacheCollection();
                     },
-                })}>
-                Reset Collections
-            </Button>,
+                })}>{t("إعادة ضبط المجموعات", "Reset Collections")}</Button>,
     },
 });
 
@@ -151,12 +149,12 @@ function SortSettingsComponent() {
 
     return (
         <div className={cl("sort-container")}>
-            <Heading className={cl("sort-title")}>Sort Collections</Heading>
+            <Heading className={cl("sort-title")}>{t("ترتيب المجموعات", "Sort Collections")}</Heading>
             <Divider className={cl("sort-divider")} />
-            <Paragraph className={cl("sort-description")}>Choose a sorting criteria for your collections</Paragraph>
+            <Paragraph className={cl("sort-description")}>{t("اختر معيار ترتيب لمجموعاتك", "Choose a sorting criteria for your collections")}</Paragraph>
             <Divider className={cl("sort-divider")} />
             <div className={cl("sort-section")}>
-                <Paragraph className={cl("sort-section-title")}>Sort By</Paragraph>
+                <Paragraph className={cl("sort-section-title")}>{t("الترتيب حسب", "Sort By")}</Paragraph>
                 <RadioOption name="sortType" value={SortingOptions.NAME} checked={sortType === SortingOptions.NAME} onChange={() => handleSortType(SortingOptions.NAME)} label={t("الاسم", "Name")} />
                 <RadioOption name="sortType" value={SortingOptions.CREATION_DATE} checked={sortType === SortingOptions.CREATION_DATE} onChange={() => handleSortType(SortingOptions.CREATION_DATE)} label={t("تاريخ الإنشاء", "Creation Date")} />
                 <RadioOption name="sortType" value={SortingOptions.MODIFIED_DATE} checked={sortType === SortingOptions.MODIFIED_DATE} onChange={() => handleSortType(SortingOptions.MODIFIED_DATE)} label={t("تاريخ التعديل", "Modified Date")} />

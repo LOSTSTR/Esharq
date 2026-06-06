@@ -7,6 +7,7 @@
 import { definePluginSettings } from "@api/Settings";
 import { BaseText } from "@components/BaseText";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { makeRange, OptionType } from "@utils/types";
 import { ReactNode } from "react";
 
@@ -119,8 +120,8 @@ export default definePlugin({
         <BaseText>
             You can make text wiggle with the following:<br />
             <ul className="wiggle-example">
-                <li><ExampleWiggle wiggle="x">left and right</ExampleWiggle> by typing <code>&lt;~text~&gt;</code></li>
-                <li><ExampleWiggle wiggle="y">up and down</ExampleWiggle> by typing <code>^~text~^</code></li>
+                <li><ExampleWiggle wiggle="x">{t("يساراً ويميناً", "left and right")}</ExampleWiggle> by typing <code>&lt;~text~&gt;</code></li>
+                <li><ExampleWiggle wiggle="y">{t("أعلى وأسفل", "up and down")}</ExampleWiggle> by typing <code>^~text~^</code></li>
                 <li><ExampleWiggle wiggle="xy">in a circle</ExampleWiggle> by typing <code>)~text~(</code></li>
             </ul>
         </BaseText>

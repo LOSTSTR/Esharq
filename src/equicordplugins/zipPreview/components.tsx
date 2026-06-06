@@ -9,6 +9,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { ChevronSmallDownIcon, ChevronSmallUpIcon, FolderIcon } from "@components/Icons";
 import { classNameFactory } from "@utils/css";
 import { copyWithToast } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { Modal,openModal, useEffect, useMemo, useRef, useState } from "@webpack/common";
 
 import {
@@ -162,7 +163,7 @@ function ZipPreviewContent({
     onNavigate: (path: string) => void;
 }) {
     if (!cacheState || cacheState.status === "pending") {
-        return <div className={cl("state")}>Loading ZIP preview...</div>;
+        return <div className={cl("state")}>{t("جارٍ تحميل معاينة ZIP...", "Loading ZIP preview...")}</div>;
     }
 
     if (cacheState.status === "rejected") {
@@ -171,7 +172,7 @@ function ZipPreviewContent({
 
     const { entries, truncated } = cacheState.result;
     if (entries.length === 0) {
-        return <div className={cl("state")}>This ZIP is empty.</div>;
+        return <div className={cl("state")}>{t("ملف ZIP هذا فارغ.", "This ZIP is empty.")}</div>;
     }
 
     return (
@@ -243,7 +244,7 @@ function ZipPreviewFileList({ entries, currentPath, onNavigate }: { entries: Zip
     const { directories, files } = useMemo(() => getVisibleEntries(entries, currentPath), [entries, currentPath]);
 
     if (directories.length === 0 && files.length === 0) {
-        return <div className={cl("state")}>This folder is empty.</div>;
+        return <div className={cl("state")}>{t("هذا المجلّد فارغ.", "This folder is empty.")}</div>;
     }
 
     return (

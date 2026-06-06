@@ -5,6 +5,7 @@
  */
 
 import { Paragraph } from "@components/Paragraph";
+import { t } from "@utils/esharqI18n";
 
 import { type CustomCommandDefinition, getCommandById, getSettingsCommandMetaByRoute } from "../../../registry";
 import type { ValidationIssue } from "../types";
@@ -60,14 +61,10 @@ export function ReviewStep({ command, issues }: ReviewStepProps) {
                 </Paragraph>
             ))}
             {command.showConfirmation && (
-                <Paragraph size="sm" style={{ color: "var(--text-normal, #dcddde)" }}>
-                    Confirmation required before running.
-                </Paragraph>
+                <Paragraph size="sm" style={{ color: "var(--text-normal, #dcddde)" }}>{t("يلزم التأكيد قبل التشغيل.", "Confirmation required before running.")}</Paragraph>
             )}
             {issues.length === 0 && (
-                <Paragraph size="sm" style={{ color: "var(--text-muted, #a5a6ab)" }}>
-                    Looks good. This command is ready to save.
-                </Paragraph>
+                <Paragraph size="sm" style={{ color: "var(--text-muted, #a5a6ab)" }}>{t("يبدو جيداً. هذا الأمر جاهز للحفظ.", "Looks good. This command is ready to save.")}</Paragraph>
             )}
             {issues.map((issue, index) => (
                 <Paragraph

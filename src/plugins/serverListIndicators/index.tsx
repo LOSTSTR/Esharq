@@ -24,6 +24,7 @@ import { BaseText } from "@components/BaseText";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { findStoreLazy } from "@webpack";
 import { GuildStore, PresenceStore, RelationshipStore, Tooltip, useStateFromStores } from "@webpack/common";
@@ -78,7 +79,7 @@ function FriendsIndicator() {
                 size="xs"
                 id="vc-friendcount-text">{onlineFriendsCount}
             </BaseText>
-            {!!settings.store.useCompact && <BaseText size="xs" id="vc-friendcount-text-compact">Friends</BaseText>}
+            {!!settings.store.useCompact && <BaseText size="xs" id="vc-friendcount-text-compact">{t("الأصدقاء", "Friends")}</BaseText>}
         </div>
     );
 }
@@ -114,7 +115,7 @@ function ServersIndicator() {
                 size="xs"
                 id="vc-guildcount-text">{guildCount}
             </BaseText>
-            {!!settings.store.useCompact && <BaseText size="xs" id="vc-guildcount-text-compact">Servers</BaseText>}
+            {!!settings.store.useCompact && <BaseText size="xs" id="vc-guildcount-text-compact">{t("الخوادم", "Servers")}</BaseText>}
         </div>
     );
 }

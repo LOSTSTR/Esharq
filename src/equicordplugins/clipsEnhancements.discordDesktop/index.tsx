@@ -36,9 +36,7 @@ const settings = definePluginSettings({
                         onClick={() => {
                             SettingsRouter.openUserSettings("clips_panel");
                         }}
-                    >
-                        Change FPS and duration options in Clips settings!
-                    </Button >
+                    >{t("غيّر خيارات معدّل الإطارات والمدّة في إعدادات المقاطع!", "Change FPS and duration options in Clips settings!")}</Button >
                 </>
             );
         }

@@ -20,6 +20,7 @@ import "./styles.css";
 
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs, EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 
 import { settings, toggleHoverControls } from "./settings";
@@ -93,8 +94,8 @@ export default definePlugin({
                 <ErrorBoundary
                     fallback={() => (
                         <div className="vc-tidal-fallback">
-                            <p>Failed to render Modal :(</p>
-                            <p>Check the console for errors</p>
+                            <p>{t("فشل عرض النافذة :(", "Failed to render Modal :(")}</p>
+                            <p>{t("تحقّق من الكونسول بحثاً عن الأخطاء", "Check the console for errors")}</p>
                         </div>
                     )}
                 >

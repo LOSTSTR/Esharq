@@ -137,7 +137,7 @@ function MessagePreview({ channelId, messageId }) {
     const compact = settings.store.display === "compact" ? true : settings.store.display === "cozy" ? false : rawCompact;
 
     if (!message) {
-        return <span>Loading...</span>;
+        return <span>{t("جارٍ التحميل...", "Loading...")}</span>;
     }
 
     return <ChannelMessage

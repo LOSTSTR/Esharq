@@ -5,6 +5,7 @@
  */
 
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import { useEffect, useMemo, useRef, useState } from "@webpack/common";
 
@@ -195,7 +196,7 @@ function GraphView({ result }: { result: CalculatorResult; }) {
 
     return (
         <section className={cl("calculator")}>
-            <h3 className={cl("calculator-title")}>Calculator</h3>
+            <h3 className={cl("calculator-title")}>{t("آلة حاسبة", "Calculator")}</h3>
             <div className={classes(cl("calculator-card"), cl("calculator-graph-card"))}>
                 <div className={cl("calculator-graph-header")}>
                     <div className={cl("calculator-graph-title")}>
@@ -305,7 +306,7 @@ function ResultView({ result }: { result: CalculatorResult; }) {
 
     return (
         <section className={cl("calculator")}>
-            <h3 className={cl("calculator-title")}>Calculator</h3>
+            <h3 className={cl("calculator-title")}>{t("آلة حاسبة", "Calculator")}</h3>
             <div className={cl("calculator-card")}>
                 <div className={classes(cl("calculator-section"), cl("calculator-section-left"))}>
                     <AutoFitLine text={displayInput} className={cl("calculator-value")} maxSize={38} minSize={18} />

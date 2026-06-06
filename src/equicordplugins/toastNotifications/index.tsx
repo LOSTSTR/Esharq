@@ -115,7 +115,7 @@ export const settings = definePluginSettings({
     exampleButton: {
         type: OptionType.COMPONENT,
         description: "Show an example toast notification.",
-        component: () => <Button onClick={showExampleNotification}>Show Example Notification</Button>
+        component: () => <Button onClick={showExampleNotification}>{t("إظهار إشعار تجريبي", "Show Example Notification")}</Button>
     }
 });
 

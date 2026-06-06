@@ -68,7 +68,7 @@ function BlockedUsersList() {
     if (error)
         return <Paragraph>Failed to fetch blocks: ${String(error)}</Paragraph>;
     if (!blocks.length)
-        return <Paragraph>No blocked users.</Paragraph>;
+        return <Paragraph>{t("لا يوجد مستخدمون محظورون.", "No blocked users.")}</Paragraph>;
 
     return (
         <>
@@ -91,7 +91,7 @@ export function openBlockModal() {
             title={t("المستخدمون المحظورون", "Blocked Users")}
         >
             <div className={cl("block-modal")}>
-                {Auth.token ? <BlockedUsersList /> : <Paragraph>You are not logged into ReviewDB!</Paragraph>}
+                {Auth.token ? <BlockedUsersList /> : <Paragraph>{t("لست مسجّل الدخول في ReviewDB!", "You are not logged into ReviewDB!")}</Paragraph>}
             </div>
         </Modal>
     ));

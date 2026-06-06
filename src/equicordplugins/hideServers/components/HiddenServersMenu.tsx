@@ -82,9 +82,7 @@ function GuildRow({ guild }) {
                 className="row-button"
                 color={Button.Colors.PRIMARY}
                 onClick={() => restoreGuild(guild, SortedGuildStore)}
-            >
-                Remove
-            </Button>
+            >{t("إزالة", "Remove")}</Button>
         </div>
     );
 }
@@ -120,9 +118,7 @@ export function HiddenServersMenu({ guilds }: { guilds: Guild[]; }) {
                             }}
                             size={Button.Sizes.SMALL}
                             className={cl("restore-all")}
-                        >
-                            Remove All
-                        </Button>
+                        >{t("إزالة الكل", "Remove All")}</Button>
                     </div>
                     {folderGuilds.map(guild => (
                         <GuildRow
@@ -134,7 +130,7 @@ export function HiddenServersMenu({ guilds }: { guilds: Guild[]; }) {
             );
         })}
 
-        <BaseText size="sm" weight="medium">Guilds</BaseText>
+        <BaseText size="sm" weight="medium">{t("الخوادم", "Guilds")}</BaseText>
         {guildsWithoutFolder.map(guild => (
             <GuildRow
                 key={guild.id}
@@ -142,7 +138,7 @@ export function HiddenServersMenu({ guilds }: { guilds: Guild[]; }) {
             />
         ))}
 
-        {hiddenGuilds.length === 0 && <BaseText size="sm" weight="medium">No hidden servers</BaseText>}
+        {hiddenGuilds.length === 0 && <BaseText size="sm" weight="medium">{t("لا توجد خوادم مخفية", "No hidden servers")}</BaseText>}
     </div>;
 }
 

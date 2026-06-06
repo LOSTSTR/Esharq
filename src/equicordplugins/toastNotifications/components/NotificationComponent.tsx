@@ -9,6 +9,7 @@ import "./styles.css";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { settings as PluginSettings } from "@equicordplugins/toastNotifications/index";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { findComponentByCodeLazy } from "@webpack";
 import { FluxDispatcher, GuildStore, IconUtils, React, useEffect, useMemo, useRef, useState } from "@webpack/common";
 
@@ -121,7 +122,7 @@ export default ErrorBoundary.wrap(function NotificationComponent(props: Notifica
             }}
         >
             <svg width="24" height="24" viewBox="0 0 24 24" role="img" aria-labelledby="vc-toast-notifications-dismiss-title">
-                <title id="vc-toast-notifications-dismiss-title">Dismiss Notification</title>
+                <title id="vc-toast-notifications-dismiss-title">{t("تجاهل الإشعار", "Dismiss Notification")}</title>
                 <path fill="currentColor" d="M18.4 4L12 10.4L5.6 4L4 5.6L10.4 12L4 18.4L5.6 20L12 13.6L18.4 20L20 18.4L13.6 12L20 5.6L18.4 4Z" />
             </svg>
         </button>

@@ -267,12 +267,10 @@ function VoiceMessageModal({ modalProps }: { modalProps: RenderModalProps; }) {
                             setBlobUrl(file);
                         }
                     }}
-                >
-                    Upload File
-                </Button>
+                >{t("رفع ملف", "Upload File")}</Button>
             </div>
 
-            <Forms.FormTitle>Preview</Forms.FormTitle>
+            <Forms.FormTitle>{t("معاينة", "Preview")}</Forms.FormTitle>
             {metaError
                 ? <Paragraph className={cl("error")}>Failed to parse selected audio file: {metaError.message}</Paragraph>
                 : (

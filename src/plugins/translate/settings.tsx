@@ -83,9 +83,7 @@ export const settings = definePluginSettings({
     manageTranslateSettings: {
         type: OptionType.COMPONENT,
         component: () => (
-            <Button onClick={openTranslateModal}>
-                Customize translation languages & Auto-Translate
-            </Button>
+            <Button onClick={openTranslateModal}>{t("تخصيص لغات الترجمة والترجمة التلقائية", "Customize translation languages & Auto-Translate")}</Button>
         )
     }
 }, {

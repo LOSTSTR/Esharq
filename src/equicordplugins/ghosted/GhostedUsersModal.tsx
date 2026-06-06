@@ -5,6 +5,7 @@
  */
 
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { Channel, RenderModalProps } from "@vencord/discord-types";
 import { findByPropsLazy, findComponentByCodeLazy } from "@webpack";
 import { Avatar, Button, ChannelStore, IconUtils, MessageStore, Modal, React, Text, UserStore } from "@webpack/common";
@@ -95,7 +96,7 @@ export function GhostedUsersModal({ modalProps, ghostedChannels: initialChannels
         >
             <div className={cl("modal-content")}>
                 {ghostedChannels.length === 0 ? (
-                    <Text variant="text-md/normal">No ghosts here!</Text>
+                    <Text variant="text-md/normal">{t("لا أشباح هنا!", "No ghosts here!")}</Text>
                 ) : (
                     ghostedChannels.map(channelId => {
                         const channel = ChannelStore.getChannel(channelId);

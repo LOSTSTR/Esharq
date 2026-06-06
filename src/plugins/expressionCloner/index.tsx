@@ -231,7 +231,7 @@ function CloneModal({ data }: { data: Sticker | Emoji; }) {
 
     return (
         <>
-            <Heading tag="h5">Custom Name</Heading>
+            <Heading tag="h5">{t("اسم مخصّص", "Custom Name")}</Heading>
             <CheckedTextInput
                 initialValue={name}
                 onChange={v => {

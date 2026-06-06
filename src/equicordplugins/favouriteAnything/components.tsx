@@ -139,7 +139,7 @@ export function FilePicker({ onSelectItem }: FilePickerProps) {
 }
 
 function EmptyList() {
-    return <BaseText className={cl("info-text")}>No files match your search.</BaseText>;
+    return <BaseText className={cl("info-text")}>{t("لا توجد ملفات تطابق بحثك.", "No files match your search.")}</BaseText>;
 }
 
 const demoAttachment: MessageAttachment = {
@@ -168,9 +168,7 @@ function Demo() {
             </div>
             <BaseText className={cl("info-text")}>
                 Click the star to favourite a file.
-                <br />
-                Favourite files will show up here!
-            </BaseText>
+                <br />{t("ستظهر ملفاتك المفضّلة هنا!", "Favourite files will show up here!")}</BaseText>
         </>
     );
 }

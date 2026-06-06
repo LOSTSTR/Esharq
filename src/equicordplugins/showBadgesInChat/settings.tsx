@@ -170,7 +170,7 @@ const BadgeSettings = () => {
 
     return (
         <>
-            <BaseText>Drag the badges to reorder them, you can click to enable/disable a specific badge type.</BaseText>
+            <BaseText>{t("اسحب الشارات لإعادة ترتيبها، ويمكنك النقر لتفعيل/تعطيل نوع شارة معيّن.", "Drag the badges to reorder them, you can click to enable/disable a specific badge type.")}</BaseText>
             <div className="vc-sbic-badge-settings">
                 <img className="vc-sbic-settings-avatar" src={UserStore.getCurrentUser().getAvatarURL()}></img>
                 <BaseText className="vc-sbic-settings-username">{(UserStore.getCurrentUser() as any).globalName}</BaseText>

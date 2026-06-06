@@ -58,19 +58,13 @@ export const settings = definePluginSettings({
 
             return (
                 <section>
-                    <HeadingSecondary style={{ marginTop: 0, marginBottom: 8 }}>ThemeLibrary Auth</HeadingSecondary>
+                    <HeadingSecondary style={{ marginTop: 0, marginBottom: 8 }}>{t("مصادقة ThemeLibrary", "ThemeLibrary Auth")}</HeadingSecondary>
                     <div className={cl("button-grid")}>
-                        <Button onClick={() => authorizeUser()}>
-                            Authorize with ThemeLibrary
-                        </Button>
-                        <Button onClick={handleClick}>
-                            Copy ThemeLibrary Token
-                        </Button>
-                        <Button color={Button.Colors.RED} onClick={() => deauthorizeUser()}>
-                            Deauthorize ThemeLibrary
-                        </Button>
+                        <Button onClick={() => authorizeUser()}>{t("التفويض عبر ThemeLibrary", "Authorize with ThemeLibrary")}</Button>
+                        <Button onClick={handleClick}>{t("نسخ رمز ThemeLibrary", "Copy ThemeLibrary Token")}</Button>
+                        <Button color={Button.Colors.RED} onClick={() => deauthorizeUser()}>{t("إلغاء تفويض ThemeLibrary", "Deauthorize ThemeLibrary")}</Button>
                     </div>
-                    <HeadingSecondary style={{ marginTop: 8, marginBottom: 8 }}>Theme Removal</HeadingSecondary>
+                    <HeadingSecondary style={{ marginTop: 8, marginBottom: 8 }}>{t("إزالة القالب", "Theme Removal")}</HeadingSecondary>
                     <Paragraph style={{ marginTop: 0, marginBottom: 8 }}> All Theme Authors are given credit in the theme info, no source has been modified, if you wish your theme to be removed anyway, open an Issue by clicking below.</Paragraph>
                     <div className={cl("button-grid")}>
                         <Button onClick={() => VencordNative.native.openExternal("https://github.com/Faf4a/plugins/issues/new?labels=removal&projects=&template=request_removal.yml&title=Theme+Removal")}>

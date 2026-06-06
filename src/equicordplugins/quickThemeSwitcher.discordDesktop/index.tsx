@@ -9,6 +9,7 @@ import { HeadingSecondary } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import { debounce } from "@shared/debounce";
 import { Devs, IS_MAC } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType, StartAt } from "@utils/types";
 import { showToast, Toasts } from "@webpack/common";
 
@@ -250,7 +251,7 @@ export default definePlugin({
     startAt: StartAt.DOMContentLoaded,
     settingsAboutComponent: () => (
         <>
-            <HeadingSecondary>Bindings</HeadingSecondary>
+            <HeadingSecondary>{t("الارتباطات", "Bindings")}</HeadingSecondary>
             <Paragraph>
                 Use Ctrl/Cmd+Shift+Arrows to navigate (Left/Right: cycle themes, Up: enable, Down: disable).
                 <br />

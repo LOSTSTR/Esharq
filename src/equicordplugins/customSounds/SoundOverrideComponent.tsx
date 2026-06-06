@@ -9,6 +9,7 @@ import { Card } from "@components/Card";
 import { FormSwitch } from "@components/FormSwitch";
 import { Heading } from "@components/Heading";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { useForceUpdater } from "@utils/react";
 import { makeRange } from "@utils/types";
@@ -181,9 +182,7 @@ export function SoundOverrideComponent({ type, override, onChange }: {
                         <Button
                             color={Button.Colors.GREEN}
                             onClick={previewSound}
-                        >
-                            Preview
-                        </Button>
+                        >{t("معاينة", "Preview")}</Button>
                         <Button
                             color={Button.Colors.RED}
                             onClick={() => sound.current?.stop()}
@@ -192,7 +191,7 @@ export function SoundOverrideComponent({ type, override, onChange }: {
                         </Button>
                     </div>
 
-                    <Heading>Volume</Heading>
+                    <Heading>{t("مستوى الصوت", "Volume")}</Heading>
                     <Slider
                         markers={makeRange(0, 100, 10)}
                         initialValue={override.volume}
@@ -205,7 +204,7 @@ export function SoundOverrideComponent({ type, override, onChange }: {
                         disabled={!override.enabled}
                     />
 
-                    <Heading>Sound Source</Heading>
+                    <Heading>{t("مصدر الصوت", "Sound Source")}</Heading>
                     <Select
                         options={[
                             { value: "default", label: "Default" },
@@ -233,7 +232,7 @@ export function SoundOverrideComponent({ type, override, onChange }: {
 
                     {override.selectedSound === "custom" && (
                         <>
-                            <Heading>Custom File</Heading>
+                            <Heading>{t("ملف مخصّص", "Custom File")}</Heading>
                             <Select
                                 options={[
                                     { value: "", label: "Select a file..." },
@@ -264,17 +263,13 @@ export function SoundOverrideComponent({ type, override, onChange }: {
                                 <Button
                                     onClick={() => fileInputRef.current?.click()}
                                     color={Button.Colors.BRAND}
-                                >
-                                    Upload New
-                                </Button>
+                                >{t("رفع جديد", "Upload New")}</Button>
 
                                 {override.selectedFileId && files[override.selectedFileId] && (
                                     <Button
                                         color={Button.Colors.RED}
                                         onClick={() => deleteFile(override.selectedFileId!)}
-                                    >
-                                        Delete Selected File
-                                    </Button>
+                                    >{t("حذف الملف المحدّد", "Delete Selected File")}</Button>
                                 )}
                             </div>
                         </>

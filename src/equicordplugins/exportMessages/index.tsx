@@ -167,7 +167,7 @@ export default definePlugin({
     },
     addExportButton() {
         return <ErrorBoundary noop key=".2">
-            <button className="export-contacts-button" onClick={() => this.copyContactToClipboard()}>Export</button>
+            <button className="export-contacts-button" onClick={() => this.copyContactToClipboard()}>{t("تصدير", "Export")}</button>
         </ErrorBoundary>;
     },
     copyContactToClipboard() {

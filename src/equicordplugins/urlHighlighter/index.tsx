@@ -12,6 +12,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { Heading } from "@components/Heading";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { findComponentByCodeLazy } from "@webpack";
 import { ColorPicker, TextInput } from "@webpack/common";
@@ -36,7 +37,7 @@ const PatternsComponent = ErrorBoundary.wrap(() => {
 
     return (
         <section>
-            <Heading>URL Patterns</Heading>
+            <Heading>{t("أنماط الروابط", "URL Patterns")}</Heading>
             {patterns.map((entry, i) => (
                 <div key={i} className={cl("pattern-wrapper")}>
                     <TextInput

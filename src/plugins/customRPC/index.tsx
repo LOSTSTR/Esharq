@@ -25,6 +25,7 @@ import { Heading } from "@components/Heading";
 import { Link } from "@components/Link";
 import { Paragraph } from "@components/Paragraph";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { isTruthy } from "@utils/guards";
 import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
@@ -293,8 +294,8 @@ export default definePlugin({
                         className={classes(Margins.top16, Margins.bottom16)}
                         style={{ padding: "1em" }}
                     >
-                        <Heading>Notice</Heading>
-                        <Paragraph>Activity Sharing isn't enabled, people won't be able to see your custom rich presence!</Paragraph>
+                        <Heading>{t("تنبيه", "Notice")}</Heading>
+                        <Paragraph>{t("مشاركة النشاط غير مُفعّلة، لن يتمكّن الآخرون من رؤية حالتك الغنية المخصّصة!", "Activity Sharing isn't enabled, people won't be able to see your custom rich presence!")}</Paragraph>
 
                         <Button
                             color={Button.Colors.TRANSPARENT}
@@ -308,18 +309,14 @@ export default definePlugin({
 
                 <Flex flexDirection="column" gap=".5em" className={Margins.top16}>
                     <Paragraph>
-                        Go to the <Link href="https://discord.com/developers/applications">Discord Developer Portal</Link> to create an application and
+                        Go to the <Link href="https://discord.com/developers/applications">{t("بوابة مطوّري ديسكورد", "Discord Developer Portal")}</Link> to create an application and
                         get the application ID.
                     </Paragraph>
-                    <Paragraph>
-                        Upload images in the Rich Presence tab to get the image keys.
-                    </Paragraph>
+                    <Paragraph>{t("ارفع الصور في تبويب الحالة الغنية للحصول على مفاتيح الصور.", "Upload images in the Rich Presence tab to get the image keys.")}</Paragraph>
                     <Paragraph>
                         If you want to use an image link, download your image and reupload the image to <Link href="https://imgur.com">Imgur</Link> and get the image link by right-clicking the image and selecting "Copy image address".
                     </Paragraph>
-                    <Paragraph>
-                        You can't see your own buttons on your profile, but everyone else can see it fine.
-                    </Paragraph>
+                    <Paragraph>{t("لا يمكنك رؤية أزرارك في ملفك الشخصي، لكنّ الجميع يرونها بشكل طبيعي.", "You can't see your own buttons on your profile, but everyone else can see it fine.")}</Paragraph>
                     <Paragraph>
                         Some weird unicode text ("fonts" 𝖑𝖎𝖐𝖊 𝖙𝖍𝖎𝖘) may cause the rich presence to not show up, try using normal letters instead.
                     </Paragraph>

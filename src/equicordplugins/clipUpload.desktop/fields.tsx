@@ -57,7 +57,7 @@ export function TextField({ title, value, onChange, placeholder, disabled, multi
 export function DateTimeField({ value, onChange, disabled }: { value: string; onChange(value: string): void; disabled?: boolean; }) {
     return (
         <section>
-            <Heading tag="h5">Created at</Heading>
+            <Heading tag="h5">{t("أُنشئ في", "Created at")}</Heading>
             <TextInput
                 type="datetime-local"
                 value={value}
@@ -127,9 +127,9 @@ export function ParticipantField({ value, onChange, disabled }: ParticipantField
 
     return (
         <section>
-            <Heading tag="h5">Participants</Heading>
+            <Heading tag="h5">{t("المشاركون", "Participants")}</Heading>
             <Flex flexDirection="column" gap={8}>
-                <Paragraph className={Margins.bottom8}>Only tag people who were present and have consented to being in this clip.</Paragraph>
+                <Paragraph className={Margins.bottom8}>{t("أشِر فقط إلى الأشخاص الذين كانوا حاضرين ووافقوا على الظهور في هذا المقطع.", "Only tag people who were present and have consented to being in this clip.")}</Paragraph>
                 <SearchableSelect
                     options={options}
                     value={value}
@@ -189,7 +189,7 @@ export function ApplicationField({ value, onChange, disabled }: ApplicationField
 
     return (
         <section>
-            <Heading tag="h5">Game/Application</Heading>
+            <Heading tag="h5">{t("لعبة/تطبيق", "Game/Application")}</Heading>
             <Flex flexDirection="column" gap={8}>
                 <SearchableSelect
                     options={options}

@@ -10,6 +10,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { openUserProfile } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { isTruthy } from "@utils/guards";
 import { Logger } from "@utils/Logger";
 import definePlugin from "@utils/types";
@@ -94,9 +95,9 @@ function RoleMembersList({ roleId, guildId, closePopout, setPopoutRef }: { roleI
             </div>
             <ScrollerThin className={cl("list")} fade>
                 {loading ? (
-                    <div className={cl("empty")}>Loading members...</div>
+                    <div className={cl("empty")}>{t("جارٍ تحميل الأعضاء...", "Loading members...")}</div>
                 ) : users.length === 0 ? (
-                    <div className={cl("empty")}>No members found.</div>
+                    <div className={cl("empty")}>{t("لم يُعثر على أعضاء.", "No members found.")}</div>
                 ) : users.map(user => (
                     <div
                         key={user.id}

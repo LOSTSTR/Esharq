@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { t } from "@utils/esharqI18n";
 import { Card } from "@components/Card";
 import { Switch } from "@components/Switch";
 import { Forms } from "@webpack/common";
@@ -69,7 +70,7 @@ export const SettingsModalCard = ({ children, title, switchProps, switchEnabled,
                         justifyContent: "center",
                         alignItems: "center",
                     }}>
-                        <Forms.FormTitle tag="h5">Status</Forms.FormTitle>
+                        <Forms.FormTitle tag="h5">{t("الحالة", "Status")}</Forms.FormTitle>
                         <Switch
                             checked={false}
                             onChange={() => void 0}

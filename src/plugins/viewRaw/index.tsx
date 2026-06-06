@@ -91,7 +91,7 @@ function openViewRawModal(json: string, type: string, msgContent?: string) {
             >
                 {!!msgContent && (
                     <>
-                        <Forms.FormTitle tag="h5">Content</Forms.FormTitle>
+                        <Forms.FormTitle tag="h5">{t("المحتوى", "Content")}</Forms.FormTitle>
                         <CodeBlock content={msgContent} lang="" />
                         <Divider className={Margins.bottom20} />
                     </>

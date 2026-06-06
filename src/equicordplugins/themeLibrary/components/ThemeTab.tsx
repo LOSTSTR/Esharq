@@ -166,14 +166,14 @@ function ThemeTab() {
                     </div>
                 ) : error ? (
                     <ErrorCard>
-                        <HeadingTertiary>Failed to fetch themes</HeadingTertiary>
-                        <Paragraph className={Margins.top8}>Could not fetch the theme list. Try again later.</Paragraph>
+                        <HeadingTertiary>{t("فشل جلب القوالب", "Failed to fetch themes")}</HeadingTertiary>
+                        <Paragraph className={Margins.top8}>{t("تعذّر جلب قائمة القوالب. حاول لاحقاً.", "Could not fetch the theme list. Try again later.")}</Paragraph>
                     </ErrorCard>
                 ) : (
                     <>
                         {hideWarningCard ? null : (
                             <ErrorCard>
-                                <HeadingTertiary>Want your theme removed?</HeadingTertiary>
+                                <HeadingTertiary>{t("هل تريد إزالة قالبك؟", "Want your theme removed?")}</HeadingTertiary>
                                 <Paragraph className={Margins.top8}>
                                     If you want your theme(s) permanently removed, please open an issue on <a href="https://github.com/Faf4a/plugins/issues/new?labels=removal&projects=&template=request_removal.yml&title=Theme+Removal">GitHub <OpenExternalIcon height={16} width={16} /></a>
                                 </Paragraph>

@@ -72,9 +72,7 @@ export function AdvancedSection({ command, categoryOptions, onChange }: Advanced
                     }}
                     serialize={option => option.value}
                 />
-                <Paragraph size="xs" style={{ color: "var(--text-muted, #a5a6ab)", fontSize: 12 }}>
-                    Choose where this command appears in the palette.
-                </Paragraph>
+                <Paragraph size="xs" style={{ color: "var(--text-muted, #a5a6ab)", fontSize: 12 }}>{t("اختر مكان ظهور هذا الأمر في اللوحة.", "Choose where this command appears in the palette.")}</Paragraph>
                 {categoryId && (
                     <span style={{ display: "inline-flex", alignItems: "center", gap: 6, borderRadius: 999, padding: "2px 10px", fontSize: 12, background: "var(--background-base-low)", color: "var(--text-normal, #dcddde)" }}>
                         {categoryLabel}
@@ -93,14 +91,12 @@ export function AdvancedSection({ command, categoryOptions, onChange }: Advanced
                     }}
                     serialize={option => option.value}
                 />
-                <Paragraph size="xs" style={{ color: "var(--text-muted, #a5a6ab)", fontSize: 12 }}>
-                    Choose an icon for this command. Auto follows the action type.
-                </Paragraph>
+                <Paragraph size="xs" style={{ color: "var(--text-muted, #a5a6ab)", fontSize: 12 }}>{t("اختر أيقونة لهذا الأمر. «تلقائي» يتبع نوع الإجراء.", "Choose an icon for this command. Auto follows the action type.")}</Paragraph>
             </div>
 
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Switch checked={Boolean(command.showConfirmation)} onChange={value => onChange({ ...command, showConfirmation: value })} />
-                <Paragraph size="sm">Show confirmation</Paragraph>
+                <Paragraph size="sm">{t("إظهار التأكيد", "Show confirmation")}</Paragraph>
             </div>
         </div>
     );

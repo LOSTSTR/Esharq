@@ -222,7 +222,7 @@ function TextReplace({ title, description, rulesArray, isRegex = false }: TextRe
             </div>
             <Flex flexDirection="column" style={{ gap: "0.5em", paddingBottom: "1.25em" }}>
                 {!filteredRules.length && searchQuery && (
-                    <Paragraph>No rules match your search criteria.</Paragraph>
+                    <Paragraph>{t("لا توجد قواعد تطابق معايير بحثك.", "No rules match your search criteria.")}</Paragraph>
                 )}
                 {filteredRules.map(({ rule, index }) =>
                     <ExpandableSection
@@ -268,9 +268,7 @@ function TextReplace({ title, description, rulesArray, isRegex = false }: TextRe
                                     className={cl("delete-button")}
                                     variant="dangerPrimary"
                                     onClick={() => onClickRemove(index)}
-                                >
-                                    Delete Rule
-                                </Button>
+                                >{t("حذف القاعدة", "Delete Rule")}</Button>
                             </>
                         )}
                     >
@@ -290,9 +288,7 @@ function TextReplace({ title, description, rulesArray, isRegex = false }: TextRe
                         rulesArray.push(makeEmptyRule());
                     }}
                     disabled={rulesArray.length > 0 && isEmptyRule(rulesArray[rulesArray.length - 1])}
-                >
-                    Add Rule
-                </Button>
+                >{t("إضافة قاعدة", "Add Rule")}</Button>
             </Flex>
         </>
     );
@@ -303,7 +299,7 @@ function TextReplaceTesting() {
 
     return (
         <div>
-            <HeadingSecondary>Rule Tester</HeadingSecondary>
+            <HeadingSecondary>{t("مُختبِر القواعد", "Rule Tester")}</HeadingSecondary>
             <Flex flexDirection="column" gap={6}>
                 <TextInput placeholder={t("اكتب رسالة لاختبار القواعد عليها", "Type a message to test rules on")} onChange={setValue} />
                 <TextInput placeholder={t("الرسالة بعد تطبيق القواعد", "Message with rules applied")} editable={false} value={applyRules(value, "allMessages")} style={{ opacity: 0.7 }} />

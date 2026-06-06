@@ -65,9 +65,7 @@ export function MacroEditor({ command, onChange, showAdvanced }: MacroEditorProp
             </div>
 
             {steps.length === 0 && (
-                <Paragraph size="sm" style={{ color: "var(--text-muted, #a5a6ab)" }}>
-                    No steps yet. Add at least one command.
-                </Paragraph>
+                <Paragraph size="sm" style={{ color: "var(--text-muted, #a5a6ab)" }}>{t("لا خطوات بعد. أضف أمراً واحداً على الأقل.", "No steps yet. Add at least one command.")}</Paragraph>
             )}
 
             {steps.length > 0 && (
@@ -127,9 +125,7 @@ export function MacroEditor({ command, onChange, showAdvanced }: MacroEditorProp
                                                 action: { type: "macro", steps: next }
                                             });
                                         }}
-                                    >
-                                        Remove
-                                    </TextButton>
+                                    >{t("إزالة", "Remove")}</TextButton>
                                 </div>
                             </div>
                         );

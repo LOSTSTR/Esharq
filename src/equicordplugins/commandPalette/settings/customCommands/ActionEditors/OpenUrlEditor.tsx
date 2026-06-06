@@ -6,6 +6,7 @@
 
 import { Paragraph } from "@components/Paragraph";
 import { Switch } from "@components/Switch";
+import { t } from "@utils/esharqI18n";
 import { TextInput } from "@webpack/common";
 
 import type { CustomCommandDefinition } from "../../../registry";
@@ -38,7 +39,7 @@ export function OpenUrlEditor({ command, onChange }: OpenUrlEditorProps) {
                         action: { type: "url", url, openExternal: value }
                     })}
                 />
-                <Paragraph size="sm">Open externally</Paragraph>
+                <Paragraph size="sm">{t("فتح خارجياً", "Open externally")}</Paragraph>
             </div>
         </div>
     );

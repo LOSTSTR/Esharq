@@ -112,7 +112,7 @@ function RandomVoiceKeybindSettings() {
 
     return (
         <div className={cl("record")}>
-            <div className={cl("keybind")}>Keybind</div>
+            <div className={cl("keybind")}>{t("اختصار لوحة المفاتيح", "Keybind")}</div>
             <Switch checked={keybindEnabled} onChange={value => { settings.store.keybindEnabled = value; }} />
             {keybindEnabled && (
                 <div className={cl("recording")}>

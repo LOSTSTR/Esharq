@@ -7,6 +7,7 @@
 import { BaseText } from "@components/BaseText";
 import { Card } from "@components/Card";
 import { HeadphonesIcon } from "@components/Icons";
+import { t } from "@utils/esharqI18n";
 import { Button, useEffect, useState } from "@webpack/common";
 
 import pl, { Native, settings, SongLinkResult } from ".";
@@ -63,7 +64,7 @@ export default function SongLinker({ url, onResolved }: SongLinkerProps) {
                         }
                     </div>
                 </div>
-            </Card> : <BaseText>Loading song link...</BaseText>
+            </Card> : <BaseText>{t("جارٍ تحميل رابط الأغنية...", "Loading song link...")}</BaseText>
         }
     </BaseText >;
 }

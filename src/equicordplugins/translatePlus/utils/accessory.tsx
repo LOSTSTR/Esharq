@@ -6,6 +6,7 @@
 
 import { languages } from "@equicordplugins/translatePlus/misc/languages";
 import { cl, Translation } from "@equicordplugins/translatePlus/misc/types";
+import { t } from "@utils/esharqI18n";
 import { Message } from "@vencord/discord-types";
 import { Parser, useEffect, useState } from "@webpack/common";
 
@@ -32,7 +33,7 @@ export function Accessory({ message }: { message: Message; }) {
             <SmallIcon />
             {Parser.parse(translation.text)}
             {" "}
-            (translated from {languages[translation.src] ?? translation.src} - <button onClick={() => setTranslation(undefined)} className={cl("dismiss")}>Dismiss</button>)
+            (translated from {languages[translation.src] ?? translation.src} - <button onClick={() => setTranslation(undefined)} className={cl("dismiss")}>{t("تجاهل", "Dismiss")}</button>)
         </div>
     );
 }

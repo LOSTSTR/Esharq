@@ -88,7 +88,7 @@ export const ThemeCard: React.FC<ThemeCardProps> = ({ theme, themeLinks, likedTh
                 >
                     <Paragraph style={{ padding: "8px" }}>
                         <p>This theme requires the <b>ThemeAttributes</b> plugin to work properly!</p>
-                        <p>Do you want to enable it?</p>
+                        <p>{t("هل تريد تفعيله؟", "Do you want to enable it?")}</p>
                     </Paragraph>
                 </Modal>
             ));
@@ -152,9 +152,7 @@ export const ThemeCard: React.FC<ThemeCardProps> = ({ theme, themeLinks, likedTh
                                 }}
                                 size="medium"
                                 className={Margins.right8}
-                            >
-                                Theme Info
-                            </Button>
+                            >{t("معلومات القالب", "Theme Info")}</Button>
                             <LikesComponent themeId={theme.id} likedThemes={likedThemes} />
                             <Button
                                 onClick={handleViewSource}
@@ -162,9 +160,7 @@ export const ThemeCard: React.FC<ThemeCardProps> = ({ theme, themeLinks, likedTh
                                 variant="link"
                                 disabled={!theme.content || theme.id === "preview"}
                                 style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
-                            >
-                                View Source
-                            </Button>
+                            >{t("عرض المصدر", "View Source")}</Button>
                         </div>
                     )}
                 </div>

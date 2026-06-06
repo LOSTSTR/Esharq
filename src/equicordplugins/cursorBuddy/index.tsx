@@ -55,7 +55,7 @@ function OnekoColorSettings() {
         <div>
             <div className={cl("color-modal")}>
                 <div>
-                    <Heading className="form-subtitle">Fur Color</Heading>
+                    <Heading className="form-subtitle">{t("لون الفراء", "Fur Color")}</Heading>
                     <div className={cl("color")}>
                         <ColorPicker
                             color={parseHexToNumber(furColor) ?? 16777215}
@@ -66,7 +66,7 @@ function OnekoColorSettings() {
                 </div>
 
                 <div>
-                    <Heading className="form-subtitle">Outline Color</Heading>
+                    <Heading className="form-subtitle">{t("لون الحدود", "Outline Color")}</Heading>
                     <div className={cl("color")}>
                         <ColorPicker
                             color={parseHexToNumber(outlineColor) ?? 0}

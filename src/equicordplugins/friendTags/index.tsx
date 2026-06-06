@@ -102,10 +102,10 @@ function TagConfigCard(props) {
         <>
             <BaseText size="md" tag="h5">Name</BaseText>
             <TextInput value={tagName} onChange={setTagName}></TextInput>
-            <BaseText size="md" tag="h5">Users (Seperated by comma)</BaseText>
+            <BaseText size="md" tag="h5">{t("المستخدمون (مفصولون بفاصلة)", "Users (Seperated by comma)")}</BaseText>
             <TextInput value={userIds} onChange={setUserIDs}></TextInput>
             <div className={"vc-friend-tags-user-header-container"}>
-                <BaseText>User List (Click A User To Remove)</BaseText>
+                <BaseText>{t("قائمة المستخدمين (انقر على مستخدم لإزالته)", "User List (Click A User To Remove)")}</BaseText>
                 <div className={"vc-friend-tags-user-header-btns"}>
                     {
                         userIds.split(", ").map(user => {
@@ -128,9 +128,7 @@ function TagConfigCard(props) {
                     update();
                 }}
                 color={Button.Colors.RED}
-            >
-                Remove
-            </Button>
+            >{t("إزالة", "Remove")}</Button>
         </>
     );
 }

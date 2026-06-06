@@ -300,14 +300,14 @@ function DevBuildConfirmModal(props: RenderModalProps) {
             }}
         >
             <div>
-                <Paragraph>You are using a custom build of Equicord, which we do not provide support for!</Paragraph>
+                <Paragraph>{t("أنت تستخدم إصداراً مخصّصاً من Equicord، ولا نقدّم له الدعم!", "You are using a custom build of Equicord, which we do not provide support for!")}</Paragraph>
 
                 <Paragraph className={Margins.top8}>
-                    We only provide support for <Link href="https://equicord.org/download">official builds</Link>.
-                    Either <Link href="https://equicord.org/download">switch to an official build</Link> or figure your issue out yourself.
+                    We only provide support for <Link href="https://equicord.org/download">{t("الإصدارات الرسمية", "official builds")}</Link>.
+                    Either <Link href="https://equicord.org/download">{t("التبديل إلى إصدار رسمي", "switch to an official build")}</Link> or figure your issue out yourself.
                 </Paragraph>
 
-                <Text variant="text-md/bold" className={Margins.top8}>You will be banned from receiving support if you ignore this rule.</Text>
+                <Text variant="text-md/bold" className={Margins.top8}>{t("ستُحظر من تلقّي الدعم إن تجاهلت هذه القاعدة.", "You will be banned from receiving support if you ignore this rule.")}</Text>
             </div>
         </ConfirmModal>
     );
@@ -386,13 +386,9 @@ export default definePlugin({
                             onCancel={() => openSettingsTabModal(UpdaterTab!)}
                         >
                             <div>
-                                <Paragraph>You are using an outdated version of Equicord! Chances are, your issue is already fixed.</Paragraph>
-                                <Paragraph className={Margins.top8}>
-                                    Please first update before asking for support!
-                                </Paragraph>
-                                <Paragraph className={Margins.top8}>
-                                    If you know what you're doing or cannot update, you can dismiss this prompt.
-                                </Paragraph>
+                                <Paragraph>{t("أنت تستخدم إصداراً قديماً من Equicord! غالباً مشكلتك مُصلَحة بالفعل.", "You are using an outdated version of Equicord! Chances are, your issue is already fixed.")}</Paragraph>
+                                <Paragraph className={Margins.top8}>{t("يُرجى التحديث أولاً قبل طلب الدعم!", "Please first update before asking for support!")}</Paragraph>
+                                <Paragraph className={Margins.top8}>{t("إن كنت تعرف ما تفعله أو لا يمكنك التحديث، يمكنك تجاهل هذا التنبيه.", "If you know what you're doing or cannot update, you can dismiss this prompt.")}</Paragraph>
                             </div>
                         </ConfirmModal>
                     ));
@@ -412,9 +408,9 @@ export default definePlugin({
                         variant="primary"
                     >
                         <div>
-                            <Paragraph>You are using an externally updated Equicord version, which we do not provide support for!</Paragraph>
+                            <Paragraph>{t("أنت تستخدم إصدار Equicord مُحدَّثاً خارجياً، ولا نقدّم له الدعم!", "You are using an externally updated Equicord version, which we do not provide support for!")}</Paragraph>
                             <Paragraph className={Margins.top8}>
-                                Please either switch to an <Link href="https://equicord.org/download">officially supported version of Equicord</Link>, or
+                                Please either switch to an <Link href="https://equicord.org/download">{t("إصدار Equicord المدعوم رسمياً", "officially supported version of Equicord")}</Link>, or
                                 contact your package maintainer for support instead.
                             </Paragraph>
                         </div>
@@ -456,9 +452,7 @@ export default definePlugin({
                             showToast("Failed to update :(", Toasts.Type.FAILURE);
                         }
                     }}
-                >
-                    Update Now
-                </Button>
+                >{t("حدّث الآن", "Update Now")}</Button>
             );
         }
 
@@ -517,9 +511,7 @@ export default definePlugin({
                                     showToast("Failed to run snippet :(", Toasts.Type.FAILURE);
                                 }
                             }}
-                        >
-                            Run Snippet
-                        </Button>
+                        >{t("تشغيل المقتطف", "Run Snippet")}</Button>
                     );
                 }
             }

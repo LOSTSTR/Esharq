@@ -78,7 +78,7 @@ function openDecodedBase64Modal(decodedContent) {
                 }))}
             >
                 <div style={{ padding: "16px 0" }}>
-                    <Heading>Decoded Content</Heading>
+                    <Heading>{t("المحتوى المفكوك", "Decoded Content")}</Heading>
                     {decodedContent.map((content, index) => (
                         <CodeBlock key={content} content={content} lang="" />
                     ))}

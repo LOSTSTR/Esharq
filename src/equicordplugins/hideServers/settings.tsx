@@ -43,9 +43,7 @@ export default definePluginSettings({
                     size={Button.Sizes.SMALL}
                     color={Button.Colors.RED}
                     onClick={() => HiddenServersStore.clearHidden()}
-                >
-                    Reset Hidden Servers
-                </Button>
+                >{t("إعادة ضبط الخوادم المخفية", "Reset Hidden Servers")}</Button>
             </div>
         ),
     },

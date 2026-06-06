@@ -61,9 +61,7 @@ function openViewRawModal(obj: any, type: string, isMessage?: boolean) {
                 <div style={{ padding: "16px 0" }}>
                     {isMessage && (
                         <>
-                            <Heading>
-                                Content
-                            </Heading>
+                            <Heading>{t("المحتوى", "Content")}</Heading>
                             <CodeBlock
                                 content={obj.content}
                                 lang="markdown"

@@ -63,20 +63,20 @@ function EncModal(props: RenderModalProps) {
                 }
             ]}
         >
-            <Heading style={{ marginTop: "10px" }}>Secret</Heading>
+            <Heading style={{ marginTop: "10px" }}>{t("السرّ", "Secret")}</Heading>
             <TextInput
                 onChange={(e: string) => {
                     setSecret(e);
                 }}
             />
-            <Heading style={{ marginTop: "10px" }}>Cover (2 or more Words!!)</Heading>
+            <Heading style={{ marginTop: "10px" }}>{t("غلاف (كلمتان أو أكثر!!)", "Cover (2 or more Words!!)")}</Heading>
             <TextInput
                 disabled={noCover}
                 onChange={(e: string) => {
                     setCover(e);
                 }}
             />
-            <Heading style={{ marginTop: "10px" }}>Password</Heading>
+            <Heading style={{ marginTop: "10px" }}>{t("كلمة المرور", "Password")}</Heading>
             <TextInput
                 style={{ marginBottom: "20px" }}
                 defaultValue={"password"}

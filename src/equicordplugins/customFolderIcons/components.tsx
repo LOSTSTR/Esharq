@@ -28,7 +28,7 @@ export function ImageModal(folderProps: folderProp) {
             {data && <>
                 <div style={{
                     color: "#FFF"
-                }}>Change the size of the folder icon</div>
+                }}>{t("تغيير حجم أيقونة المجلّد", "Change the size of the folder icon")}</div>
                 <Slider
                     initialValue={100}
                     onValueChange={(v: number) => {
@@ -105,9 +105,7 @@ export function makeContextItem(a: folderProp) {
                                 color: "white",
                                 margin: "2.5%",
                                 marginTop: "1%"
-                            }}>
-                                You might have to hover the folder after setting in order for it to refresh.
-                            </div>
+                            }}>{t("قد تحتاج إلى تمرير المؤشر فوق المجلّد بعد التعيين كي يتحدّث.", "You might have to hover the folder after setting in order for it to refresh.")}</div>
                         </Modal>
                     );
                 },

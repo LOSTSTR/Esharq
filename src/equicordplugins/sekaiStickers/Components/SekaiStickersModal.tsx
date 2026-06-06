@@ -125,19 +125,19 @@ export default function SekaiStickersModal({ modalProps, settings }: { modalProp
             <Flex flexDirection="row" style={{ paddingTop: 12 }}>
                 <div style={{ marginRight: 30 }}>
                     <Canvas draw={draw} id="SekaiCard_Canvas" />
-                    <Heading>Text Y Pos</Heading>
+                    <Heading>{t("موضع النصّ Y", "Text Y Pos")}</Heading>
                     <Slider minValue={0} maxValue={256} asValueChanges={va => { va = Math.round(va); setPosition({ x: position.x, y: curve ? 256 + fontSize * 3 - va : 256 - va }); }} initialValue={curve ? 256 - position.y + fontSize * 3 : 256 - position.y} orientation={"vertical"} onValueRender={va => String(Math.round(va))} />
-                    <Heading>Text XZ Pos</Heading>
+                    <Heading>{t("موضع النصّ XZ", "Text XZ Pos")}</Heading>
                     <Slider minValue={0} maxValue={296} asValueChanges={va => { va = Math.round(va); setPosition({ y: position.y, x: va }); }} initialValue={position.x} orientation={"horizontal"} onValueRender={(v: number) => String(Math.round(v))} />
                 </div>
                 <div style={{ marginRight: 10, width: "30vw" }}>
                     <Heading>Text</Heading>
                     <TextArea onChange={setText} placeholder={text} rows={4} />
-                    <Heading>Rotation</Heading>
+                    <Heading>{t("التدوير", "Rotation")}</Heading>
                     <Slider markers={[-10, -5, 0, 5, 10]} stickToMarkers={false} minValue={-10} maxValue={10} asValueChanges={val => setRotate(val)} initialValue={rotate} keyboardStep={0.2} orientation={"horizontal"} onValueRender={(v: number) => String(v.toFixed(2))} />
-                    <Heading>Font Size</Heading>
+                    <Heading>{t("حجم الخطّ", "Font Size")}</Heading>
                     <Slider minValue={10} asValueChanges={val => setFontSize(Math.round(val))} maxValue={100} initialValue={fontSize} keyboardStep={1} orientation={"horizontal"} onValueRender={(v: number) => String(Math.round(v))} />
-                    <Heading>Spacing</Heading>
+                    <Heading>{t("التباعد", "Spacing")}</Heading>
                     <Slider markers={[18, 36, 72, 100]} stickToMarkers={false} minValue={18} maxValue={100} initialValue={spaceSize} asValueChanges={e => setSpaceSize(e)} onValueRender={e => String(Math.round(e))} />
                     <FormSwitch title={t("تفعيل المنحنى", "Enable curve")} value={curve} onChange={val => setCurve(val)} />
                 </div>

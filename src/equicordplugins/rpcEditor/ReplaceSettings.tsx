@@ -33,10 +33,10 @@ export function ReplaceTutorial() {
     const activities: Activity[] = PresenceStore.getActivities(UserStore.getCurrentUser().id);
     return (
         <>
-            <HeadingSecondary>IDs of currently running activities</HeadingSecondary>
+            <HeadingSecondary>{t("معرّفات الأنشطة قيد التشغيل حالياً", "IDs of currently running activities")}</HeadingSecondary>
             {
                 activities.length === 0
-                    ? <Paragraph>No running activities</Paragraph>
+                    ? <Paragraph>{t("لا توجد أنشطة قيد التشغيل", "No running activities")}</Paragraph>
                     : activities.map(activity => {
                         const isSpotify = (activity.flags & (ActivityFlags.SYNC | ActivityFlags.PLAY)) === (ActivityFlags.SYNC | ActivityFlags.PLAY);
                         return !isSpotify
@@ -44,7 +44,7 @@ export function ReplaceTutorial() {
                             : null;
                     })
             }
-            <HeadingSecondary className={Margins.top8}>Available variables</HeadingSecondary>
+            <HeadingSecondary className={Margins.top8}>{t("المتغيّرات المتاحة", "Available variables")}</HeadingSecondary>
             <Paragraph>
                 In all fields (except stream URL), you can put in variables that'll automatically be replaced by their original content:
                 <pre style={{ fontFamily: "monospace" }}>
@@ -53,14 +53,12 @@ export function ReplaceTutorial() {
                     :large_image:, :large_text:, :small_image:, :small_text:
                 </pre>
             </Paragraph>
-            <HeadingSecondary className={Margins.top8}>More details</HeadingSecondary>
+            <HeadingSecondary className={Margins.top8}>{t("تفاصيل أكثر", "More details")}</HeadingSecondary>
             <Paragraph>
                 Leave a field empty to leave it as is.
                 <br />
                 Set a field to "null" to hide it on the presence.
-                <br />
-                You may need to reload Discord for changes to apply.
-            </Paragraph>
+                <br />{t("قد تحتاج إلى إعادة تحميل ديسكورد لتطبيق التغييرات.", "You may need to reload Discord for changes to apply.")}</Paragraph>
         </>
     );
 }
@@ -91,9 +89,9 @@ export function ReplaceSettings({ appIds, update, save }: SettingsProps) {
                                     }}
                                     className={Margins.bottom8}
                                     hideBorder={true}
-                                /> : <HeadingSecondary>Add new application</HeadingSecondary>
+                                /> : <HeadingSecondary>{t("إضافة تطبيق جديد", "Add new application")}</HeadingSecondary>
                         }
-                        <Heading className={`${Margins.top8} ${Margins.bottom8}`}>Application ID</Heading>
+                        <Heading className={`${Margins.top8} ${Margins.bottom8}`}>{t("معرّف التطبيق", "Application ID")}</Heading>
                         <CheckedTextInput
                             initialValue={setting.appId}
                             onChange={async v => {
@@ -105,7 +103,7 @@ export function ReplaceSettings({ appIds, update, save }: SettingsProps) {
                         />
                         {
                             isValidSnowflake(setting.appId) && <>
-                                <Heading className={Margins.top8}>New activity type</Heading>
+                                <Heading className={Margins.top8}>{t("نوع نشاط جديد", "New activity type")}</Heading>
                                 <Select
                                     options={[
                                         { label: "Playing", value: ActivityType.PLAYING },
@@ -124,7 +122,7 @@ export function ReplaceSettings({ appIds, update, save }: SettingsProps) {
                                 {
                                     setting.newActivityType === ActivityType.STREAMING &&
                                     <>
-                                        <Heading className={`${Margins.top8} ${Margins.bottom8}`}>Stream URL (must be YouTube or Twitch)</Heading>
+                                        <Heading className={`${Margins.top8} ${Margins.bottom8}`}>{t("رابط البثّ (يجب أن يكون YouTube أو Twitch)", "Stream URL (must be YouTube or Twitch)")}</Heading>
                                         <CheckedTextInput
                                             initialValue={setting.newStreamUrl}
                                             onChange={async v => {
@@ -169,7 +167,7 @@ export function ReplaceSettings({ appIds, update, save }: SettingsProps) {
                                 {
                                     !setting.disableAssets &&
                                     <>
-                                        <Paragraph style={{ fontSize: "1.05rem", fontWeight: "500" }} className={Margins.top8}>Large image</Paragraph>
+                                        <Paragraph style={{ fontSize: "1.05rem", fontWeight: "500" }} className={Margins.top8}>{t("الصورة الكبيرة", "Large image")}</Paragraph>
                                         <Heading className={Margins.top8}>Text {setting.newActivityType !== ActivityType.PLAYING && "(also third line)"}</Heading>
                                         <TextInput
                                             className={Margins.top8}
@@ -186,7 +184,7 @@ export function ReplaceSettings({ appIds, update, save }: SettingsProps) {
                                                 onChange(v, i, "newLargeImageUrl");
                                             }}
                                         />
-                                        <Paragraph style={{ fontSize: "1.05rem", fontWeight: "500" }} className={Margins.top8}>Small image</Paragraph>
+                                        <Paragraph style={{ fontSize: "1.05rem", fontWeight: "500" }} className={Margins.top8}>{t("الصورة الصغيرة", "Small image")}</Paragraph>
                                         <Heading className={Margins.top8}>Text</Heading>
                                         <TextInput
                                             className={Margins.top8}

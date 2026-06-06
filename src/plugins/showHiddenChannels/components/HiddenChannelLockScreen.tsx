@@ -248,7 +248,7 @@ function HiddenChannelLockScreen({ channel }: { channel: Channel; }) {
                 }
                 {defaultReactionEmoji != null &&
                     <div className={cl("default-emoji-container")}>
-                        <BaseText size="md">Default reaction emoji:</BaseText>
+                        <BaseText size="md">{t("إيموجي التفاعل الافتراضي:", "Default reaction emoji:")}</BaseText>
                         {Parser.defaultRules[defaultReactionEmoji.emojiName ? "emoji" : "customEmoji"].react({
                             name: defaultReactionEmoji.emojiName
                                 ? EmojiParser.convertSurrogateToName(defaultReactionEmoji.emojiName)
@@ -262,11 +262,11 @@ function HiddenChannelLockScreen({ channel }: { channel: Channel; }) {
                     </div>
                 }
                 {channel.hasFlag(ChannelFlags.REQUIRE_TAG) &&
-                    <BaseText size="md">Posts on this forum require a tag to be set.</BaseText>
+                    <BaseText size="md">{t("تتطلّب المنشورات في هذا المنتدى تعيين وسم.", "Posts on this forum require a tag to be set.")}</BaseText>
                 }
                 {availableTags && availableTags.length > 0 &&
                     <div className={cl("tags-container")}>
-                        <BaseText size="lg" weight="bold">Available tags:</BaseText>
+                        <BaseText size="lg" weight="bold">{t("الوسوم المتاحة:", "Available tags:")}</BaseText>
                         <div className={cl("tags")}>
                             {availableTags.map(tag => <TagComponent tag={tag} key={tag.id} />)}
                         </div>
@@ -294,7 +294,7 @@ function HiddenChannelLockScreen({ channel }: { channel: Channel; }) {
                                 )}
                             </Tooltip>
                         )}
-                        <BaseText size="lg" weight="bold">Allowed users and roles:</BaseText>
+                        <BaseText size="lg" weight="bold">{t("المستخدمون والأدوار المسموح لهم:", "Allowed users and roles:")}</BaseText>
                         <Tooltip text={defaultAllowedUsersAndRolesDropdownState ? "Hide Allowed Users and Roles" : "View Allowed Users and Roles"}>
                             {({ onMouseLeave, onMouseEnter }) => (
                                 <button

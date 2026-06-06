@@ -80,7 +80,7 @@ export function VoiceChannelLogEntryComponent({ logEntry, channel }: { logEntry:
                 {logEntry.type === "soundboard" ? (
                     <div className={cl("soundboard-info")}>
                         {logEntry.emoji && <img className={cl("soundboard-emoji")} src={getEmojiUrl(logEntry.emoji)} alt={logEntry.emoji.name} />}
-                        <span className={cl("soundboard-id")}>Played a soundboard sound</span>
+                        <span className={cl("soundboard-id")}>{t("شغّل صوتاً من لوحة الأصوات", "Played a soundboard sound")}</span>
                         <div className={cl("soundboard-actions")}>
                             <Tooltip text={t("تشغيل الصوت", "Play sound")}>
                                 {tooltipProps => (

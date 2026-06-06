@@ -104,7 +104,7 @@ export function SetAvatarModal({ userId, modalProps }: { userId: string; modalPr
                 {/* Preview */}
                 <div className={cl("preview-row")}>
                     <div className={cl("preview-box")}>
-                        <span className={cl("preview-label")}>Original</span>
+                        <span className={cl("preview-label")}>{t("الأصلي", "Original")}</span>
                         <img src={originalAvatar} className={cl("avatar")} alt="original" />
                     </div>
                     <span className={cl("arrow")}>→</span>
@@ -120,7 +120,7 @@ export function SetAvatarModal({ userId, modalProps }: { userId: string; modalPr
 
                 {/* URL input */}
                 <section className={Margins.bottom8}>
-                    <Heading tag="h3">Enter PNG/GIF URL</Heading>
+                    <Heading tag="h3">{t("أدخل رابط PNG/GIF", "Enter PNG/GIF URL")}</Heading>
                     <TextInput
                         placeholder="https://example.com/image.png"
                         value={url.startsWith("data:") ? "(uploaded file)" : url}

@@ -14,6 +14,7 @@ import betterActivities from "@equicordplugins/betterActivities";
 import showMeYourName from "@plugins/showMeYourName";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import { Activity, ApplicationStream, Channel, Message, OnlineStatus, User } from "@vencord/discord-types";
@@ -157,7 +158,7 @@ function MessagePreviewContent({ channel, user }: { channel: Channel; user: User
     );
 
     if (channel.isSystemDM()) {
-        return <>Official Discord Message</>;
+        return <>{t("رسالة ديسكورد رسمية", "Official Discord Message")}</>;
     }
 
     const smynName = isPluginEnabled(showMeYourName.name) ? showMeYourName.getTypingMemberListProfilesReactionsVoiceNameText({ user: user ?? lastMessage?.author, type: "membersList" }) : null;

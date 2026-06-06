@@ -106,9 +106,7 @@ export function LogsModal({ modalProps, initalQuery }: Props) {
                         <TabBar.Item
                             className={cl("modal-tab-bar-item")}
                             id={LogTabs.GHOST_PING}
-                        >
-                            Ghost Pinged
-                        </TabBar.Item>
+                        >{t("إشارة شبحية", "Ghost Pinged")}</TabBar.Item>
                     </TabBar>
                     <div className={cl("modal-filter")}>
                         <TextInput value={queryEh} onChange={e => setQuery(e)} placeholder={t("تصفية الرسائل", "Filter Messages")} />
@@ -218,9 +216,7 @@ function LogsContent({ visibleMessages, canLoadMore, sortNewest, tab, reset, han
                 <Button
                     style={{ marginTop: "1rem", width: "100%" }}
                     size="small" onClick={() => handleLoadMore()}
-                >
-                    Load More
-                </Button>
+                >{t("تحميل المزيد", "Load More")}</Button>
             }
         </div>
     );
@@ -279,9 +275,7 @@ function EmptyLogs({ hasQuery, reset: forceUpdate }: { hasQuery: boolean; reset:
                             )}
                         </Tooltip>
 
-                        <Button onClick={() => importLogs().then(() => forceUpdate())}>
-                            Import Logs
-                        </Button>
+                        <Button onClick={() => importLogs().then(() => forceUpdate())}>{t("استيراد السجلّات", "Import Logs")}</Button>
                     </>
                 )}
             </Flex>

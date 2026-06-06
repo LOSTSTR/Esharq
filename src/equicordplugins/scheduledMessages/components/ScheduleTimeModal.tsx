@@ -94,7 +94,7 @@ function ScheduleTimeModalInner({ channelId, content, attachments, rootProps, cl
                 </span>
             </div>
 
-            <Heading tag="h5" className={cl("field-label")}>Schedule Type</Heading>
+            <Heading tag="h5" className={cl("field-label")}>{t("نوع الجدولة", "Schedule Type")}</Heading>
             <div className={cl("schedule-type-buttons")}>
                 <Button
                     size="small"
@@ -107,14 +107,12 @@ function ScheduleTimeModalInner({ channelId, content, attachments, rootProps, cl
                     size="small"
                     variant={scheduleType === "time" ? "primary" : "secondary"}
                     onClick={() => setScheduleType("time")}
-                >
-                    Specific Time
-                </Button>
+                >{t("وقت محدّد", "Specific Time")}</Button>
             </div>
 
             {scheduleType === "delay" ? (
                 <>
-                    <Heading tag="h5" className={cl("field-label")}>Delay (minutes)</Heading>
+                    <Heading tag="h5" className={cl("field-label")}>{t("التأخير (بالدقائق)", "Delay (minutes)")}</Heading>
                     <TextInput
                         value={delayMinutes}
                         onChange={setDelayMinutes}
@@ -124,7 +122,7 @@ function ScheduleTimeModalInner({ channelId, content, attachments, rootProps, cl
                 </>
             ) : (
                 <>
-                    <Heading tag="h5" className={cl("field-label")}>Date & Time</Heading>
+                    <Heading tag="h5" className={cl("field-label")}>{t("التاريخ والوقت", "Date & Time")}</Heading>
                     <input
                         type="datetime-local"
                         className={cl("datetime-input")}

@@ -26,9 +26,7 @@ function tooltipText(user: IStorageUser) {
 
 function UsersCollectionRows({ usersCollection }: { usersCollection: Data["usersCollection"]; }) {
     if (Object.keys(usersCollection).length === 0) return (
-        <BaseText>
-            It's empty right now
-        </BaseText>
+        <BaseText>{t("فارغ حالياً", "It's empty right now")}</BaseText>
     );
 
     return (

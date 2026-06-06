@@ -12,6 +12,7 @@ import { HeadingSecondary } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import CustomRpcPlugin from "@plugins/customRPC";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import definePlugin, { OptionType } from "@utils/types";
 import { Button, RunningGameStore, showToast, TextArea, Toasts, Tooltip, useEffect, useState } from "@webpack/common";
@@ -82,7 +83,7 @@ function recalculateActivities() {
 function ImportCustomRPCComponent() {
     return (
         <Flex flexDirection="column">
-            <Paragraph>Import the application id of the CustomRPC plugin to the filter list</Paragraph>
+            <Paragraph>{t("استيراد معرّف تطبيق إضافة CustomRPC إلى قائمة التصفية", "Import the application id of the CustomRPC plugin to the filter list")}</Paragraph>
             <div>
                 <Button
                     onClick={() => {
@@ -96,9 +97,7 @@ function ImportCustomRPCComponent() {
                             showToast("CustomRPC application ID is already added.", Toasts.Type.FAILURE);
                         }
                     }}
-                >
-                    Import CustomRPC ID
-                </Button>
+                >{t("استيراد معرّف CustomRPC", "Import CustomRPC ID")}</Button>
             </div>
         </Flex>
     );
@@ -132,8 +131,8 @@ function IdsListComponent(props: { setValue: (value: string) => void; }) {
 
     return (
         <section>
-            <HeadingSecondary>Filter List</HeadingSecondary>
-            <Paragraph className={Margins.bottom8}>Comma separated list of activity IDs to filter (Useful for filtering specific RPC activities and CustomRPC</Paragraph>
+            <HeadingSecondary>{t("قائمة التصفية", "Filter List")}</HeadingSecondary>
+            <Paragraph className={Margins.bottom8}>{t("قائمة معرّفات أنشطة مفصولة بفواصل للتصفية (مفيدة لتصفية أنشطة RPC معيّنة وCustomRPC", "Comma separated list of activity IDs to filter (Useful for filtering specific RPC activities and CustomRPC")}</Paragraph>
             <TextArea
                 type="text"
                 value={idsList}

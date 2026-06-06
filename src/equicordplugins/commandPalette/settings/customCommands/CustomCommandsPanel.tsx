@@ -8,6 +8,7 @@ import { Button } from "@components/Button";
 import { Heading } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { React } from "@webpack/common";
 
 import {
@@ -85,10 +86,8 @@ export function CustomCommandsPanel() {
 
     return (
         <section>
-            <Heading tag="h4" style={{ color: "var(--text-normal, #dcddde)" }}>Custom Commands</Heading>
-            <Paragraph size="sm" className={cl("settings-help")}>
-                Build commands in three simple steps: Basics, Action, and Review. Advanced options stay hidden unless you need them.
-            </Paragraph>
+            <Heading tag="h4" style={{ color: "var(--text-normal, #dcddde)" }}>{t("الأوامر المخصّصة", "Custom Commands")}</Heading>
+            <Paragraph size="sm" className={cl("settings-help")}>{t("أنشئ الأوامر في ثلاث خطوات بسيطة: الأساسيات، الإجراء، والمراجعة. تبقى الخيارات المتقدّمة مخفية حتى تحتاجها.", "Build commands in three simple steps: Basics, Action, and Review. Advanced options stay hidden unless you need them.")}</Paragraph>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 {commands.map(command => (
@@ -115,9 +114,7 @@ export function CustomCommandsPanel() {
             </div>
 
             {drafts.length === 0 && (
-                <Button variant="primary" style={{ marginTop: 16 }} onClick={addDraft}>
-                    Add Command
-                </Button>
+                <Button variant="primary" style={{ marginTop: 16 }} onClick={addDraft}>{t("إضافة أمر", "Add Command")}</Button>
             )}
         </section>
     );

@@ -178,9 +178,7 @@ function VerifyModal({
                         >
                             {getIntlMessage("QR_CODE_LOGIN_CONFIRM")}
                         </BaseText>
-                        <BaseText size="md" weight="semibold" color="text-danger">
-                            Never scan a login QR code from another user or application.
-                        </BaseText>
+                        <BaseText size="md" weight="semibold" color="text-danger">{t("لا تمسح أبداً رمز QR لتسجيل الدخول من مستخدم أو تطبيق آخر.", "Never scan a login QR code from another user or application.")}</BaseText>
                         <Button
                             size="medium"
                             variant="dangerPrimary"
@@ -192,9 +190,7 @@ function VerifyModal({
                             onPointerUp={endInput}
                             ref={buttonRef}
                             disabled={inProgress}
-                        >
-                            Hold to confirm login
-                        </Button>
+                        >{t("اضغط مطوّلاً لتأكيد تسجيل الدخول", "Hold to confirm login")}</Button>
                     </>
                 )}
             </div>

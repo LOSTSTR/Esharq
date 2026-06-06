@@ -16,6 +16,7 @@ import { Heading } from "@components/Heading";
 import ircColors from "@plugins/ircColors";
 import mentionAvatars from "@plugins/mentionAvatars";
 import { Devs, EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { classNameFactory } from "@utils/index";
 import definePlugin, { OptionType } from "@utils/types";
 import { GuildMember, Message, RenderModalProps, User } from "@vencord/discord-types";
@@ -879,9 +880,7 @@ function CustomNicknameModal({ modalProps, user }: { modalProps: RenderModalProp
                 {"Set a custom SMYN nickname for this user. Make use of it by specifying {custom} in the SMYN template settings."}
             </Heading>
             <div style={{ paddingTop: "10px", flexGrow: 0 }}></div>
-            <Heading tag="h3" style={{ marginBottom: 8, fontSize: "14px", fontWeight: 600 }}>
-                SMYN Nickname
-            </Heading>
+            <Heading tag="h3" style={{ marginBottom: 8, fontSize: "14px", fontWeight: 600 }}>{t("لقب SMYN", "SMYN Nickname")}</Heading>
             <TextInput
                 value={value}
                 maxLength={32}
@@ -897,9 +896,7 @@ function CustomNicknameModal({ modalProps, user }: { modalProps: RenderModalProp
                     await DataStore.set("SMYNCustomNicknames", customNicknames);
                     settings.store.triggerNameRerender = !settings.store.triggerNameRerender;
                 }}
-            >
-                Reset SMYN Nickname
-            </TextButton>
+            >{t("إعادة ضبط لقب SMYN", "Reset SMYN Nickname")}</TextButton>
             <div style={{ paddingTop: "10px", flexGrow: 0 }}></div>
         </Modal>
     );
