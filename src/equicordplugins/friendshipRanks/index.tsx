@@ -41,43 +41,43 @@ function daysSince(dateString: string): number {
 const ranks: rankInfo[] =
     [
         {
-            title: "Sprout",
+            title: t("برعم", "Sprout"),
             description: t("صداقتكما في بدايتها", "Your friendship is just beginning"),
             requirement: 0,
             iconSrc: "https://equicord.org/assets/plugins/friendshipRanks/sprout.png"
         },
         {
-            title: "Blooming",
+            title: t("مُزهِر", "Blooming"),
             description: t("صداقتكما في تقدم! (شهر واحد)", "Your friendship is progressing! (one month)"),
             requirement: 30,
             iconSrc: "https://equicord.org/assets/plugins/friendshipRanks/blooming.png"
         },
         {
-            title: "Burning",
+            title: t("مُتّقِد", "Burning"),
             description: t("وصلت صداقتكما إلى سرعة قصوى (3 أشهر)", "Your friendship has reached full speed (3 months)"),
             requirement: 90,
             iconSrc: "https://equicord.org/assets/plugins/friendshipRanks/burning.png"
         },
         {
-            title: "Fighter",
+            title: t("مقاتل", "Fighter"),
             description: t("صداقتكما قوية (6 أشهر)", "Your friendship is strong (6 months)"),
             requirement: 182.5,
             iconSrc: "https://equicord.org/assets/plugins/friendshipRanks/fighter.png"
         },
         {
-            title: "Star",
+            title: t("نجم", "Star"),
             description: t("استمرت صداقتكما لفترة طويلة (سنة كاملة)", "Your friendship has lasted a long time (a full year)"),
             requirement: 365,
             iconSrc: "https://equicord.org/assets/plugins/friendshipRanks/star.png"
         },
         {
-            title: "Royal",
+            title: t("ملكي", "Royal"),
             description: t("مرّت صداقتكما بالسرّاء والضرّاء - سنتان كاملتان!", "Your friendship has been through thick and thin - two full years!"),
             requirement: 730,
             iconSrc: "https://equicord.org/assets/plugins/friendshipRanks/royal.png"
         },
         {
-            title: "Besties",
+            title: t("أعزّ الأصدقاء", "Besties"),
             description: t("كيف تمكنتما من ذلك؟! (5 سنوات)", "How did you manage that?! (5 years)"),
             requirement: 1826.25,
             iconSrc: "https://equicord.org/assets/plugins/friendshipRanks/besties.png"

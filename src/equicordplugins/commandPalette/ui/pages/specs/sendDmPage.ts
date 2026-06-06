@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "@utils/esharqI18n";
 import { UserStore } from "@webpack/common";
 
 import { sendMessageToUser } from "../../../actions/sendMessageAction";
@@ -26,7 +27,7 @@ function resolveRecipientId(recipientInput: string, selectedRecipientId: string 
 
 const sendDmPageSpec: PalettePageSpec = {
     id: "send-dm",
-    title: "Send DM",
+    title: t("إرسال رسالة خاصّة", "Send DM"),
     submitLabel: "Send DM",
     fields: [
         { key: "recipient", label: "Recipient", type: "picker", placeholder: "Username or display name", suggestionLimit: LIMIT },

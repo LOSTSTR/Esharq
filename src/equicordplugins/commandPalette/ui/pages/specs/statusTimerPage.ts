@@ -5,6 +5,7 @@
  */
 
 import { TimerIcon } from "@plugins/callTimer/TimerIcon";
+import { t } from "@utils/esharqI18n";
 
 import { cancelScheduledStatusReset, setStatusDndForDuration } from "../../../registry";
 import type { PalettePageSpec, PaletteSuggestion } from "../types";
@@ -32,7 +33,7 @@ function resolveDurationId(input: string, selectedId: string | null): string | n
 
 const statusTimerPageSpec: PalettePageSpec = {
     id: "status-timer",
-    title: "Set DND Timer",
+    title: t("ضبط مؤقّت عدم الإزعاج", "Set DND Timer"),
     submitLabel: "Apply",
     fields: [
         {

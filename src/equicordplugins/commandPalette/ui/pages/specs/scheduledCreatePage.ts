@@ -7,6 +7,7 @@
 import { isPluginEnabled, plugins } from "@api/PluginManager";
 import { toggleEnabled } from "@equicordplugins/equicordHelper/utils";
 import { addScheduledMessage } from "@equicordplugins/scheduledMessages/utils";
+import { t } from "@utils/esharqI18n";
 import { ChannelStore, SelectedChannelStore } from "@webpack/common";
 
 import { resolveAllChannels } from "../../../query/resolvers";
@@ -166,7 +167,7 @@ async function ensureScheduledMessagesPluginEnabled() {
 
 const scheduledCreatePageSpec: PalettePageSpec = {
     id: "scheduled-create",
-    title: "Create Scheduled Message",
+    title: t("إنشاء رسالة مجدولة", "Create Scheduled Message"),
     submitLabel: "Create Scheduled Message",
     fields: [
         { key: "channel", label: "Channel", type: "picker", placeholder: "Current channel, DM, or group DM", suggestionLimit: LIMIT },
