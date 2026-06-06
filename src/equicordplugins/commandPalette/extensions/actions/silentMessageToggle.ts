@@ -105,7 +105,7 @@ export function createSilentMessageToggleExtensionCommand(extensionKeybinds: Map
 
     return {
         id: "extension-silent-message-toggle-plugin",
-        label: "Toggle SilentMessageToggle",
+        label: t("تبديل SilentMessageToggle", "Toggle SilentMessageToggle"),
         description: t("تفعيل/تعطيل إضافة SilentMessageToggle.", "Enable/disable the SilentMessageToggle plugin."),
         keywords: ["silent", "message", "toggle", "plugin", "extension", "auto disable", "settings"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -114,13 +114,13 @@ export function createSilentMessageToggleExtensionCommand(extensionKeybinds: Map
         actions: () => [
             createExecuteSecondaryAction({
                 id: "toggle-auto-disable",
-                label: "Toggle auto disable",
+                label: t("تبديل التعطيل التلقائي", "Toggle auto disable"),
                 chord: keybinds.secondaryActionChord,
                 handler: runSilentMessageToggleAutoDisable
             }),
             createExecuteSecondaryAction({
                 id: "open-settings",
-                label: "Open settings",
+                label: t("فتح الإعدادات", "Open settings"),
                 chord: keybinds.tertiaryActionChord,
                 handler: runSilentMessageToggleOpenSettings
             })

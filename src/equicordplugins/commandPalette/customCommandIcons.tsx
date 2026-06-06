@@ -5,6 +5,7 @@
  */
 
 import { CogWheel, CopyIcon, LinkIcon, MainSettingsIcon, NotesIcon, PluginIcon, RestartIcon } from "@components/Icons";
+import { t } from "@utils/esharqI18n";
 import type { ComponentType } from "react";
 
 type IconComponent = ComponentType<{ className?: string; size?: string; height?: number; width?: number; }>;
@@ -26,14 +27,14 @@ interface CustomCommandIconMeta {
 }
 
 const CUSTOM_COMMAND_ICON_META: CustomCommandIconMeta[] = [
-    { id: "auto", label: "Auto", icon: CogWheel },
-    { id: "alias", label: "Alias", icon: CopyIcon },
-    { id: "quicklink", label: "Quicklink", icon: LinkIcon },
-    { id: "sequence", label: "Sequence", icon: RestartIcon },
-    { id: "settings", label: "Settings", icon: MainSettingsIcon },
-    { id: "notes", label: "Notes", icon: NotesIcon },
-    { id: "plugin", label: "Plugin", icon: PluginIcon },
-    { id: "gear", label: "Gear", icon: CogWheel }
+    { id: "auto", label: t("تلقائي", "Auto"), icon: CogWheel },
+    { id: "alias", label: t("اسم مستعار", "Alias"), icon: CopyIcon },
+    { id: "quicklink", label: t("رابط سريع", "Quicklink"), icon: LinkIcon },
+    { id: "sequence", label: t("تسلسل", "Sequence"), icon: RestartIcon },
+    { id: "settings", label: t("الإعدادات", "Settings"), icon: MainSettingsIcon },
+    { id: "notes", label: t("ملاحظات", "Notes"), icon: NotesIcon },
+    { id: "plugin", label: t("إضافة", "Plugin"), icon: PluginIcon },
+    { id: "gear", label: t("ترس", "Gear"), icon: CogWheel }
 ];
 
 const CUSTOM_COMMAND_ICON_MAP = new Map<CustomCommandIconId, IconComponent>(

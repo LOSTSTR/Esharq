@@ -135,7 +135,7 @@ function createExtensionDetailCommands(deps: ExtensionsProviderDeps): CommandEnt
         if (extension.sourcePath) {
             commands.push({
                 id: `extension-detail-${extension.id}-source`,
-                label: "View Source Code",
+                label: t("عرض الكود المصدري", "View Source Code"),
                 description: t("فتح الكود المصدري للإضافة.", "Open the plugin source code."),
                 keywords: ["source", "code", "github", "extension"],
                 categoryId: extension.detailCategoryId,

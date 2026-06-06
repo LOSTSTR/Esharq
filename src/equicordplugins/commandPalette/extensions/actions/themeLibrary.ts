@@ -50,7 +50,7 @@ async function runOpenThemeLibrary() {
 export function createThemeLibraryExtensionCommand(): CommandEntry {
     return {
         id: "extension-theme-library-open",
-        label: "Open Theme Library",
+        label: t("فتح مكتبة القوالب", "Open Theme Library"),
         description: t("فتح صفحة إعدادات ThemeLibrary.", "Open the ThemeLibrary settings page."),
         keywords: ["theme", "library", "themes", "settings", "plugin", "extension"],
         categoryId: DEFAULT_CATEGORY_ID,

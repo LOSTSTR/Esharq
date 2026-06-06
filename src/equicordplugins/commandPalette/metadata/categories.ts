@@ -128,87 +128,87 @@ export const CATEGORY_DEFAULT_TAGS = new Map<string, string[]>([
 export const BUILT_IN_CATEGORIES: CommandCategory[] = [
     {
         id: DEFAULT_CATEGORY_ID,
-        label: "Quick Actions",
+        label: t("إجراءات سريعة", "Quick Actions"),
         description: t("اختصارات Equicord الشائعة", "Common Equicord shortcuts")
     },
     {
         id: "plugins",
-        label: "Plugins",
+        label: t("الإضافات", "Plugins"),
         description: t("إدارة إضافات Equicord و Vencord", "Manage Equicord and Vencord plugins")
     },
     {
         id: CONTEXT_PROVIDER_ID,
-        label: "Current Context",
+        label: t("السياق الحالي", "Current Context"),
         description: t("إجراءات للقناة والسيرفر المحددَين", "Actions for the currently selected channel and server")
     },
     {
         id: "plugins-enable",
-        label: "Enable Plugin",
+        label: t("تفعيل الإضافة", "Enable Plugin"),
         parentId: "plugins"
     },
     {
         id: "plugins-disable",
-        label: "Disable Plugin",
+        label: t("تعطيل الإضافة", "Disable Plugin"),
         parentId: "plugins"
     },
     {
         id: "plugins-settings",
-        label: "Plugin Settings",
+        label: t("إعدادات الإضافة", "Plugin Settings"),
         parentId: "plugins"
     },
     {
         id: "updates",
-        label: "Updates",
+        label: t("التحديثات", "Updates"),
         description: t("ابقَ محدّثاً مع Equicord", "Stay up to date with Equicord")
     },
     {
         id: "discord-settings",
-        label: "Discord Settings",
+        label: t("إعدادات ديسكورد", "Discord Settings"),
         description: t("الانتقال إلى صفحات إعدادات ديسكورد", "Navigate to Discord settings pages")
     },
     {
         id: CUSTOM_COMMANDS_CATEGORY_ID,
-        label: "Custom Commands",
+        label: t("الأوامر المخصّصة", "Custom Commands"),
         description: t("إدخالات لوحة الأوامر المعرّفة من المستخدم", "User-defined command palette entries")
     },
     {
         id: SESSION_TOOLS_CATEGORY_ID,
-        label: "Session Tools",
+        label: t("أدوات الجلسة", "Session Tools"),
         description: t("أدوات لإدارة جلسة ديسكورد", "Tools for managing your Discord session")
     },
     {
         id: GUILD_CATEGORY_ID,
-        label: "Guilds",
+        label: t("الخوادم", "Guilds"),
         description: t("الانتقال السريع إلى سيرفراتك", "Quickly navigate to your servers")
     },
     {
         id: FRIENDS_CATEGORY_ID,
-        label: "Friends",
+        label: t("الأصدقاء", "Friends"),
         description: t("إرسال رسائل مباشرة سريعة لأصدقائك", "Send quick direct messages to your friends")
     },
     {
         id: PINNED_CATEGORY_ID,
-        label: "Pinned Commands",
+        label: t("الأوامر المُثبَّتة", "Pinned Commands"),
         description: t("الأوامر التي ثبّتها للوصول السريع", "Commands you have pinned for quick access")
     },
     {
         id: MENTIONS_CATEGORY_ID,
-        label: "Mentions",
+        label: t("الإشارات", "Mentions"),
         description: t("الإشارات الأخيرة ورسائل البريد الوارد", "Recent mentions and inbox messages")
     },
     {
         id: RECENTS_CATEGORY_ID,
-        label: "Recent Commands",
+        label: t("الأوامر الحديثة", "Recent Commands"),
         description: t("الأوامر المنفّذة مؤخراً", "Recently executed commands")
     },
     {
         id: EXTENSIONS_ROOT_CATEGORY_ID,
-        label: "Extensions",
+        label: t("الإضافات الموسّعة", "Extensions"),
         description: t("تثبيت حزم أوامر الإضافات.", "Install plugin command packs.")
     },
     {
         id: EXTENSIONS_CATALOG_CATEGORY_ID,
-        label: "Catalog",
+        label: t("الفهرس", "Catalog"),
         parentId: EXTENSIONS_ROOT_CATEGORY_ID
     },
     {

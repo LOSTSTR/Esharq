@@ -457,24 +457,24 @@ export function CommandPaletteModal({ modalProps, instanceKey }: { modalProps: R
 
         if (navigationLevel.type === "root" && trimmedQuery.length === 0) {
             if (pinnedCandidates.length > 0) {
-                expandedItems.push({ type: "section", id: "section-pinned", label: "Pinned" });
+                expandedItems.push({ type: "section", id: "section-pinned", label: t("مُثبَّت", "Pinned") });
                 expandedItems.push(...pinnedCandidates);
             }
 
             if (recentCandidates.length > 0) {
-                expandedItems.push({ type: "section", id: "section-recent", label: "Recent" });
+                expandedItems.push({ type: "section", id: "section-recent", label: t("حديث", "Recent") });
                 expandedItems.push(...recentCandidates);
             }
 
             if (suggestedCandidates.length > 0) {
-                expandedItems.push({ type: "section", id: "section-suggested", label: "Suggested" });
+                expandedItems.push({ type: "section", id: "section-suggested", label: t("مُقترَح", "Suggested") });
                 expandedItems.push(...suggestedCandidates);
             }
         }
 
         if (rankedCommandCandidates.length > 0) {
             if (trimmedQuery.length > 0) {
-                expandedItems.push({ type: "section", id: "section-results", label: "Results" });
+                expandedItems.push({ type: "section", id: "section-results", label: t("النتائج", "Results") });
             }
             if (navigationLevel.type === "root" && trimmedQuery.length === 0) {
                 const seenCommandIds = new Set<string>();

@@ -165,7 +165,7 @@ function buildSendCandidates(target: string, content: string, useFilePicker: boo
     if (matches.length === 0) {
         return [{
             id: "query-send-invalid",
-            label: "Send message",
+            label: t("إرسال رسالة", "Send message"),
             description: t("لا يوجد مستخدم مطابق.", "No matching user found."),
             badge: "Query",
             icon: NotesIcon,
@@ -199,7 +199,7 @@ function buildSendChannelCandidates(target: string, content: string, useFilePick
     if (matches.length === 0) {
         return [{
             id: "query-send-channel-invalid",
-            label: "Send to channel",
+            label: t("إرسال إلى القناة", "Send to channel"),
             description: t("لا توجد قناة مطابقة.", "No matching channel found."),
             badge: "Query",
             icon: NotesIcon,
@@ -234,7 +234,7 @@ function buildOpenDmCandidates(target: string): QueryActionCandidate[] {
     if (matches.length === 0) {
         return [{
             id: "query-open-dm-invalid",
-            label: "Open DM",
+            label: t("فتح رسالة خاصّة", "Open DM"),
             description: trimmedTarget ? "No matching user found." : "No recent DMs found.",
             badge: "Query",
             run: () => showToast(trimmedTarget ? "No matching user found." : "No recent DMs found.", Toasts.Type.FAILURE)
@@ -282,7 +282,7 @@ function buildGoToCandidates(target: string): QueryActionCandidate[] {
 
     return [{
         id: "query-go-invalid",
-        label: "Navigate to",
+        label: t("الانتقال إلى", "Navigate to"),
         description: t("لا يوجد سيرفر يطابق الهدف.", "No server matches the target."),
         badge: "Query",
         run: () => showToast("No server matches that target.", Toasts.Type.FAILURE)
@@ -294,7 +294,7 @@ function buildOpenSettingsCandidates(target: string): QueryActionCandidate[] {
     if (commandIds.length === 0) {
         return [{
             id: "query-settings-invalid",
-            label: "Open settings",
+            label: t("فتح الإعدادات", "Open settings"),
             description: t("لا يوجد قسم إعدادات مطابق.", "No matching settings section found."),
             badge: "Query",
             run: () => showToast("No matching settings section.", Toasts.Type.FAILURE)
@@ -306,7 +306,7 @@ function buildOpenSettingsCandidates(target: string): QueryActionCandidate[] {
         if (!entry) {
             return {
                 id: `query-settings-missing-${commandId}`,
-                label: "Open settings",
+                label: t("فتح الإعدادات", "Open settings"),
                 description: t("أمر الإعدادات غير متاح.", "Settings command is unavailable."),
                 badge: "Query",
                 run: () => showToast("Settings command is unavailable.", Toasts.Type.FAILURE)
@@ -330,7 +330,7 @@ function buildTogglePluginCandidates(target: string): QueryActionCandidate[] {
     if (matches.length === 0) {
         return [{
             id: "query-toggle-plugin-invalid",
-            label: "Toggle plugin",
+            label: t("تبديل الإضافة", "Toggle plugin"),
             description: t("لا توجد إضافة مطابقة.", "No matching plugin found."),
             badge: "Query",
             run: () => showToast("No matching plugin.", Toasts.Type.FAILURE)
@@ -367,7 +367,7 @@ function buildOpenUrlCandidates(target: string): QueryActionCandidate[] {
     if (!parsed || !isSafeUrlProtocol(parsed)) {
         return [{
             id: "query-open-url-invalid",
-            label: "Open URL",
+            label: t("فتح رابط", "Open URL"),
             description: t("رابط غير صالح.", "Invalid URL."),
             badge: "Query",
             run: () => showToast("Invalid URL.", Toasts.Type.FAILURE)
@@ -586,7 +586,7 @@ function buildRescheduleMessageCandidates(target: string): QueryActionCandidate[
         if (messages.length === 0) {
             return [{
                 id: "query-reschedule-none",
-                label: "Reschedule message",
+                label: t("إعادة جدولة الرسالة", "Reschedule message"),
                 description: t("لا توجد رسائل مجدولة.", "No scheduled messages found."),
                 badge: "Query",
                 run: () => {
@@ -649,7 +649,7 @@ function buildSendScheduledNowCandidates(target: string): QueryActionCandidate[]
     if (messages.length === 0) {
         return [{
             id: "query-send-scheduled-none",
-            label: "Send scheduled message now",
+            label: t("إرسال الرسالة المجدولة الآن", "Send scheduled message now"),
             description: t("لا توجد رسائل مجدولة.", "No scheduled messages found."),
             badge: "Query",
             run: () => {
@@ -701,7 +701,7 @@ function buildCancelScheduledMessageCandidates(target: string): QueryActionCandi
     if (messages.length === 0) {
         return [{
             id: "query-cancel-scheduled-none",
-            label: "Cancel scheduled message",
+            label: t("إلغاء الرسالة المجدولة", "Cancel scheduled message"),
             description: t("لا توجد رسائل مجدولة.", "No scheduled messages found."),
             badge: "Query",
             run: () => {

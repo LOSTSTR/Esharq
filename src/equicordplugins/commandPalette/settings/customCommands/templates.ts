@@ -19,7 +19,7 @@ export interface TemplateConfig {
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
     {
         id: "command",
-        label: "Alias",
+        label: t("اسم مستعار", "Alias"),
         description: t("تشغيل أمر آخر من لوحة الأوامر.", "Run another command from the command palette."),
         apply: command => ({
             ...command,
@@ -28,7 +28,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
     },
     {
         id: "settings",
-        label: "Open Settings Page",
+        label: t("فتح صفحة الإعدادات", "Open Settings Page"),
         description: t("الانتقال مباشرةً إلى صفحة إعدادات ديسكورد.", "Navigate directly to a Discord settings page."),
         apply: command => ({
             ...command,
@@ -37,7 +37,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
     },
     {
         id: "url",
-        label: "Quicklink",
+        label: t("رابط سريع", "Quicklink"),
         description: t("فتح رابط في ديسكورد أو خارجياً.", "Open a link in Discord or externally."),
         apply: command => ({
             ...command,
@@ -46,7 +46,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
     },
     {
         id: "macro",
-        label: "Sequence",
+        label: t("تسلسل", "Sequence"),
         description: t("تشغيل أوامر متعددة بالترتيب.", "Run multiple commands in sequence."),
         apply: command => ({
             ...command,

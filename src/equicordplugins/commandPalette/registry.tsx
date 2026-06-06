@@ -1510,7 +1510,7 @@ async function prunePinned() {
 const BUILT_IN_COMMANDS: CommandEntry[] = [
     {
         id: "open-equicord-settings",
-        label: "Open Equicord Settings",
+        label: t("فتح إعدادات Equicord", "Open Equicord Settings"),
         keywords: ["settings", "equicord"],
         categoryId: DEFAULT_CATEGORY_ID,
         tags: [TAG_NAVIGATION, TAG_CORE],
@@ -1518,7 +1518,7 @@ const BUILT_IN_COMMANDS: CommandEntry[] = [
     },
     {
         id: "reload-windows",
-        label: "Reload Discord",
+        label: t("إعادة تحميل ديسكورد", "Reload Discord"),
         description: t("يعيد تحميل نافذة Discord الحالية", "Reloads the current Discord window"),
         keywords: ["reload", "refresh", "restart client", "developer"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -1528,21 +1528,21 @@ const BUILT_IN_COMMANDS: CommandEntry[] = [
 ];
 
 const DISCORD_SETTINGS_COMMANDS: Array<{ id: string; label: string; route: string; keywords: string[]; description?: string; }> = [
-    { id: "settings-account", label: "Open My Account", route: "my_account", keywords: ["account", "profile"] },
-    { id: "settings-profiles", label: "Open Profiles", route: "profiles", keywords: ["profile", "avatar", "bio"] },
-    { id: "settings-privacy", label: "Open Data & Privacy", route: "data_and_privacy", keywords: ["privacy", "safety", "data"] },
-    { id: "settings-notifications", label: "Open Notifications", route: "notifications", keywords: ["notifications"] },
-    { id: "settings-voice", label: "Open Voice & Video", route: "voice_and_video", keywords: ["voice", "video", "audio", "mic", "microphone", "input", "output", "speaker", "camera"] },
-    { id: "settings-chat", label: "Open Chat", route: "chat", keywords: ["chat", "messages"] },
-    { id: "settings-text", label: "Open Text & Images", route: "text_and_images", keywords: ["text", "images"] },
-    { id: "settings-appearance", label: "Open Appearance", route: "appearance", keywords: ["appearance", "theme"] },
-    { id: "settings-accessibility", label: "Open Accessibility", route: "accessibility", keywords: ["accessibility"] },
-    { id: "settings-devices", label: "Open Devices", route: "devices", keywords: ["devices", "sessions"] },
-    { id: "settings-connections", label: "Open Connections", route: "connections", keywords: ["connections", "accounts", "integrations"] },
-    { id: "settings-authorized-apps", label: "Open Authorized Apps", route: "authorized_apps", keywords: ["authorized", "apps", "oauth"] },
-    { id: "settings-family-center", label: "Open Family Center", route: "family_center", keywords: ["family", "safety"] },
-    { id: "settings-keybinds", label: "Open Keybinds", route: "keybinds", keywords: ["keybinds", "shortcuts"] },
-    { id: "settings-advanced", label: "Open Advanced", route: "advanced", keywords: ["advanced"] }
+    { id: "settings-account", label: t("فتح حسابي", "Open My Account"), route: "my_account", keywords: ["account", "profile"] },
+    { id: "settings-profiles", label: t("فتح الملفات الشخصية", "Open Profiles"), route: "profiles", keywords: ["profile", "avatar", "bio"] },
+    { id: "settings-privacy", label: t("فتح البيانات والخصوصية", "Open Data & Privacy"), route: "data_and_privacy", keywords: ["privacy", "safety", "data"] },
+    { id: "settings-notifications", label: t("فتح الإشعارات", "Open Notifications"), route: "notifications", keywords: ["notifications"] },
+    { id: "settings-voice", label: t("فتح الصوت والفيديو", "Open Voice & Video"), route: "voice_and_video", keywords: ["voice", "video", "audio", "mic", "microphone", "input", "output", "speaker", "camera"] },
+    { id: "settings-chat", label: t("فتح الدردشة", "Open Chat"), route: "chat", keywords: ["chat", "messages"] },
+    { id: "settings-text", label: t("فتح النصّ والصور", "Open Text & Images"), route: "text_and_images", keywords: ["text", "images"] },
+    { id: "settings-appearance", label: t("فتح المظهر", "Open Appearance"), route: "appearance", keywords: ["appearance", "theme"] },
+    { id: "settings-accessibility", label: t("فتح إمكانية الوصول", "Open Accessibility"), route: "accessibility", keywords: ["accessibility"] },
+    { id: "settings-devices", label: t("فتح الأجهزة", "Open Devices"), route: "devices", keywords: ["devices", "sessions"] },
+    { id: "settings-connections", label: t("فتح الاتصالات", "Open Connections"), route: "connections", keywords: ["connections", "accounts", "integrations"] },
+    { id: "settings-authorized-apps", label: t("فتح التطبيقات المُصرّح لها", "Open Authorized Apps"), route: "authorized_apps", keywords: ["authorized", "apps", "oauth"] },
+    { id: "settings-family-center", label: t("فتح مركز العائلة", "Open Family Center"), route: "family_center", keywords: ["family", "safety"] },
+    { id: "settings-keybinds", label: t("فتح اختصارات المفاتيح", "Open Keybinds"), route: "keybinds", keywords: ["keybinds", "shortcuts"] },
+    { id: "settings-advanced", label: t("فتح المتقدّم", "Open Advanced"), route: "advanced", keywords: ["advanced"] }
 ];
 
 const settingsCommandsById = new Map<string, typeof DISCORD_SETTINGS_COMMANDS[number]>();
@@ -1909,7 +1909,7 @@ function refreshPluginToggleCommand(plugin: Plugin) {
 function registerPluginManagerCommands() {
     registerCommand({
         id: PLUGIN_MANAGER_ROOT_COMMAND_ID,
-        label: "Plugins",
+        label: t("الإضافات", "Plugins"),
         description: t("إدارة الإضافات حسب الفئة.", "Manage plugins by category."),
         keywords: ["plugins", "plugin manager", "enable", "disable", "settings"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -1920,7 +1920,7 @@ function registerPluginManagerCommands() {
 
     registerCommand({
         id: PLUGIN_MANAGER_ENABLE_COMMAND_ID,
-        label: "Enable",
+        label: t("تفعيل", "Enable"),
         description: t("تفعيل الإضافات.", "Enable plugins."),
         keywords: ["plugins", "enable"],
         categoryId: "plugins",
@@ -1932,7 +1932,7 @@ function registerPluginManagerCommands() {
 
     registerCommand({
         id: PLUGIN_MANAGER_DISABLE_COMMAND_ID,
-        label: "Disable",
+        label: t("تعطيل", "Disable"),
         description: t("تعطيل الإضافات.", "Disable plugins."),
         keywords: ["plugins", "disable"],
         categoryId: "plugins",
@@ -1944,7 +1944,7 @@ function registerPluginManagerCommands() {
 
     registerCommand({
         id: PLUGIN_MANAGER_SETTINGS_COMMAND_ID,
-        label: "Settings",
+        label: t("الإعدادات", "Settings"),
         description: t("فتح إعدادات الإضافة وإجراءاتها.", "Open plugin settings and actions."),
         keywords: ["plugins", "settings", "actions"],
         categoryId: "plugins",
@@ -2333,7 +2333,7 @@ function registerPluginSettingsCommands() {
 function registerUpdateCommands() {
     registerCommand({
         id: "check-for-updates",
-        label: "Check for Updates",
+        label: t("التحقّق من التحديثات", "Check for Updates"),
         description: t("التحقق من تحديثات Equicord", "Check for Equicord updates"),
         keywords: ["updates", "check", "updater"],
         categoryId: "updates",
@@ -2355,7 +2355,7 @@ function registerUpdateCommands() {
 
     registerCommand({
         id: "open-changelog",
-        label: "View Changelog",
+        label: t("عرض سجلّ التغييرات", "View Changelog"),
         description: t("فتح سجل تغييرات Equicord", "Open the Equicord changelog"),
         keywords: ["updates", "changelog"],
         categoryId: "updates",
@@ -3062,7 +3062,7 @@ function registerSessionCommands() {
     const commands: CommandEntry[] = [
         {
             id: "session-dnd-timer",
-            label: "Set DND Timer",
+            label: t("ضبط مؤقّت عدم الإزعاج", "Set DND Timer"),
             description: t("اختر المدة التي يبقى فيها وضع عدم الإزعاج نشطاً.", "Choose how long Do Not Disturb mode stays active."),
             keywords: ["session", "status", "dnd", "timer", "duration", "focus", "busy", "cancel"],
             categoryId: SESSION_TOOLS_CATEGORY_ID,
@@ -3072,7 +3072,7 @@ function registerSessionCommands() {
         },
         {
             id: "session-clear-notifications",
-            label: "Clear Desktop Notifications",
+            label: t("مسح إشعارات سطح المكتب", "Clear Desktop Notifications"),
             keywords: ["session", "notifications", "clear"],
             categoryId: SESSION_TOOLS_CATEGORY_ID,
             tags: [TAG_SESSION, TAG_UTILITY],
@@ -3080,7 +3080,7 @@ function registerSessionCommands() {
         },
         {
             id: "session-reopen-dm",
-            label: "Reopen Last Closed DM",
+            label: t("إعادة فتح آخر رسالة خاصّة مغلقة", "Reopen Last Closed DM"),
             keywords: ["session", "dm", "reopen"],
             categoryId: SESSION_TOOLS_CATEGORY_ID,
             tags: [TAG_SESSION, TAG_NAVIGATION],
@@ -3165,7 +3165,7 @@ function toggleWindowTransparency() {
 function registerCommandPaletteUtilities() {
     registerCommand({
         id: "command-palette-open-settings",
-        label: "Open Command Palette Settings",
+        label: t("فتح إعدادات لوحة الأوامر", "Open Command Palette Settings"),
         description: t("ضبط إعدادات إضافة لوحة الأوامر", "Configure command palette plugin settings"),
         keywords: ["command", "palette", "settings"],
         categoryId: "plugins-settings",
@@ -3178,7 +3178,7 @@ function registerCommandPaletteUtilities() {
 
     registerCommand({
         id: "command-palette-open-home",
-        label: "Go to Home",
+        label: t("الذهاب للرئيسية", "Go to Home"),
         description: t("فتح الصفحة الرئيسية للرسائل المباشرة.", "Open the direct messages home page."),
         keywords: ["home", "dm", "messages", "navigate"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -3188,7 +3188,7 @@ function registerCommandPaletteUtilities() {
 
     registerCommand({
         id: "command-palette-open-extensions",
-        label: "Extensions",
+        label: t("الإضافات الموسّعة", "Extensions"),
         description: t("تصفح امتدادات لوحة الأوامر القابلة للتثبيت.", "Browse installable command palette extensions."),
         keywords: ["extensions", "plugins", "catalog", "install", "uninstall"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -3199,7 +3199,7 @@ function registerCommandPaletteUtilities() {
 
     registerCommand({
         id: "command-palette-open-dm-query",
-        label: "Open DM",
+        label: t("فتح رسالة خاصّة", "Open DM"),
         description: t("اكتب اسم مستخدم أو اسماً معروضاً لفتح رسالة مباشرة.", "Type a username or display name to open a direct message."),
         keywords: ["open", "dm", "direct message", "message user", "friend"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -3212,7 +3212,7 @@ function registerCommandPaletteUtilities() {
 
     registerCommand(createCommandPageCommand({
         id: "command-palette-send-dm",
-        label: "Send DM",
+        label: t("إرسال رسالة خاصّة", "Send DM"),
         description: t("إرسال رسالة مباشرة إلى مستخدم من حقول منفصلة.", "Send a direct message to a user from separate fields."),
         keywords: ["send", "dm", "direct message", "message", "friend", "recipient"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -3222,7 +3222,7 @@ function registerCommandPaletteUtilities() {
 
     registerCommand({
         id: "command-palette-navigate-to-query",
-        label: "Navigate to",
+        label: t("الانتقال إلى", "Navigate to"),
         description: t("اكتب اسم سيرفر أو قناة للتنقل إليها.", "Type a server or channel name to navigate to it."),
         keywords: ["navigate", "go to", "jump", "server", "channel", "guild"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -3235,7 +3235,7 @@ function registerCommandPaletteUtilities() {
 
     registerCommand({
         id: "command-palette-toggle-plugin-query",
-        label: "Toggle Plugin by Name",
+        label: t("تبديل إضافة بالاسم", "Toggle Plugin by Name"),
         description: t("اكتب اسم إضافة لتفعيلها أو تعطيلها.", "Type a plugin name to enable or disable it."),
         keywords: ["toggle", "plugin", "enable", "disable", "debug", "developer"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -3248,7 +3248,7 @@ function registerCommandPaletteUtilities() {
 
     registerCommand({
         id: "command-palette-show-mentions",
-        label: "Show Mentions",
+        label: t("إظهار الإشارات", "Show Mentions"),
         description: t("تصفح إشاراتك الأخيرة.", "Browse your recent mentions."),
         keywords: ["mentions", "inbox", "unread", "pings"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -3259,7 +3259,7 @@ function registerCommandPaletteUtilities() {
 
     registerCommand({
         id: "command-palette-jump-mentions-inbox",
-        label: "Jump to Mentions Inbox",
+        label: t("الانتقال إلى صندوق الإشارات", "Jump to Mentions Inbox"),
         description: t("إظهار صندوق الإشارات الخاص بك.", "Show your mentions inbox."),
         keywords: ["jump", "mentions", "inbox", "unread", "pings"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -3270,7 +3270,7 @@ function registerCommandPaletteUtilities() {
 
     registerCommand({
         id: "command-palette-open-last-dm",
-        label: "Open Last DM",
+        label: t("فتح آخر رسالة خاصّة", "Open Last DM"),
         description: t("فتح أحدث محادثة رسائل مباشرة لديك.", "Open your most recent direct message conversation."),
         keywords: ["open", "last", "recent", "dm", "messages"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -3287,7 +3287,7 @@ function registerCommandPaletteUtilities() {
 
     registerCommand({
         id: "command-palette-copy-active-channel-id",
-        label: "Copy Current Channel ID",
+        label: t("نسخ معرّف القناة الحالية", "Copy Current Channel ID"),
         description: t("نسخ معرّف القناة النشطة.", "Copy the active channel ID."),
         keywords: ["copy", "channel", "id", "current"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -3304,7 +3304,7 @@ function registerCommandPaletteUtilities() {
 
     registerCommand({
         id: "command-palette-copy-active-channel-link",
-        label: "Copy Current Channel Link",
+        label: t("نسخ رابط القناة الحالية", "Copy Current Channel Link"),
         description: t("نسخ رابط القناة النشطة.", "Copy the active channel link."),
         keywords: ["copy", "channel", "link", "current"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -3321,7 +3321,7 @@ function registerCommandPaletteUtilities() {
 
     registerCommand({
         id: "command-palette-copy-last-message-link",
-        label: "Copy Last Message Link",
+        label: t("نسخ رابط آخر رسالة", "Copy Last Message Link"),
         description: t("نسخ رابط آخر رسالة في القناة الحالية.", "Copy the link to the last message in the current channel."),
         keywords: ["copy", "message", "link", "latest", "last", "current"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -3345,7 +3345,7 @@ function registerCommandPaletteUtilities() {
 
     registerCommand({
         id: "command-palette-open-active-channel-browser",
-        label: "Open Current Channel in Browser",
+        label: t("فتح القناة الحالية في المتصفّح", "Open Current Channel in Browser"),
         description: t("فتح رابط القناة النشطة في متصفحك.", "Open the active channel link in your browser."),
         keywords: ["open", "channel", "browser", "external", "current"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -3362,7 +3362,7 @@ function registerCommandPaletteUtilities() {
 
     registerCommand({
         id: "command-palette-copy-active-guild-id",
-        label: "Copy Current Server ID",
+        label: t("نسخ معرّف الخادم الحالي", "Copy Current Server ID"),
         description: t("نسخ معرّف السيرفر النشط.", "Copy the active server ID."),
         keywords: ["copy", "guild", "server", "id", "current"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -3379,7 +3379,7 @@ function registerCommandPaletteUtilities() {
 
     registerCommand({
         id: "command-palette-copy-my-user-id",
-        label: "Copy My User ID",
+        label: t("نسخ معرّف المستخدم الخاص بي", "Copy My User ID"),
         description: t("نسخ معرّف مستخدمك.", "Copy your user ID."),
         keywords: ["copy", "user", "id", "me", "account"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -3396,7 +3396,7 @@ function registerCommandPaletteUtilities() {
 
     registerCommand({
         id: "command-palette-copy-debug-context",
-        label: "Copy Debug Context",
+        label: t("نسخ سياق التصحيح", "Copy Debug Context"),
         description: t("نسخ معرّفات السيرفر والقناة والمستخدم الحالية.", "Copy the current server, channel, and user IDs."),
         keywords: ["copy", "debug", "context", "guild id", "channel id", "user id", "developer"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -3406,7 +3406,7 @@ function registerCommandPaletteUtilities() {
 
     registerCommand({
         id: "command-palette-open-devtools",
-        label: "Open DevTools",
+        label: t("فتح أدوات المطوّر", "Open DevTools"),
         description: t("فتح أدوات مطوري Discord على سطح المكتب.", "Open Discord developer tools on the desktop."),
         keywords: ["devtools", "developer tools", "inspect", "debug", "console"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -3419,7 +3419,7 @@ function registerCommandPaletteUtilities() {
 
     registerCommand({
         id: "command-palette-show-pins",
-        label: "Pinned Commands",
+        label: t("الأوامر المُثبَّتة", "Pinned Commands"),
         description: t("تصفح أوامرك المثبّتة وتشغيلها.", "Browse and run your pinned commands."),
         keywords: ["pinned", "pins", "favorites", "starred"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -3430,7 +3430,7 @@ function registerCommandPaletteUtilities() {
 
     registerCommand({
         id: "command-palette-show-recent",
-        label: "Recent Commands",
+        label: t("الأوامر الحديثة", "Recent Commands"),
         description: t("تصفح أوامرك المستخدمة مؤخراً وتشغيلها.", "Browse and run your recently used commands."),
         keywords: ["recent", "history", "rerun", "pin"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -3441,7 +3441,7 @@ function registerCommandPaletteUtilities() {
 
     registerCommand({
         id: "command-palette-rerun-last",
-        label: "Re-run Last Command",
+        label: t("إعادة تشغيل آخر أمر", "Re-run Last Command"),
         keywords: ["recent", "again"],
         categoryId: DEFAULT_CATEGORY_ID,
         tags: [TAG_CORE, TAG_UTILITY],
@@ -3457,7 +3457,7 @@ function registerCommandPaletteUtilities() {
 
     registerCommand({
         id: "command-palette-toggle-pin-last",
-        label: "Toggle Pin on Last Command",
+        label: t("تبديل تثبيت آخر أمر", "Toggle Pin on Last Command"),
         keywords: ["recent", "pin"],
         categoryId: DEFAULT_CATEGORY_ID,
         tags: [TAG_CORE, TAG_UTILITY],
@@ -3481,56 +3481,56 @@ function registerSystemUtilityCommands() {
     const commands: Array<{ id: string; label: string; description?: string; handler: () => void; keywords: string[]; tags: string[]; icon?: CommandEntry["icon"]; }> = [
         {
             id: "set-status-online",
-            label: "Quick Status: Online",
+            label: t("حالة سريعة: متّصل", "Quick Status: Online"),
             handler: () => setPresenceStatus("online"),
             keywords: ["status", "quick", "presence", "online"],
             tags: [TAG_CORE, TAG_UTILITY]
         },
         {
             id: "set-status-idle",
-            label: "Quick Status: Idle",
+            label: t("حالة سريعة: خامل", "Quick Status: Idle"),
             handler: () => setPresenceStatus("idle"),
             keywords: ["status", "quick", "presence", "idle"],
             tags: [TAG_CORE, TAG_UTILITY]
         },
         {
             id: "set-status-dnd",
-            label: "Quick Status: Do Not Disturb",
+            label: t("حالة سريعة: عدم الإزعاج", "Quick Status: Do Not Disturb"),
             handler: () => setPresenceStatus("dnd"),
             keywords: ["status", "quick", "presence", "dnd", "busy"],
             tags: [TAG_CORE, TAG_UTILITY]
         },
         {
             id: "set-status-invisible",
-            label: "Quick Status: Invisible",
+            label: t("حالة سريعة: خفيّ", "Quick Status: Invisible"),
             handler: () => setPresenceStatus("invisible"),
             keywords: ["status", "quick", "presence", "offline", "invisible"],
             tags: [TAG_CORE, TAG_UTILITY]
         },
         {
             id: "toggle-status-dnd",
-            label: "Toggle Do Not Disturb",
+            label: t("تبديل عدم الإزعاج", "Toggle Do Not Disturb"),
             handler: toggleDoNotDisturb,
             keywords: ["toggle", "status", "dnd", "busy", "online"],
             tags: [TAG_CORE, TAG_UTILITY]
         },
         {
             id: "toggle-streamer-mode",
-            label: "Toggle Streamer Mode",
+            label: t("تبديل وضع البثّ", "Toggle Streamer Mode"),
             handler: toggleStreamerMode,
             keywords: ["stream", "privacy"],
             tags: [TAG_UTILITY]
         },
         {
             id: "toggle-self-mute",
-            label: "Toggle Self Mute",
+            label: t("تبديل كتم نفسك", "Toggle Self Mute"),
             handler: toggleSelfMute,
             keywords: ["voice", "mute"],
             tags: [TAG_UTILITY]
         },
         {
             id: "toggle-self-deafen",
-            label: "Toggle Self Deafen",
+            label: t("تبديل إصمام نفسك", "Toggle Self Deafen"),
             handler: toggleSelfDeaf,
             keywords: ["voice", "deafen"],
             tags: [TAG_UTILITY],
@@ -3618,7 +3618,7 @@ async function setAllPluginsEnabled(enabled: boolean) {
 function registerPluginChangeCommands() {
     registerCommand({
         id: "reload-all-plugins",
-        label: "Reload All Plugins",
+        label: t("إعادة تحميل كل الإضافات", "Reload All Plugins"),
         description: t("يحاول إعادة تحميل كل الإضافات المفعّلة فوراً", "Attempts to reload all enabled plugins immediately"),
         keywords: ["plugin", "reload", "restart"],
         categoryId: "plugins-settings",
@@ -3629,7 +3629,7 @@ function registerPluginChangeCommands() {
 
     registerCommand({
         id: "enable-all-plugins",
-        label: "Enable All Plugins",
+        label: t("تفعيل كل الإضافات", "Enable All Plugins"),
         keywords: ["plugin", "enable"],
         categoryId: "plugins-enable",
         hiddenInSearch: true,
@@ -3639,7 +3639,7 @@ function registerPluginChangeCommands() {
 
     registerCommand({
         id: "disable-all-plugins",
-        label: "Disable All Non-required Plugins",
+        label: t("تعطيل كل الإضافات غير الأساسية", "Disable All Non-required Plugins"),
         keywords: ["plugin", "disable"],
         categoryId: "plugins-disable",
         hiddenInSearch: true,
@@ -3649,7 +3649,7 @@ function registerPluginChangeCommands() {
 
     registerCommand({
         id: "restart-equicord",
-        label: "Restart Equicord",
+        label: t("إعادة تشغيل Equicord", "Restart Equicord"),
         description: t("إعادة تحميل نافذة عميل Discord", "Reload the Discord client window"),
         keywords: ["restart", "reload"],
         categoryId: "plugins-settings",
@@ -3747,7 +3747,7 @@ function registerPluginToolboxProvider() {
 function registerCustomizationCommands() {
     registerCommand({
         id: "toggle-quickcss",
-        label: "Toggle QuickCSS",
+        label: t("تبديل QuickCSS", "Toggle QuickCSS"),
         keywords: ["css", "theme", "quick"],
         categoryId: DEFAULT_CATEGORY_ID,
         tags: [TAG_CUSTOMIZATION, TAG_UTILITY],
@@ -3756,7 +3756,7 @@ function registerCustomizationCommands() {
 
     registerCommand({
         id: "open-quickcss-editor",
-        label: "Open QuickCSS Editor",
+        label: t("فتح محرّر QuickCSS", "Open QuickCSS Editor"),
         keywords: ["quickcss", "quick css", "css", "editor", "theme"],
         categoryId: DEFAULT_CATEGORY_ID,
         tags: [TAG_CUSTOMIZATION, TAG_NAVIGATION],
@@ -3773,7 +3773,7 @@ function registerCustomizationCommands() {
 
     registerCommand({
         id: "toggle-window-transparency",
-        label: "Toggle Window Transparency",
+        label: t("تبديل شفافية النافذة", "Toggle Window Transparency"),
         keywords: ["window", "transparency", "appearance"],
         categoryId: DEFAULT_CATEGORY_ID,
         tags: [TAG_CUSTOMIZATION, TAG_UTILITY],
@@ -3782,7 +3782,7 @@ function registerCustomizationCommands() {
 
     registerCommand({
         id: "open-theme-library",
-        label: "Open Themes",
+        label: t("فتح القوالب", "Open Themes"),
         keywords: ["theme", "themes", "library"],
         categoryId: DEFAULT_CATEGORY_ID,
         tags: [TAG_CUSTOMIZATION, TAG_NAVIGATION],

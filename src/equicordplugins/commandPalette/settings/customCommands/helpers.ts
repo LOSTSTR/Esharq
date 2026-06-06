@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "@utils/esharqI18n";
+
 import {
     type CustomCommandDefinition,
     getCategoryPath,
@@ -12,9 +14,9 @@ import {
 import type { CategoryOption } from "./types";
 
 export const ACTION_OPTIONS = [
-    { label: "Alias", value: "command" },
-    { label: "Quicklink", value: "url" },
-    { label: "Sequence", value: "macro" }
+    { label: t("اسم مستعار", "Alias"), value: "command" },
+    { label: t("رابط سريع", "Quicklink"), value: "url" },
+    { label: t("تسلسل", "Sequence"), value: "macro" }
 ] as const;
 
 export type ActionType = typeof ACTION_OPTIONS[number]["value"];
@@ -23,7 +25,7 @@ export function createDefaultCommand(): CustomCommandDefinition {
     const baseId = `custom-${Math.random().toString(36).slice(2, 8)}`;
     return {
         id: baseId,
-        label: "New Command",
+        label: t("أمر جديد", "New Command"),
         keywords: [],
         categoryId: undefined,
         description: "",
@@ -66,7 +68,7 @@ export function buildCategoryOptions(): CategoryOption[] {
     });
 
     return [
-        { label: "Auto (use default placement)", value: "" },
+        { label: t("تلقائي (استخدام الموضع الافتراضي)", "Auto (use default placement)"), value: "" },
         ...options
     ];
 }

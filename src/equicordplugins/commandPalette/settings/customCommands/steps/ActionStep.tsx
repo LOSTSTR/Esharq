@@ -5,6 +5,7 @@
  */
 
 import { Paragraph } from "@components/Paragraph";
+import { t } from "@utils/esharqI18n";
 import { Select } from "@webpack/common";
 
 import type { CustomCommandDefinition } from "../../../registry";
@@ -24,7 +25,7 @@ interface ActionStepProps {
 export function ActionStep({ command, onChange, showAdvanced }: ActionStepProps) {
     const template = getTemplateByActionType(command.action.type);
     const availableOptions = command.action.type === "settings"
-        ? [...ACTION_OPTIONS, { label: "Open Settings Page", value: "settings" as const }]
+        ? [...ACTION_OPTIONS, { label: t("فتح صفحة الإعدادات", "Open Settings Page"), value: "settings" as const }]
         : ACTION_OPTIONS;
     const readOptionValue = (option: unknown) => {
         if (typeof option === "string") return option;

@@ -187,7 +187,7 @@ export function createRandomVoiceExtensionCommand(extensionKeybinds: Map<string,
 
     return {
         id: "extension-random-voice-join",
-        label: "Join Random Voice",
+        label: t("الانضمام لصوت عشوائي", "Join Random Voice"),
         description: t("ينضم إلى قناة صوتية عشوائية باستخدام فلاتر RandomVoice.", "Joins a random voice channel using RandomVoice filters."),
         keywords: ["randomvoice", "random voice", "join", "voice", "channel", "plugin", "extension", "auto navigate", "settings"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -196,13 +196,13 @@ export function createRandomVoiceExtensionCommand(extensionKeybinds: Map<string,
         actions: () => [
             createExecuteSecondaryAction({
                 id: "toggle-auto-navigate",
-                label: "Toggle auto navigate",
+                label: t("تبديل التنقّل التلقائي", "Toggle auto navigate"),
                 chord: keybinds.secondaryActionChord,
                 handler: runRandomVoiceToggleAutoNavigate
             }),
             createExecuteSecondaryAction({
                 id: "open-settings",
-                label: "Open settings",
+                label: t("فتح الإعدادات", "Open settings"),
                 chord: keybinds.tertiaryActionChord,
                 handler: runRandomVoiceOpenSettings
             })

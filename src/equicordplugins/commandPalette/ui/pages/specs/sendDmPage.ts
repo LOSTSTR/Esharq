@@ -30,8 +30,8 @@ const sendDmPageSpec: PalettePageSpec = {
     title: t("إرسال رسالة خاصّة", "Send DM"),
     submitLabel: "Send DM",
     fields: [
-        { key: "recipient", label: "Recipient", type: "picker", placeholder: "Username or display name", suggestionLimit: LIMIT },
-        { key: "message", label: "Message", type: "text", placeholder: "Message content" }
+        { key: "recipient", label: t("المُستلِم", "Recipient"), type: "picker", placeholder: "Username or display name", suggestionLimit: LIMIT },
+        { key: "message", label: t("رسالة", "Message"), type: "text", placeholder: "Message content" }
     ],
     resolveSuggestions(fieldKey, query) {
         if (fieldKey !== "recipient") return [];

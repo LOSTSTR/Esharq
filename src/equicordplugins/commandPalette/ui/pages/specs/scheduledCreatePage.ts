@@ -170,9 +170,9 @@ const scheduledCreatePageSpec: PalettePageSpec = {
     title: t("إنشاء رسالة مجدولة", "Create Scheduled Message"),
     submitLabel: "Create Scheduled Message",
     fields: [
-        { key: "channel", label: "Channel", type: "picker", placeholder: "Current channel, DM, or group DM", suggestionLimit: LIMIT },
-        { key: "time", label: "Time", type: "text", placeholder: "in 10m, tomorrow 5pm, 2026-02-14 18:00" },
-        { key: "message", label: "Message", type: "text", placeholder: "Message content" }
+        { key: "channel", label: t("القناة", "Channel"), type: "picker", placeholder: "Current channel, DM, or group DM", suggestionLimit: LIMIT },
+        { key: "time", label: t("الوقت", "Time"), type: "text", placeholder: "in 10m, tomorrow 5pm, 2026-02-14 18:00" },
+        { key: "message", label: t("رسالة", "Message"), type: "text", placeholder: "Message content" }
     ],
     resolveSuggestions(fieldKey, query) {
         if (fieldKey !== "channel") return [];

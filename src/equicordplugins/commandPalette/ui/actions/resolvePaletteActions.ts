@@ -5,6 +5,7 @@
  */
 
 import { IS_MAC } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 
 import type { CalculatorViewMode } from "../../calculator/types";
 import type {
@@ -76,7 +77,7 @@ export function resolvePaletteActions({
         });
         actions.push({
             id: "back",
-            label: "Go Back",
+            label: t("رجوع", "Go Back"),
             shortcut: "Esc",
             intent: { type: "go-back" }
         });
@@ -94,19 +95,19 @@ export function resolvePaletteActions({
         }
         actions.push({
             id: "copy-answer",
-            label: "Copy Answer",
+            label: t("نسخ الإجابة", "Copy Answer"),
             shortcut: "↵",
             intent: { type: "copy-calculator", mode: "formatted" }
         });
         actions.push({
             id: "copy-raw",
-            label: "Copy Raw",
+            label: t("نسخ الخام", "Copy Raw"),
             shortcut: formatPrimaryShortcutLabel("⌘↵"),
             intent: { type: "copy-calculator", mode: "raw" }
         });
         actions.push({
             id: "copy-qa",
-            label: "Copy Q+A",
+            label: t("نسخ السؤال والجواب", "Copy Q+A"),
             shortcut: formatPrimaryShortcutLabel("⌘⇧↵"),
             intent: { type: "copy-calculator", mode: "qa" }
         });
@@ -124,7 +125,7 @@ export function resolvePaletteActions({
         } else {
             actions.push({
                 id: "execute",
-                label: "Execute",
+                label: t("تنفيذ", "Execute"),
                 shortcut: "↵",
                 intent: { type: "execute-primary" }
             });
@@ -132,7 +133,7 @@ export function resolvePaletteActions({
             if (canDrillDown && drilldownCategoryId) {
                 actions.push({
                     id: "open",
-                    label: "Open",
+                    label: t("فتح", "Open"),
                     shortcut: "→",
                     intent: { type: "open-drilldown", categoryId: drilldownCategoryId }
                 });
@@ -150,7 +151,7 @@ export function resolvePaletteActions({
     if (canGoBack) {
         actions.push({
             id: "back",
-            label: "Go Back",
+            label: t("رجوع", "Go Back"),
             shortcut: "←",
             intent: { type: "go-back" }
         });

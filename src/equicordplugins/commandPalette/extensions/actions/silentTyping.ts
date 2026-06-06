@@ -123,7 +123,7 @@ export function createSilentTypingExtensionCommand(extensionKeybinds: Map<string
 
     return {
         id: "extension-silent-typing-toggle",
-        label: "Toggle SilentTyping",
+        label: t("تبديل SilentTyping", "Toggle SilentTyping"),
         description: t("تفعيل/تعطيل SilentTyping للقناة الحالية.", "Enable/disable SilentTyping for the current channel."),
         keywords: ["silenttyping", "silent typing", "typing", "plugin", "extension", "toggle", "channel", "global", "settings"],
         categoryId: DEFAULT_CATEGORY_ID,
@@ -132,13 +132,13 @@ export function createSilentTypingExtensionCommand(extensionKeybinds: Map<string
         actions: () => [
             createExecuteSecondaryAction({
                 id: "toggle-global",
-                label: "Toggle global",
+                label: t("تبديل عامّ", "Toggle global"),
                 chord: keybinds.secondaryActionChord,
                 handler: runSilentTypingGlobalToggle
             }),
             createExecuteSecondaryAction({
                 id: "open-settings",
-                label: "Open settings",
+                label: t("فتح الإعدادات", "Open settings"),
                 chord: keybinds.tertiaryActionChord,
                 handler: runSilentTypingOpenSettings
             })
