@@ -18,6 +18,7 @@ import {
 } from "@components/settings";
 import { gitHashShort } from "@shared/vencordUserAgent";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { isTruthy } from "@utils/guards";
 import definePlugin, { IconProps, OptionType } from "@utils/types";
 import { waitFor } from "@webpack";
@@ -205,45 +206,45 @@ export default definePlugin({
             }),
             buildEntry({
                 key: "equicord_plugins",
-                title: "Plugins",
+                title: t("الإضافات", "Plugins"),
                 Component: PluginsTab,
                 Icon: PluginsIcon
             }),
             buildEntry({
                 key: "equicord_themes",
-                title: "Themes",
+                title: t("القوالب", "Themes"),
                 Component: ThemesTab,
                 Icon: PaintbrushIcon
             }),
             !IS_UPDATER_DISABLED && UpdaterTab && buildEntry({
                 key: "equicord_updater",
-                title: "Updater",
-                panelTitle: "Esharq Updater",
+                title: t("المُحدِّث", "Updater"),
+                panelTitle: t("مُحدِّث Esharq", "Esharq Updater"),
                 Component: UpdaterTab,
                 Icon: UpdaterIcon
             }),
             buildEntry({
                 key: "equicord_changelog",
-                title: "Changelog",
+                title: t("سجلّ التغييرات", "Changelog"),
                 Component: ChangelogTab,
                 Icon: LogIcon,
             }),
             buildEntry({
                 key: "equicord_cloud",
-                title: "Cloud",
-                panelTitle: "Esharq Cloud",
+                title: t("السحابة", "Cloud"),
+                panelTitle: t("سحابة Esharq", "Esharq Cloud"),
                 Component: CloudTab,
                 Icon: CloudIcon
             }),
             buildEntry({
                 key: "equicord_backup_restore",
-                title: "Backup & Restore",
+                title: t("النسخ الاحتياطي والاستعادة", "Backup & Restore"),
                 Component: BackupAndRestoreTab,
                 Icon: BackupRestoreIcon
             }),
             !IS_STANDALONE && PatchHelperTab && buildEntry({
                 key: "equicord_patch_helper",
-                title: "Patch Helper",
+                title: t("مساعد الترقيع", "Patch Helper"),
                 Component: PatchHelperTab,
                 Icon: PatchHelperIcon
             }),
