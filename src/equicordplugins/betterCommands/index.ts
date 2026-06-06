@@ -89,7 +89,7 @@ export default definePlugin({
                     const user = findOption(opts, "user") as string;
 
                     sendBotMessage(ctx.channel.id, {
-                        content: "Refreshing application commands...",
+                        content: t("جارٍ تحديث أوامر التطبيق...", "Refreshing application commands..."),
                     });
 
                     fetchIndex({ type: "channel", channelId });
@@ -106,12 +106,12 @@ export default definePlugin({
                     }
 
                     sendBotMessage(ctx.channel.id, {
-                        content: "Commands refreshed successfully!",
+                        content: t("تمّ تحديث الأوامر بنجاح!", "Commands refreshed successfully!"),
                     });
                 } catch (err) {
                     console.error("[Refresh Command] Error refreshing commands:", err);
                     sendBotMessage(ctx.channel.id, {
-                        content: "Failed to refresh commands. Check the console for details.",
+                        content: t("فشل تحديث الأوامر. تحقّق من الكونسول للتفاصيل.", "Failed to refresh commands. Check the console for details."),
                     });
                 }
             },

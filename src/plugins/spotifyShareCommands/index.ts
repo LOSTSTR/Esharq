@@ -19,6 +19,7 @@
 import { ApplicationCommandInputType, findOption, OptionalMessageOption, sendBotMessage } from "@api/Commands";
 import { Devs } from "@utils/constants";
 import { sendMessage } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { Command } from "@vencord/discord-types";
 import { findByPropsLazy } from "@webpack";
@@ -66,14 +67,14 @@ function makeCommand(name: string, formatUrl: (track: Track) => string): Command
             const track: Track | null = Spotify.getTrack();
             if (!track) {
                 return sendBotMessage(channel.id, {
-                    content: "You're not listening to any music."
+                    content: t("أنت لا تستمع إلى أي موسيقى.", "You're not listening to any music.")
                 });
             }
 
             // local tracks have an id of null
             if (track.id == null) {
                 return sendBotMessage(channel.id, {
-                    content: "Failed to find the track on spotify."
+                    content: t("تعذّر العثور على المقطع في سبوتيفاي.", "Failed to find the track on spotify.")
                 });
             }
 

@@ -87,7 +87,7 @@ export default definePlugin({
             "aria-label": "Cancel Outgoing Friend Request",
             disabled: false,
             icon: Icon ? (iconProps: Record<string, unknown>) => <Icon {...iconProps} color="var(--status-danger)" /> : undefined,
-            tooltipText: "Cancel Outgoing Friend Request",
+            tooltipText: t("إلغاء طلب الصداقة الصادر", "Cancel Outgoing Friend Request"),
             variant: "critical-secondary",
             onClick: () => cancelOutgoingFriendRequest(context?.user?.id)
         };

@@ -394,11 +394,11 @@ export default definePlugin({
             execute: async (opts, ctx) => {
                 try {
                     ApplicationCommandIndexStore.indices = {};
-                    sendBotMessage(ctx.channel.id, { content: "Slash Commands refreshed successfully." });
+                    sendBotMessage(ctx.channel.id, { content: t("تمّ تحديث أوامر السلاش بنجاح.", "Slash Commands refreshed successfully.") });
                 }
                 catch (e) {
                     logger.error("Failed to refresh commands:", e);
-                    sendBotMessage(ctx.channel.id, { content: "Failed to refresh commands. Check console for details." });
+                    sendBotMessage(ctx.channel.id, { content: t("فشل تحديث الأوامر. تحقّق من الكونسول للتفاصيل.", "Failed to refresh commands. Check console for details.") });
                 }
             }
         }

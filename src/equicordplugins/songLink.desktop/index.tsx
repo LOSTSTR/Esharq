@@ -171,13 +171,13 @@ export default definePlugin({
 
                 if (!url) {
                     sendBotMessage(ctx.channel.id, {
-                        content: "Please provide a music link.",
+                        content: t("يُرجى تقديم رابط موسيقى.", "Please provide a music link."),
                     });
                     return;
                 }
 
                 sendBotMessage(ctx.channel.id, {
-                    content: "This will take a moment...",
+                    content: t("سيستغرق هذا لحظة...", "This will take a moment..."),
                 });
 
                 try {
@@ -187,7 +187,7 @@ export default definePlugin({
                     if (!formatted) {
                         sendBotMessage(ctx.channel.id, {
                             content:
-                                "No alternative platforms found for this link.",
+                                t("لم يُعثر على منصّات بديلة لهذا الرابط.", "No alternative platforms found for this link."),
                         });
                         return;
                     }
@@ -195,7 +195,7 @@ export default definePlugin({
                     sendMessage(ctx.channel.id, { content: formatted });
                 } catch (e: any) {
                     sendBotMessage(ctx.channel.id, {
-                        content: "Failed to resolve music link",
+                        content: t("تعذّر تحليل رابط الموسيقى", "Failed to resolve music link"),
                     });
                 }
             },

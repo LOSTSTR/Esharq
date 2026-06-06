@@ -99,7 +99,7 @@ export default definePlugin({
                     ].join("\n");
                     return { content: info };
                 } catch (err) {
-                    sendBotMessage(ctx.channel.id, { content: "Failed to fetch system information" });
+                    sendBotMessage(ctx.channel.id, { content: t("فشل جلب معلومات النظام", "Failed to fetch system information") });
                 }
             },
         },
@@ -208,7 +208,7 @@ export default definePlugin({
                         };
                     } catch (err) {
                         sendBotMessage(ctx.channel.id, {
-                            content: "Sorry, couldn't fetch a cat picture right now 😿"
+                            content: t("آسف، تعذّر جلب صورة قطة الآن 😿", "Sorry, couldn't fetch a cat picture right now 😿")
                         });
                     }
                 })();
@@ -334,7 +334,7 @@ export default definePlugin({
                 const number = Math.min(parseInt(findOption(opts, "number", "5")), 10);
                 if (isNaN(number) || number < 1) {
                     sendBotMessage(ctx.channel.id, {
-                        content: "Please provide a valid number between 1 and 10!"
+                        content: t("يُرجى تقديم رقم صالح بين 1 و10!", "Please provide a valid number between 1 and 10!")
                     });
                     return;
                 }
@@ -381,7 +381,7 @@ export default definePlugin({
             inputType: ApplicationCommandInputType.BOT,
             execute: (opts, ctx) => {
                 sendBotMessage(ctx.channel.id, {
-                    content: "Pong!"
+                    content: t("بونغ!", "Pong!")
                 });
             },
         },
@@ -496,14 +496,14 @@ export default definePlugin({
             execute: async (opts, cmdCtx) => {
                 const count = findOption(opts, "count", 25);
 
-                if (!count) return sendBotMessage(cmdCtx.channel.id, { content: "The count must be 1 or higher!" });
+                if (!count) return sendBotMessage(cmdCtx.channel.id, { content: t("يجب أن يكون العدد 1 أو أكثر!", "The count must be 1 or higher!") });
 
                 try {
                     const affinities = UserAffinitiesStore.getUserAffinities();
 
                     if (!affinities?.length) {
                         return sendBotMessage(cmdCtx.channel.id, {
-                            content: "No affinities found. Check your [privacy settings](<https://support.discord.com/hc/en-us/articles/21864805694999-Data-Used-to-Improve-Discord>)."
+                            content: t("لم يُعثر على تقاربات. تحقّق من [إعدادات الخصوصية](<https://support.discord.com/hc/en-us/articles/21864805694999-Data-Used-to-Improve-Discord>).", "No affinities found. Check your [privacy settings](<https://support.discord.com/hc/en-us/articles/21864805694999-Data-Used-to-Improve-Discord>).")
                         });
                     }
 
@@ -518,7 +518,7 @@ export default definePlugin({
 
                     if (!users.length) {
                         return sendBotMessage(cmdCtx.channel.id, {
-                            content: "No valid users found in affinities. Check your [privacy settings](<https://support.discord.com/hc/en-us/articles/21864805694999-Data-Used-to-Improve-Discord>)."
+                            content: t("لم يُعثر على مستخدمين صالحين في التقاربات. تحقّق من [إعدادات الخصوصية](<https://support.discord.com/hc/en-us/articles/21864805694999-Data-Used-to-Improve-Discord>).", "No valid users found in affinities. Check your [privacy settings](<https://support.discord.com/hc/en-us/articles/21864805694999-Data-Used-to-Improve-Discord>).")
                         });
                     }
 
@@ -580,7 +580,7 @@ export default definePlugin({
                             if (loadedImages === totalImages) {
                                 canvas.toBlob(blob => {
                                     if (!blob) {
-                                        sendBotMessage(cmdCtx.channel.id, { content: "Couldn't generate the image :c" });
+                                        sendBotMessage(cmdCtx.channel.id, { content: t("تعذّر إنشاء الصورة :c", "Couldn't generate the image :c") });
                                         return;
                                     }
                                     const file = new File([blob], "affinities-cloud.png", { type: "image/png" });

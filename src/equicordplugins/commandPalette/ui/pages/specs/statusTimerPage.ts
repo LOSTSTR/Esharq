@@ -40,7 +40,7 @@ const statusTimerPageSpec: PalettePageSpec = {
             key: "duration",
             label: t("المدّة", "Duration"),
             type: "picker",
-            placeholder: "Choose a duration",
+            placeholder: t("اختر مدّة", "Choose a duration"),
             suggestionLimit: DURATION_CHOICES.length
         }
     ],

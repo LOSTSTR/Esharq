@@ -13,7 +13,7 @@ export const settings = definePluginSettings({
         type: OptionType.STRING,
         description: t("مفتاح API.", "API key."),
         default: "",
-        placeholder: "Enter API Key here for your AI endpoint.",
+        placeholder: t("أدخل مفتاح API هنا لنقطة وصول الذكاء الاصطناعي.", "Enter API Key here for your AI endpoint."),
         componentProps: {
             type: "password"
         }
@@ -28,7 +28,7 @@ export const settings = definePluginSettings({
         type: OptionType.STRING,
         description: t("موجّه النظام للذكاء الاصطناعي. العناصر النائبة: {current_user}, {current_time}", "System prompt for the AI. Placeholders: {current_user}, {current_time}"),
         default: "You are a helpful assistant who answers questions for the user in a concise and short way while using the least amount of words and punctuation.\nCurrent user: {current_user}\nCurrent time: {current_time}",
-        placeholder: "Enter system prompt.",
+        placeholder: t("أدخل موجّه النظام.", "Enter system prompt."),
         multiline: true
     },
     maxTokens: {
@@ -40,7 +40,7 @@ export const settings = definePluginSettings({
         type: OptionType.STRING,
         description: t("نقطة نهاية ذكاء اصطناعي متوافقة مع OpenAI.", "OpenAI-compatible AI endpoint."),
         default: "https://openrouter.ai/api/v1/chat/completions",
-        placeholder: "Enter your OpenAI compatible AI endpoint here."
+        placeholder: t("أدخل نقطة وصول الذكاء الاصطناعي المتوافقة مع OpenAI هنا.", "Enter your OpenAI compatible AI endpoint here.")
     },
     context: {
         type: OptionType.NUMBER,

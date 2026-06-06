@@ -118,21 +118,21 @@ const settings = definePluginSettings({
         type: OptionType.STRING,
         description: "Servers allowed to bypass (notified when mentioned anywhere in the server)",
         default: "",
-        placeholder: "Separate with commas",
+        placeholder: t("افصل بفواصل", "Separate with commas"),
         onChange: value => settings.store.guilds = processIds(value)
     },
     channels: {
         type: OptionType.STRING,
         description: "Channels allowed to bypass (notified when mentioned in that channel)",
         default: "",
-        placeholder: "Separate with commas",
+        placeholder: t("افصل بفواصل", "Separate with commas"),
         onChange: value => settings.store.channels = processIds(value)
     },
     users: {
         type: OptionType.STRING,
         description: "Users allowed to bypass (notified of all their direct messages)",
         default: "",
-        placeholder: "Separate with commas",
+        placeholder: t("افصل بفواصل", "Separate with commas"),
         onChange: value => settings.store.users = processIds(value)
     },
     allowOutsideOfDms: {

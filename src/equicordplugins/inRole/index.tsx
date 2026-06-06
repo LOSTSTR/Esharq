@@ -70,7 +70,7 @@ export default definePlugin({
             execute: (args, ctx) => {
                 // Guild check
                 if (!ctx.guild) {
-                    return sendBotMessage(ctx.channel.id, { content: "Make sure that you are in a server." });
+                    return sendBotMessage(ctx.channel.id, { content: t("تأكّد من أنك داخل خادم.", "Make sure that you are in a server.") });
                 }
                 const role = args[0].value;
                 showInRoleModal(getMembersInRole(role, ctx.guild.id), role, ctx.channel.id);

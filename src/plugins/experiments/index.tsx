@@ -64,7 +64,7 @@ export default definePlugin({
             }
         },
         {
-            find: 'placeholder:"Search experiments"',
+            find: 'placeholder:t("البحث في التجارب", "Search experiments")',
             replacement: [
                 {
                     match: /(?<=children:\[)(?=null!=.{0,150}"Installation ID:)/,

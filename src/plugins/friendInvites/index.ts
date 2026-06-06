@@ -75,7 +75,7 @@ export default definePlugin({
                 await FriendInvites.revokeFriendInvites();
 
                 sendBotMessage(ctx.channel.id, {
-                    content: "All friend invites have been revoked."
+                    content: t("تمّ إلغاء كل دعوات الصداقة.", "All friend invites have been revoked.")
                 });
             },
         },

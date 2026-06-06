@@ -355,10 +355,10 @@ export default definePlugin({
                         return { content: "" }; // Empty return since file was already sent
                     } catch (e) {
                         new Logger("SupportHelper").error("Failed to upload plugin list:", e);
-                        return { content: "Failed to upload plugin list file. Please try again." };
+                        return { content: t("فشل رفع ملف قائمة الإضافات. حاول مرّة أخرى.", "Failed to upload plugin list file. Please try again.") };
                     }
                 }
-                return { content: "Unable to generate plugin list." };
+                return { content: t("تعذّر إنشاء قائمة الإضافات.", "Unable to generate plugin list.") };
             }
         }
     ],

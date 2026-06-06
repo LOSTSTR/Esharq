@@ -73,7 +73,7 @@ type LastApiCallStatus = {
 };
 
 const apiStatusListeners = new Set<(status: LastApiCallStatus) => void>();
-let lastApiCallStatus: LastApiCallStatus = { at: 0, message: "No API calls yet" };
+let lastApiCallStatus: LastApiCallStatus = { at: 0, message: t("لا توجد استدعاءات API بعد", "No API calls yet") };
 
 function setLastApiCallStatus(next: LastApiCallStatus) {
     lastApiCallStatus = next;
