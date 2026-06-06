@@ -46,7 +46,7 @@ function ViewScheduledModalInner({ rootProps, close }: ViewScheduledModalProps) 
 
     if (messages.length > 0) {
         actions.unshift({
-            text: "Clear All",
+            text: t("مسح الكل", "Clear All"),
             variant: "dangerPrimary",
             onClick: handleClearAll
         });

@@ -58,7 +58,7 @@ export const ThemeInfoModal: React.FC<ThemeInfoModalProps> = ({ author, theme, .
                     onClick: () => props.onClose()
                 },
                 {
-                    text: "Download",
+                    text: t("تنزيل", "Download"),
                     variant: "primary",
                     disabled: !theme.content || theme.id === "preview",
                     onClick: async () => {
@@ -77,7 +77,7 @@ export const ThemeInfoModal: React.FC<ThemeInfoModalProps> = ({ author, theme, .
                                     title={t("تعارُض!", "Conflict!")}
                                     actions={[
                                         {
-                                            text: "Overwrite",
+                                            text: t("استبدال", "Overwrite"),
                                             variant: "dangerPrimary",
                                             onClick: async () => {
                                                 await downloadTheme(theme);
@@ -85,7 +85,7 @@ export const ThemeInfoModal: React.FC<ThemeInfoModalProps> = ({ author, theme, .
                                             }
                                         },
                                         {
-                                            text: "Keep my file",
+                                            text: t("الاحتفاظ بملفّي", "Keep my file"),
                                             variant: "positive",
                                             onClick: () => modalProps.onClose()
                                         }
@@ -189,7 +189,7 @@ export const ThemeInfoModal: React.FC<ThemeInfoModalProps> = ({ author, theme, .
                                             onClick: () => modalProps.onClose()
                                         },
                                         {
-                                            text: "Copy to Clipboard",
+                                            text: t("نسخ إلى الحافظة", "Copy to Clipboard"),
                                             variant: "primary",
                                             onClick: () => {
                                                 copyToClipboard(themeContent);

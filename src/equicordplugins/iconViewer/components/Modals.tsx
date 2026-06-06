@@ -253,7 +253,7 @@ function IconModal({ iconName, Icon, onClose, transitionState }: { iconName: str
             title={iconName}
             actions={[
                 {
-                    text: "Actions",
+                    text: t("الإجراءات", "Actions"),
                     variant: "primary",
                     onClick: openOtherMenu
                 }

@@ -54,7 +54,7 @@ export function openBadgeModal(user: User) {
             }
             actions={[
                 {
-                    text: "Join GlobalBadges Server",
+                    text: t("الانضمام لخادم GlobalBadges", "Join GlobalBadges Server"),
                     variant: "link",
                     onClick: () => openInviteModal(INVITE_LINK)
                 }

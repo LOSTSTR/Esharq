@@ -133,7 +133,7 @@ function NewPluginsModal({ modalProps, newPlugins, newSettings }: ModalComponent
             }
             actions={[
                 {
-                    text: "Don't show this again",
+                    text: t("لا تُظهر هذا مجدداً", "Don't show this again"),
                     onClick: () => {
                         Settings.plugins.NewPluginsManager.enabled = !settings?.plugins?.NewPluginsManager?.enabled;
                     },

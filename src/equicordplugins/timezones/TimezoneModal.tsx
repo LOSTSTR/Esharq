@@ -62,7 +62,7 @@ export function SetTimezoneModal({ userId, modalProps, database }: { userId: str
 
     if (!database) {
         actions.unshift({
-            text: "Delete Timezone",
+            text: t("حذف المنطقة الزمنية", "Delete Timezone"),
             variant: "dangerPrimary",
             disabled: false,
             onClick: async () => {

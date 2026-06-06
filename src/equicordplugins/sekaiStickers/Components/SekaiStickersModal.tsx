@@ -103,14 +103,14 @@ export default function SekaiStickersModal({ modalProps, settings }: { modalProp
             title="Sekai Stickers"
             actions={[
                 {
-                    text: "Switch Character",
+                    text: t("تبديل الشخصية", "Switch Character"),
                     variant: "primary",
                     onClick: () => {
                         openModal(props => <CharSelectModal modalProps={props} setCharacter={setChracter} />);
                     }
                 },
                 {
-                    text: "Upload as Attachment",
+                    text: t("رفع كمرفق", "Upload as Attachment"),
                     variant: "primary",
                     onClick: () => {
                         if (settings.store.AutoCloseModal) modalProps.onClose();

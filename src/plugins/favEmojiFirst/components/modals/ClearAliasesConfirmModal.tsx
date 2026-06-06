@@ -18,7 +18,7 @@ export function ClearAliasesConfirmModal({ modalProps, onConfirm }: ClearAliases
             title={t("حذف كل الأسماء المستعارة", "Delete all aliases")}
             actions={[
                 {
-                    text: "Delete all aliases",
+                    text: t("حذف كل الأسماء المستعارة", "Delete all aliases"),
                     variant: "danger-primary",
                     onClick: async () => {
                         await onConfirm();

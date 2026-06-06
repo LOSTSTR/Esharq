@@ -661,7 +661,7 @@ async function saveAlias(aliasInput: string, ref: StoredEmojiRef): Promise<{ ok:
     const existing = aliasMap[alias];
 
     if (existing && !isSameEmoji(existing, ref)) {
-        return { ok: false, error: "Duplicate alias" };
+        return { ok: false, error: t("اسم مستعار مكرّر", "Duplicate alias") };
     }
 
     const normalizedRef = ref.kind === "unicode"
@@ -685,7 +685,7 @@ async function saveAlias(aliasInput: string, ref: StoredEmojiRef): Promise<{ ok:
         return { ok: true };
     } catch (error) {
         logger.error("Failed to save emoji alias.", error);
-        return { ok: false, error: "Failed to save alias." };
+        return { ok: false, error: t("فشل حفظ الاسم المستعار.", "Failed to save alias.") };
     }
 }
 

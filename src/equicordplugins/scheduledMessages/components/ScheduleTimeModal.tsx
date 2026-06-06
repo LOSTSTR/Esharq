@@ -76,7 +76,7 @@ function ScheduleTimeModalInner({ channelId, content, attachments, rootProps, cl
             title={t("جدولة الرسالة", "Schedule Message")}
             actions={[
                 {
-                    text: "Schedule",
+                    text: t("جدولة", "Schedule"),
                     variant: "primary",
                     onClick: handleSchedule
                 },

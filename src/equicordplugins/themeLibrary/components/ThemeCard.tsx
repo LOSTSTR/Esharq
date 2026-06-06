@@ -71,7 +71,7 @@ export const ThemeCard: React.FC<ThemeCardProps> = ({ theme, themeLinks, likedTh
                     title={t("تمهّل!", "Hold on!")}
                     actions={[
                         {
-                            text: "Enable Plugin",
+                            text: t("تفعيل الإضافة", "Enable Plugin"),
                             variant: "primary",
                             onClick: () => {
                                 Settings.plugins.ThemeAttributes.enabled = true;

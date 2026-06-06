@@ -72,7 +72,7 @@ function CreateDecorationModal(props: RenderModalProps) {
                 onClick: props.onClose
             },
             {
-                text: "Submit for Review",
+                text: t("إرسال للمراجعة", "Submit for Review"),
                 variant: "primary",
                 onClick: () => {
                     setSubmitting(true);

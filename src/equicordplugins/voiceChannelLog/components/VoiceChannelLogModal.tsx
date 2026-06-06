@@ -32,7 +32,7 @@ export function VoiceChannelLogModal({ channel, props }: { channel: Channel; pro
             title={`${channel.name} logs`}
             actions={[
                 {
-                    text: "Clear logs",
+                    text: t("مسح السجلّات", "Clear logs"),
                     variant: "dangerPrimary",
                     onClick: () => clearLogs(channel.id)
                 }

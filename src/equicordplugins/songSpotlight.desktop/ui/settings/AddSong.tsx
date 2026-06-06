@@ -35,7 +35,7 @@ function AddSongModal({ modalProps, close, onAdd }: AddSongModalProps) {
                 title={t("إضافة أغنية جديدة", "Add a new song")}
                 actions={[
                     {
-                        text: "Add song",
+                        text: t("إضافة أغنية", "Add song"),
                         variant: "primary",
                         disabled: !url || !!error || pending,
                         onClick: async () => {

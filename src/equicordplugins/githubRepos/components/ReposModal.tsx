@@ -69,7 +69,7 @@ export function ReposModal({ repos, username, rootProps }: ReposModalProps & { r
             title={`${username}'s GitHub Repositories`}
             actions={[
                 {
-                    text: "View on GitHub",
+                    text: t("العرض على GitHub", "View on GitHub"),
                     variant: "link",
                     onClick: () => window.open(`https://github.com/${username}?tab=repositories`, "_blank")
                 },

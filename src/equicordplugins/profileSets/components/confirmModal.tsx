@@ -5,6 +5,7 @@
  */
 
 import { Paragraph } from "@components/Paragraph";
+import { t } from "@utils/esharqI18n";
 import { RenderModalProps } from "@vencord/discord-types";
 import { Modal, React } from "@webpack/common";
 
@@ -67,7 +68,7 @@ export function ImportProfilesModal({ title, message, onOverride, onMerge, onCan
             title={title}
             actions={[
                 {
-                    text: "Override",
+                    text: t("تجاوز", "Override"),
                     variant: "primary",
                     onClick: closeAfter(onOverride)
                 },

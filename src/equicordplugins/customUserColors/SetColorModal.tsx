@@ -56,7 +56,7 @@ export function SetColorModal({ id, modalProps }: { id: string, modalProps: Rend
                     onClick: saveUserColor
                 },
                 {
-                    text: "Delete Entry",
+                    text: t("حذف المُدخل", "Delete Entry"),
                     variant: "dangerPrimary",
                     onClick: deleteUserColor
                 }

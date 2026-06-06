@@ -5,6 +5,7 @@
  */
 
 import * as DataStore from "@api/DataStore";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import { Message } from "@vencord/discord-types";
 import { CloudUploadPlatform } from "@vencord/discord-types/enums";
@@ -418,11 +419,11 @@ export async function addScheduledMessage(
 export async function updateScheduledMessageTime(id: string, scheduledTime: number): Promise<{ success: boolean; error?: string; }> {
     const message = scheduledMessages.find(entry => entry.id === id);
     if (!message) {
-        return { success: false, error: "Scheduled message not found" };
+        return { success: false, error: t("لم يُعثر على الرسالة المجدولة", "Scheduled message not found") };
     }
 
     if (scheduledTime <= Date.now()) {
-        return { success: false, error: "Please select a future date and time" };
+        return { success: false, error: t("يُرجى اختيار تاريخ ووقت في المستقبل", "Please select a future date and time") };
     }
 
     const minuteStart = Math.floor(scheduledTime / 60000) * 60000;
@@ -448,13 +449,13 @@ export async function updateScheduledMessageTime(id: string, scheduledTime: numb
 export async function sendScheduledMessageNow(id: string): Promise<{ success: boolean; error?: string; }> {
     const message = scheduledMessages.find(entry => entry.id === id);
     if (!message) {
-        return { success: false, error: "Scheduled message not found" };
+        return { success: false, error: t("لم يُعثر على الرسالة المجدولة", "Scheduled message not found") };
     }
 
     await removeScheduledMessage(id);
     const sent = await sendScheduledMessage(message);
     if (!sent) {
-        return { success: false, error: "Failed to send scheduled message" };
+        return { success: false, error: t("فشل إرسال الرسالة المجدولة", "Failed to send scheduled message") };
     }
 
     return { success: true };

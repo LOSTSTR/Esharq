@@ -41,7 +41,7 @@ export function DecModal(props: RenderModalProps & { message: any; }) {
             title={t("فكّ تشفير الرسالة", "Decrypt Message")}
             actions={[
                 {
-                    text: "Decrypt",
+                    text: t("فكّ التشفير", "Decrypt"),
                     variant: "primary",
                     onClick: onDecrypt
                 },

@@ -76,7 +76,7 @@ export default definePlugin({
         return {
             variant: "critical-secondary",
             onClick: () => cancelOutgoingFriendRequest(userId),
-            text: "Cancel Outgoing Friend Request"
+            text: t("إلغاء طلب الصداقة الصادر", "Cancel Outgoing Friend Request")
         };
     },
 

@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "@utils/esharqI18n";
 import { PluginNative } from "@utils/types";
 import { saveFile } from "@utils/web";
 import { unzipSync } from "fflate";
@@ -184,7 +185,7 @@ async function loadZip(url: string): Promise<ZipPreviewResult> {
 async function fetchNativeDiscordAttachment(attachmentPath: string): Promise<NativeFetchResult> {
     if (!Native) return { success: false, error: NATIVE_UNAVAILABLE_MESSAGE };
     if (typeof Native.fetchDiscordAttachment === "function") return Native.fetchDiscordAttachment(attachmentPath);
-    return { success: false, error: "Native helper does not support attachment fetch." };
+    return { success: false, error: t("المساعد الأصلي لا يدعم جلب المرفقات.", "Native helper does not support attachment fetch.") };
 }
 
 export function getDiscordAttachmentPath(url: string): string | null {

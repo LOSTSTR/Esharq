@@ -88,7 +88,7 @@ export function GhostedUsersModal({ modalProps, ghostedChannels: initialChannels
             title={`Ghosted Users (${ghostedChannels.length})`}
             actions={ghostedChannels.length > 0 ? [
                 {
-                    text: "Clear All",
+                    text: t("مسح الكل", "Clear All"),
                     variant: "primary",
                     onClick: handleClearAll
                 }

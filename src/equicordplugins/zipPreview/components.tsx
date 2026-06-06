@@ -322,7 +322,7 @@ function openTextEntryModal(entry: ZipEntry) {
                         onClick: () => copyWithToast(content, "File contents copied to clipboard!")
                     },
                     {
-                        text: "Download",
+                        text: t("تنزيل", "Download"),
                         variant: "primary",
                         onClick: () => makeDownload(entry)
                     }
@@ -345,7 +345,7 @@ function openImageEntryModal(entry: ZipEntry) {
                 title={entry.name}
                 actions={[
                     {
-                        text: "Download",
+                        text: t("تنزيل", "Download"),
                         variant: "primary",
                         onClick: () => makeDownload(entry)
                     }
