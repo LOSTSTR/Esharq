@@ -10,5 +10,11 @@ export default definePluginI18n({
     "description": {
         "ar": "يتيح لك تخصيص إعدادات الميكروفون بشكل أعمق.",
         "en": "Lets you customize your microphone settings in much greater depth."
+    },
+    "toolboxActions": {
+        "Open Microphone Settings": {
+            "ar": "فتح إعدادات الميكروفون",
+            "en": "Open Microphone Settings"
+        }
     }
 });

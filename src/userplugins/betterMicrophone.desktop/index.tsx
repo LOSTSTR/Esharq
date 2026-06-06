@@ -40,7 +40,9 @@ export default definePlugin({
         addSettingsPanelButton({
             name: PluginInfo.PLUGIN_NAME,
             icon: MicrophoneSettingsIcon,
-            tooltipText: "إعدادات الميكروفون",
+            // getter لا سلسلة ثابتة: يُعاد تقييم t() كل عرض للوحة (الـ.map يُفكّك tooltipText)
+            // فيتبدّل مع لغة العميل حيّاً، بدل خبزه عند start() على لغة التحميل.
+            get tooltipText() { return t("إعدادات الميكروفون", "Microphone Settings"); },
             onClick: openMicrophoneSettingsModal
         });
         try {
@@ -63,6 +65,7 @@ export default definePlugin({
     },
 
     toolboxActions: {
-        "فتح إعدادات الميكروفون": openMicrophoneSettingsModal
+        // المفتاح إنجليزي (المُعرّف الثابت)؛ يُعرَّب عند العرض عبر overlay الـ toolboxActions.
+        "Open Microphone Settings": openMicrophoneSettingsModal
     },
 });
