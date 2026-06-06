@@ -21,6 +21,7 @@ import "./style.css";
 import { addMessageAccessory } from "@api/MessageAccessories";
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { ChannelStore } from "@webpack/common";
 
@@ -34,11 +35,11 @@ export const settings = definePluginSettings({
         options: [
             {
                 default: true,
-                label: "Imperial",
+                label: t("إمبراطوري", "Imperial"),
                 value: "imperial",
             },
             {
-                label: "Metric",
+                label: t("متري", "Metric"),
                 value: "metric"
             }
         ]
@@ -56,7 +57,7 @@ export default definePlugin({
         render(message) {
             if (!message.content) return null;
             return {
-                label: "Convert Units",
+                label: t("تحويل الوحدات", "Convert Units"),
                 icon: ConvertIcon,
                 message,
                 channel: ChannelStore.getChannel(message.channel_id),

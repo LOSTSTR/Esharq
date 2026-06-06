@@ -7,6 +7,7 @@
 import { definePluginSettings } from "@api/Settings";
 import { getUserSettingLazy } from "@api/UserSettings";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { VoiceState } from "@vencord/discord-types";
 import { UserStore, VoiceStateStore } from "@webpack/common";
@@ -21,20 +22,20 @@ const settings = definePluginSettings({
         description: "The status set when joining a voice channel.",
         options: [
             {
-                label: "Online",
+                label: t("متّصل", "Online"),
                 value: "online",
             },
             {
-                label: "Idle",
+                label: t("خامل", "Idle"),
                 value: "idle",
             },
             {
-                label: "Do Not Disturb",
+                label: t("عدم الإزعاج", "Do Not Disturb"),
                 value: "dnd",
                 default: true
             },
             {
-                label: "Invisible",
+                label: t("خفيّ", "Invisible"),
                 value: "invisible",
             }
         ]

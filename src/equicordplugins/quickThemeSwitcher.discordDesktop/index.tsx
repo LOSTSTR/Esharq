@@ -77,7 +77,7 @@ const settings = definePluginSettings({
         options: [
             { label: "A-Z", value: "alphabetical", default: true },
             { label: "Z-A", value: "reverse" },
-            { label: "Recent", value: "recent" },
+            { label: t("حديث", "Recent"), value: "recent" },
         ],
         onChange: refreshThemeList,
     },

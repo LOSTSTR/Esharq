@@ -260,7 +260,7 @@ export default definePlugin({
                         { name: "toUpperCase", value: "toUpperCase", label: "toUpperCase" },
                         { name: "toLocaleLowerCase", value: "toLocaleLowerCase", label: "toLocaleLowerCase" },
                         { name: "toLocaleUpperCase", value: "toLocaleUpperCase", label: "toLocaleUpperCase" },
-                        { name: "stay the same", value: "same", label: "stay the same" }
+                        { name: "stay the same", value: "same", label: t("تبقى كما هي", "stay the same") }
                     ]
                 },
                 {

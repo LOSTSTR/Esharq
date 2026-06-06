@@ -43,8 +43,8 @@ export const settings = definePluginSettings({
         type: OptionType.SELECT,
         description: "The display order of pinned private conversations",
         options: [
-            { label: "Most recent message", value: PinOrder.LastMessage, default: true },
-            { label: "Custom (right click channels to reorder)", value: PinOrder.Custom }
+            { label: t("أحدث رسالة", "Most recent message"), value: PinOrder.LastMessage, default: true },
+            { label: t("مخصّص (انقر بزرّ الفأرة الأيمن على القنوات لإعادة الترتيب)", "Custom (right click channels to reorder)"), value: PinOrder.Custom }
         ]
     },
     canCollapseDmSection: {

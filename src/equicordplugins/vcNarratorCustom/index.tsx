@@ -805,9 +805,9 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         description: "Filter which users trigger state-change announcements",
         options: [
-            { label: "Off", value: "off" },
-            { label: "Whitelist (only announce listed users)", value: "whitelist" },
-            { label: "Blacklist (announce everyone except listed)", value: "blacklist" },
+            { label: t("إيقاف", "Off"), value: "off" },
+            { label: t("قائمة بيضاء (الإعلان عن المُدرَجين فقط)", "Whitelist (only announce listed users)"), value: "whitelist" },
+            { label: t("قائمة سوداء (الإعلان عن الجميع عدا المُدرَجين)", "Blacklist (announce everyone except listed)"), value: "blacklist" },
         ],
         default: "off",
     },

@@ -100,7 +100,7 @@ export default definePlugin({
             const replies = findReplies(message);
             if (settings.store.hideButtonIfNoReply && !replies.length) return null;
             return {
-                label: "Jump to Reply",
+                label: t("الانتقال إلى الردّ", "Jump to Reply"),
                 icon: FindReplyIcon,
                 message,
                 channel: ChannelStore.getChannel(message.channel_id),

@@ -196,9 +196,9 @@ function TextReplace({ title, description, rulesArray, isRegex = false }: TextRe
     }
 
     const scopeOptions = [
-        { label: "Apply to your messages (visible to everyone)", value: "myMessages" },
-        { label: "Apply to others' messages (only visible to you)", value: "othersMessages" },
-        { label: "Apply to all messages", value: "allMessages" }
+        { label: t("تطبيق على رسائلك (مرئي للجميع)", "Apply to your messages (visible to everyone)"), value: "myMessages" },
+        { label: t("تطبيق على رسائل الآخرين (مرئي لك فقط)", "Apply to others' messages (only visible to you)"), value: "othersMessages" },
+        { label: t("تطبيق على كل الرسائل", "Apply to all messages"), value: "allMessages" }
     ];
 
     const filteredRules = rulesArray.reduce((acc: RuleWithIndex[], rule, index) => {

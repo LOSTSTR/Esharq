@@ -50,10 +50,10 @@ const settings = definePluginSettings({
         description: "Server notification settings",
         type: OptionType.SELECT,
         options: [
-            { label: "All messages", value: 0 },
-            { label: "Only @mentions", value: 1 },
-            { label: "Nothing", value: 2 },
-            { label: "Server default", value: 3, default: true }
+            { label: t("كل الرسائل", "All messages"), value: 0 },
+            { label: t("الإشارات @ فقط", "Only @mentions"), value: 1 },
+            { label: t("لا شيء", "Nothing"), value: 2 },
+            { label: t("افتراضي الخادم", "Server default"), value: 3, default: true }
         ],
     },
     everyone: {

@@ -82,8 +82,8 @@ const settings = definePluginSettings({
         description: "The default color source when both are available",
         type: OptionType.SELECT,
         options: [
-            { label: "Nitro colors", value: true, default: true },
-            { label: "Fake colors", value: false },
+            { label: t("ألوان Nitro", "Nitro colors"), value: true, default: true },
+            { label: t("ألوان وهمية", "Fake colors"), value: false },
         ]
     }
 });

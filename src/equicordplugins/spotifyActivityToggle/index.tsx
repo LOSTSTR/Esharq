@@ -9,6 +9,7 @@ import { definePluginSettings } from "@api/Settings";
 import { UserAreaButton, UserAreaRenderProps } from "@api/UserArea";
 import equicordToolbox from "@equicordplugins/equicordToolbox";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { Constants, Menu, RestAPI, useEffect, useState } from "@webpack/common";
 
@@ -76,7 +77,7 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         description: "Location to display the Spotify toggle button.",
         options: [
-            { label: "Next to Mute/Deafen", value: "PANEL", default: true },
+            { label: t("بجانب كتم/إصمام", "Next to Mute/Deafen"), value: "PANEL", default: true },
             { label: "Equicord Toolbox", value: "TOOLBOX" }
         ],
         get hidden() {

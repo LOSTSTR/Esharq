@@ -32,8 +32,8 @@ const settings = definePluginSettings({
     greetMode: {
         type: OptionType.SELECT,
         options: [
-            { label: "Greet (you can only greet 3 times)", value: GreetMode.Greet, default: true },
-            { label: "Normal Message (you can greet spam)", value: GreetMode.NormalMessage }
+            { label: t("ترحيب (يمكنك الترحيب 3 مرّات فقط)", "Greet (you can only greet 3 times)"), value: GreetMode.Greet, default: true },
+            { label: t("رسالة عادية (يمكنك إرسال ترحيب متكرّر)", "Normal Message (you can greet spam)"), value: GreetMode.NormalMessage }
         ],
         description: "Choose the greeting mode"
     }

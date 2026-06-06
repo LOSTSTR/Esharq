@@ -20,10 +20,10 @@ import { cl, stripPrefix } from "../utils/misc";
 export function openCollectionInfoModal(collection: Collection) {
     openModal(props => (
         <InfoModal props={props} title={t("معلومات المجموعة", "Collection Information")} rows={[
-            { label: "Name", value: stripPrefix(collection.name) },
-            { label: "Gifs", value: String(collection.gifs.length) },
-            { label: "Created At", value: collection.createdAt ? new Date(collection.createdAt).toLocaleString() : "Unknown" },
-            { label: "Last Updated", value: collection.lastUpdated ? new Date(collection.lastUpdated).toLocaleString() : "Unknown" },
+            { label: t("الاسم", "Name"), value: stripPrefix(collection.name) },
+            { label: t("صور GIF", "Gifs"), value: String(collection.gifs.length) },
+            { label: t("أُنشئ في", "Created At"), value: collection.createdAt ? new Date(collection.createdAt).toLocaleString() : "Unknown" },
+            { label: t("آخر تحديث", "Last Updated"), value: collection.lastUpdated ? new Date(collection.lastUpdated).toLocaleString() : "Unknown" },
         ]} />
     ));
 }
@@ -31,9 +31,9 @@ export function openCollectionInfoModal(collection: Collection) {
 export function openGifInfoModal(gif: Gif) {
     openModal(props => (
         <InfoModal props={props} title="Information" rows={[
-            { label: "Added At", value: gif.addedAt ? new Date(gif.addedAt).toLocaleString() : "Unknown" },
-            { label: "Width", value: String(gif.width) },
-            { label: "Height", value: String(gif.height) },
+            { label: t("أُضيف في", "Added At"), value: gif.addedAt ? new Date(gif.addedAt).toLocaleString() : "Unknown" },
+            { label: t("العرض", "Width"), value: String(gif.width) },
+            { label: t("الارتفاع", "Height"), value: String(gif.height) },
         ]} />
     ));
 }

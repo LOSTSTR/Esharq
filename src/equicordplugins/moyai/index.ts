@@ -18,6 +18,7 @@
 
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { sleep } from "@utils/misc";
 import definePlugin, { makeRange, OptionType } from "@utils/types";
 import { Message, ReactionEmoji } from "@vencord/discord-types";
@@ -66,7 +67,7 @@ const settings = definePluginSettings({
         description: "Quality of 🗿🗿🗿",
         type: OptionType.SELECT,
         options: [
-            { label: "Normal", value: "Normal", default: true },
+            { label: t("عادي", "Normal"), value: "Normal", default: true },
             { label: "HD", value: "HD" }
         ],
     },

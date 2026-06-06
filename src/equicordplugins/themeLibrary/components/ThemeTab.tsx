@@ -220,14 +220,14 @@ function ThemeTab() {
                             <div className={InputStyles.inputWrapper}>
                                 <SearchableSelect
                                     options={[
-                                        { label: "Show All", value: SearchStatus.ALL, default: true },
-                                        { label: "Show Themes", value: SearchStatus.THEME },
-                                        { label: "Show Snippets", value: SearchStatus.SNIPPET },
-                                        { label: "Show Most Liked", value: SearchStatus.LIKED },
-                                        { label: "Show Dark", value: SearchStatus.DARK },
-                                        { label: "Show Light", value: SearchStatus.LIGHT },
-                                        { label: "Show Enabled", value: SearchStatus.ENABLED },
-                                        { label: "Show Disabled", value: SearchStatus.DISABLED },
+                                        { label: t("إظهار الكل", "Show All"), value: SearchStatus.ALL, default: true },
+                                        { label: t("إظهار القوالب", "Show Themes"), value: SearchStatus.THEME },
+                                        { label: t("إظهار المقتطفات", "Show Snippets"), value: SearchStatus.SNIPPET },
+                                        { label: t("إظهار الأكثر إعجاباً", "Show Most Liked"), value: SearchStatus.LIKED },
+                                        { label: t("إظهار الداكن", "Show Dark"), value: SearchStatus.DARK },
+                                        { label: t("إظهار الفاتح", "Show Light"), value: SearchStatus.LIGHT },
+                                        { label: t("إظهار المُفعَّل", "Show Enabled"), value: SearchStatus.ENABLED },
+                                        { label: t("إظهار المُعطَّل", "Show Disabled"), value: SearchStatus.DISABLED },
                                     ]}
                                     // @ts-ignore
                                     value={searchValue.status}

@@ -106,11 +106,11 @@ export function ReplaceSettings({ appIds, update, save }: SettingsProps) {
                                 <Heading className={Margins.top8}>{t("نوع نشاط جديد", "New activity type")}</Heading>
                                 <Select
                                     options={[
-                                        { label: "Playing", value: ActivityType.PLAYING },
-                                        { label: "Watching", value: ActivityType.WATCHING },
-                                        { label: "Listening", value: ActivityType.LISTENING },
-                                        { label: "Competing", value: ActivityType.COMPETING },
-                                        { label: "Streaming", value: ActivityType.STREAMING }
+                                        { label: t("يلعب", "Playing"), value: ActivityType.PLAYING },
+                                        { label: t("يشاهد", "Watching"), value: ActivityType.WATCHING },
+                                        { label: t("يستمع", "Listening"), value: ActivityType.LISTENING },
+                                        { label: t("يتنافس", "Competing"), value: ActivityType.COMPETING },
+                                        { label: t("يبثّ", "Streaming"), value: ActivityType.STREAMING }
                                     ]}
                                     select={value => {
                                         onChange(value, i, "newActivityType");

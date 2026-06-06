@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "@utils/esharqI18n";
 import { formatDurationMs } from "@utils/text";
 import { saveFile } from "@utils/web";
 import { ChannelStore, UserStore } from "@webpack/common";
@@ -117,10 +118,10 @@ function drawHeader(ctx: CanvasRenderingContext2D, username: string, weekStart: 
 
 function drawStatCards(ctx: CanvasRenderingContext2D, y: number, stats: AggregatedStats): void {
     const cards = [
-        { icon: "💬", value: stats.totalMessages.toLocaleString(), label: "Messages", accent: C.blurple },
-        { icon: "🎙️", value: formatDurationMs(stats.totalVoiceMs), label: "Voice", accent: C.green },
-        { icon: "⭐", value: String(stats.totalReactionsGiven), label: "Reactions", accent: C.gold },
-        { icon: "📅", value: `${stats.activeDays}/7`, label: "Active days", accent: C.pink },
+        { icon: "💬", value: stats.totalMessages.toLocaleString(), label: t("الرسائل", "Messages"), accent: C.blurple },
+        { icon: "🎙️", value: formatDurationMs(stats.totalVoiceMs), label: t("الصوت", "Voice"), accent: C.green },
+        { icon: "⭐", value: String(stats.totalReactionsGiven), label: t("التفاعلات", "Reactions"), accent: C.gold },
+        { icon: "📅", value: `${stats.activeDays}/7`, label: t("الأيام النشطة", "Active days"), accent: C.pink },
     ];
     const cw = (W - PAD * 2 - 10 * 3) / 4;
     for (let i = 0; i < cards.length; i++) {

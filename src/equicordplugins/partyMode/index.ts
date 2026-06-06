@@ -18,6 +18,7 @@
 
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType, ReporterTestable } from "@utils/types";
 import { FluxDispatcher } from "@webpack/common";
 
@@ -32,8 +33,8 @@ const settings = definePluginSettings({
         description: "Party intensity",
         type: OptionType.SELECT,
         options: [
-            { label: "Normal", value: Intensity.Normal, default: true },
-            { label: "Better", value: Intensity.Better },
+            { label: t("عادي", "Normal"), value: Intensity.Normal, default: true },
+            { label: t("أفضل", "Better"), value: Intensity.Better },
             { label: "Project X", value: Intensity.ProjectX },
         ],
         restartNeeded: false,

@@ -9,6 +9,7 @@ import { definePluginSettings } from "@api/Settings";
 import NoReplyMentionPlugin from "@plugins/noReplyMention";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { copyWithToast, insertTextIntoChatInputBox } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import definePlugin, { makeRange, OptionType } from "@utils/types";
 import type { Channel, Message } from "@vencord/discord-types";
@@ -24,48 +25,48 @@ const logger = new Logger("MessageClickActions");
 const ADDITIONAL_REACTION_DELAY_MS = 300; // discord seems to rate limit this for 300ms but that might not be constant
 
 const actions: { label: string; value: ClickAction; }[] = [
-    { label: "None", value: "NONE" },
-    { label: "Delete", value: "DELETE" },
-    { label: "Copy Link", value: "COPY_LINK" },
-    { label: "Copy ID", value: "COPY_ID" },
-    { label: "Copy Content", value: "COPY_CONTENT" },
-    { label: "Copy User ID", value: "COPY_USER_ID" },
-    { label: "Edit", value: "EDIT" },
-    { label: "Reply", value: "REPLY" },
-    { label: "React", value: "REACT" },
-    { label: "Open Thread", value: "OPEN_THREAD" },
-    { label: "Open Tab", value: "OPEN_TAB" }
+    { label: t("لا شيء", "None"), value: "NONE" },
+    { label: t("حذف", "Delete"), value: "DELETE" },
+    { label: t("نسخ الرابط", "Copy Link"), value: "COPY_LINK" },
+    { label: t("نسخ المعرّف", "Copy ID"), value: "COPY_ID" },
+    { label: t("نسخ المحتوى", "Copy Content"), value: "COPY_CONTENT" },
+    { label: t("نسخ معرّف المستخدم", "Copy User ID"), value: "COPY_USER_ID" },
+    { label: t("تعديل", "Edit"), value: "EDIT" },
+    { label: t("ردّ", "Reply"), value: "REPLY" },
+    { label: t("تفاعل", "React"), value: "REACT" },
+    { label: t("فتح الموضوع", "Open Thread"), value: "OPEN_THREAD" },
+    { label: t("فتح تبويب", "Open Tab"), value: "OPEN_TAB" }
 ];
 
 const doubleClickOwnActions: { label: string; value: ClickAction; }[] = [
-    { label: "None", value: "NONE" },
-    { label: "Delete", value: "DELETE" },
-    { label: "Reply", value: "REPLY" },
-    { label: "Edit", value: "EDIT" },
-    { label: "Quote", value: "QUOTE" },
-    { label: "Copy Content", value: "COPY_CONTENT" },
-    { label: "Copy Link", value: "COPY_LINK" },
-    { label: "Copy ID", value: "COPY_ID" },
-    { label: "Copy User ID", value: "COPY_USER_ID" },
-    { label: "React", value: "REACT" },
-    { label: "Pin", value: "PIN" }
+    { label: t("لا شيء", "None"), value: "NONE" },
+    { label: t("حذف", "Delete"), value: "DELETE" },
+    { label: t("ردّ", "Reply"), value: "REPLY" },
+    { label: t("تعديل", "Edit"), value: "EDIT" },
+    { label: t("اقتباس", "Quote"), value: "QUOTE" },
+    { label: t("نسخ المحتوى", "Copy Content"), value: "COPY_CONTENT" },
+    { label: t("نسخ الرابط", "Copy Link"), value: "COPY_LINK" },
+    { label: t("نسخ المعرّف", "Copy ID"), value: "COPY_ID" },
+    { label: t("نسخ معرّف المستخدم", "Copy User ID"), value: "COPY_USER_ID" },
+    { label: t("تفاعل", "React"), value: "REACT" },
+    { label: t("تثبيت", "Pin"), value: "PIN" }
 ];
 
 const doubleClickOthersActions: { label: string; value: ClickAction; }[] = [
-    { label: "None", value: "NONE" },
-    { label: "Delete", value: "DELETE" },
-    { label: "Reply", value: "REPLY" },
-    { label: "Quote", value: "QUOTE" },
-    { label: "Copy Content", value: "COPY_CONTENT" },
-    { label: "Copy Link", value: "COPY_LINK" },
-    { label: "Copy ID", value: "COPY_ID" },
-    { label: "Copy User ID", value: "COPY_USER_ID" },
-    { label: "React", value: "REACT" },
-    { label: "Pin", value: "PIN" }
+    { label: t("لا شيء", "None"), value: "NONE" },
+    { label: t("حذف", "Delete"), value: "DELETE" },
+    { label: t("ردّ", "Reply"), value: "REPLY" },
+    { label: t("اقتباس", "Quote"), value: "QUOTE" },
+    { label: t("نسخ المحتوى", "Copy Content"), value: "COPY_CONTENT" },
+    { label: t("نسخ الرابط", "Copy Link"), value: "COPY_LINK" },
+    { label: t("نسخ المعرّف", "Copy ID"), value: "COPY_ID" },
+    { label: t("نسخ معرّف المستخدم", "Copy User ID"), value: "COPY_USER_ID" },
+    { label: t("تفاعل", "React"), value: "REACT" },
+    { label: t("تثبيت", "Pin"), value: "PIN" }
 ];
 
 const modifiers: { label: string; value: Modifier; }[] = [
-    { label: "None", value: "NONE" },
+    { label: t("لا شيء", "None"), value: "NONE" },
     { label: "Shift", value: "SHIFT" },
     { label: "Ctrl", value: "CTRL" },
     { label: "Alt", value: "ALT" }
@@ -73,7 +74,7 @@ const modifiers: { label: string; value: Modifier; }[] = [
 
 const singleClickModifiers: { label: string; value: Modifier; }[] = [
     { label: "Backspace", value: "BACKSPACE" },
-    { label: "Delete", value: "DELETE" },
+    { label: t("حذف", "Delete"), value: "DELETE" },
     ...modifiers
 ];
 

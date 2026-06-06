@@ -176,8 +176,8 @@ function ListTypeSelector({ listType, setListType }: { listType: ListType, setLi
     return (
         <Select
             options={[
-                { label: "Whitelist", value: ListType.Whitelist },
-                { label: "Blacklist", value: ListType.BlackList }
+                { label: t("قائمة بيضاء", "Whitelist"), value: ListType.Whitelist },
+                { label: t("قائمة سوداء", "Blacklist"), value: ListType.BlackList }
             ]}
             placeholder={"Select a list type"}
             isSelected={v => v === listType}

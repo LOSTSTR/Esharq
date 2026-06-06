@@ -7,6 +7,7 @@
 import { definePluginSettings } from "@api/Settings";
 import { Paragraph } from "@components/Paragraph";
 import { Devs, IS_MAC } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType, PluginNative, ReporterTestable } from "@utils/types";
 import { Activity, ActivityAssets, ActivityButton } from "@vencord/discord-types";
 import { ActivityFlags, ActivityStatusDisplayType, ActivityType } from "@vencord/discord-types/enums";
@@ -52,8 +53,8 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         description: "Activity type to display",
         options: [
-            { label: "Playing", value: ActivityType.PLAYING, default: true },
-            { label: "Listening", value: ActivityType.LISTENING }
+            { label: t("يلعب", "Playing"), value: ActivityType.PLAYING, default: true },
+            { label: t("يستمع", "Listening"), value: ActivityType.LISTENING }
         ],
     },
     statusDisplayType: {
@@ -61,16 +62,16 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         options: [
             {
-                label: "Don't show (shows generic listening message)",
+                label: t("لا تُظهر (يعرض رسالة استماع عامّة)", "Don't show (shows generic listening message)"),
                 value: "off",
                 default: true
             },
             {
-                label: "Show artist name",
+                label: t("إظهار اسم الفنان", "Show artist name"),
                 value: "artist"
             },
             {
-                label: "Show track name",
+                label: t("إظهار اسم المقطع", "Show track name"),
                 value: "track"
             }
         ]
@@ -111,9 +112,9 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         description: "Large image type in activity assets",
         options: [
-            { label: "Album artwork", value: AssetImageType.Album, default: true },
-            { label: "Artist artwork", value: AssetImageType.Artist },
-            { label: "Disabled", value: AssetImageType.Disabled }
+            { label: t("غلاف الألبوم", "Album artwork"), value: AssetImageType.Album, default: true },
+            { label: t("صورة الفنان", "Artist artwork"), value: AssetImageType.Artist },
+            { label: t("مُعطَّل", "Disabled"), value: AssetImageType.Disabled }
         ],
     },
     largeTextString: {
@@ -125,9 +126,9 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         description: "Small image type in activity assets",
         options: [
-            { label: "Album artwork", value: AssetImageType.Album },
-            { label: "Artist artwork", value: AssetImageType.Artist, default: true },
-            { label: "Disabled", value: AssetImageType.Disabled }
+            { label: t("غلاف الألبوم", "Album artwork"), value: AssetImageType.Album },
+            { label: t("صورة الفنان", "Artist artwork"), value: AssetImageType.Artist, default: true },
+            { label: t("مُعطَّل", "Disabled"), value: AssetImageType.Disabled }
         ],
     },
     smallTextString: {
@@ -216,13 +217,13 @@ export default definePlugin({
         if (settings.store.enableButtons) {
             if (trackData.appleMusicLink)
                 buttons.push({
-                    label: "Listen on Apple Music",
+                    label: t("الاستماع على Apple Music", "Listen on Apple Music"),
                     url: trackData.appleMusicLink,
                 });
 
             if (trackData.songLink)
                 buttons.push({
-                    label: "View on SongLink",
+                    label: t("العرض على SongLink", "View on SongLink"),
                     url: trackData.songLink,
                 });
         }

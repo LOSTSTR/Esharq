@@ -53,9 +53,9 @@ const settings = definePluginSettings({
         description: "Anonymisation method",
         type: OptionType.SELECT,
         options: [
-            { label: "Random Characters", value: Methods.Random, default: true },
-            { label: "Consistent", value: Methods.Consistent },
-            { label: "Timestamp", value: Methods.Timestamp },
+            { label: t("أحرف عشوائية", "Random Characters"), value: Methods.Random, default: true },
+            { label: t("متّسق", "Consistent"), value: Methods.Consistent },
+            { label: t("الطابع الزمني", "Timestamp"), value: Methods.Timestamp },
         ],
     },
     randomisedLength: {

@@ -7,6 +7,7 @@
 import { DataStore } from "@api/index";
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType, PluginNative } from "@utils/types";
 import { Message } from "@vencord/discord-types";
 import { ApplicationAssetUtils, FluxDispatcher, UserStore } from "@webpack/common";
@@ -42,9 +43,9 @@ const settings = definePluginSettings(
             type: OptionType.SELECT,
             description: "What should the RPC display? (You can only display one line)",
             options: [
-                { value: StatsDisplay.messagesSentToday, label: "The amount of messages sent today", default: true },
-                { value: StatsDisplay.messagesSentAllTime, label: "The amount of messages sent all time" },
-                { value: StatsDisplay.mostListenedAlbum, label: "Your most listened album for the week" }
+                { value: StatsDisplay.messagesSentToday, label: t("عدد الرسائل المُرسَلة اليوم", "The amount of messages sent today"), default: true },
+                { value: StatsDisplay.messagesSentAllTime, label: t("عدد الرسائل المُرسَلة طوال الوقت", "The amount of messages sent all time") },
+                { value: StatsDisplay.mostListenedAlbum, label: t("ألبومك الأكثر استماعاً لهذا الأسبوع", "Your most listened album for the week") }
             ],
             restartNeeded: false,
             onChange: () => { updateData(); }

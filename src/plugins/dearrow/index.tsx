@@ -9,6 +9,7 @@ import "./styles.css";
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
 import { Tooltip } from "@webpack/common";
@@ -154,9 +155,9 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         restartNeeded: true,
         options: [
-            { label: "Everything (Titles & Thumbnails)", value: ReplaceElements.ReplaceAllElements, default: true },
-            { label: "Titles", value: ReplaceElements.ReplaceTitlesOnly },
-            { label: "Thumbnails", value: ReplaceElements.ReplaceThumbnailsOnly },
+            { label: t("كل شيء (العناوين والصور المصغّرة)", "Everything (Titles & Thumbnails)"), value: ReplaceElements.ReplaceAllElements, default: true },
+            { label: t("العناوين", "Titles"), value: ReplaceElements.ReplaceTitlesOnly },
+            { label: t("الصور المصغّرة", "Thumbnails"), value: ReplaceElements.ReplaceThumbnailsOnly },
         ],
     },
     dearrowByDefault: {

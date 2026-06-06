@@ -6,6 +6,7 @@
 
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 
 const Quality = {
@@ -42,10 +43,10 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         description: "GIF quality",
         options: [
-            { label: "High", value: Quality.High, default: true },
-            { label: "Reasonable", value: Quality.Reasonable },
-            { label: "Low", value: Quality.Low },
-            { label: "Horrible", value: Quality.Horrible },
+            { label: t("مرتفع", "High"), value: Quality.High, default: true },
+            { label: t("معقول", "Reasonable"), value: Quality.Reasonable },
+            { label: t("منخفض", "Low"), value: Quality.Low },
+            { label: t("فظيع", "Horrible"), value: Quality.Horrible },
         ],
     },
 });

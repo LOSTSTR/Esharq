@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import { Activity, ActivityButton } from "@vencord/discord-types";
 import { ActivityFlags, ActivityType } from "@vencord/discord-types/enums";
@@ -129,7 +130,7 @@ async function getActivity(): Promise<Activity | null> {
     if (settings.store.lb_shareUsername)
         buttons.push({ label: "ListenBrainz Profile", url: `https://www.listenbrainz.org/user/${settings.store.lb_username}` });
     if (settings.store.lb_shareSong && trackData.url)
-        buttons.push({ label: "View Song", url: trackData.url });
+        buttons.push({ label: t("عرض الأغنية", "View Song"), url: trackData.url });
 
     const statusName = (() => {
         switch (settings.store.lb_nameFormat) {

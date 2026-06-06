@@ -18,6 +18,7 @@
 
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Message } from "@vencord/discord-types";
 import { ChannelStore, GuildMemberStore } from "@webpack/common";
@@ -42,11 +43,11 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         options: [
             {
-                label: "Do not ping the listed users / roles",
+                label: t("عدم الإشارة إلى المستخدمين/الأدوار المُدرَجين", "Do not ping the listed users / roles"),
                 value: false,
             },
             {
-                label: "Only ping the listed users / roles",
+                label: t("الإشارة إلى المستخدمين/الأدوار المُدرَجين فقط", "Only ping the listed users / roles"),
                 value: true,
                 default: true,
             },

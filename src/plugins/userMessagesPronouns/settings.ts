@@ -31,12 +31,12 @@ export const settings = definePluginSettings({
         description: t("صيغة عرض الضمائر في الدردشة", "The format for displaying pronouns in chat"),
         options: [
             {
-                label: "Lowercase",
+                label: t("أحرف صغيرة", "Lowercase"),
                 value: PronounsFormat.Lowercase,
                 default: true
             },
             {
-                label: "Capitalized",
+                label: t("بأحرف كبيرة في البداية", "Capitalized"),
                 value: PronounsFormat.Capitalized
             }
         ]

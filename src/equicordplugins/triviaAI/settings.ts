@@ -61,8 +61,8 @@ export const settings = definePluginSettings({
         type: OptionType.SELECT,
         description: t("كيف يجب معالجة الإجابات؟", "How should answers be handled?"),
         options: [
-            { label: "Auto Reply", value: "autoreply" },
-            { label: "Replace Chatbar Text", value: "chatbar", default: true },
+            { label: t("ردّ تلقائي", "Auto Reply"), value: "autoreply" },
+            { label: t("استبدال نصّ شريط الدردشة", "Replace Chatbar Text"), value: "chatbar", default: true },
             { label: "Clyde", value: "bot" }
         ]
     },

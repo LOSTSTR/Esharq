@@ -102,9 +102,9 @@ const settings = definePluginSettings({
         description: "Changes the type of snow displayed (affects performance).",
         type: OptionType.SELECT,
         options: [
-            { label: "Solid (Highest Performance)", value: "solid" },
-            { label: "Text (Medium Performance)", value: "text", default: true },
-            { label: "Image (Lowest Performance)", value: "image" }
+            { label: t("صلب (أعلى أداء)", "Solid (Highest Performance)"), value: "solid" },
+            { label: t("نصّ (أداء متوسّط)", "Text (Medium Performance)"), value: "text", default: true },
+            { label: t("صورة (أقلّ أداء)", "Image (Lowest Performance)"), value: "image" }
         ],
     },
     maxSize: {

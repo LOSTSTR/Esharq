@@ -125,9 +125,9 @@ export const settings = definePluginSettings({
         description: "Display mode",
         type: OptionType.SELECT,
         options: [
-            { label: "Only online friend count", value: IndicatorType.FRIEND, default: true },
-            { label: "Only server count", value: IndicatorType.SERVER },
-            { label: "Both server and online friend counts", value: IndicatorType.BOTH },
+            { label: t("عدد الأصدقاء المتّصلين فقط", "Only online friend count"), value: IndicatorType.FRIEND, default: true },
+            { label: t("عدد الخوادم فقط", "Only server count"), value: IndicatorType.SERVER },
+            { label: t("عددا الخوادم والأصدقاء المتّصلين معاً", "Both server and online friend counts"), value: IndicatorType.BOTH },
         ],
         restartNeeded: true // Restart needed just to force update
     },

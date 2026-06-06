@@ -45,8 +45,8 @@ const settings = definePluginSettings({
         description: "Replace with a specific search engine instead of adding a list",
         type: OptionType.SELECT,
         options: [
-            { label: "Off", value: ReplacementEngineValue.OFF, default: true },
-            { label: "Custom Engine", value: ReplacementEngineValue.CUSTOM },
+            { label: t("إيقاف", "Off"), value: ReplacementEngineValue.OFF, default: true },
+            { label: t("محرّك مخصّص", "Custom Engine"), value: ReplacementEngineValue.CUSTOM },
             ...Object.keys(DefaultEngines).map(engine => ({ label: engine, value: engine }))
         ]
     }

@@ -23,14 +23,14 @@ interface BanReason {
 }
 
 const DELETE_DURATION_OPTIONS = [
-    { label: "Discord default", value: null },
-    { label: "Don't delete any", value: 0 },
-    { label: "Previous hour", value: 3600 },
-    { label: "Previous 6 hours", value: 21600 },
-    { label: "Previous 12 hours", value: 43200 },
-    { label: "Previous 24 hours", value: 86400 },
-    { label: "Previous 3 days", value: 259200 },
-    { label: "Previous 7 days", value: 604800 },
+    { label: t("افتراضي ديسكورد", "Discord default"), value: null },
+    { label: t("لا تحذف شيئاً", "Don't delete any"), value: 0 },
+    { label: t("آخر ساعة", "Previous hour"), value: 3600 },
+    { label: t("آخر 6 ساعات", "Previous 6 hours"), value: 21600 },
+    { label: t("آخر 12 ساعة", "Previous 12 hours"), value: 43200 },
+    { label: t("آخر 24 ساعة", "Previous 24 hours"), value: 86400 },
+    { label: t("آخر 3 أيام", "Previous 3 days"), value: 259200 },
+    { label: t("آخر 7 أيام", "Previous 7 days"), value: 604800 },
 ];
 
 function normalizeReason(r: BanReason | string): BanReason {

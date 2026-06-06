@@ -47,28 +47,28 @@ interface ToggleOption<K extends string> {
 }
 
 const operationOptions: OperationOption[] = [
-    { label: "More than", value: "<", default: false },
-    { label: "Less than", value: ">", default: false },
-    { label: "Equal to", value: "==", default: true },
+    { label: t("أكثر من", "More than"), value: "<", default: false },
+    { label: t("أقلّ من", "Less than"), value: ">", default: false },
+    { label: t("يساوي", "Equal to"), value: "==", default: true },
 ];
 
 const stateFilters: ToggleOption<StateFilterKey>[] = [
-    { key: "mute", label: "Muted" },
-    { key: "deafen", label: "Deafened" },
-    { key: "video", label: "Camera" },
-    { key: "stream", label: "Stream" },
+    { key: "mute", label: t("مكتوم", "Muted") },
+    { key: "deafen", label: t("مُصمَّم", "Deafened") },
+    { key: "video", label: t("الكاميرا", "Camera") },
+    { key: "stream", label: t("بثّ", "Stream") },
 ];
 
 const selfSettings: ToggleOption<SelfSettingKey>[] = [
-    { key: "selfMute", label: "Auto Mute" },
-    { key: "selfDeafen", label: "Auto Deafen" },
-    { key: "autoCamera", label: "Auto Camera" },
-    { key: "autoStream", label: "Auto Stream" },
-    { key: "leaveEmpty", label: "Leave when Empty" },
-    { key: "autoNavigate", label: "Auto Navigate" },
-    { key: "prioritizeFriends", label: "Prioritize Friends" },
-    { key: "avoidStages", label: "Avoid Stage" },
-    { key: "avoidAfk", label: "Avoid AFK" },
+    { key: "selfMute", label: t("كتم تلقائي", "Auto Mute") },
+    { key: "selfDeafen", label: t("إصمام تلقائي", "Auto Deafen") },
+    { key: "autoCamera", label: t("كاميرا تلقائية", "Auto Camera") },
+    { key: "autoStream", label: t("بثّ تلقائي", "Auto Stream") },
+    { key: "leaveEmpty", label: t("المغادرة عند الفراغ", "Leave when Empty") },
+    { key: "autoNavigate", label: t("تنقّل تلقائي", "Auto Navigate") },
+    { key: "prioritizeFriends", label: t("إعطاء الأولوية للأصدقاء", "Prioritize Friends") },
+    { key: "avoidStages", label: t("تجنّب قنوات المسرح", "Avoid Stage") },
+    { key: "avoidAfk", label: t("تجنّب قناة الخمول", "Avoid AFK") },
 ];
 
 interface RandomVoiceStateLike {
@@ -248,9 +248,9 @@ const settings = definePluginSettings({
         description: "Select an operation for user count",
         type: OptionType.SELECT,
         options: [
-            { label: "More than", value: "<", default: true },
-            { label: "Less than", value: ">", default: false },
-            { label: "Equal to", value: "==", default: false },
+            { label: t("أكثر من", "More than"), value: "<", default: true },
+            { label: t("أقلّ من", "Less than"), value: ">", default: false },
+            { label: t("يساوي", "Equal to"), value: "==", default: false },
         ],
     },
     UserAmount: {
@@ -264,9 +264,9 @@ const settings = definePluginSettings({
         description: "Select an operation for max user count",
         type: OptionType.SELECT,
         options: [
-            { label: "More than", value: "<", default: true },
-            { label: "Less than", value: ">", default: false },
-            { label: "Equal to", value: "==", default: false },
+            { label: t("أكثر من", "More than"), value: "<", default: true },
+            { label: t("أقلّ من", "Less than"), value: ">", default: false },
+            { label: t("يساوي", "Equal to"), value: "==", default: false },
         ],
     },
     spacesLeft: {
@@ -280,9 +280,9 @@ const settings = definePluginSettings({
         description: "Select an operation for the voice channel.",
         type: OptionType.SELECT,
         options: [
-            { label: "More than", value: "<", default: true },
-            { label: "Less than", value: ">", default: false },
-            { label: "Equal to", value: "==", default: false },
+            { label: t("أكثر من", "More than"), value: "<", default: true },
+            { label: t("أقلّ من", "Less than"), value: ">", default: false },
+            { label: t("يساوي", "Equal to"), value: "==", default: false },
         ],
     },
     vcLimit: {
@@ -744,7 +744,7 @@ function RandomVoiceMenu({ onClose }: { onClose(): void; }) {
 
             {renderOperationGroup({
                 id: "users",
-                label: "User Amount",
+                label: t("عدد المستخدمين", "User Amount"),
                 sliderKey: "UserAmount",
                 operationKey: "UserAmountOperation",
                 sliderValue: store.UserAmount,
@@ -757,7 +757,7 @@ function RandomVoiceMenu({ onClose }: { onClose(): void; }) {
 
             {renderOperationGroup({
                 id: "spaces-left",
-                label: "Spaces Left",
+                label: t("الأماكن المتبقّية", "Spaces Left"),
                 sliderKey: "spacesLeft",
                 operationKey: "spacesLeftOperation",
                 sliderValue: store.spacesLeft,
@@ -770,7 +770,7 @@ function RandomVoiceMenu({ onClose }: { onClose(): void; }) {
 
             {renderOperationGroup({
                 id: "voice-limit",
-                label: "Voice Limit",
+                label: t("حدّ الصوت", "Voice Limit"),
                 sliderKey: "vcLimit",
                 operationKey: "vcLimitOperation",
                 sliderValue: store.vcLimit,

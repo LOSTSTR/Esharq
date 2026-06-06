@@ -62,30 +62,30 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         description: "What happens when left-clicking the chat icon.",
         options: [
-            { label: "Toggle Typing Globally", value: "global" },
-            { label: "Toggle Typing in Channel", value: "channel", default: true },
-            { label: "Toggle Typing in Guild", value: "guild" },
-            { label: "Open Plugin Settings", value: "settings" }
+            { label: t("تبديل إظهار الكتابة عامّاً", "Toggle Typing Globally"), value: "global" },
+            { label: t("تبديل إظهار الكتابة في القناة", "Toggle Typing in Channel"), value: "channel", default: true },
+            { label: t("تبديل إظهار الكتابة في الخادم", "Toggle Typing in Guild"), value: "guild" },
+            { label: t("فتح إعدادات الإضافة", "Open Plugin Settings"), value: "settings" }
         ]
     },
     chatIconMiddleClickAction: {
         type: OptionType.SELECT,
         description: "What happens when middle-clicking the chat icon.",
         options: [
-            { label: "Toggle Typing Globally", value: "global" },
-            { label: "Toggle Typing in Channel", value: "channel" },
-            { label: "Toggle Typing in Guild", value: "guild" },
-            { label: "Open Plugin Settings", value: "settings", default: true }
+            { label: t("تبديل إظهار الكتابة عامّاً", "Toggle Typing Globally"), value: "global" },
+            { label: t("تبديل إظهار الكتابة في القناة", "Toggle Typing in Channel"), value: "channel" },
+            { label: t("تبديل إظهار الكتابة في الخادم", "Toggle Typing in Guild"), value: "guild" },
+            { label: t("فتح إعدادات الإضافة", "Open Plugin Settings"), value: "settings", default: true }
         ]
     },
     chatIconRightClickAction: {
         type: OptionType.SELECT,
         description: "What happens when right-clicking the chat icon.",
         options: [
-            { label: "Toggle Typing Globally", value: "global", default: true },
-            { label: "Toggle Typing in Channel", value: "channel" },
-            { label: "Toggle Typing in Guild", value: "guild" },
-            { label: "Open Plugin Settings", value: "settings" }
+            { label: t("تبديل إظهار الكتابة عامّاً", "Toggle Typing Globally"), value: "global", default: true },
+            { label: t("تبديل إظهار الكتابة في القناة", "Toggle Typing in Channel"), value: "channel" },
+            { label: t("تبديل إظهار الكتابة في الخادم", "Toggle Typing in Guild"), value: "guild" },
+            { label: t("فتح إعدادات الإضافة", "Open Plugin Settings"), value: "settings" }
         ]
     },
     chatContextMenu: {
@@ -473,9 +473,9 @@ export default definePlugin({
                     required: false,
                     type: ApplicationCommandOptionType.STRING,
                     choices: [
-                        { name: "Global", label: "Global", value: "global" },
-                        { name: "Channel", label: "Channel", value: "channel" },
-                        { name: "Guild", label: "Guild", value: "guild" },
+                        { name: "Global", label: t("عام", "Global"), value: "global" },
+                        { name: "Channel", label: t("القناة", "Channel"), value: "channel" },
+                        { name: "Guild", label: t("الخادم", "Guild"), value: "guild" },
                     ]
                 },
                 {

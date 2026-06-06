@@ -11,6 +11,7 @@ import { BaseText } from "@components/BaseText";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
 import { getIntlMessage } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { canonicalizeMatch } from "@utils/patches";
 import definePlugin, { OptionType } from "@utils/types";
 import { Message } from "@vencord/discord-types";
@@ -31,8 +32,8 @@ const settings = definePluginSettings({
         description: "How to display the timeout duration",
         type: OptionType.SELECT,
         options: [
-            { label: "In the Tooltip", value: DisplayStyle.Tooltip },
-            { label: "Next to the timeout icon", value: DisplayStyle.Inline, default: true },
+            { label: t("في التلميح", "In the Tooltip"), value: DisplayStyle.Tooltip },
+            { label: t("بجانب أيقونة المهلة", "Next to the timeout icon"), value: DisplayStyle.Inline, default: true },
         ],
     }
 });

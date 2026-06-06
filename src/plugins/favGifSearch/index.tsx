@@ -65,15 +65,15 @@ export const settings = definePluginSettings({
         description: "The part of the URL you want to search in",
         options: [
             {
-                label: "Entire Url",
+                label: t("الرابط كاملاً", "Entire Url"),
                 value: "url"
             },
             {
-                label: "Path Only (/somegif.gif)",
+                label: t("المسار فقط (/somegif.gif)", "Path Only (/somegif.gif)"),
                 value: "path"
             },
             {
-                label: "Host & Path (tenor.com somgif.gif)",
+                label: t("المضيف والمسار (tenor.com somgif.gif)", "Host & Path (tenor.com somgif.gif)"),
                 value: "hostandpath",
                 default: true
             }

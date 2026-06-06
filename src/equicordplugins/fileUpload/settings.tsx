@@ -55,8 +55,8 @@ const embedProxyOptions = [
 const encryptingHostUrlStyleOptions = [
     { label: "Query", value: "query", default: true },
     { label: "Param", value: "param" },
-    { label: "Fake Link", value: "fakelink" },
-    { label: "Embed", value: "embed" }
+    { label: t("رابط وهمي", "Fake Link"), value: "fakelink" },
+    { label: t("بطاقة مضمّنة", "Embed"), value: "embed" }
 ];
 
 export const settings = definePluginSettings({

@@ -18,6 +18,7 @@
 
 import { Devs } from "@utils/constants";
 import { insertTextIntoChatInputBox } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { ChannelStore, PermissionsBits, PermissionStore } from "@webpack/common";
 
@@ -51,7 +52,7 @@ export default definePlugin({
             if (channel.guild_id && !PermissionStore.can(PermissionsBits.SEND_MESSAGES, channel)) return null;
 
             return {
-                label: "Quick Mention",
+                label: t("إشارة سريعة", "Quick Mention"),
                 icon: Icon,
                 message: msg,
                 channel,

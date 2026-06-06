@@ -6,22 +6,23 @@
 
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 
 const settings = definePluginSettings({
     defaultLayout: {
         type: OptionType.SELECT,
         options: [
-            { label: "List", value: 1, default: true },
-            { label: "Gallery", value: 2 }
+            { label: t("قائمة", "List"), value: 1, default: true },
+            { label: t("معرض", "Gallery"), value: 2 }
         ],
         description: "Default layout for the forum"
     },
     defaultSortOrder: {
         type: OptionType.SELECT,
         options: [
-            { label: "Recently Active", value: 0, default: true },
-            { label: "Date Posted", value: 1 }
+            { label: t("نشط مؤخّراً", "Recently Active"), value: 0, default: true },
+            { label: t("تاريخ النشر", "Date Posted"), value: 1 }
         ],
         description: "Default sort order for the forum"
     }

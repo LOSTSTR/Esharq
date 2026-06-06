@@ -207,9 +207,9 @@ export function SoundOverrideComponent({ type, override, onChange }: {
                     <Heading>{t("مصدر الصوت", "Sound Source")}</Heading>
                     <Select
                         options={[
-                            { value: "default", label: "Default" },
+                            { value: "default", label: t("افتراضي", "Default") },
                             ...(type.seasonal?.map(id => ({ value: id, label: capitalizeWords(id) })) ?? []),
-                            { value: "custom", label: "Custom" }
+                            { value: "custom", label: t("مخصّص", "Custom") }
                         ]}
                         isSelected={v => v === override.selectedSound}
                         select={async v => {
@@ -235,7 +235,7 @@ export function SoundOverrideComponent({ type, override, onChange }: {
                             <Heading>{t("ملف مخصّص", "Custom File")}</Heading>
                             <Select
                                 options={[
-                                    { value: "", label: "Select a file..." },
+                                    { value: "", label: t("اختر ملفاً...", "Select a file...") },
                                     ...customFileOptions
                                 ]}
                                 isSelected={v => v === (override.selectedFileId || "")}

@@ -52,10 +52,10 @@ export const settings = definePluginSettings({
         description: "The display style for hidden channels.",
         type: OptionType.SELECT,
         options: [
-            { label: "Classic", value: ChannelStyle.Classic, default: true },
-            { label: "Muted", value: ChannelStyle.Muted },
-            { label: "Show Unreads", value: ChannelStyle.Unread },
-            { label: "Muted and Show Unreads", value: ChannelStyle.MutedUnread }
+            { label: t("كلاسيكي", "Classic"), value: ChannelStyle.Classic, default: true },
+            { label: t("مكتوم", "Muted"), value: ChannelStyle.Muted },
+            { label: t("إظهار غير المقروء", "Show Unreads"), value: ChannelStyle.Unread },
+            { label: t("مكتوم مع إظهار غير المقروء", "Muted and Show Unreads"), value: ChannelStyle.MutedUnread }
         ],
         restartNeeded: true
     },
@@ -63,9 +63,9 @@ export const settings = definePluginSettings({
         description: "The mode used to display hidden channels.",
         type: OptionType.SELECT,
         options: [
-            { label: "Lock Icon replacing channel icon", value: ShowMode.LockIcon, default: true },
-            { label: "Eye icon on the right", value: ShowMode.EyeIconRight },
-            { label: "Lock icon on the right", value: ShowMode.LockIconRight }
+            { label: t("أيقونة القفل بدل أيقونة القناة", "Lock Icon replacing channel icon"), value: ShowMode.LockIcon, default: true },
+            { label: t("أيقونة العين على اليمين", "Eye icon on the right"), value: ShowMode.EyeIconRight },
+            { label: t("أيقونة القفل على اليمين", "Lock icon on the right"), value: ShowMode.LockIconRight }
         ],
         restartNeeded: true
     },

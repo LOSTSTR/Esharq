@@ -40,8 +40,8 @@ const settings = definePluginSettings({
         description: "Which banner to use when both a Nitro banner and a USRBG banner are available",
         type: OptionType.SELECT,
         options: [
-            { label: "Nitro banner", value: true, default: true },
-            { label: "USRBG banner", value: false },
+            { label: t("بانر Nitro", "Nitro banner"), value: true, default: true },
+            { label: t("بانر USRBG", "USRBG banner"), value: false },
         ]
     },
     voiceBackground: {

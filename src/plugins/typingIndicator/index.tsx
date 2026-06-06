@@ -24,6 +24,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import TypingTweaksPlugin, { buildSeveralUsers } from "@plugins/typingTweaks";
 import { Devs } from "@utils/constants";
 import { getIntlMessage } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { findComponentByCodeLazy } from "@webpack";
 import { GuildMemberStore, RelationshipStore, SelectedChannelStore, Tooltip, TypingStore, UserGuildSettingsStore, UserStore, UserSummaryItem, useStateFromStores } from "@webpack/common";
@@ -157,9 +158,9 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         description: "How should the indicator be displayed?",
         options: [
-            { label: "Avatars and animated dots", value: IndicatorMode.Dots | IndicatorMode.Avatars, default: true },
-            { label: "Animated dots", value: IndicatorMode.Dots },
-            { label: "Avatars", value: IndicatorMode.Avatars },
+            { label: t("الصور الرمزية والنقاط المتحركة", "Avatars and animated dots"), value: IndicatorMode.Dots | IndicatorMode.Avatars, default: true },
+            { label: t("نقاط متحركة", "Animated dots"), value: IndicatorMode.Dots },
+            { label: t("الصور الرمزية", "Avatars"), value: IndicatorMode.Avatars },
         ],
     }
 });

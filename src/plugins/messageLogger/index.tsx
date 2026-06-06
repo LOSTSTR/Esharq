@@ -328,8 +328,8 @@ export const settings = definePluginSettings({
         description: "Style for displaying deleted messages",
         default: "text",
         options: [
-            { label: "Red text", value: "text", default: true },
-            { label: "Red overlay", value: "overlay" },
+            { label: t("نصّ أحمر", "Red text"), value: "text", default: true },
+            { label: t("تراكب أحمر", "Red overlay"), value: "overlay" },
         ],
         onChange: () => addDeleteStyle(),
     },

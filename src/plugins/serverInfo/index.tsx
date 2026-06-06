@@ -32,16 +32,16 @@ export const settings = definePluginSettings({
         description: "Username or display name if available",
         options: [
             {
-                label: "Username",
+                label: t("اسم المستخدم", "Username"),
                 value: "username"
             },
             {
-                label: "Display Name",
+                label: t("الاسم المعروض", "Display Name"),
                 value: "displayname",
                 default: true
             },
             {
-                label: "Dont Sort",
+                label: t("بلا ترتيب", "Dont Sort"),
                 value: "none",
             }
         ]

@@ -116,8 +116,8 @@ const settings = definePluginSettings({
         description: "Change the button to view the raw content/data for any message.",
         type: OptionType.SELECT,
         options: [
-            { label: "Left Click to view the raw content.", value: "Left", default: true },
-            { label: "Right click to view the raw content.", value: "Right" }
+            { label: t("انقر بزرّ الفأرة الأيسر لعرض المحتوى الخام.", "Left Click to view the raw content."), value: "Left", default: true },
+            { label: t("انقر بزرّ الفأرة الأيمن لعرض المحتوى الخام.", "Right click to view the raw content."), value: "Right" }
         ]
     },
     messageContextMenu: {

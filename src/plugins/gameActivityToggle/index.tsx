@@ -38,7 +38,7 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         description: "Location to display the game activity toggle button",
         options: [
-            { label: "Next to Mute/Deafen", value: "PANEL", default: true },
+            { label: t("بجانب كتم/إصمام", "Next to Mute/Deafen"), value: "PANEL", default: true },
             { label: "Equicord Toolbox", value: "TOOLBOX" }
         ],
         get hidden() {

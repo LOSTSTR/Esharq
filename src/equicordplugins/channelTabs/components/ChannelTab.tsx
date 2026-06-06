@@ -10,6 +10,7 @@ import { ActivityIcon, CircleQuestionIcon, DiscoveryIcon, EnvelopeIcon, FriendsI
 import { getActiveAutoCompletes } from "@equicordplugins/questify/utils/completion";
 import { classNameFactory } from "@utils/css";
 import { getGuildAcronym, getIntlMessage, getUniqueUsername } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import { Channel, Guild, User } from "@vencord/discord-types";
 import { findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
@@ -269,15 +270,15 @@ function ChannelTabContent(props: ChannelTabsProps & {
     // handle special synthetic pages
     if (channelId && channelId.startsWith("__")) {
         const specialPagesConfig: Record<string, { label: string, Icon: React.ComponentType<any>; }> = {
-            "__quests__": { label: "Quests", Icon: QuestIcon },
-            "__message-requests__": { label: "Message Requests", Icon: EnvelopeIcon },
+            "__quests__": { label: t("المهام", "Quests"), Icon: QuestIcon },
+            "__message-requests__": { label: t("طلبات الرسائل", "Message Requests"), Icon: EnvelopeIcon },
             "__friends__": { label: getIntlMessage("FRIENDS"), Icon: FriendsIcon },
-            "__shop__": { label: "Shop", Icon: ShopIcon },
-            "__library__": { label: "Library", Icon: () => LibraryIcon(20, 20) },
-            "__discovery__": { label: "Discovery", Icon: DiscoveryIcon },
+            "__shop__": { label: t("المتجر", "Shop"), Icon: ShopIcon },
+            "__library__": { label: t("المكتبة", "Library"), Icon: () => LibraryIcon(20, 20) },
+            "__discovery__": { label: t("الاكتشاف", "Discovery"), Icon: DiscoveryIcon },
             "__nitro__": { label: "Nitro", Icon: NitroIcon },
             "__icymi__": { label: "ICYMI", Icon: ICYMIIcon },
-            "__activity__": { label: "Activity", Icon: ActivityIcon },
+            "__activity__": { label: t("النشاط", "Activity"), Icon: ActivityIcon },
         };
 
         const pageConfig = specialPagesConfig[channelId];

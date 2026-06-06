@@ -7,6 +7,7 @@
 import * as DataStore from "@api/DataStore";
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import definePlugin, { makeRange, OptionType } from "@utils/types";
 import { VoiceState } from "@vencord/discord-types";
@@ -35,10 +36,10 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         description: "Don't reconnect if the call ended or the voice channel is empty or missing.",
         options: [
-            { label: "None", value: "none", default: false },
-            { label: "DMs only", value: "dms", default: false },
-            { label: "Servers only", value: "servers", default: false },
-            { label: "DMs and Servers", value: "both", default: true },
+            { label: t("لا شيء", "None"), value: "none", default: false },
+            { label: t("الرسائل الخاصة فقط", "DMs only"), value: "dms", default: false },
+            { label: t("الخوادم فقط", "Servers only"), value: "servers", default: false },
+            { label: t("الرسائل الخاصة والخوادم", "DMs and Servers"), value: "both", default: true },
         ],
     },
     applyOnlyToDms: {

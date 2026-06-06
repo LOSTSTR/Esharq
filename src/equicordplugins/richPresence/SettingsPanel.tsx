@@ -73,12 +73,12 @@ function TosuSettings() {
 }
 
 const nameFormatOptions = [
-    { label: "Use custom status name", value: NameFormat.StatusName },
-    { label: "Use format 'artist - song'", value: NameFormat.ArtistFirst },
-    { label: "Use format 'song - artist'", value: NameFormat.SongFirst },
-    { label: "Use artist name only", value: NameFormat.ArtistOnly },
-    { label: "Use song name only", value: NameFormat.SongOnly },
-    { label: "Use album name", value: NameFormat.AlbumName },
+    { label: t("استخدام اسم حالة مخصّص", "Use custom status name"), value: NameFormat.StatusName },
+    { label: t("استخدام صيغة 'الفنان - الأغنية'", "Use format 'artist - song'"), value: NameFormat.ArtistFirst },
+    { label: t("استخدام صيغة 'الأغنية - الفنان'", "Use format 'song - artist'"), value: NameFormat.SongFirst },
+    { label: t("استخدام اسم الفنان فقط", "Use artist name only"), value: NameFormat.ArtistOnly },
+    { label: t("استخدام اسم الأغنية فقط", "Use song name only"), value: NameFormat.SongOnly },
+    { label: t("استخدام اسم الألبوم", "Use album name"), value: NameFormat.AlbumName },
 ];
 
 function StatsFmSettings() {
@@ -90,7 +90,7 @@ function StatsFmSettings() {
             <SelectSetting name="Name Format" description="Name format." settingsKey="sfm_nameFormat" options={nameFormatOptions} />
             <SelectSetting name="Missing Art Fallback" description="Fallback when art is missing." settingsKey="sfm_missingArt" options={[
                 { label: "Use large Stats.fm logo", value: "StatsFmLogo" },
-                { label: "Use generic placeholder", value: "placeholder" },
+                { label: t("استخدام عنصر نائب عامّ", "Use generic placeholder"), value: "placeholder" },
             ]} />
             <SwitchSetting name="Show Listening Status" description="Show listening status." settingsKey="sfm_useListeningStatus" />
             <SwitchSetting name="Show Stats.fm Logo" description="Show Stats.fm logo next to album art." settingsKey="sfm_showLogo" />
@@ -111,26 +111,26 @@ function JellyfinSettings() {
             <TextSetting name="API Key" description="Jellyfin API key." settingsKey="jf_apiKey" placeholder="X-MediaBrowser-Token" />
             <TextSetting name="User ID" description="Jellyfin user ID." settingsKey="jf_userId" placeholder={t("معرّف المستخدم من رابط الملف الشخصي", "User ID from profile URL")} />
             <SelectSetting name="Name Display" description="Name display format." settingsKey="jf_nameDisplay" options={[
-                { label: "Series/Movie Name", value: "default" },
-                { label: "Series - Episode/Track/Movie Name", value: "full" },
-                { label: "Custom", value: "custom" },
+                { label: t("اسم المسلسل/الفيلم", "Series/Movie Name"), value: "default" },
+                { label: t("المسلسل - اسم الحلقة/المقطع/الفيلم", "Series - Episode/Track/Movie Name"), value: "full" },
+                { label: t("مخصّص", "Custom"), value: "custom" },
             ]} />
             <TextSetting name="Custom Name Template" description="Custom name template." settingsKey="jf_customName" placeholder="{name} on Jellyfin" />
             <SelectSetting name="Cover Type" description="Cover type for TV shows." settingsKey="jf_coverType" options={[
-                { label: "Series Cover", value: "series" },
-                { label: "Episode Cover", value: "episode" },
+                { label: t("غلاف المسلسل", "Series Cover"), value: "series" },
+                { label: t("غلاف الحلقة", "Episode Cover"), value: "episode" },
             ]} />
             <SelectSetting name="Episode Format" description="Episode number format." settingsKey="jf_episodeFormat" options={[
                 { label: "S01E01", value: "long" },
                 { label: "1x01", value: "short" },
-                { label: "Season 1 Episode 1", value: "fulltext" },
+                { label: t("الموسم 1 الحلقة 1", "Season 1 Episode 1"), value: "fulltext" },
             ]} />
             <SelectSetting name="Override Presence Type" description="Override rich presence type." settingsKey="jf_overrideType" options={[
-                { label: "Off", value: "off" },
-                { label: "Listening", value: "2" },
-                { label: "Playing", value: "0" },
-                { label: "Streaming", value: "1" },
-                { label: "Watching", value: "3" },
+                { label: t("إيقاف", "Off"), value: "off" },
+                { label: t("يستمع", "Listening"), value: "2" },
+                { label: t("يلعب", "Playing"), value: "0" },
+                { label: t("يبثّ", "Streaming"), value: "1" },
+                { label: t("يشاهد", "Watching"), value: "3" },
             ]} />
             <SwitchSetting name="Show Episode Name" description="Show episode name after season/episode info." settingsKey="jf_showEpisodeName" />
             <SwitchSetting name="Show When Paused" description="Show presence when media is paused." settingsKey="jf_showPausedState" />
@@ -149,7 +149,7 @@ function ListenBrainzSettings() {
             <SelectSetting name="Name Format" description="Name format." settingsKey="lb_nameFormat" options={nameFormatOptions} />
             <SelectSetting name="Missing Art Fallback" description="Fallback when art is missing." settingsKey="lb_missingArt" options={[
                 { label: "Use large ListenBrainz logo", value: "listenbrainzLogo" },
-                { label: "Use generic placeholder", value: "placeholder" },
+                { label: t("استخدام عنصر نائب عامّ", "Use generic placeholder"), value: "placeholder" },
             ]} />
             <SwitchSetting name="Show Listening Status" description="Show listening status." settingsKey="lb_useListeningStatus" />
             <SwitchSetting name="Show Time Bar" description="Use track duration to display a time bar." settingsKey="lb_useTimeBar" />

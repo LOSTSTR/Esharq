@@ -53,10 +53,10 @@ export const settings = definePluginSettings({
         description: IS_WEB ? t("مزود الترجمة (غير متاح على الويب)", "Translation provider (not available on web)") : t("مزود الترجمة", "Translation provider"),
         hidden: IS_WEB,
         options: [
-            { label: "Google Translate", value: "google", default: true },
-            { label: "DeepL Free — API key required", value: "deepl" },
-            { label: "DeepL Pro — API key required", value: "deepl-pro" },
-            { label: "Kagi Translate — API key required", value: "kagi" }
+            { label: t("Google Translate", "Google Translate"), value: "google", default: true },
+            { label: t("DeepL Free — يتطلّب مفتاح API", "DeepL Free — API key required"), value: "deepl" },
+            { label: t("DeepL Pro — يتطلّب مفتاح API", "DeepL Pro — API key required"), value: "deepl-pro" },
+            { label: t("Kagi Translate — يتطلّب مفتاح API", "Kagi Translate — API key required"), value: "kagi" }
         ] as const,
         onChange: resetLanguageDefaults
     },

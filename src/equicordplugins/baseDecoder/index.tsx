@@ -93,8 +93,8 @@ const settings = definePluginSettings({
         description: "Change the button for decoding Base64 content in any message.",
         type: OptionType.SELECT,
         options: [
-            { label: "Left Click to decode the base64 content.", value: "Left", default: true },
-            { label: "Right click to decode the base64 content.", value: "Right" }
+            { label: t("انقر بزرّ الفأرة الأيسر لفكّ محتوى base64.", "Left Click to decode the base64 content."), value: "Left", default: true },
+            { label: t("انقر بزرّ الفأرة الأيمن لفكّ محتوى base64.", "Right click to decode the base64 content."), value: "Right" }
         ]
     }
 });

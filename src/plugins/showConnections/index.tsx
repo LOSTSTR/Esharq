@@ -26,6 +26,7 @@ import { CopyIcon, LinkIcon } from "@components/Icons";
 import OpenInAppPlugin from "@plugins/openInApp";
 import { Devs } from "@utils/constants";
 import { copyWithToast } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { ConnectedAccount, User } from "@vencord/discord-types";
 import { findByCodeLazy, findByPropsLazy } from "@webpack";
@@ -55,9 +56,9 @@ const settings = definePluginSettings({
         description: "Icon spacing",
         default: Spacing.COZY,
         options: [
-            { label: "Compact", value: Spacing.COMPACT },
-            { label: "Cozy", value: Spacing.COZY }, // US Spelling :/
-            { label: "Roomy", value: Spacing.ROOMY }
+            { label: t("مُدمج", "Compact"), value: Spacing.COMPACT },
+            { label: t("مريح", "Cozy"), value: Spacing.COZY }, // US Spelling :/
+            { label: t("فسيح", "Roomy"), value: Spacing.ROOMY }
         ]
     }
 });

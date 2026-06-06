@@ -6,6 +6,7 @@
 
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 
 enum SteamStatus {
@@ -36,44 +37,44 @@ export const settings = definePluginSettings({
         type: OptionType.SELECT,
         description: "Steam status when online",
         options: [
-            { label: "Online", value: SteamStatus.Online, default: true },
-            { label: "Away", value: SteamStatus.Away },
-            { label: "Invisible", value: SteamStatus.Invisible },
-            { label: "Offline (Disconnect Steam Chat)", value: SteamStatus.Offline },
-            { label: "Disabled", value: SteamStatus.None }
+            { label: t("متّصل", "Online"), value: SteamStatus.Online, default: true },
+            { label: t("بعيد", "Away"), value: SteamStatus.Away },
+            { label: t("خفيّ", "Invisible"), value: SteamStatus.Invisible },
+            { label: t("غير متّصل (قطع دردشة Steam)", "Offline (Disconnect Steam Chat)"), value: SteamStatus.Offline },
+            { label: t("مُعطَّل", "Disabled"), value: SteamStatus.None }
         ],
     },
     idleStatus: {
         type: OptionType.SELECT,
         description: "Steam status when idle",
         options: [
-            { label: "Online", value: SteamStatus.Online },
-            { label: "Away", value: SteamStatus.Away, default: true },
-            { label: "Invisible", value: SteamStatus.Invisible },
-            { label: "Offline (Disconnect Steam Chat)", value: SteamStatus.Offline },
-            { label: "Disabled", value: SteamStatus.None }
+            { label: t("متّصل", "Online"), value: SteamStatus.Online },
+            { label: t("بعيد", "Away"), value: SteamStatus.Away, default: true },
+            { label: t("خفيّ", "Invisible"), value: SteamStatus.Invisible },
+            { label: t("غير متّصل (قطع دردشة Steam)", "Offline (Disconnect Steam Chat)"), value: SteamStatus.Offline },
+            { label: t("مُعطَّل", "Disabled"), value: SteamStatus.None }
         ],
     },
     dndStatus: {
         type: OptionType.SELECT,
         description: "Steam status when on 'Do Not Disturb'",
         options: [
-            { label: "Online", value: SteamStatus.Online },
-            { label: "Away", value: SteamStatus.Away },
-            { label: "Invisible", value: SteamStatus.Invisible },
-            { label: "Offline (Disconnect Steam Chat)", value: SteamStatus.Offline },
-            { label: "Disabled", value: SteamStatus.None, default: true }
+            { label: t("متّصل", "Online"), value: SteamStatus.Online },
+            { label: t("بعيد", "Away"), value: SteamStatus.Away },
+            { label: t("خفيّ", "Invisible"), value: SteamStatus.Invisible },
+            { label: t("غير متّصل (قطع دردشة Steam)", "Offline (Disconnect Steam Chat)"), value: SteamStatus.Offline },
+            { label: t("مُعطَّل", "Disabled"), value: SteamStatus.None, default: true }
         ],
     },
     invisibleStatus: {
         type: OptionType.SELECT,
         description: "Steam status when invisible",
         options: [
-            { label: "Online", value: SteamStatus.Online },
-            { label: "Away", value: SteamStatus.Away },
-            { label: "Invisible", value: SteamStatus.Invisible, default: true },
-            { label: "Offline (Disconnect Steam Chat)", value: SteamStatus.Offline },
-            { label: "Disabled", value: SteamStatus.None }
+            { label: t("متّصل", "Online"), value: SteamStatus.Online },
+            { label: t("بعيد", "Away"), value: SteamStatus.Away },
+            { label: t("خفيّ", "Invisible"), value: SteamStatus.Invisible, default: true },
+            { label: t("غير متّصل (قطع دردشة Steam)", "Offline (Disconnect Steam Chat)"), value: SteamStatus.Offline },
+            { label: t("مُعطَّل", "Disabled"), value: SteamStatus.None }
         ],
     },
     goInvisibleIfActivityIsHidden: {

@@ -34,20 +34,20 @@ const settings = definePluginSettings({
         description: "Model size",
         options: [
             {
-                label: "Tiny (Fastest, lowest accuracy)",
+                label: t("صغير جداً (الأسرع، أقلّ دقّة)", "Tiny (Fastest, lowest accuracy)"),
                 value: "Xenova/whisper-tiny",
             },
             {
-                label: "Base (Recommended)",
+                label: t("أساسي (موصى به)", "Base (Recommended)"),
                 value: "Xenova/whisper-base",
                 default: true
             },
             {
-                label: "Small",
+                label: t("صغير", "Small"),
                 value: "Xenova/whisper-small"
             },
             {
-                label: "Medium (Slowest, best accuracy)",
+                label: t("متوسّط (الأبطأ، أفضل دقّة)", "Medium (Slowest, best accuracy)"),
                 value: "Xenova/whisper-medium"
             }
         ],
@@ -100,7 +100,7 @@ function LanguageSelectionModal(props: { modalProps: RenderModalProps, src: stri
     const [task, setTask] = useState<string>("transcribe");
 
     const languageOptions = [
-        { label: "Auto Detect", value: "auto" },
+        { label: t("كشف تلقائي", "Auto Detect"), value: "auto" },
         ...Object.entries(LANGUAGES).map(([code, name]) => ({
             label: name.charAt(0).toUpperCase() + name.slice(1),
             value: code

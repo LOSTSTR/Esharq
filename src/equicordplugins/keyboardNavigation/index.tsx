@@ -7,6 +7,7 @@
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { closeAllModals,SettingsRouter, useState } from "@webpack/common";
 
@@ -96,7 +97,7 @@ export default definePlugin({
         if (IS_DEV) {
             registerAction({
                 id: "openDevSettings",
-                label: "Open Dev tab",
+                label: t("فتح تبويب المطوّر", "Open Dev tab"),
                 callback: () => SettingsRouter.openUserSettings("equicord_patch_helper_panel"),
                 registrar: "Equicord"
             });

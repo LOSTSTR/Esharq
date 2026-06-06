@@ -21,6 +21,7 @@ import "./style.css";
 import { definePluginSettings } from "@api/Settings";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { getIntlMessage } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import type { GuildFolder } from "@vencord/discord-types";
 import { findByPropsLazy, findComponentByCodeLazy, findStoreLazy } from "@webpack";
@@ -298,9 +299,9 @@ export const settings = definePluginSettings({
         type: OptionType.SELECT,
         description: "Show the folder icon above folder servers in the BetterFolders sidebar",
         options: [
-            { label: "Never", value: FolderIconDisplay.Never },
-            { label: "Always", value: FolderIconDisplay.Always, default: true },
-            { label: "When more than one folder is expanded", value: FolderIconDisplay.MoreThanOneFolderExpanded }
+            { label: t("أبداً", "Never"), value: FolderIconDisplay.Never },
+            { label: t("دائماً", "Always"), value: FolderIconDisplay.Always, default: true },
+            { label: t("عند توسيع أكثر من مجلّد", "When more than one folder is expanded"), value: FolderIconDisplay.MoreThanOneFolderExpanded }
         ],
         restartNeeded: true
     },

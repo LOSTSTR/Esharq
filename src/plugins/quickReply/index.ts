@@ -21,6 +21,7 @@ import { definePluginSettings } from "@api/Settings";
 import NoBlockedMessagesPlugin from "@plugins/noBlockedMessages";
 import NoReplyMentionPlugin from "@plugins/noReplyMention";
 import { Devs, IS_MAC } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { Message } from "@vencord/discord-types";
 import { MessageFlags } from "@vencord/discord-types/enums";
@@ -41,12 +42,12 @@ const settings = definePluginSettings({
         description: "Whether to mention (@) by default when replying",
         options: [
             {
-                label: "Follow NoReplyMention plugin (if enabled)",
+                label: t("اتّباع إضافة NoReplyMention (إن كانت مُفعّلة)", "Follow NoReplyMention plugin (if enabled)"),
                 value: MentionOptions.NO_REPLY_MENTION_PLUGIN,
                 default: true
             },
-            { label: "Enabled", value: MentionOptions.ENABLED },
-            { label: "Disabled", value: MentionOptions.DISABLED },
+            { label: t("مُفعَّل", "Enabled"), value: MentionOptions.ENABLED },
+            { label: t("مُعطَّل", "Disabled"), value: MentionOptions.DISABLED },
         ]
     },
     ignoreBlockedAndIgnored: {

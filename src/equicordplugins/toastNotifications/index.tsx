@@ -36,20 +36,20 @@ export const settings = definePluginSettings({
         description: "Toast notification position.",
         options: [
             {
-                label: "Bottom Left",
+                label: t("أسفل اليسار", "Bottom Left"),
                 value: "bottom-left",
                 default: true
             },
             {
-                label: "Top Left",
+                label: t("أعلى اليسار", "Top Left"),
                 value: "top-left"
             },
             {
-                label: "Top Right",
+                label: t("أعلى اليمين", "Top Right"),
                 value: "top-right"
             },
             {
-                label: "Bottom Right",
+                label: t("أسفل اليمين", "Bottom Right"),
                 value: "bottom-right"
             },
         ],

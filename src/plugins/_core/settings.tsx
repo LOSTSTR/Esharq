@@ -107,12 +107,12 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         description: "Where to display the Equicord settings section",
         options: [
-            { label: "At the very top", value: "top" },
-            { label: "Above the Nitro section", value: "aboveNitro", default: true },
-            { label: "Below the Nitro section", value: "belowNitro" },
-            { label: "Above Activity Settings", value: "aboveActivity" },
-            { label: "Below Activity Settings", value: "belowActivity" },
-            { label: "At the very bottom", value: "bottom" },
+            { label: t("في الأعلى تماماً", "At the very top"), value: "top" },
+            { label: t("فوق قسم Nitro", "Above the Nitro section"), value: "aboveNitro", default: true },
+            { label: t("أسفل قسم Nitro", "Below the Nitro section"), value: "belowNitro" },
+            { label: t("فوق إعدادات النشاط", "Above Activity Settings"), value: "aboveActivity" },
+            { label: t("أسفل إعدادات النشاط", "Below Activity Settings"), value: "belowActivity" },
+            { label: t("في الأسفل تماماً", "At the very bottom"), value: "bottom" },
         ] as { label: string; value: SettingsLocation; default?: boolean; }[]
     },
     includeVencordInfoWhenCopying: {

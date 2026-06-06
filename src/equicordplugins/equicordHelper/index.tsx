@@ -36,11 +36,11 @@ const logger = new Logger("EquicordHelper");
 const fetchSafetyHub: () => Promise<void> = findByCodeLazy("SAFETY_HUB_FETCH_START");
 
 const StandingConfig: Record<number, { label: string; hoverColor: string; Icon: ComponentType<any>; }> = {
-    [StandingState.ALL_GOOD]: { label: "All good!", hoverColor: "var(--status-positive)", Icon: ShieldIcon },
-    [StandingState.LIMITED]: { label: "Limited", hoverColor: "var(--status-warning)", Icon: WarningIcon },
-    [StandingState.VERY_LIMITED]: { label: "Very limited", hoverColor: "var(--orange-345)", Icon: WarningIcon },
-    [StandingState.AT_RISK]: { label: "At risk", hoverColor: "var(--status-danger)", Icon: WarningIcon },
-    [StandingState.SUSPENDED]: { label: "Suspended", hoverColor: "var(--interactive-muted)", Icon: WarningIcon },
+    [StandingState.ALL_GOOD]: { label: t("كل شيء على ما يرام!", "All good!"), hoverColor: "var(--status-positive)", Icon: ShieldIcon },
+    [StandingState.LIMITED]: { label: t("محدود", "Limited"), hoverColor: "var(--status-warning)", Icon: WarningIcon },
+    [StandingState.VERY_LIMITED]: { label: t("محدود جداً", "Very limited"), hoverColor: "var(--orange-345)", Icon: WarningIcon },
+    [StandingState.AT_RISK]: { label: t("في خطر", "At risk"), hoverColor: "var(--status-danger)", Icon: WarningIcon },
+    [StandingState.SUSPENDED]: { label: t("مُعلَّق", "Suspended"), hoverColor: "var(--interactive-muted)", Icon: WarningIcon },
 };
 
 function StandingButton() {

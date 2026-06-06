@@ -123,14 +123,14 @@ export const settings = definePluginSettings({
         type: OptionType.SELECT,
         description: t("عند بدء التشغيل", "On startup"),
         options: [{
-            label: "Do nothing (open on the friends tab)",
+            label: t("لا تفعل شيئاً (الفتح على تبويب الأصدقاء)", "Do nothing (open on the friends tab)"),
             value: "nothing",
             default: true
         }, {
-            label: "Remember tabs from last session",
+            label: t("تذكّر التبويبات من الجلسة السابقة", "Remember tabs from last session"),
             value: "remember"
         }, {
-            label: "Open on a specific set of tabs",
+            label: t("الفتح على مجموعة تبويبات محدّدة", "Open on a specific set of tabs"),
             value: "preset"
         }],
     },
@@ -219,8 +219,8 @@ export const settings = definePluginSettings({
         type: OptionType.SELECT,
         description: t("مكان إظهار شريط التبويبات.", "Where to display the tab bar."),
         options: [
-            { label: "Top", value: "top", default: true },
-            { label: "Bottom", value: "bottom" }
+            { label: t("أعلى", "Top"), value: "top", default: true },
+            { label: t("أسفل", "Bottom"), value: "bottom" }
         ],
         restartNeeded: true
     },
@@ -294,8 +294,8 @@ export const settings = definePluginSettings({
         type: OptionType.SELECT,
         description: t("مكان عرض الشارة المرقّمة على التبويبات", "Where to display the numbered badge on tabs"),
         options: [
-            { label: "Left side (before icon)", value: "left", default: true },
-            { label: "Right side (after content)", value: "right" }
+            { label: t("الجانب الأيسر (قبل الأيقونة)", "Left side (before icon)"), value: "left", default: true },
+            { label: t("الجانب الأيمن (بعد المحتوى)", "Right side (after content)"), value: "right" }
         ],
         restartNeeded: false
     },

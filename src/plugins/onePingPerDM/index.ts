@@ -6,6 +6,7 @@
 
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { MessageJSON } from "@vencord/discord-types";
 import { ChannelType } from "@vencord/discord-types/enums";
@@ -16,9 +17,9 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         description: "Choose which type of private conversation the plugin affects",
         options: [
-            { label: "Both", value: "both_dms", default: true },
-            { label: "User DMs", value: "user_dm" },
-            { label: "Group DMs", value: "group_dm" },
+            { label: t("كلاهما", "Both"), value: "both_dms", default: true },
+            { label: t("الرسائل الخاصة للمستخدم", "User DMs"), value: "user_dm" },
+            { label: t("المحادثات الجماعية", "Group DMs"), value: "group_dm" },
         ]
     },
     allowMentions: {

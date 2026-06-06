@@ -29,17 +29,17 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         description: "Visual indicator style while switching",
         options: [
-            { label: "Overlay (Alt+Tab style)", value: "overlay", default: true },
-            { label: "Toast (status message)", value: "toast" },
-            { label: "Off", value: "off" }
+            { label: t("تراكب (نمط Alt+Tab)", "Overlay (Alt+Tab style)"), value: "overlay", default: true },
+            { label: t("إشعار منبثق (رسالة حالة)", "Toast (status message)"), value: "toast" },
+            { label: t("إيقاف", "Off"), value: "off" }
         ]
     },
     overlayMode: {
         type: OptionType.SELECT,
         description: "Overlay content",
         options: [
-            { label: "Row of recent", value: "row", default: true },
-            { label: "Current only", value: "current" }
+            { label: t("صفّ من الحديثة", "Row of recent"), value: "row", default: true },
+            { label: t("الحالي فقط", "Current only"), value: "current" }
         ]
     },
     amountOfUsers: {

@@ -153,12 +153,12 @@ const settings = definePluginSettings({
         description: "Change the filter list mode",
         options: [
             {
-                label: "Whitelist",
+                label: t("قائمة بيضاء", "Whitelist"),
                 value: FilterMode.Whitelist,
                 default: true
             },
             {
-                label: "Blacklist",
+                label: t("قائمة سوداء", "Blacklist"),
                 value: FilterMode.Blacklist,
             }
         ],

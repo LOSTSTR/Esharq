@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import { Activity, ActivityButton } from "@vencord/discord-types";
 import { ActivityFlags, ActivityType } from "@vencord/discord-types/enums";
@@ -96,7 +97,7 @@ async function getActivity(): Promise<Activity | null> {
     if (settings.store.sfm_shareUsername)
         buttons.push({ label: "Stats.fm Profile", url: `https://stats.fm/${settings.store.sfm_username}` });
     if (settings.store.sfm_shareSong)
-        buttons.push({ label: "View Song", url: trackData.url });
+        buttons.push({ label: t("عرض الأغنية", "View Song"), url: trackData.url });
 
     const statusName = (() => {
         switch (settings.store.sfm_nameFormat) {

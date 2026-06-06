@@ -27,19 +27,19 @@ export interface ButtonAction {
 }
 
 export const actions: ButtonAction[] = [
-    { id: "openEquicordSettings", label: "Open Equicord tab", callback: async () => await SettingsRouter.openUserSettings("equicord_main_panel"), registrar: "Equicord" },
-    { id: "openPluginSettings", label: "Open Plugin tab", callback: () => SettingsRouter.openUserSettings("equicord_plugins_panel"), registrar: "Equicord" },
-    { id: "openThemesSettings", label: "Open Themes tab", callback: () => SettingsRouter.openUserSettings("equicord_themes_panel"), registrar: "Equicord" },
-    { id: "openUpdaterSettings", label: "Open Updater tab", callback: () => SettingsRouter.openUserSettings("equicord_updater_panel"), registrar: "Equicord" },
-    { id: "openEquicordCloudSettings", label: "Open Cloud tab", callback: () => SettingsRouter.openUserSettings("equicord_cloud_panel"), registrar: "Equicord" },
-    { id: "openBackupSettings", label: "Open Backup & Restore tab", callback: () => SettingsRouter.openUserSettings("equicord_backup_restore_panel"), registrar: "Equicord" },
-    { id: "restartClient", label: "Restart Client", callback: () => relaunch(), registrar: "Equicord" },
-    { id: "openQuickCSSFile", label: "Open Quick CSS File", callback: () => VencordNative.quickCss.openEditor(), registrar: "Equicord" },
-    { id: "openSettingsFolder", label: "Open Settings Folder", callback: async () => showItemInFolder(await VencordNative.settings.getSettingsDir()), registrar: "Equicord" },
-    { id: "openInGithub", label: "Open in Github", callback: async () => VencordNative.native.openExternal(await getRepo()), registrar: "Equicord" },
+    { id: "openEquicordSettings", label: t("فتح تبويب Equicord", "Open Equicord tab"), callback: async () => await SettingsRouter.openUserSettings("equicord_main_panel"), registrar: "Equicord" },
+    { id: "openPluginSettings", label: t("فتح تبويب الإضافات", "Open Plugin tab"), callback: () => SettingsRouter.openUserSettings("equicord_plugins_panel"), registrar: "Equicord" },
+    { id: "openThemesSettings", label: t("فتح تبويب القوالب", "Open Themes tab"), callback: () => SettingsRouter.openUserSettings("equicord_themes_panel"), registrar: "Equicord" },
+    { id: "openUpdaterSettings", label: t("فتح تبويب المُحدِّث", "Open Updater tab"), callback: () => SettingsRouter.openUserSettings("equicord_updater_panel"), registrar: "Equicord" },
+    { id: "openEquicordCloudSettings", label: t("فتح تبويب السحابة", "Open Cloud tab"), callback: () => SettingsRouter.openUserSettings("equicord_cloud_panel"), registrar: "Equicord" },
+    { id: "openBackupSettings", label: t("فتح تبويب النسخ والاستعادة", "Open Backup & Restore tab"), callback: () => SettingsRouter.openUserSettings("equicord_backup_restore_panel"), registrar: "Equicord" },
+    { id: "restartClient", label: t("إعادة تشغيل العميل", "Restart Client"), callback: () => relaunch(), registrar: "Equicord" },
+    { id: "openQuickCSSFile", label: t("فتح ملف Quick CSS", "Open Quick CSS File"), callback: () => VencordNative.quickCss.openEditor(), registrar: "Equicord" },
+    { id: "openSettingsFolder", label: t("فتح مجلّد الإعدادات", "Open Settings Folder"), callback: async () => showItemInFolder(await VencordNative.settings.getSettingsDir()), registrar: "Equicord" },
+    { id: "openInGithub", label: t("فتح في Github", "Open in Github"), callback: async () => VencordNative.native.openExternal(await getRepo()), registrar: "Equicord" },
 
     {
-        id: "openInBrowser", label: "Open in Browser", callback: async () => {
+        id: "openInBrowser", label: t("فتح في المتصفّح", "Open in Browser"), callback: async () => {
             const url = await openSimpleTextInput("Enter a URL");
             const newUrl = url.replace(/(https?:\/\/)?([a-zA-Z0-9-]+)\.([a-zA-Z0-9-]+)/, "https://$2.$3");
 
@@ -60,7 +60,7 @@ export const actions: ButtonAction[] = [
     },
 
     {
-        id: "togglePlugin", label: "Toggle Plugin", callback: async () => {
+        id: "togglePlugin", label: t("تبديل الإضافة", "Toggle Plugin"), callback: async () => {
             const plugins = Object.keys(Plugins);
             const options: ButtonAction[] = [];
 
@@ -74,8 +74,8 @@ export const actions: ButtonAction[] = [
             const choice = await openMultipleChoice(options);
 
             const enabled = await openMultipleChoice([
-                { id: "enable", label: "Enable" },
-                { id: "disable", label: "Disable" }
+                { id: "enable", label: t("تفعيل", "Enable") },
+                { id: "disable", label: t("تعطيل", "Disable") }
             ]);
 
             if (choice && enabled) {
@@ -85,7 +85,7 @@ export const actions: ButtonAction[] = [
     },
 
     {
-        id: "quickFetch", label: "Quick Fetch", callback: async () => {
+        id: "quickFetch", label: t("جلب سريع", "Quick Fetch"), callback: async () => {
             try {
                 const url = await openSimpleTextInput("Enter URL to fetch (GET only)");
                 const newUrl = url.replace(/(https?:\/\/)?([a-zA-Z0-9-]+)\.([a-zA-Z0-9-]+)/, "https://$2.$3");
@@ -116,7 +116,7 @@ export const actions: ButtonAction[] = [
     },
 
     {
-        id: "copyGitInfo", label: "Copy Git Info", callback: async () => {
+        id: "copyGitInfo", label: t("نسخ معلومات Git", "Copy Git Info"), callback: async () => {
             copyToClipboard(`gitHash: ${gitHashShort}\ngitRemote: ${gitRemote}`);
 
             Toasts.show({
@@ -131,7 +131,7 @@ export const actions: ButtonAction[] = [
     },
 
     {
-        id: "checkForUpdates", label: "Check for Updates", callback: async () => {
+        id: "checkForUpdates", label: t("التحقّق من التحديثات", "Check for Updates"), callback: async () => {
             const isOutdated = await checkForUpdates();
 
             if (isOutdated) {
@@ -158,7 +158,7 @@ export const actions: ButtonAction[] = [
     },
 
     {
-        id: "navToServer", label: "Navigate to Server", callback: async () => {
+        id: "navToServer", label: t("الانتقال إلى الخادم", "Navigate to Server"), callback: async () => {
             const allServers = Object.values(GuildStore.getGuilds());
             const options: ButtonAction[] = [];
 

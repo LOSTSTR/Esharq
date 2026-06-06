@@ -52,26 +52,26 @@ export const settings = definePluginSettings({
         description: t("هل تريد إظهار الأزرار لمستخدمك الخاص. نفس وظيفة الأزرار الأخرى لكنها ستفتح لوحة الرسائل المباشرة وتكتم/تخرس نفسك.", "Whether to show buttons for your own user. Same functionality as other buttons but will open the DM panel and mute/deafen yourself."),
         restartNeeded: true,
         options: [
-            { label: "Display", value: "display", default: true },
-            { label: "Hide", value: "hide" },
-            { label: "Disable", value: "disable" },
+            { label: t("العرض", "Display"), value: "display", default: true },
+            { label: t("إخفاء", "Hide"), value: "hide" },
+            { label: t("تعطيل", "Disable"), value: "disable" },
         ],
     },
     whichNameToShow: {
         type: OptionType.SELECT,
         description: t("اختر إظهار الاسم المستعار أو اسم المستخدم في التلميح.", "Choose to show the nickname or username in the tooltip."),
         options: [
-            { label: "Both", value: "both", default: true },
-            { label: "Global Name", value: "global" },
-            { label: "Username", value: "username" },
+            { label: t("كلاهما", "Both"), value: "both", default: true },
+            { label: t("الاسم العام", "Global Name"), value: "global" },
+            { label: t("اسم المستخدم", "Username"), value: "username" },
         ],
     },
     buttonPosition: {
         type: OptionType.SELECT,
         description: t("اختر مكان وضع أزرار الصوت في صف مستخدم الصوت.", "Choose where to place voice buttons in the voice user row."),
         options: [
-            { label: "Left", value: "left", default: true },
-            { label: "Right", value: "right" },
+            { label: t("يسار", "Left"), value: "left", default: true },
+            { label: t("يمين", "Right"), value: "right" },
         ],
     }
 }, {

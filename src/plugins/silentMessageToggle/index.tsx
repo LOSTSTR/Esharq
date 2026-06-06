@@ -20,6 +20,7 @@ import { ChatBarButton, ChatBarButtonFactory } from "@api/ChatButtons";
 import { addMessagePreSendListener, MessageSendListener, removeMessagePreSendListener } from "@api/MessageEvents";
 import { definePluginSettings } from "@api/Settings";
 import { Devs, EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { IconComponent, OptionType } from "@utils/types";
 import { React, useEffect, useState } from "@webpack/common";
 
@@ -32,9 +33,9 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         description: "How to persist the silent message toggle state",
         options: [
-            { label: "Don't persist (reset on channel change)", value: "none", default: true },
-            { label: "Persist between channels", value: "channels" },
-            { label: "Persist between channels and restarts", value: "restarts" }
+            { label: t("لا تُبقِها (إعادة الضبط عند تغيير القناة)", "Don't persist (reset on channel change)"), value: "none", default: true },
+            { label: t("الإبقاء بين القنوات", "Persist between channels"), value: "channels" },
+            { label: t("الإبقاء بين القنوات وإعادات التشغيل", "Persist between channels and restarts"), value: "restarts" }
         ],
         onChange(newValue: string) {
             lastState = newValue !== "none" && lastState;

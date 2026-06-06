@@ -159,24 +159,24 @@ export function RPCSettings() {
                 label={t("نوع النشاط", "Activity Type")}
                 options={[
                     {
-                        label: "Playing",
+                        label: t("يلعب", "Playing"),
                         value: ActivityType.PLAYING,
                         default: true
                     },
                     {
-                        label: "Streaming",
+                        label: t("يبثّ", "Streaming"),
                         value: ActivityType.STREAMING
                     },
                     {
-                        label: "Listening",
+                        label: t("يستمع", "Listening"),
                         value: ActivityType.LISTENING
                     },
                     {
-                        label: "Watching",
+                        label: t("يشاهد", "Watching"),
                         value: ActivityType.WATCHING
                     },
                     {
-                        label: "Competing",
+                        label: t("يتنافس", "Competing"),
                         value: ActivityType.COMPETING
                     }
                 ]}
@@ -188,13 +188,13 @@ export function RPCSettings() {
             ]} />
 
             <PairSetting data={[
-                { settingsKey: "details", label: "Detail (line 1)", isValid: maxLength128 },
-                { settingsKey: "detailsURL", label: "Detail URL", isValid: isUrlValid },
+                { settingsKey: "details", label: t("التفاصيل (السطر 1)", "Detail (line 1)"), isValid: maxLength128 },
+                { settingsKey: "detailsURL", label: t("رابط التفاصيل", "Detail URL"), isValid: isUrlValid },
             ]} />
 
             <PairSetting data={[
-                { settingsKey: "state", label: "State (line 2)", isValid: maxLength128 },
-                { settingsKey: "stateURL", label: "State URL", isValid: isUrlValid },
+                { settingsKey: "state", label: t("الحالة (السطر 2)", "State (line 2)"), isValid: maxLength128 },
+                { settingsKey: "stateURL", label: t("رابط الحالة", "State URL"), isValid: isUrlValid },
             ]} />
 
             <SingleSetting
@@ -207,14 +207,14 @@ export function RPCSettings() {
             <PairSetting data={[
                 {
                     settingsKey: "partySize",
-                    label: "Party Size",
+                    label: t("حجم المجموعة", "Party Size"),
                     transform: parseNumber,
                     isValid: isNumberValid,
                     disabled: s.type !== ActivityType.PLAYING,
                 },
                 {
                     settingsKey: "partyMaxSize",
-                    label: "Maximum Party Size",
+                    label: t("الحدّ الأقصى لحجم المجموعة", "Maximum Party Size"),
                     transform: parseNumber,
                     isValid: isNumberValid,
                     disabled: s.type !== ActivityType.PLAYING,
@@ -224,14 +224,14 @@ export function RPCSettings() {
             <Divider />
 
             <PairSetting data={[
-                { settingsKey: "imageBig", label: "Large Image URL/Key", isValid: isImageKeyValid },
-                { settingsKey: "imageBigTooltip", label: "Large Image Text", isValid: maxLength128 },
+                { settingsKey: "imageBig", label: t("رابط/مفتاح الصورة الكبيرة", "Large Image URL/Key"), isValid: isImageKeyValid },
+                { settingsKey: "imageBigTooltip", label: t("نصّ الصورة الكبيرة", "Large Image Text"), isValid: maxLength128 },
             ]} />
             <SingleSetting settingsKey="imageBigURL" label={t("رابط قابل للنقر للصورة الكبيرة", "Large Image clickable URL")} isValid={isUrlValid} />
 
             <PairSetting data={[
-                { settingsKey: "imageSmall", label: "Small Image URL/Key", isValid: isImageKeyValid },
-                { settingsKey: "imageSmallTooltip", label: "Small Image Text", isValid: maxLength128 },
+                { settingsKey: "imageSmall", label: t("رابط/مفتاح الصورة الصغيرة", "Small Image URL/Key"), isValid: isImageKeyValid },
+                { settingsKey: "imageSmallTooltip", label: t("نصّ الصورة الصغيرة", "Small Image Text"), isValid: maxLength128 },
             ]} />
             <SingleSetting settingsKey="imageSmallURL" label={t("رابط قابل للنقر للصورة الصغيرة", "Small Image clickable URL")} isValid={isUrlValid} />
 
@@ -253,20 +253,20 @@ export function RPCSettings() {
                 label={t("نمط الطابع الزمني", "Timestamp Mode")}
                 options={[
                     {
-                        label: "None",
+                        label: t("لا شيء", "None"),
                         value: TimestampMode.NONE,
                         default: true
                     },
                     {
-                        label: "Since discord open",
+                        label: t("منذ فتح ديسكورد", "Since discord open"),
                         value: TimestampMode.NOW
                     },
                     {
-                        label: "Same as your current time (not reset after 24h)",
+                        label: t("مطابق لوقتك الحالي (لا يُعاد ضبطه بعد 24 ساعة)", "Same as your current time (not reset after 24h)"),
                         value: TimestampMode.TIME
                     },
                     {
-                        label: "Custom",
+                        label: t("مخصّص", "Custom"),
                         value: TimestampMode.CUSTOM
                     }
                 ]}
@@ -275,14 +275,14 @@ export function RPCSettings() {
             <PairSetting data={[
                 {
                     settingsKey: "startTime",
-                    label: "Start Timestamp (in milliseconds)",
+                    label: t("الطابع الزمني للبداية (بالمللي ثانية)", "Start Timestamp (in milliseconds)"),
                     transform: parseNumber,
                     isValid: isNumberValid,
                     disabled: s.timestampMode !== TimestampMode.CUSTOM,
                 },
                 {
                     settingsKey: "endTime",
-                    label: "End Timestamp (in milliseconds)",
+                    label: t("الطابع الزمني النهائي (بالمللي ثانية)", "End Timestamp (in milliseconds)"),
                     transform: parseNumber,
                     isValid: isNumberValid,
                     disabled: s.timestampMode !== TimestampMode.CUSTOM,

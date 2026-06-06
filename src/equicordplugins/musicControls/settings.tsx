@@ -95,8 +95,8 @@ export const settings = definePluginSettings({
         description: t("موضع كلمات الأغنية", "Lyrics position"),
         type: OptionType.SELECT,
         options: [
-            { value: "above", label: "Above Player(s)" },
-            { value: "below", label: "Below  Player(s)", default: true },
+            { value: "above", label: t("فوق المشغّل(ات)", "Above Player(s)") },
+            { value: "below", label: t("أسفل  المشغّل(ات)", "Below  Player(s)"), default: true },
         ],
     },
     lyricsProvider: {
@@ -135,9 +135,9 @@ export const settings = definePluginSettings({
         description: t("ترجمة كلمات الأغنية أو تحويلها إلى الحروف اللاتينية تلقائياً", "Automatically translate lyrics or convert them to Latin characters"),
         type: OptionType.SELECT,
         options: [
-            { value: Provider.None, label: "None", default: true },
+            { value: Provider.None, label: t("لا شيء", "None"), default: true },
             { value: Provider.Translated, label: "Translate" },
-            { value: Provider.Romanized, label: "Romanize" },
+            { value: Provider.Romanized, label: t("كتابة لاتينية", "Romanize") },
         ]
     },
     fallbackProvider: {

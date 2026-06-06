@@ -84,15 +84,15 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         options: [
             {
-                label: "Always use automod embeds",
+                label: t("استخدام بطاقات automod دائماً", "Always use automod embeds"),
                 value: "always"
             },
             {
-                label: "Prefer automod embeds, but use rich embeds if some content can't be shown",
+                label: t("تفضيل بطاقات automod، لكن استخدام البطاقات الغنية إن تعذّر عرض بعض المحتوى", "Prefer automod embeds, but use rich embeds if some content can't be shown"),
                 value: "prefer"
             },
             {
-                label: "Never use automod embeds",
+                label: t("عدم استخدام بطاقات automod أبداً", "Never use automod embeds"),
                 value: "never",
                 default: true
             }
@@ -103,12 +103,12 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         options: [
             {
-                label: "Blacklist",
+                label: t("قائمة سوداء", "Blacklist"),
                 value: "blacklist",
                 default: true
             },
             {
-                label: "Whitelist",
+                label: t("قائمة بيضاء", "Whitelist"),
                 value: "whitelist"
             }
         ]

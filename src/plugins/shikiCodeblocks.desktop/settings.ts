@@ -55,20 +55,20 @@ export const settings = definePluginSettings({
         description: t("استخدام مُمَيِّز Discord الافتراضي الأخف وزناً والثيم المرافق له.", "Use Discord's lighter default highlighter and its accompanying theme."),
         options: [
             {
-                label: "Never",
+                label: t("أبداً", "Never"),
                 value: HljsSetting.Never,
             },
             {
-                label: "Prefer Shiki instead of Highlight.js",
+                label: t("تفضيل Shiki بدل Highlight.js", "Prefer Shiki instead of Highlight.js"),
                 value: HljsSetting.Secondary,
                 default: true,
             },
             {
-                label: "Prefer Highlight.js instead of Shiki",
+                label: t("تفضيل Highlight.js بدل Shiki", "Prefer Highlight.js instead of Shiki"),
                 value: HljsSetting.Primary,
             },
             {
-                label: "Always",
+                label: t("دائماً", "Always"),
                 value: HljsSetting.Always,
             },
         ],
@@ -78,16 +78,16 @@ export const settings = definePluginSettings({
         description: t("كيفية عرض أيقونات اللغة على كتل الكود", "How to display language icons on code blocks"),
         options: [
             {
-                label: "Disabled",
+                label: t("مُعطَّل", "Disabled"),
                 value: DeviconSetting.Disabled,
             },
             {
-                label: "Colorless",
+                label: t("بلا لون", "Colorless"),
                 value: DeviconSetting.Greyscale,
                 default: true,
             },
             {
-                label: "Colored",
+                label: t("ملوّن", "Colored"),
                 value: DeviconSetting.Color,
             },
         ],

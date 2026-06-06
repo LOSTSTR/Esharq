@@ -26,16 +26,16 @@ export const settings = definePluginSettings({
         description: t("طريقة عرض الألوان", "Color display method"),
         options: [
             {
-                label: "Text color",
+                label: t("لون النصّ", "Text color"),
                 value: RenderType.FOREGROUND,
                 default: true,
             },
             {
-                label: "Block nearby",
+                label: t("حظر القريب", "Block nearby"),
                 value: RenderType.BLOCK,
             },
             {
-                label: "Background color",
+                label: t("لون الخلفية", "Background color"),
                 value: RenderType.BACKGROUND
             },
         ]
@@ -53,16 +53,16 @@ export const settings = definePluginSettings({
         description: t("مكان عرض الكتلة الملونة", "Where to display the color block"),
         options: [
             {
-                label: "Right side",
+                label: t("الجانب الأيمن", "Right side"),
                 value: BlockDisplayType.RIGHT,
                 default: true
             },
             {
-                label: "Left side",
+                label: t("الجانب الأيسر", "Left side"),
                 value: BlockDisplayType.LEFT
             },
             {
-                label: "Both sides",
+                label: t("كلا الجانبين", "Both sides"),
                 value: BlockDisplayType.BOTH
             }
         ]

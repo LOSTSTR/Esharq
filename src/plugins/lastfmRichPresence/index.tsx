@@ -107,16 +107,16 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         options: [
             {
-                label: "Don't show (shows generic listening message)",
+                label: t("لا تُظهر (يعرض رسالة استماع عامّة)", "Don't show (shows generic listening message)"),
                 value: "off"
             },
             {
-                label: "Show artist name",
+                label: t("إظهار اسم الفنان", "Show artist name"),
                 value: "artist",
                 default: true
             },
             {
-                label: "Show track name",
+                label: t("إظهار اسم المقطع", "Show track name"),
                 value: "track"
             }
         ]
@@ -126,28 +126,28 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         options: [
             {
-                label: "Use custom status name",
+                label: t("استخدام اسم حالة مخصّص", "Use custom status name"),
                 value: NameFormat.StatusName,
                 default: true
             },
             {
-                label: "Use format 'artist - song'",
+                label: t("استخدام صيغة 'الفنان - الأغنية'", "Use format 'artist - song'"),
                 value: NameFormat.ArtistFirst
             },
             {
-                label: "Use format 'song - artist'",
+                label: t("استخدام صيغة 'الأغنية - الفنان'", "Use format 'song - artist'"),
                 value: NameFormat.SongFirst
             },
             {
-                label: "Use artist name only",
+                label: t("استخدام اسم الفنان فقط", "Use artist name only"),
                 value: NameFormat.ArtistOnly
             },
             {
-                label: "Use song name only",
+                label: t("استخدام اسم الأغنية فقط", "Use song name only"),
                 value: NameFormat.SongOnly
             },
             {
-                label: "Use album name (falls back to custom status text if song has no album)",
+                label: t("استخدام اسم الألبوم (يعود لنصّ الحالة المخصّص إن لم يكن للأغنية ألبوم)", "Use album name (falls back to custom status text if song has no album)"),
                 value: NameFormat.AlbumName
             }
         ],
@@ -167,7 +167,7 @@ const settings = definePluginSettings({
                 default: true
             },
             {
-                label: "Use generic placeholder",
+                label: t("استخدام عنصر نائب عامّ", "Use generic placeholder"),
                 value: "placeholder"
             }
         ],
