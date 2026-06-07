@@ -930,7 +930,7 @@ function resolveSettingsRouteCandidates(route: string): string[] {
 async function openDiscordSettingsRoute(route: string, label?: string) {
     const candidates = resolveSettingsRouteCandidates(route);
     if (candidates.length === 0) {
-        showToast("No settings page was provided.", Toasts.Type.FAILURE);
+        showToast(t("لم تُقدَّم صفحة إعدادات.", "No settings page was provided."), Toasts.Type.FAILURE);
         return false;
     }
 
@@ -1025,7 +1025,7 @@ function copyDebugContext() {
 
 function toggleDoNotDisturb() {
     if (!StatusSetting) {
-        showToast("Unable to change status right now.", Toasts.Type.FAILURE);
+        showToast(t("تعذّر تغيير الحالة الآن.", "Unable to change status right now."), Toasts.Type.FAILURE);
         return;
     }
 
@@ -1179,7 +1179,7 @@ function clearScheduledStatusReset(showToastMessage = true) {
         clearTimeout(statusResetTimeout);
         statusResetTimeout = null;
         if (showToastMessage) {
-            showToast("Canceled scheduled status reset.", Toasts.Type.MESSAGE);
+            showToast(t("أُلغيت إعادة ضبط الحالة المجدولة.", "Canceled scheduled status reset."), Toasts.Type.MESSAGE);
         }
     }
     statusResetPrevious = null;
@@ -1187,7 +1187,7 @@ function clearScheduledStatusReset(showToastMessage = true) {
 
 function scheduleStatusReset(durationMinutes: number) {
     if (!StatusSetting) {
-        showToast("Unable to change status right now.", Toasts.Type.FAILURE);
+        showToast(t("تعذّر تغيير الحالة الآن.", "Unable to change status right now."), Toasts.Type.FAILURE);
         return;
     }
 
@@ -1209,7 +1209,7 @@ function scheduleStatusReset(durationMinutes: number) {
 
 export function setStatusDndForDuration(durationMinutes: number) {
     if (!Number.isFinite(durationMinutes) || durationMinutes < 1) {
-        showToast("Choose a valid duration.", Toasts.Type.FAILURE);
+        showToast(t("اختر مدّة صالحة.", "Choose a valid duration."), Toasts.Type.FAILURE);
         return false;
     }
 
@@ -1892,7 +1892,7 @@ function buildPluginToggleCommand(plugin: Plugin): CommandEntry {
             const after = isPluginEnabled(plugin.name);
 
             if (result && before !== after) {
-                showToast(`${after ? "Enabled" : "Disabled"} ${plugin.name}.`, Toasts.Type.SUCCESS);
+                showToast(`${after ? t("مُفعَّل", "Enabled") : t("مُعطَّل", "Disabled")} ${plugin.name}.`, Toasts.Type.SUCCESS);
             } else if (!result) {
                 showToast(`Failed to toggle ${plugin.name}.`, Toasts.Type.FAILURE);
             }
@@ -2250,7 +2250,7 @@ function createMentionCommands(): CommandEntry[] {
                     NavigationRouter.transitionTo(route);
                     return;
                 }
-                showToast("This mention is no longer available.", Toasts.Type.FAILURE);
+                showToast(t("هذه الإشارة لم تعد متاحة.", "This mention is no longer available."), Toasts.Type.FAILURE);
             }
         } satisfies CommandEntry;
     });
@@ -2343,12 +2343,12 @@ function registerUpdateCommands() {
                 const outdated = await checkForUpdates();
                 if (outdated) {
                     const count = changes.length;
-                    showToast(count === 1 ? "One update available." : `${count} updates available.`, Toasts.Type.SUCCESS);
+                    showToast(count === 1 ? t("يتوفّر تحديث واحد.", "One update available.") : `${count} updates available.`, Toasts.Type.SUCCESS);
                 } else {
-                    showToast("No updates found.", Toasts.Type.MESSAGE);
+                    showToast(t("لم يُعثر على تحديثات.", "No updates found."), Toasts.Type.MESSAGE);
                 }
             } catch {
-                showToast("Failed to check for updates.", Toasts.Type.FAILURE);
+                showToast(t("فشل التحقّق من التحديثات.", "Failed to check for updates."), Toasts.Type.FAILURE);
             }
         }
     });
@@ -2467,7 +2467,7 @@ function toggleChannelMuteState(channelId: string, guildId: string | null, mute:
         updateChannelOverrideSettings?: (guildId: string | null, channelId: string, payload: Record<string, unknown>) => void;
     } | undefined;
     if (!actions?.updateChannelOverrideSettings) {
-        showToast("Channel mute controls unavailable.", Toasts.Type.FAILURE);
+        showToast(t("عناصر التحكّم بكتم القناة غير متاحة.", "Channel mute controls unavailable."), Toasts.Type.FAILURE);
         return;
     }
 
@@ -2478,9 +2478,9 @@ function toggleChannelMuteState(channelId: string, guildId: string | null, mute:
 
     try {
         actions.updateChannelOverrideSettings(guildId, channelId, payload);
-        showToast(`${mute ? "Muted" : "Unmuted"} channel.`, Toasts.Type.SUCCESS);
+        showToast(`${mute ? t("مكتوم", "Muted") : t("غير مكتوم", "Unmuted")} channel.`, Toasts.Type.SUCCESS);
     } catch {
-        showToast("Failed to update channel mute state.", Toasts.Type.FAILURE);
+        showToast(t("فشل تحديث حالة كتم القناة.", "Failed to update channel mute state."), Toasts.Type.FAILURE);
     }
 }
 
@@ -2489,7 +2489,7 @@ function toggleGuildMuteState(guildId: string, mute: boolean, durationMinutes?: 
         updateGuildNotificationSettings?: (guildId: string, payload: Record<string, unknown>) => void;
     } | undefined;
     if (!actions?.updateGuildNotificationSettings) {
-        showToast("Guild mute controls unavailable.", Toasts.Type.FAILURE);
+        showToast(t("عناصر التحكّم بكتم الخادم غير متاحة.", "Guild mute controls unavailable."), Toasts.Type.FAILURE);
         return;
     }
 
@@ -2500,9 +2500,9 @@ function toggleGuildMuteState(guildId: string, mute: boolean, durationMinutes?: 
 
     try {
         actions.updateGuildNotificationSettings(guildId, payload);
-        showToast(`${mute ? "Muted" : "Unmuted"} server.`, Toasts.Type.SUCCESS);
+        showToast(`${mute ? t("مكتوم", "Muted") : t("غير مكتوم", "Unmuted")} server.`, Toasts.Type.SUCCESS);
     } catch {
-        showToast("Failed to update server mute state.", Toasts.Type.FAILURE);
+        showToast(t("فشل تحديث حالة كتم الخادم.", "Failed to update server mute state."), Toasts.Type.FAILURE);
     }
 }
 
@@ -2540,7 +2540,7 @@ function openPinsForChannel(channelId: string) {
     try {
         FluxDispatcher.dispatch({ type: "CHANNEL_PINS_MODAL_OPEN", channelId });
     } catch {
-        showToast("Unable to open pins panel.", Toasts.Type.FAILURE);
+        showToast(t("تعذّر فتح لوحة المثبّتات.", "Unable to open pins panel."), Toasts.Type.FAILURE);
     }
 }
 
@@ -2585,7 +2585,7 @@ function createContextualCommands(): CommandEntry[] {
                     await Promise.resolve(ackChannel(ackTarget));
                     showToast(`Marked ${channelLabel} as read.`, Toasts.Type.SUCCESS);
                 } catch {
-                    showToast("Failed to mark channel as read.", Toasts.Type.FAILURE);
+                    showToast(t("فشل تعليم القناة كمقروءة.", "Failed to mark channel as read."), Toasts.Type.FAILURE);
                 }
             }
         });
@@ -2701,7 +2701,7 @@ function createContextualCommands(): CommandEntry[] {
                     try {
                         await Promise.resolve(GuildSettingsActions.open(guildId, "OVERVIEW"));
                     } catch {
-                        showToast("Unable to open guild settings.", Toasts.Type.FAILURE);
+                        showToast(t("تعذّر فتح إعدادات الخادم.", "Unable to open guild settings."), Toasts.Type.FAILURE);
                     }
                 }
             });
@@ -2725,7 +2725,7 @@ function createContextualCommands(): CommandEntry[] {
                         NavigationRouter.transitionTo("/channels/@me");
                         showToast(`Left ${guildLabel}.`, Toasts.Type.SUCCESS);
                     } catch {
-                        showToast("Unable to leave this server.", Toasts.Type.FAILURE);
+                        showToast(t("تعذّر مغادرة هذا الخادم.", "Unable to leave this server."), Toasts.Type.FAILURE);
                     }
                 }
             });
@@ -2738,7 +2738,7 @@ function createContextualCommands(): CommandEntry[] {
 async function runCommandById(commandId: string, visited: Set<string>) {
     if (!commandId) return;
     if (visited.has(commandId)) {
-        showToast("Command loop detected in macro execution.", Toasts.Type.FAILURE);
+        showToast(t("اكتُشفت حلقة أوامر في تنفيذ الماكرو.", "Command loop detected in macro execution."), Toasts.Type.FAILURE);
         return;
     }
 
@@ -2831,7 +2831,7 @@ async function performCustomCommand(command: CustomCommandDefinition) {
             try {
                 parsed = new URL(action.url.trim());
             } catch {
-                showToast("Please enter a valid URL.", Toasts.Type.FAILURE);
+                showToast(t("يُرجى إدخال رابط صالح.", "Please enter a valid URL."), Toasts.Type.FAILURE);
                 return;
             }
 
@@ -2857,7 +2857,7 @@ async function performCustomCommand(command: CustomCommandDefinition) {
                 }
 
                 openExternalUrl(parsed.toString());
-                showToast("Non-Discord links open externally.", Toasts.Type.MESSAGE);
+                showToast(t("تُفتح الروابط غير الديسكوردية خارجياً.", "Non-Discord links open externally."), Toasts.Type.MESSAGE);
             }
             return;
         }
@@ -2865,7 +2865,7 @@ async function performCustomCommand(command: CustomCommandDefinition) {
             await runMacroSteps(action.steps, new Set([command.id]));
             break;
         default:
-            showToast("Unsupported custom command action.", Toasts.Type.FAILURE);
+            showToast(t("إجراء أمر مخصّص غير مدعوم.", "Unsupported custom command action."), Toasts.Type.FAILURE);
             break;
     }
 }
@@ -2913,12 +2913,12 @@ function clearDesktopNotifications() {
     if (typeof notifications?.clearAll === "function") {
         try {
             notifications.clearAll();
-            showToast("Cleared desktop notifications.", Toasts.Type.SUCCESS);
+            showToast(t("تمّ مسح إشعارات سطح المكتب.", "Cleared desktop notifications."), Toasts.Type.SUCCESS);
         } catch {
-            showToast("Failed to clear notifications.", Toasts.Type.FAILURE);
+            showToast(t("فشل مسح الإشعارات.", "Failed to clear notifications."), Toasts.Type.FAILURE);
         }
     } else {
-        showToast("Notification clearing not supported.", Toasts.Type.FAILURE);
+        showToast(t("مسح الإشعارات غير مدعوم.", "Notification clearing not supported."), Toasts.Type.FAILURE);
     }
 }
 
@@ -2985,7 +2985,7 @@ async function reopenLastClosedDm() {
     ensureSessionHooks();
     const snapshot = lastClosedDm;
     if (!snapshot) {
-        showToast("No DM closures recorded this session.", Toasts.Type.MESSAGE);
+        showToast(t("لم تُسجَّل أي رسائل خاصة مغلقة هذه الجلسة.", "No DM closures recorded this session."), Toasts.Type.MESSAGE);
         return;
     }
 
@@ -2995,7 +2995,7 @@ async function reopenLastClosedDm() {
     const navigate = (targetId: string | null | undefined): boolean => {
         if (!targetId) return false;
         ChannelRouter.transitionToChannel(targetId);
-        showToast("Reopened last closed DM.", Toasts.Type.SUCCESS);
+        showToast(t("تمّت إعادة فتح آخر رسالة خاصة مغلقة.", "Reopened last closed DM."), Toasts.Type.SUCCESS);
         return true;
     };
 
@@ -3040,7 +3040,7 @@ async function reopenLastClosedDm() {
                 return;
             }
 
-            showToast("The DM could not be reopened.", Toasts.Type.FAILURE);
+            showToast(t("تعذّر إعادة فتح الرسالة الخاصة.", "The DM could not be reopened."), Toasts.Type.FAILURE);
             return;
         }
 
@@ -3048,9 +3048,9 @@ async function reopenLastClosedDm() {
             return;
         }
 
-        showToast("The DM is no longer available.", Toasts.Type.FAILURE);
+        showToast(t("الرسالة الخاصة لم تعد متاحة.", "The DM is no longer available."), Toasts.Type.FAILURE);
     } catch {
-        showToast("The DM is no longer available.", Toasts.Type.FAILURE);
+        showToast(t("الرسالة الخاصة لم تعد متاحة.", "The DM is no longer available."), Toasts.Type.FAILURE);
     } finally {
         lastClosedDm = null;
     }
@@ -3115,7 +3115,7 @@ function registerGuildCommands() {
 
 function setPresenceStatus(status: "online" | "idle" | "dnd" | "invisible") {
     if (!StatusSetting) {
-        showToast("Unable to change status right now.", Toasts.Type.FAILURE);
+        showToast(t("تعذّر تغيير الحالة الآن.", "Unable to change status right now."), Toasts.Type.FAILURE);
         return;
     }
 
@@ -3143,13 +3143,13 @@ function toggleStreamerMode() {
 function toggleSelfMute() {
     VoiceActions.toggleSelfMute();
     const muted = MediaEngineStore.isSelfMute();
-    showToast(muted ? "Microphone muted." : "Microphone unmuted.", Toasts.Type.SUCCESS);
+    showToast(muted ? t("تمّ كتم الميكروفون.", "Microphone muted.") : t("تمّ إلغاء كتم الميكروفون.", "Microphone unmuted."), Toasts.Type.SUCCESS);
 }
 
 function toggleSelfDeaf() {
     VoiceActions.toggleSelfDeaf();
     const deaf = MediaEngineStore.isSelfDeaf();
-    showToast(deaf ? "You are now deafened." : "You are no longer deafened.", Toasts.Type.SUCCESS);
+    showToast(deaf ? t("أنت مُصمَّم الآن.", "You are now deafened.") : t("لم تعد مُصمَّماً.", "You are no longer deafened."), Toasts.Type.SUCCESS);
 }
 
 function toggleQuickCss() {
@@ -3278,7 +3278,7 @@ function registerCommandPaletteUtilities() {
         handler: () => {
             const channelId = getLastPrivateChannelId();
             if (!channelId) {
-                showToast("No recent DM available.", Toasts.Type.MESSAGE);
+                showToast(t("لا توجد رسالة خاصة حديثة متاحة.", "No recent DM available."), Toasts.Type.MESSAGE);
                 return;
             }
             NavigationRouter.transitionTo(`/channels/@me/${channelId}`);
@@ -3295,7 +3295,7 @@ function registerCommandPaletteUtilities() {
         handler: () => {
             const channelId = SelectedChannelStore?.getChannelId?.();
             if (!channelId) {
-                showToast("No active channel available.", Toasts.Type.MESSAGE);
+                showToast(t("لا توجد قناة نشطة متاحة.", "No active channel available."), Toasts.Type.MESSAGE);
                 return;
             }
             return copyWithToast(channelId, "Channel ID copied.");
@@ -3312,7 +3312,7 @@ function registerCommandPaletteUtilities() {
         handler: () => {
             const channelId = SelectedChannelStore?.getChannelId?.();
             if (!channelId) {
-                showToast("No active channel available.", Toasts.Type.MESSAGE);
+                showToast(t("لا توجد قناة نشطة متاحة.", "No active channel available."), Toasts.Type.MESSAGE);
                 return;
             }
             return copyWithToast(getChannelPermalink(channelId), "Channel link copied.");
@@ -3329,13 +3329,13 @@ function registerCommandPaletteUtilities() {
         handler: () => {
             const channelId = SelectedChannelStore?.getChannelId?.();
             if (!channelId) {
-                showToast("No active channel available.", Toasts.Type.MESSAGE);
+                showToast(t("لا توجد قناة نشطة متاحة.", "No active channel available."), Toasts.Type.MESSAGE);
                 return;
             }
 
             const message = MessageStore.getLastMessage?.(channelId) as { id?: string; } | undefined;
             if (!message?.id) {
-                showToast("No recent message available in this channel.", Toasts.Type.MESSAGE);
+                showToast(t("لا توجد رسالة حديثة متاحة في هذه القناة.", "No recent message available in this channel."), Toasts.Type.MESSAGE);
                 return;
             }
 
@@ -3353,7 +3353,7 @@ function registerCommandPaletteUtilities() {
         handler: () => {
             const channelId = SelectedChannelStore?.getChannelId?.();
             if (!channelId) {
-                showToast("No active channel available.", Toasts.Type.MESSAGE);
+                showToast(t("لا توجد قناة نشطة متاحة.", "No active channel available."), Toasts.Type.MESSAGE);
                 return;
             }
             openExternalUrl(getChannelPermalink(channelId));
@@ -3370,7 +3370,7 @@ function registerCommandPaletteUtilities() {
         handler: () => {
             const guildId = getActiveGuildId();
             if (!guildId || guildId === "@me") {
-                showToast("No active server available.", Toasts.Type.MESSAGE);
+                showToast(t("لا يوجد خادم نشط متاح.", "No active server available."), Toasts.Type.MESSAGE);
                 return;
             }
             return copyWithToast(guildId, "Server ID copied.");
@@ -3387,7 +3387,7 @@ function registerCommandPaletteUtilities() {
         handler: () => {
             const userId = UserStore?.getCurrentUser?.()?.id;
             if (!userId) {
-                showToast("Unable to read your user ID.", Toasts.Type.FAILURE);
+                showToast(t("تعذّر قراءة معرّف المستخدم الخاص بك.", "Unable to read your user ID."), Toasts.Type.FAILURE);
                 return;
             }
             return copyWithToast(userId, "Your user ID was copied.");
@@ -3413,7 +3413,7 @@ function registerCommandPaletteUtilities() {
         tags: [TAG_DEVELOPER, TAG_UTILITY],
         handler: () => {
             if (openDevToolsWindow()) return;
-            showToast("DevTools is unavailable in this environment.", Toasts.Type.FAILURE);
+            showToast(t("أدوات المطوّر غير متاحة في هذه البيئة.", "DevTools is unavailable in this environment."), Toasts.Type.FAILURE);
         }
     });
 
@@ -3448,7 +3448,7 @@ function registerCommandPaletteUtilities() {
         handler: async () => {
             const last = getNewestRecentCommand("command-palette-rerun-last");
             if (!last) {
-                showToast("No commands available to re-run.", Toasts.Type.MESSAGE);
+                showToast(t("لا توجد أوامر متاحة لإعادة التشغيل.", "No commands available to re-run."), Toasts.Type.MESSAGE);
                 return;
             }
             await executeCommand(last);
@@ -3464,7 +3464,7 @@ function registerCommandPaletteUtilities() {
         handler: async () => {
             const last = getNewestRecentCommand("command-palette-toggle-pin-last");
             if (!last) {
-                showToast("No recent commands to pin.", Toasts.Type.MESSAGE);
+                showToast(t("لا توجد أوامر حديثة للتثبيت.", "No recent commands to pin."), Toasts.Type.MESSAGE);
                 return;
             }
             const result = await togglePinned(last.id);
@@ -3588,7 +3588,7 @@ async function reloadAllPlugins() {
     }
 
     if (count === 0) {
-        showToast("No plugins were reloaded.", Toasts.Type.MESSAGE);
+        showToast(t("لم تُعَد أي إضافة.", "No plugins were reloaded."), Toasts.Type.MESSAGE);
     } else {
         showToast(`Reloaded ${count} plugin${count === 1 ? "" : "s"}.`, Toasts.Type.SUCCESS);
     }
@@ -3612,7 +3612,7 @@ async function setAllPluginsEnabled(enabled: boolean) {
         }
     }
 
-    showToast(changed ? `${enabled ? "Enabled" : "Disabled"} ${changed} plugin${changed === 1 ? "" : "s"}.` : "No plugins changed state.", Toasts.Type.SUCCESS);
+    showToast(changed ? `${enabled ? t("مُفعَّل", "Enabled") : t("مُعطَّل", "Disabled")} ${changed} plugin${changed === 1 ? "" : "s"}.` : t("لم تتغيّر حالة أي إضافة.", "No plugins changed state."), Toasts.Type.SUCCESS);
 }
 
 function registerPluginChangeCommands() {
@@ -3763,7 +3763,7 @@ function registerCustomizationCommands() {
         handler: () => {
             const openEditor = (window as { VencordNative?: { quickCss?: { openEditor?: () => void; }; }; })?.VencordNative?.quickCss?.openEditor;
             if (typeof openEditor !== "function") {
-                showToast("QuickCSS editor is unavailable.", Toasts.Type.FAILURE);
+                showToast(t("محرّر QuickCSS غير متاح.", "QuickCSS editor is unavailable."), Toasts.Type.FAILURE);
                 return;
             }
 

@@ -108,7 +108,7 @@ function createExtensionDetailCommands(deps: ExtensionsProviderDeps): CommandEnt
                     return;
                 }
 
-                deps.showToast(`${installed ? "Uninstalled" : "Installed"} ${extension.label} plugin commands.`, Toasts.Type.SUCCESS);
+                deps.showToast(`${installed ? t("أُلغي تثبيته", "Uninstalled") : t("مُثبَّت", "Installed")} ${extension.label} plugin commands.`, Toasts.Type.SUCCESS);
             }
         });
 

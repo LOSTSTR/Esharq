@@ -5,6 +5,7 @@
  */
 
 import type { UserData } from "@song-spotlight/api/structs";
+import { t } from "@utils/esharqI18n";
 import { showToast, Toasts, UserStore } from "@webpack/common";
 
 import { useAuthorizationStore } from "./stores/AuthorizationStore";
@@ -65,7 +66,7 @@ export async function authFetch(url: string | URL, options?: RequestInit, retrie
             if (retry) return await authFetch(url, options, true);
             else {
                 useAuthorizationStore.getState().deleteTokens();
-                showToast("You have been signed out from Song Spotlight. Please sign in again.", Toasts.Type.FAILURE);
+                showToast(t("تمّ تسجيل خروجك من Song Spotlight. يُرجى تسجيل الدخول مجدداً.", "You have been signed out from Song Spotlight. Please sign in again."), Toasts.Type.FAILURE);
             }
         } else {
             showToast(

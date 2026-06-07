@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { t } from "@utils/esharqI18n";
 import { Toasts } from "@webpack/common";
 
 import { Auth, authorize, getToken, updateAuth } from "./auth";
@@ -100,7 +101,7 @@ export async function addReview(review: any): Promise<UserReviewsData | null> {
 
     const token = await getToken();
     if (!token) {
-        showToast("Please authorize to add a review.");
+        showToast(t("يُرجى التفويض لإضافة مراجعة.", "Please authorize to add a review."));
         authorize();
         return null;
     }

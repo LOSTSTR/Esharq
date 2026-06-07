@@ -69,19 +69,19 @@ export function SoundOverrideComponent({ type, override, onChange }: {
                 const dataUri = await ensureDataURICached(override.selectedFileId);
 
                 if (!dataUri || !dataUri.startsWith("data:audio/")) {
-                    showToast("No custom sound file available for preview");
+                    showToast(t("لا يوجد ملف صوت مخصّص متاح للمعاينة", "No custom sound file available for preview"));
                     return;
                 }
 
                 sound.current = playAudio(dataUri, {
                     volume: override.volume, onError: e => {
                         console.error("[CustomSounds] Error playing custom audio:", e);
-                        showToast("Error playing custom sound. File may be corrupted.");
+                        showToast(t("خطأ في تشغيل الصوت المخصّص. قد يكون الملف تالفاً.", "Error playing custom sound. File may be corrupted."));
                     }
                 });
             } catch (error) {
                 console.error("[CustomSounds] Error in previewSound:", error);
-                showToast("Error playing sound.");
+                showToast(t("خطأ في تشغيل الصوت.", "Error playing sound."));
             }
         } else if (selectedSound === "default") {
             sound.current = playAudio(type.id);
@@ -96,13 +96,13 @@ export function SoundOverrideComponent({ type, override, onChange }: {
 
         const fileExtension = file.name.split(".").pop()?.toLowerCase();
         if (!fileExtension || !AUDIO_EXTENSIONS.includes(fileExtension)) {
-            showToast("Invalid file type. Please upload an audio file.");
+            showToast(t("نوع ملف غير صالح. يُرجى رفع ملف صوتي.", "Invalid file type. Please upload an audio file."));
             event.target.value = "";
             return;
         }
 
         try {
-            showToast("Uploading file...");
+            showToast(t("جارٍ رفع الملف...", "Uploading file..."));
             const id = await saveAudio(file);
 
             const savedFiles = await getAllAudio();
@@ -136,10 +136,10 @@ export function SoundOverrideComponent({ type, override, onChange }: {
             } else {
                 update();
             }
-            showToast("File deleted successfully");
+            showToast(t("تمّ حذف الملف بنجاح", "File deleted successfully"));
         } catch (error) {
             console.error("[CustomSounds] Error deleting file:", error);
-            showToast("Error deleting file.");
+            showToast(t("خطأ في حذف الملف.", "Error deleting file."));
         }
     };
 
@@ -165,7 +165,7 @@ export function SoundOverrideComponent({ type, override, onChange }: {
                             await ensureDataURICached(override.selectedFileId);
                         } catch (error) {
                             console.error(`[CustomSounds] Failed to cache data URI for ${type.id}:`, error);
-                            showToast("Error loading custom sound file");
+                            showToast(t("خطأ في تحميل ملف الصوت المخصّص", "Error loading custom sound file"));
                         }
                     }
 
@@ -220,7 +220,7 @@ export function SoundOverrideComponent({ type, override, onChange }: {
                                     await ensureDataURICached(override.selectedFileId);
                                 } catch (error) {
                                     console.error(`[CustomSounds] Failed to cache data URI for ${type.id}:`, error);
-                                    showToast("Error loading custom sound file");
+                                    showToast(t("خطأ في تحميل ملف الصوت المخصّص", "Error loading custom sound file"));
                                 }
                             }
 

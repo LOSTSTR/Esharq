@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "@utils/esharqI18n";
 import { ApplicationIntegrationType } from "@vencord/discord-types/enums";
 import { OAuth2AuthorizeModal, openModal,showToast, Toasts } from "@webpack/common";
 
@@ -41,7 +42,7 @@ export function presentOAuth2Modal() {
                     useAuthorizationStore.getState().setToken(access, refresh);
                     getData();
 
-                    showToast("Successfully authorized!", Toasts.Type.SUCCESS);
+                    showToast(t("تمّ التفويض بنجاح!", "Successfully authorized!"), Toasts.Type.SUCCESS);
                 } catch (error) {
                     logger.error("Got an error during OAuth2", error);
                     if (typeof error === "string") showToast(error, Toasts.Type.FAILURE);

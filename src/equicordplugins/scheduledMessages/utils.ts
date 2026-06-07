@@ -379,7 +379,7 @@ async function sendScheduledMessage(msg: ScheduledMessage): Promise<boolean> {
         }
         return true;
     } catch {
-        if (settings.store.showNotifications) showToast("Failed to send scheduled message", Toasts.Type.FAILURE);
+        if (settings.store.showNotifications) showToast(t("فشل إرسال الرسالة المجدولة", "Failed to send scheduled message"), Toasts.Type.FAILURE);
         return false;
     }
 }

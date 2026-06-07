@@ -59,7 +59,7 @@ function toggleSilentTypingLocation(locationId: string): boolean {
 async function ensureSilentTypingPluginEnabled() {
     const plugin = getSilentTypingPlugin();
     if (!plugin) {
-        showToast("SilentTyping plugin is unavailable.", Toasts.Type.FAILURE);
+        showToast(t("إضافة SilentTyping غير متاحة.", "SilentTyping plugin is unavailable."), Toasts.Type.FAILURE);
         return false;
     }
 
@@ -67,11 +67,11 @@ async function ensureSilentTypingPluginEnabled() {
 
     const success = await toggleEnabled(plugin.name);
     if (!success || !isPluginEnabled(plugin.name)) {
-        showToast("Failed to enable SilentTyping.", Toasts.Type.FAILURE);
+        showToast(t("فشل تفعيل SilentTyping.", "Failed to enable SilentTyping."), Toasts.Type.FAILURE);
         return false;
     }
 
-    showToast("Enabled SilentTyping.", Toasts.Type.SUCCESS);
+    showToast(t("تمّ تفعيل SilentTyping.", "Enabled SilentTyping."), Toasts.Type.SUCCESS);
     return true;
 }
 
@@ -80,17 +80,17 @@ async function runSilentTypingChannelToggle() {
 
     const channelId = SelectedChannelStore?.getChannelId?.();
     if (!channelId) {
-        showToast("No channel selected.", Toasts.Type.FAILURE);
+        showToast(t("لم تُحدَّد قناة.", "No channel selected."), Toasts.Type.FAILURE);
         return;
     }
 
     const changed = toggleSilentTypingLocation(channelId);
     if (!changed) {
-        showToast("SilentTyping settings are unavailable.", Toasts.Type.FAILURE);
+        showToast(t("إعدادات SilentTyping غير متاحة.", "SilentTyping settings are unavailable."), Toasts.Type.FAILURE);
         return;
     }
 
-    showToast("Toggled SilentTyping for this channel.", Toasts.Type.SUCCESS);
+    showToast(t("تمّ تبديل SilentTyping لهذه القناة.", "Toggled SilentTyping for this channel."), Toasts.Type.SUCCESS);
 }
 
 async function runSilentTypingGlobalToggle() {
@@ -98,7 +98,7 @@ async function runSilentTypingGlobalToggle() {
 
     const store = getSilentTypingSettingsStore();
     if (!store) {
-        showToast("SilentTyping settings are unavailable.", Toasts.Type.FAILURE);
+        showToast(t("إعدادات SilentTyping غير متاحة.", "SilentTyping settings are unavailable."), Toasts.Type.FAILURE);
         return;
     }
 
@@ -111,7 +111,7 @@ async function runSilentTypingOpenSettings() {
 
     const plugin = getSilentTypingPlugin();
     if (!plugin) {
-        showToast("SilentTyping plugin is unavailable.", Toasts.Type.FAILURE);
+        showToast(t("إضافة SilentTyping غير متاحة.", "SilentTyping plugin is unavailable."), Toasts.Type.FAILURE);
         return;
     }
 

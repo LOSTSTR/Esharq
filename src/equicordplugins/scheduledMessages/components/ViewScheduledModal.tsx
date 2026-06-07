@@ -27,13 +27,13 @@ function ViewScheduledModalInner({ rootProps, close }: ViewScheduledModalProps) 
     const handleDelete = async (id: string) => {
         await removeScheduledMessage(id);
         setMessages(getScheduledMessages());
-        showToast("Scheduled message removed", Toasts.Type.SUCCESS);
+        showToast(t("تمّت إزالة الرسالة المجدولة", "Scheduled message removed"), Toasts.Type.SUCCESS);
     };
 
     const handleClearAll = async () => {
         await clearAllScheduledMessages();
         setMessages([]);
-        showToast("All scheduled messages cleared", Toasts.Type.SUCCESS);
+        showToast(t("تمّ مسح كل الرسائل المجدولة", "All scheduled messages cleared"), Toasts.Type.SUCCESS);
     };
 
     const actions = [

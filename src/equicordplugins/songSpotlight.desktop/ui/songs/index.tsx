@@ -82,16 +82,16 @@ function SongEntry({ entry, number, isLoaded, isPlaying, big, onClick }: SongEnt
                             action={async () => {
                                 const self = useSongStore.getState().self?.data ?? [];
                                 if (self.length >= apiConstants.songLimit) {
-                                    return showToast("You don't have enough space!");
+                                    return showToast(t("ليس لديك مساحة كافية!", "You don't have enough space!"));
                                 }
 
                                 const song = await Native.parseLink(entry.link);
                                 if (!song) {
-                                    return showToast("Uh oh, this song doesn't exist!", Toasts.Type.FAILURE);
+                                    return showToast(t("للأسف، هذه الأغنية غير موجودة!", "Uh oh, this song doesn't exist!"), Toasts.Type.FAILURE);
                                 }
 
                                 if (self.find(x => sid(x) === sid(song))) {
-                                    return showToast("You already have this song added!");
+                                    return showToast(t("لديك هذه الأغنية مُضافة بالفعل!", "You already have this song added!"));
                                 }
 
                                 openSettingsModal([...self, song]);
@@ -197,10 +197,10 @@ function SongInfo({ owned, song, render, big }: SongInfoProps) {
                                                         action={() => {
                                                             const self = useSongStore.getState().self?.data ?? [];
                                                             if (self.length >= apiConstants.songLimit) {
-                                                                return showToast("You don't have enough space!");
+                                                                return showToast(t("ليس لديك مساحة كافية!", "You don't have enough space!"));
                                                             }
                                                             if (self.find(x => sid(x) === sid(song))) {
-                                                                return showToast("You already have this song added!");
+                                                                return showToast(t("لديك هذه الأغنية مُضافة بالفعل!", "You already have this song added!"));
                                                             }
 
                                                             openSettingsModal([...self, song]);

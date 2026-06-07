@@ -167,7 +167,7 @@ export const ThemeInfoModal: React.FC<ThemeInfoModalProps> = ({ author, theme, .
                                     onClick={async e => {
                                         e.preventDefault();
                                         const useInvite = guild ? guild.invite_link?.split("discord.gg/")[1] : invite;
-                                        useInvite != null && openInviteModal(useInvite).catch(() => showToast("Invalid or expired invite!", Toasts.Type.FAILURE));
+                                        useInvite != null && openInviteModal(useInvite).catch(() => showToast(t("دعوة غير صالحة أو منتهية!", "Invalid or expired invite!"), Toasts.Type.FAILURE));
                                     }}
                                 >{t("انضمّ إلى خادم ديسكورد", "Join Discord Server")}</Button>
                             </Paragraph>
@@ -193,7 +193,7 @@ export const ThemeInfoModal: React.FC<ThemeInfoModalProps> = ({ author, theme, .
                                             variant: "primary",
                                             onClick: () => {
                                                 copyToClipboard(themeContent);
-                                                showToast("Copied to Clipboard", Toasts.Type.SUCCESS);
+                                                showToast(t("تمّ النسخ إلى الحافظة", "Copied to Clipboard"), Toasts.Type.SUCCESS);
                                             }
                                         }
                                     ]}

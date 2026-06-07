@@ -444,12 +444,12 @@ export default definePlugin({
                     onClick={async () => {
                         try {
                             if (await forceUpdate())
-                                showToast("Success! Restarting...", Toasts.Type.SUCCESS);
+                                showToast(t("نجح! جارٍ إعادة التشغيل...", "Success! Restarting..."), Toasts.Type.SUCCESS);
                             else
-                                showToast("Already up to date!", Toasts.Type.MESSAGE);
+                                showToast(t("محدَّث بالفعل!", "Already up to date!"), Toasts.Type.MESSAGE);
                         } catch (e) {
                             new Logger(this.name).error("Error while updating:", e);
-                            showToast("Failed to update :(", Toasts.Type.FAILURE);
+                            showToast(t("فشل التحديث :(", "Failed to update :("), Toasts.Type.FAILURE);
                         }
                     }}
                 >{t("حدّث الآن", "Update Now")}</Button>
@@ -476,10 +476,10 @@ export default definePlugin({
                             } else if (pluginList && typeof pluginList === "object" && pluginList.uploadFile) {
                                 try {
                                     await uploadPluginListFile(props.channel.id, pluginList.fileContent, pluginList.filename);
-                                    showToast("Plugin list uploaded successfully!", Toasts.Type.SUCCESS);
+                                    showToast(t("تمّ رفع قائمة الإضافات بنجاح!", "Plugin list uploaded successfully!"), Toasts.Type.SUCCESS);
                                 } catch (e) {
                                     new Logger("SupportHelper").error("Failed to upload plugin list:", e);
-                                    showToast("Failed to upload plugin list", Toasts.Type.FAILURE);
+                                    showToast(t("فشل رفع قائمة الإضافات", "Failed to upload plugin list"), Toasts.Type.FAILURE);
                                 }
                             }
                         }}
@@ -505,10 +505,10 @@ export default definePlugin({
                                         });
                                     }
 
-                                    showToast("Success!", Toasts.Type.SUCCESS);
+                                    showToast(t("نجح!", "Success!"), Toasts.Type.SUCCESS);
                                 } catch (e) {
                                     new Logger(this.name).error("Error while running snippet:", e);
-                                    showToast("Failed to run snippet :(", Toasts.Type.FAILURE);
+                                    showToast(t("فشل تشغيل المقتطف :(", "Failed to run snippet :("), Toasts.Type.FAILURE);
                                 }
                             }}
                         >{t("تشغيل المقتطف", "Run Snippet")}</Button>

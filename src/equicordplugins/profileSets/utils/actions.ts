@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "@utils/esharqI18n";
 import { isNonNullish } from "@utils/guards";
 import { ProfilePreset } from "@vencord/discord-types";
 import { findStoreLazy } from "@webpack";
@@ -136,7 +137,7 @@ export async function importPresets(
             await savePresetsData(section);
             forceUpdate();
         } catch {
-            showToast("Failed to import presets. The file might be invalid.", Toasts.Type.FAILURE);
+            showToast(t("فشل استيراد القوالب الجاهزة. قد يكون الملف غير صالح.", "Failed to import presets. The file might be invalid."), Toasts.Type.FAILURE);
         }
     };
     input.click();

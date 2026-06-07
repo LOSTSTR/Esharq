@@ -6,9 +6,10 @@
 
 import * as DataStore from "@api/DataStore";
 import { classNameFactory } from "@utils/css";
+import { isArabicMode } from "@utils/esharqI18n";
 import { formatDurationMs } from "@utils/text";
 import type { RenderModalProps } from "@vencord/discord-types";
-import { ChannelStore, LocaleStore, Modal, Tooltip, useEffect, useState } from "@webpack/common";
+import { ChannelStore, Modal, Tooltip, useEffect, useState } from "@webpack/common";
 
 import { generateAndSave } from "./shareImage";
 import {
@@ -246,7 +247,7 @@ export function AnalyticsDashboard({ modalProps }: { modalProps: RenderModalProp
     const prev7 = getPrev7DayKeys();
     const keys84 = getLast84DayKeys();
     const weekStart = new Date(keys7[0] + "T12:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric" });
-    const s = LocaleStore.locale?.startsWith("ar") ? STRINGS.ar : STRINGS.en;
+    const s = isArabicMode() ? STRINGS.ar : STRINGS.en;
     const isAR = s === STRINGS.ar;
 
     useEffect(() => {

@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import { formatDurationMs } from "@utils/text";
 import { Activity } from "@vencord/discord-types";
@@ -32,7 +33,7 @@ async function fetchMediaData(): Promise<JfMediaData | null> {
     if (!jf_serverUrl || !jf_apiKey || !jf_userId) {
         if (!hasShownError) {
             logger.warn("Jellyfin server URL, API key, or user ID is not set.");
-            showToast("Jellyfin RPC is not configured.", "failure", { duration: 15000 });
+            showToast(t("لم تُضبَط حالة Jellyfin الغنية.", "Jellyfin RPC is not configured."), "failure", { duration: 15000 });
             hasShownError = true;
         }
         return null;
@@ -47,7 +48,7 @@ async function fetchMediaData(): Promise<JfMediaData | null> {
         if (!contentType.includes("application/json")) {
         if (!hasShownError) {
             logger.error("Jellyfin returned non-JSON response. Check your server URL and API key.");
-            showToast("Jellyfin returned an invalid response. Your API key may be wrong.", "failure", { duration: 15000 });
+            showToast(t("أعاد Jellyfin استجابة غير صالحة. قد يكون مفتاح API خاطئاً.", "Jellyfin returned an invalid response. Your API key may be wrong."), "failure", { duration: 15000 });
             hasShownError = true;
         }
             return null;

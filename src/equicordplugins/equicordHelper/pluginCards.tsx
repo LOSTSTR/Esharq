@@ -15,6 +15,7 @@ import { ExcludedReasons, PluginDependencyList } from "@components/settings/tabs
 import { PluginCard } from "@components/settings/tabs/plugins/PluginCard";
 import { TooltipContainer } from "@components/TooltipContainer";
 import { EQUIBOT_USER_ID } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { isEquicordGuild, isEquicordSupport } from "@utils/misc";
 import { Message } from "@vencord/discord-types";
 import { showToast, Tooltip, useMemo } from "@webpack/common";
@@ -59,7 +60,7 @@ export function ChatPluginCard({ url, description }: { url: string, description:
             : card;
     }
 
-    const onRestartNeeded = () => showToast("A restart is required for the change to take effect!");
+    const onRestartNeeded = () => showToast(t("يلزم إعادة التشغيل لتطبيق التغيير!", "A restart is required for the change to take effect!"));
 
     const depMap = useMemo(() => {
         const o = {} as Record<string, string[]>;

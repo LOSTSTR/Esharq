@@ -294,7 +294,7 @@ export default definePlugin({
         } catch (error) {
             clearDragState();
             logger.error("Failed handling drop", error);
-            showToast("Dragify failed to handle drop.", Toasts.Type.FAILURE);
+            showToast(t("فشل Dragify في معالجة الإفلات.", "Dragify failed to handle drop."), Toasts.Type.FAILURE);
         }
     },
 

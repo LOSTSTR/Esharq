@@ -246,7 +246,7 @@ const settings = definePluginSettings({
                 });
                 dataUriCache.clear();
                 setResetTrigger(prev => prev + 1);
-                showToast("All overrides reset successfully!");
+                showToast(t("تمّت إعادة ضبط كل التجاوزات بنجاح!", "All overrides reset successfully!"));
             };
 
             const triggerFileUpload = () => {
@@ -278,10 +278,10 @@ const settings = definePluginSettings({
                             }
 
                             setResetTrigger(prev => prev + 1);
-                            showToast("Settings imported successfully!");
+                            showToast(t("تمّ استيراد الإعدادات بنجاح!", "Settings imported successfully!"));
                         } catch (error) {
                             console.error("Error importing settings:", error);
-                            showToast("Error importing settings. Check console for details.");
+                            showToast(t("خطأ في استيراد الإعدادات. تحقّق من الكونسول للتفاصيل.", "Error importing settings. Check console for details."));
                         }
                     };
 
@@ -366,7 +366,7 @@ const settings = definePluginSettings({
                                                 await ensureDataURICached(currentOverride.selectedFileId);
                                             } catch (error) {
                                                 console.error(`[CustomSounds] Failed to cache data URI for ${type.id}:`, error);
-                                                showToast("Error loading custom sound file");
+                                                showToast(t("خطأ في تحميل ملف الصوت المخصّص", "Error loading custom sound file"));
                                             }
                                         }
 

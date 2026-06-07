@@ -6,6 +6,7 @@
 
 import { sendBotMessage } from "@api/Commands";
 import { insertTextIntoChatInputBox, sendMessage } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import { Message } from "@vencord/discord-types";
 import { MessageStore, showToast, Toasts, UserStore } from "@webpack/common";
@@ -194,7 +195,7 @@ function getSystemPrompt() {
 
 export async function getResponse(payload: ApiMessage[]): Promise<string> {
     if (!settings.store.apiKey || !settings.store.endpoint || !settings.store.model) {
-        showToast("TriviaAI: API settings are incomplete.", Toasts.Type.FAILURE);
+        showToast(t("TriviaAI: إعدادات API غير مكتملة.", "TriviaAI: API settings are incomplete."), Toasts.Type.FAILURE);
         return "";
     }
 
@@ -240,7 +241,7 @@ export async function getResponse(payload: ApiMessage[]): Promise<string> {
         return response;
     } catch (e) {
         logger.error("Error getting response from AI model", e);
-        showToast("Error getting response from AI model", Toasts.Type.FAILURE);
+        showToast(t("خطأ في الحصول على ردّ من نموذج الذكاء الاصطناعي", "Error getting response from AI model"), Toasts.Type.FAILURE);
         return "";
     }
 }

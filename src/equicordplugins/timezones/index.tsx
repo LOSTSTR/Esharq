@@ -113,7 +113,7 @@ export const settings = definePluginSettings({
                         await deleteTimezone();
                     } catch (error) {
                         console.error("Error resetting database timezone:", error);
-                        showToast("Failed to reset database timezone", Toasts.Type.FAILURE);
+                        showToast(t("فشل إعادة ضبط المنطقة الزمنية لقاعدة البيانات", "Failed to reset database timezone"), Toasts.Type.FAILURE);
                     }
                 }}
             >{t("إعادة ضبط المنطقة الزمنية لقاعدة البيانات", "Reset Database Timezone")}</Button>
@@ -286,14 +286,14 @@ export default definePlugin({
                 const good = await loadDatabaseTimezones();
 
                 if (good) {
-                    showToast("Timezones refreshed successfully!", Toasts.Type.SUCCESS);
+                    showToast(t("تمّ تحديث المناطق الزمنية بنجاح!", "Timezones refreshed successfully!"), Toasts.Type.SUCCESS);
                 } else {
-                    showToast("Timezones Failed to refresh!", Toasts.Type.FAILURE);
+                    showToast(t("فشل تحديث المناطق الزمنية!", "Timezones Failed to refresh!"), Toasts.Type.FAILURE);
                 }
             }
             catch (error) {
                 console.error("Failed to refresh timezone:", error);
-                showToast("Failed to refresh timezones.", Toasts.Type.FAILURE);
+                showToast(t("فشل تحديث المناطق الزمنية.", "Failed to refresh timezones."), Toasts.Type.FAILURE);
             }
         }
     },

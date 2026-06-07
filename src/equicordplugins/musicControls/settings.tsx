@@ -68,7 +68,7 @@ function LyricsProviderSettings() {
                         onChange={v => {
                             store.spotifyLyricsApiUrl = v;
                             void clearLyricsCache();
-                            showToast("Lyrics cache purged", Toasts.Type.SUCCESS);
+                            showToast(t("تمّ تفريغ ذاكرة كلمات الأغاني المؤقّتة", "Lyrics cache purged"), Toasts.Type.SUCCESS);
                         }}
                         placeholder="https://spotify-lyrics-api-pi.vercel.app"
                         maxLength={null}
@@ -115,7 +115,7 @@ export const settings = definePluginSettings({
         default: "https://spotify-lyrics-api-pi.vercel.app",
         onChange: async () => {
             await clearLyricsCache();
-            showToast("Lyrics cache purged", Toasts.Type.SUCCESS);
+            showToast(t("تمّ تفريغ ذاكرة كلمات الأغاني المؤقّتة", "Lyrics cache purged"), Toasts.Type.SUCCESS);
         }
     },
     lyricsProviderSettings: {
@@ -128,7 +128,7 @@ export const settings = definePluginSettings({
         options: languages,
         onChange: async () => {
             await removeTranslations();
-            showToast("Translations cleared", Toasts.Type.SUCCESS);
+            showToast(t("تمّ مسح الترجمات", "Translations cleared"), Toasts.Type.SUCCESS);
         }
     },
     lyricsConversion: {
@@ -164,7 +164,7 @@ export const settings = definePluginSettings({
                 color={ButtonCompat.Colors.RED}
                 onClick={() => {
                     clearLyricsCache();
-                    showToast("Lyrics cache purged", Toasts.Type.SUCCESS);
+                    showToast(t("تمّ تفريغ ذاكرة كلمات الأغاني المؤقّتة", "Lyrics cache purged"), Toasts.Type.SUCCESS);
                 }}
             >{t("تفريغ الذاكرة المؤقّتة", "Purge Cache")}</ButtonCompat>
         ),

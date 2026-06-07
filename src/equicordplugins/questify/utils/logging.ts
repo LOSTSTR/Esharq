@@ -5,6 +5,7 @@
  */
 
 import { showNotification } from "@api/Notifications";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import type { Quest } from "@vencord/discord-types";
 import { NavigationRouter } from "@webpack/common/utils";
@@ -69,7 +70,7 @@ export function notifyQuestCompletion(quest?: Quest): void {
     if (!quest) return;
 
     showNotification({
-        title: "Quest Completed!",
+        title: t("اكتملت المهمة!", "Quest Completed!"),
         body: `The ${normalizeQuestName(quest)} Quest has completed.`,
         dismissOnClick: true,
         onClick: () => NavigationRouter.transitionTo(`${QUEST_PAGE}#${quest.id}`)

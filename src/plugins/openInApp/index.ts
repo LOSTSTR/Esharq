@@ -137,7 +137,7 @@ export default definePlugin({
             }
 
             if (rule.match.test(url)) {
-                showToast("Opened link in native app", Toasts.Type.SUCCESS);
+                showToast(t("تمّ فتح الرابط في التطبيق الأصلي", "Opened link in native app"), Toasts.Type.SUCCESS);
 
                 const newUrl = url.replace(rule.match, rule.replace);
                 VencordNative.native.openExternal(newUrl);

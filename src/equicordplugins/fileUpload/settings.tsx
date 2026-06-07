@@ -478,7 +478,7 @@ export function SettingsComponent() {
     const validateShareXConfig = () => {
         try {
             parseShareXConfig(store.sharexConfig || "");
-            showToast("ShareX config is valid", Toasts.Type.SUCCESS);
+            showToast(t("إعدادات ShareX صالحة", "ShareX config is valid"), Toasts.Type.SUCCESS);
         } catch (error) {
             const message = error instanceof Error ? error.message : "Invalid ShareX config";
             showToast(message, Toasts.Type.FAILURE);
@@ -500,7 +500,7 @@ export function SettingsComponent() {
                 const parsed = parseShareXConfig(content);
                 store.sharexConfig = JSON.stringify(parsed, null, 2);
                 update();
-                showToast("Imported ShareX config", Toasts.Type.SUCCESS);
+                showToast(t("تمّ استيراد إعدادات ShareX", "Imported ShareX config"), Toasts.Type.SUCCESS);
             } catch (error) {
                 const message = error instanceof Error ? error.message : "Failed to import ShareX config";
                 showToast(message, Toasts.Type.FAILURE);

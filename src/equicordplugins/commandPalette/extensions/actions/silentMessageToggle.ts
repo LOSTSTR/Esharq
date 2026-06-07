@@ -35,7 +35,7 @@ function getSilentMessageToggleSettingsStore(): SilentMessageToggleSettingsStore
 async function ensureSilentMessageTogglePluginEnabled() {
     const plugin = getSilentMessageTogglePlugin();
     if (!plugin) {
-        showToast("SilentMessageToggle plugin is unavailable.", Toasts.Type.FAILURE);
+        showToast(t("إضافة SilentMessageToggle غير متاحة.", "SilentMessageToggle plugin is unavailable."), Toasts.Type.FAILURE);
         return false;
     }
 
@@ -43,18 +43,18 @@ async function ensureSilentMessageTogglePluginEnabled() {
 
     const success = await toggleEnabled(plugin.name);
     if (!success || !isPluginEnabled(plugin.name)) {
-        showToast("Failed to enable SilentMessageToggle.", Toasts.Type.FAILURE);
+        showToast(t("فشل تفعيل SilentMessageToggle.", "Failed to enable SilentMessageToggle."), Toasts.Type.FAILURE);
         return false;
     }
 
-    showToast("Enabled SilentMessageToggle.", Toasts.Type.SUCCESS);
+    showToast(t("تمّ تفعيل SilentMessageToggle.", "Enabled SilentMessageToggle."), Toasts.Type.SUCCESS);
     return true;
 }
 
 async function runSilentMessageTogglePlugin() {
     const plugin = getSilentMessageTogglePlugin();
     if (!plugin) {
-        showToast("SilentMessageToggle plugin is unavailable.", Toasts.Type.FAILURE);
+        showToast(t("إضافة SilentMessageToggle غير متاحة.", "SilentMessageToggle plugin is unavailable."), Toasts.Type.FAILURE);
         return;
     }
 
@@ -63,7 +63,7 @@ async function runSilentMessageTogglePlugin() {
     const isEnabledNow = isPluginEnabled(plugin.name);
 
     if (!success) {
-        showToast("Failed to toggle SilentMessageToggle.", Toasts.Type.FAILURE);
+        showToast(t("فشل تبديل SilentMessageToggle.", "Failed to toggle SilentMessageToggle."), Toasts.Type.FAILURE);
         return;
     }
 
@@ -72,7 +72,7 @@ async function runSilentMessageTogglePlugin() {
         return;
     }
 
-    showToast("SilentMessageToggle did not change.", Toasts.Type.MESSAGE);
+    showToast(t("لم تتغيّر SilentMessageToggle.", "SilentMessageToggle did not change."), Toasts.Type.MESSAGE);
 }
 
 async function runSilentMessageToggleAutoDisable() {
@@ -80,7 +80,7 @@ async function runSilentMessageToggleAutoDisable() {
 
     const store = getSilentMessageToggleSettingsStore();
     if (!store) {
-        showToast("SilentMessageToggle settings are unavailable.", Toasts.Type.FAILURE);
+        showToast(t("إعدادات SilentMessageToggle غير متاحة.", "SilentMessageToggle settings are unavailable."), Toasts.Type.FAILURE);
         return;
     }
 
@@ -93,7 +93,7 @@ async function runSilentMessageToggleOpenSettings() {
 
     const plugin = getSilentMessageTogglePlugin();
     if (!plugin) {
-        showToast("SilentMessageToggle plugin is unavailable.", Toasts.Type.FAILURE);
+        showToast(t("إضافة SilentMessageToggle غير متاحة.", "SilentMessageToggle plugin is unavailable."), Toasts.Type.FAILURE);
         return;
     }
 

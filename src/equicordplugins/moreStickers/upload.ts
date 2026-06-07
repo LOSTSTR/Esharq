@@ -7,6 +7,7 @@
 import { getMimeFromExtension } from "@equicordplugins/fileUpload/utils/getMediaUrl";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { insertTextIntoChatInputBox, MessageOptions } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { CloudUploadPlatform } from "@vencord/discord-types/enums";
 import { ChannelStore, CloudUploader, Constants, DraftStore, FluxDispatcher, MessageActions, PendingReplyStore, RestAPI, showToast, SnowflakeUtils, Toasts, UploadHandler } from "@webpack/common";
 
@@ -164,7 +165,7 @@ export async function sendSticker({ channelId, sticker, ctrlKey, shiftKey, ffmpe
         });
     });
 
-    upload.on("error", () => showToast("Failed to upload sticker", Toasts.Type.FAILURE));
+    upload.on("error", () => showToast(t("فشل رفع الملصق", "Failed to upload sticker"), Toasts.Type.FAILURE));
 
     upload.upload();
 }

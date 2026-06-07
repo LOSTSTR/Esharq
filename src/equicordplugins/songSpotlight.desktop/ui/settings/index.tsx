@@ -174,7 +174,7 @@ export default function Settings({ templateData }: SettingsProps) {
                         variant="dangerPrimary"
                         onClick={() => {
                             deleteTokens();
-                            showToast("Successfully signed out!", Toasts.Type.SUCCESS);
+                            showToast(t("تمّ تسجيل الخروج بنجاح!", "Successfully signed out!"), Toasts.Type.SUCCESS);
                         }}
                         disabled={pending}
                     >{t("تسجيل الخروج", "Sign out")}</Button>

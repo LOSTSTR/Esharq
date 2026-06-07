@@ -6,6 +6,7 @@
 
 import { logger } from "@equicordplugins/songSpotlight.desktop/lib/utils";
 import { RenderInfoEntry } from "@song-spotlight/api/handlers";
+import { t } from "@utils/esharqI18n";
 import { showToast, Toasts, useCallback, useEffect, useMemo, useRef } from "@webpack/common";
 import { RefObject } from "react";
 
@@ -36,7 +37,7 @@ export default function AudioPlayer({ audioRef, list, playing, setPlaying, setLo
                 audio.currentTime = 0;
                 audio.volume = DEFAULT_VOLUME;
                 audio.play().catch(error => {
-                    showToast("Failed to play song preview!", Toasts.Type.FAILURE);
+                    showToast(t("فشل تشغيل معاينة الأغنية!", "Failed to play song preview!"), Toasts.Type.FAILURE);
                     logger.error("Failed to play audio", error);
                     setPlaying(false);
                 });

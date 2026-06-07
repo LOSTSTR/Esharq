@@ -35,7 +35,7 @@ function getRandomVoiceSettingsStore(): RandomVoiceSettingsStore | null {
 async function ensureRandomVoicePluginEnabled() {
     const plugin = getRandomVoicePlugin();
     if (!plugin) {
-        showToast("RandomVoice plugin is unavailable.", Toasts.Type.FAILURE);
+        showToast(t("إضافة RandomVoice غير متاحة.", "RandomVoice plugin is unavailable."), Toasts.Type.FAILURE);
         return false;
     }
 
@@ -43,11 +43,11 @@ async function ensureRandomVoicePluginEnabled() {
 
     const success = await toggleEnabled(plugin.name);
     if (!success || !isPluginEnabled(plugin.name)) {
-        showToast("Failed to enable RandomVoice.", Toasts.Type.FAILURE);
+        showToast(t("فشل تفعيل RandomVoice.", "Failed to enable RandomVoice."), Toasts.Type.FAILURE);
         return false;
     }
 
-    showToast("Enabled RandomVoice.", Toasts.Type.SUCCESS);
+    showToast(t("تمّ تفعيل RandomVoice.", "Enabled RandomVoice."), Toasts.Type.SUCCESS);
     return true;
 }
 
@@ -129,19 +129,19 @@ async function runRandomVoiceJoin() {
 
     const store = getRandomVoiceSettingsStore();
     if (!store) {
-        showToast("RandomVoice settings are unavailable.", Toasts.Type.FAILURE);
+        showToast(t("إعدادات RandomVoice غير متاحة.", "RandomVoice settings are unavailable."), Toasts.Type.FAILURE);
         return;
     }
 
     const channelId = pickRandomVoiceChannelId(store);
     if (!channelId) {
-        showToast("Failed to find a voice channel.", Toasts.Type.MESSAGE);
+        showToast(t("تعذّر العثور على قناة صوتية.", "Failed to find a voice channel."), Toasts.Type.MESSAGE);
         return;
     }
 
     const channel = ChannelStore.getChannel(channelId);
     if (!channel) {
-        showToast("Voice channel is unavailable.", Toasts.Type.FAILURE);
+        showToast(t("القناة الصوتية غير متاحة.", "Voice channel is unavailable."), Toasts.Type.FAILURE);
         return;
     }
 
@@ -162,7 +162,7 @@ async function runRandomVoiceToggleAutoNavigate() {
 
     const store = getRandomVoiceSettingsStore();
     if (!store) {
-        showToast("RandomVoice settings are unavailable.", Toasts.Type.FAILURE);
+        showToast(t("إعدادات RandomVoice غير متاحة.", "RandomVoice settings are unavailable."), Toasts.Type.FAILURE);
         return;
     }
 
@@ -175,7 +175,7 @@ async function runRandomVoiceOpenSettings() {
 
     const plugin = getRandomVoicePlugin();
     if (!plugin) {
-        showToast("RandomVoice plugin is unavailable.", Toasts.Type.FAILURE);
+        showToast(t("إضافة RandomVoice غير متاحة.", "RandomVoice plugin is unavailable."), Toasts.Type.FAILURE);
         return;
     }
 

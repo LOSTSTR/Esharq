@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { t } from "@utils/esharqI18n";
 import { PluginNative } from "@utils/types";
 import { Button, MediaEngineStore, showToast, Toasts, useState } from "@webpack/common";
 
@@ -46,7 +47,7 @@ export const VoiceRecorderDesktop: VoiceRecorder = ({ setAudioBlob, onRecordingC
                     if (success)
                         changeRecording(true);
                     else
-                        showToast("Failed to start recording", Toasts.Type.FAILURE);
+                        showToast(t("فشل بدء التسجيل", "Failed to start recording"), Toasts.Type.FAILURE);
                 }
             );
         } else {
@@ -56,7 +57,7 @@ export const VoiceRecorderDesktop: VoiceRecorder = ({ setAudioBlob, onRecordingC
                     if (buf)
                         setAudioBlob(new Blob([new Uint8Array(buf)], { type: "audio/ogg; codecs=opus" }));
                     else
-                        showToast("Failed to finish recording", Toasts.Type.FAILURE);
+                        showToast(t("فشل إنهاء التسجيل", "Failed to finish recording"), Toasts.Type.FAILURE);
                 }
                 changeRecording(false);
             });

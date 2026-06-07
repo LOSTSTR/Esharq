@@ -181,7 +181,7 @@ function CustomSoundSettings({ soundKey, nameKey }: { soundKey: string; nameKey:
 
         const extension = file.name.split(".").pop()?.toLowerCase();
         if (!extension || !AUDIO_EXTENSIONS.includes(extension)) {
-            showToast("Please choose an audio file.");
+            showToast(t("يُرجى اختيار ملف صوتي.", "Please choose an audio file."));
             event.currentTarget.value = "";
             return;
         }
@@ -196,16 +196,16 @@ function CustomSoundSettings({ soundKey, nameKey }: { soundKey: string; nameKey:
             });
 
             if (!dataUri.startsWith("data:audio/")) {
-                showToast("Please choose an audio file.");
+                showToast(t("يُرجى اختيار ملف صوتي.", "Please choose an audio file."));
                 return;
             }
 
             settings.store[soundKey] = dataUri;
             settings.store[nameKey] = file.name;
             forceUpdate();
-            showToast("Custom sound saved.");
+            showToast(t("تمّ حفظ الصوت المخصّص.", "Custom sound saved."));
         } catch {
-            showToast("Could not load that audio file.");
+            showToast(t("تعذّر تحميل ملف الصوت ذاك.", "Could not load that audio file."));
         } finally {
             event.currentTarget.value = "";
             setBusy(false);

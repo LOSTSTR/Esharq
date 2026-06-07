@@ -26,7 +26,7 @@ function getThemeLibraryPlugin(): ThemeLibraryPlugin | null {
 async function ensureThemeLibraryPluginEnabled() {
     const plugin = getThemeLibraryPlugin();
     if (!plugin) {
-        showToast("ThemeLibrary plugin is unavailable.", Toasts.Type.FAILURE);
+        showToast(t("إضافة ThemeLibrary غير متاحة.", "ThemeLibrary plugin is unavailable."), Toasts.Type.FAILURE);
         return false;
     }
 
@@ -34,11 +34,11 @@ async function ensureThemeLibraryPluginEnabled() {
 
     const success = await toggleEnabled(plugin.name);
     if (!success || !isPluginEnabled(plugin.name)) {
-        showToast("Failed to enable ThemeLibrary.", Toasts.Type.FAILURE);
+        showToast(t("فشل تفعيل ThemeLibrary.", "Failed to enable ThemeLibrary."), Toasts.Type.FAILURE);
         return false;
     }
 
-    showToast("Enabled ThemeLibrary.", Toasts.Type.SUCCESS);
+    showToast(t("تمّ تفعيل ThemeLibrary.", "Enabled ThemeLibrary."), Toasts.Type.SUCCESS);
     return true;
 }
 

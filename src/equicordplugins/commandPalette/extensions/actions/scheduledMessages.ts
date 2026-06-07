@@ -28,7 +28,7 @@ function getScheduledMessagesPlugin(): ScheduledMessagesPlugin | null {
 async function ensureScheduledMessagesPluginEnabled() {
     const plugin = getScheduledMessagesPlugin();
     if (!plugin) {
-        showToast("ScheduledMessages plugin is unavailable.", Toasts.Type.FAILURE);
+        showToast(t("إضافة ScheduledMessages غير متاحة.", "ScheduledMessages plugin is unavailable."), Toasts.Type.FAILURE);
         return false;
     }
 
@@ -36,11 +36,11 @@ async function ensureScheduledMessagesPluginEnabled() {
 
     const success = await toggleEnabled(plugin.name);
     if (!success || !isPluginEnabled(plugin.name)) {
-        showToast("Failed to enable ScheduledMessages.", Toasts.Type.FAILURE);
+        showToast(t("فشل تفعيل ScheduledMessages.", "Failed to enable ScheduledMessages."), Toasts.Type.FAILURE);
         return false;
     }
 
-    showToast("Enabled ScheduledMessages.", Toasts.Type.SUCCESS);
+    showToast(t("تمّ تفعيل ScheduledMessages.", "Enabled ScheduledMessages."), Toasts.Type.SUCCESS);
     return true;
 }
 

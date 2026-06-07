@@ -61,7 +61,7 @@ export const addCollectionContextMenuPatch: NavContextMenuPatchCallback = (child
                 id="copy-image-link"
                 action={() => {
                     copyToClipboard(gif.url);
-                    showToast("Image link copied to clipboard", Toasts.Type.SUCCESS);
+                    showToast(t("تمّ نسخ رابط الصورة إلى الحافظة", "Image link copied to clipboard"), Toasts.Type.SUCCESS);
                 }}
             />
         );
@@ -117,7 +117,7 @@ export function RemoveItemContextMenu({ type, nameOrId, instance }: { type: "col
                             const gif = getGifById(nameOrId);
                             if (!gif) return;
                             copyToClipboard(gif.url);
-                            showToast("URL copied to clipboard", Toasts.Type.SUCCESS);
+                            showToast(t("تمّ نسخ الرابط إلى الحافظة", "URL copied to clipboard"), Toasts.Type.SUCCESS);
                         }}
                     />
                     <Menu.MenuItem
@@ -178,7 +178,7 @@ export function GifPickerContextMenu({ gif }: { gif: Gif; }) {
                     id="copy-image-link"
                     action={() => {
                         copyToClipboard(gif.url);
-                        showToast("Image link copied to clipboard", Toasts.Type.SUCCESS);
+                        showToast(t("تمّ نسخ رابط الصورة إلى الحافظة", "Image link copied to clipboard"), Toasts.Type.SUCCESS);
                     }}
                 />
             )}

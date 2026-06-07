@@ -137,7 +137,7 @@ export default definePlugin({
     toolboxActions: {
         "Instant Screenshare"() {
             settings.store.toolboxManagement = !settings.store.toolboxManagement;
-            showToast(`Instant Screenshare ${settings.store.toolboxManagement ? "Enabled" : "Disabled"}`, Toasts.Type.SUCCESS);
+            showToast(`Instant Screenshare ${settings.store.toolboxManagement ? t("مُفعَّل", "Enabled") : t("مُعطَّل", "Disabled")}`, Toasts.Type.SUCCESS);
         }
     }
 });

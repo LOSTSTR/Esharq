@@ -31,7 +31,7 @@ let pendingCancelScheduledMessageId: string | null = null;
 async function ensureHolyNotesEnabled() {
     const plugin = plugins.HolyNotes;
     if (!plugin) {
-        showToast("HolyNotes plugin is unavailable.", Toasts.Type.FAILURE);
+        showToast(t("إضافة HolyNotes غير متاحة.", "HolyNotes plugin is unavailable."), Toasts.Type.FAILURE);
         return false;
     }
 
@@ -39,7 +39,7 @@ async function ensureHolyNotesEnabled() {
 
     const success = await toggleEnabled(plugin.name);
     if (!success || !isPluginEnabled(plugin.name)) {
-        showToast("Failed to enable HolyNotes.", Toasts.Type.FAILURE);
+        showToast(t("فشل تفعيل HolyNotes.", "Failed to enable HolyNotes."), Toasts.Type.FAILURE);
         return false;
     }
 
@@ -49,7 +49,7 @@ async function ensureHolyNotesEnabled() {
 async function ensureScheduledMessagesEnabled() {
     const plugin = plugins.ScheduledMessages;
     if (!plugin) {
-        showToast("ScheduledMessages plugin is unavailable.", Toasts.Type.FAILURE);
+        showToast(t("إضافة ScheduledMessages غير متاحة.", "ScheduledMessages plugin is unavailable."), Toasts.Type.FAILURE);
         return false;
     }
 
@@ -57,7 +57,7 @@ async function ensureScheduledMessagesEnabled() {
 
     const success = await toggleEnabled(plugin.name);
     if (!success || !isPluginEnabled(plugin.name)) {
-        showToast("Failed to enable ScheduledMessages.", Toasts.Type.FAILURE);
+        showToast(t("فشل تفعيل ScheduledMessages.", "Failed to enable ScheduledMessages."), Toasts.Type.FAILURE);
         return false;
     }
 
@@ -169,7 +169,7 @@ function buildSendCandidates(target: string, content: string, useFilePicker: boo
             description: t("لا يوجد مستخدم مطابق.", "No matching user found."),
             badge: "Query",
             icon: NotesIcon,
-            run: () => showToast("No matching user found.", Toasts.Type.FAILURE)
+            run: () => showToast(t("لم يُعثر على مستخدم مطابق.", "No matching user found."), Toasts.Type.FAILURE)
         }];
     }
 
@@ -203,7 +203,7 @@ function buildSendChannelCandidates(target: string, content: string, useFilePick
             description: t("لا توجد قناة مطابقة.", "No matching channel found."),
             badge: "Query",
             icon: NotesIcon,
-            run: () => showToast("No matching channel found.", Toasts.Type.FAILURE)
+            run: () => showToast(t("لم يُعثر على قناة مطابقة.", "No matching channel found."), Toasts.Type.FAILURE)
         }];
     }
 
@@ -237,7 +237,7 @@ function buildOpenDmCandidates(target: string): QueryActionCandidate[] {
             label: t("فتح رسالة خاصّة", "Open DM"),
             description: trimmedTarget ? "No matching user found." : "No recent DMs found.",
             badge: "Query",
-            run: () => showToast(trimmedTarget ? "No matching user found." : "No recent DMs found.", Toasts.Type.FAILURE)
+            run: () => showToast(trimmedTarget ? t("لم يُعثر على مستخدم مطابق.", "No matching user found.") : t("لم يُعثر على رسائل خاصة حديثة.", "No recent DMs found."), Toasts.Type.FAILURE)
         }];
     }
 
@@ -252,7 +252,7 @@ function buildOpenDmCandidates(target: string): QueryActionCandidate[] {
         run: async () => {
             const dmId = await openDmByUserId(match.user.id);
             if (!dmId) {
-                showToast("Unable to open DM.", Toasts.Type.FAILURE);
+                showToast(t("تعذّر فتح الرسالة الخاصة.", "Unable to open DM."), Toasts.Type.FAILURE);
                 return;
             }
 
@@ -285,7 +285,7 @@ function buildGoToCandidates(target: string): QueryActionCandidate[] {
         label: t("الانتقال إلى", "Navigate to"),
         description: t("لا يوجد سيرفر يطابق الهدف.", "No server matches the target."),
         badge: "Query",
-        run: () => showToast("No server matches that target.", Toasts.Type.FAILURE)
+        run: () => showToast(t("لا يوجد خادم يطابق ذلك الهدف.", "No server matches that target."), Toasts.Type.FAILURE)
     }];
 }
 
@@ -297,7 +297,7 @@ function buildOpenSettingsCandidates(target: string): QueryActionCandidate[] {
             label: t("فتح الإعدادات", "Open settings"),
             description: t("لا يوجد قسم إعدادات مطابق.", "No matching settings section found."),
             badge: "Query",
-            run: () => showToast("No matching settings section.", Toasts.Type.FAILURE)
+            run: () => showToast(t("لا يوجد قسم إعدادات مطابق.", "No matching settings section."), Toasts.Type.FAILURE)
         }];
     }
 
@@ -309,7 +309,7 @@ function buildOpenSettingsCandidates(target: string): QueryActionCandidate[] {
                 label: t("فتح الإعدادات", "Open settings"),
                 description: t("أمر الإعدادات غير متاح.", "Settings command is unavailable."),
                 badge: "Query",
-                run: () => showToast("Settings command is unavailable.", Toasts.Type.FAILURE)
+                run: () => showToast(t("أمر الإعدادات غير متاح.", "Settings command is unavailable."), Toasts.Type.FAILURE)
             } satisfies QueryActionCandidate;
         }
 
@@ -333,7 +333,7 @@ function buildTogglePluginCandidates(target: string): QueryActionCandidate[] {
             label: t("تبديل الإضافة", "Toggle plugin"),
             description: t("لا توجد إضافة مطابقة.", "No matching plugin found."),
             badge: "Query",
-            run: () => showToast("No matching plugin.", Toasts.Type.FAILURE)
+            run: () => showToast(t("لا توجد إضافة مطابقة.", "No matching plugin."), Toasts.Type.FAILURE)
         }];
     }
 
@@ -353,7 +353,7 @@ function buildTogglePluginCandidates(target: string): QueryActionCandidate[] {
             }
 
             if (before !== after) {
-                showToast(`${after ? "Enabled" : "Disabled"} ${plugin.name}.`, Toasts.Type.SUCCESS);
+                showToast(`${after ? t("مُفعَّل", "Enabled") : t("مُعطَّل", "Disabled")} ${plugin.name}.`, Toasts.Type.SUCCESS);
                 return;
             }
 
@@ -370,7 +370,7 @@ function buildOpenUrlCandidates(target: string): QueryActionCandidate[] {
             label: t("فتح رابط", "Open URL"),
             description: t("رابط غير صالح.", "Invalid URL."),
             badge: "Query",
-            run: () => showToast("Invalid URL.", Toasts.Type.FAILURE)
+            run: () => showToast(t("رابط غير صالح.", "Invalid URL."), Toasts.Type.FAILURE)
         }];
     }
 
@@ -572,10 +572,10 @@ function buildQuickScheduleMessageCandidates(target: string): QueryActionCandida
             if (!await ensureScheduledMessagesEnabled()) return false;
             const result = await addScheduledMessage(channelChoice.id, parsed.message, scheduledTime);
             if (!result.success) {
-                showToast(result.error ?? "Failed to schedule message.", Toasts.Type.FAILURE);
+                showToast(result.error ?? t("فشل جدولة الرسالة.", "Failed to schedule message."), Toasts.Type.FAILURE);
                 return false;
             }
-            showToast("Message scheduled.", Toasts.Type.SUCCESS);
+            showToast(t("تمّت جدولة الرسالة.", "Message scheduled."), Toasts.Type.SUCCESS);
         }
     }];
 }
@@ -590,7 +590,7 @@ function buildRescheduleMessageCandidates(target: string): QueryActionCandidate[
                 description: t("لا توجد رسائل مجدولة.", "No scheduled messages found."),
                 badge: "Query",
                 run: () => {
-                    showToast("No scheduled messages found.", Toasts.Type.MESSAGE);
+                    showToast(t("لم يُعثر على رسائل مجدولة.", "No scheduled messages found."), Toasts.Type.MESSAGE);
                     return false;
                 }
             }];
@@ -605,7 +605,7 @@ function buildRescheduleMessageCandidates(target: string): QueryActionCandidate[
                 badge: "Query",
                 run: () => {
                     stagedRescheduleMessage = { id: message.id, label };
-                    showToast("Message selected. Type the new schedule time.", Toasts.Type.MESSAGE);
+                    showToast(t("تمّ تحديد الرسالة. اكتب وقت الجدولة الجديد.", "Message selected. Type the new schedule time."), Toasts.Type.MESSAGE);
                     return false;
                 }
             };
@@ -620,7 +620,7 @@ function buildRescheduleMessageCandidates(target: string): QueryActionCandidate[
             description: t("استخدم: في 10م، غداً 5م، أو 2026-02-14 18:00.", "Use: in 10m, tomorrow 5pm, or 2026-02-14 18:00."),
             badge: "Query",
             run: () => {
-                showToast("Type a valid future time.", Toasts.Type.MESSAGE);
+                showToast(t("اكتب وقتاً مستقبلياً صالحاً.", "Type a valid future time."), Toasts.Type.MESSAGE);
                 return false;
             }
         }];
@@ -635,11 +635,11 @@ function buildRescheduleMessageCandidates(target: string): QueryActionCandidate[
             if (!await ensureScheduledMessagesEnabled()) return false;
             const result = await updateScheduledMessageTime(stagedRescheduleMessage!.id, scheduledTime);
             if (!result.success) {
-                showToast(result.error ?? "Failed to reschedule message.", Toasts.Type.FAILURE);
+                showToast(result.error ?? t("فشل إعادة جدولة الرسالة.", "Failed to reschedule message."), Toasts.Type.FAILURE);
                 return false;
             }
             stagedRescheduleMessage = null;
-            showToast("Message rescheduled.", Toasts.Type.SUCCESS);
+            showToast(t("تمّت إعادة جدولة الرسالة.", "Message rescheduled."), Toasts.Type.SUCCESS);
         }
     }];
 }
@@ -653,7 +653,7 @@ function buildSendScheduledNowCandidates(target: string): QueryActionCandidate[]
             description: t("لا توجد رسائل مجدولة.", "No scheduled messages found."),
             badge: "Query",
             run: () => {
-                showToast("No scheduled messages found.", Toasts.Type.MESSAGE);
+                showToast(t("لم يُعثر على رسائل مجدولة.", "No scheduled messages found."), Toasts.Type.MESSAGE);
                 return false;
             }
         }];
@@ -668,10 +668,10 @@ function buildSendScheduledNowCandidates(target: string): QueryActionCandidate[]
             if (!await ensureScheduledMessagesEnabled()) return false;
             const result = await sendScheduledMessageNow(message.id);
             if (!result.success) {
-                showToast(result.error ?? "Failed to send scheduled message.", Toasts.Type.FAILURE);
+                showToast(result.error ?? t("فشل إرسال الرسالة المجدولة.", "Failed to send scheduled message."), Toasts.Type.FAILURE);
                 return false;
             }
-            showToast("Sent scheduled message.", Toasts.Type.SUCCESS);
+            showToast(t("تمّ إرسال الرسالة المجدولة.", "Sent scheduled message."), Toasts.Type.SUCCESS);
         }
     }));
 }
@@ -691,7 +691,7 @@ function buildCancelScheduledMessageCandidates(target: string): QueryActionCandi
                     if (!await ensureScheduledMessagesEnabled()) return false;
                     await removeScheduledMessage(message.id);
                     pendingCancelScheduledMessageId = null;
-                    showToast("Scheduled message canceled.", Toasts.Type.SUCCESS);
+                    showToast(t("أُلغيت الرسالة المجدولة.", "Scheduled message canceled."), Toasts.Type.SUCCESS);
                 }
             }];
         }
@@ -705,7 +705,7 @@ function buildCancelScheduledMessageCandidates(target: string): QueryActionCandi
             description: t("لا توجد رسائل مجدولة.", "No scheduled messages found."),
             badge: "Query",
             run: () => {
-                showToast("No scheduled messages found.", Toasts.Type.MESSAGE);
+                showToast(t("لم يُعثر على رسائل مجدولة.", "No scheduled messages found."), Toasts.Type.MESSAGE);
                 return false;
             }
         }];
@@ -718,7 +718,7 @@ function buildCancelScheduledMessageCandidates(target: string): QueryActionCandi
         badge: "Query",
         run: () => {
             pendingCancelScheduledMessageId = message.id;
-            showToast("Select again to confirm cancel.", Toasts.Type.MESSAGE);
+            showToast(t("حدّد مرّة أخرى لتأكيد الإلغاء.", "Select again to confirm cancel."), Toasts.Type.MESSAGE);
             return false;
         }
     }));

@@ -596,13 +596,13 @@ function runAfterVoiceJoin(channelId: string, callbacks: PostJoinAction[]) {
 async function joinRandomVoice() {
     const channelId = pickRandomChannel();
     if (!channelId) {
-        showToast("Failed to find a voice channel.", Toasts.Type.MESSAGE);
+        showToast(t("تعذّر العثور على قناة صوتية.", "Failed to find a voice channel."), Toasts.Type.MESSAGE);
         return;
     }
 
     const channel = ChannelStore.getChannel(channelId);
     if (!channel) {
-        showToast("Voice channel is unavailable.", Toasts.Type.FAILURE);
+        showToast(t("القناة الصوتية غير متاحة.", "Voice channel is unavailable."), Toasts.Type.FAILURE);
         return;
     }
 

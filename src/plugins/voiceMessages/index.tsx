@@ -191,7 +191,7 @@ function sendAudio(blob: Blob, meta: AudioMetadata) {
             }
         });
     });
-    upload.on("error", () => showToast("Failed to upload voice message", Toasts.Type.FAILURE));
+    upload.on("error", () => showToast(t("فشل رفع الرسالة الصوتية", "Failed to upload voice message"), Toasts.Type.FAILURE));
 
     upload.upload();
 }
@@ -245,7 +245,7 @@ function VoiceMessageModal({ modalProps }: { modalProps: RenderModalProps; }) {
                 onClick: () => {
                     sendAudio(blob!, meta ?? EMPTY_META);
                     modalProps.onClose();
-                    showToast("Now sending voice message... Please be patient", Toasts.Type.MESSAGE);
+                    showToast(t("جارٍ إرسال الرسالة الصوتية... يُرجى الصبر", "Now sending voice message... Please be patient"), Toasts.Type.MESSAGE);
                 },
                 disabled: !blob
             }]}

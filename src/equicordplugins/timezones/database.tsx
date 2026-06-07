@@ -113,7 +113,7 @@ async function setTimezoneInternal(timezone: string): Promise<boolean> {
             return false;
         }
 
-        showToast("Timezone updated successfully!", Toasts.Type.SUCCESS);
+        showToast(t("تمّ تحديث المنطقة الزمنية بنجاح!", "Timezone updated successfully!"), Toasts.Type.SUCCESS);
         return true;
     } catch (e) {
         handleApiError(e, "Failed to set timezone");
@@ -151,7 +151,7 @@ async function deleteTimezoneInternal(): Promise<boolean> {
             return false;
         }
 
-        showToast("Timezone deleted successfully!", Toasts.Type.SUCCESS);
+        showToast(t("تمّ حذف المنطقة الزمنية بنجاح!", "Timezone deleted successfully!"), Toasts.Type.SUCCESS);
         return true;
     } catch (e) {
         handleApiError(e, "Failed to delete timezone");
@@ -182,7 +182,7 @@ export function authModal(callback?: () => void) {
                         handleApiError(json, "Authorization failed");
                         return;
                     }
-                    showToast("Authorization successful!", Toasts.Type.SUCCESS);
+                    showToast(t("تمّ التفويض بنجاح!", "Authorization successful!"), Toasts.Type.SUCCESS);
                     callback?.();
                 } catch (e) {
                     handleApiError(e, "Unexpected error during authorization");

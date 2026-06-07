@@ -9,6 +9,7 @@ import { settings } from "@equicordplugins/fileUpload/settings";
 import { fallbackServiceOrder, serviceLabels, ServiceType, ShareXUploaderConfig, UploadResponse } from "@equicordplugins/fileUpload/types";
 import { copyToClipboard } from "@utils/clipboard";
 import { insertTextIntoChatInputBox } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import { PluginNative } from "@utils/types";
 import { chooseFile } from "@utils/web";
@@ -1127,19 +1128,19 @@ function getFilenameExtension(filename: string): string | undefined {
 async function notifyUploadSuccess(finalUrl: string): Promise<void> {
     if (settings.store.autoCopy) {
         if (!finalUrl || !finalUrl.trim()) {
-            showToast("Upload successful, but no URL was available to copy", Toasts.Type.MESSAGE);
+            showToast(t("تمّ الرفع بنجاح، لكن لا يوجد رابط متاح للنسخ", "Upload successful, but no URL was available to copy"), Toasts.Type.MESSAGE);
             return;
         }
 
         try {
             await copyToClipboard(finalUrl);
-            showToast("Upload successful, URL copied to clipboard", Toasts.Type.SUCCESS);
+            showToast(t("تمّ الرفع بنجاح، نُسخ الرابط إلى الحافظة", "Upload successful, URL copied to clipboard"), Toasts.Type.SUCCESS);
         } catch (error) {
             logger.warn("Upload succeeded but clipboard copy failed", error);
-            showToast("Upload successful, but failed to copy URL", Toasts.Type.MESSAGE);
+            showToast(t("تمّ الرفع بنجاح، لكن فشل نسخ الرابط", "Upload successful, but failed to copy URL"), Toasts.Type.MESSAGE);
         }
     } else {
-        showToast("Upload successful", Toasts.Type.SUCCESS);
+        showToast(t("تمّ الرفع بنجاح", "Upload successful"), Toasts.Type.SUCCESS);
     }
 
     const autoSend = Boolean((settings.store as { autoSend?: boolean; }).autoSend);
@@ -1256,7 +1257,7 @@ async function normalizeUploadBlob(blob: Blob, sourceUrl?: string): Promise<{ bl
             blob = gifBlob;
             ext = "gif";
         } else {
-            showToast("APNG to GIF conversion failed, uploading as APNG", Toasts.Type.FAILURE);
+            showToast(t("فشل تحويل APNG إلى GIF، يُرفع كـ APNG", "APNG to GIF conversion failed, uploading as APNG"), Toasts.Type.FAILURE);
         }
     }
 
@@ -1285,12 +1286,12 @@ async function uploadPreparedBlob(blob: Blob, sourceUrl?: string): Promise<void>
 
 export async function uploadFile(url: string): Promise<void> {
     if (isUploading) {
-        showToast("Upload already in progress", Toasts.Type.MESSAGE);
+        showToast(t("الرفع قيد التقدّم بالفعل", "Upload already in progress"), Toasts.Type.MESSAGE);
         return;
     }
 
     if (!isConfigured()) {
-        showToast("Please configure FileUpload settings first", Toasts.Type.FAILURE);
+        showToast(t("يُرجى ضبط إعدادات FileUpload أولاً", "Please configure FileUpload settings first"), Toasts.Type.FAILURE);
         return;
     }
 
@@ -1349,7 +1350,7 @@ export async function uploadFile(url: string): Promise<void> {
     } catch (error) {
         const message = error instanceof Error ? error.message : "Unknown error";
         if (isUploadCancelledError(error)) {
-            showToast("Upload cancelled", Toasts.Type.MESSAGE);
+            showToast(t("أُلغي الرفع", "Upload cancelled"), Toasts.Type.MESSAGE);
             setUploadState({ phase: "cancelled", status: "Upload cancelled.", canCancel: false, percent: 0 });
         } else {
             showToast(`Upload failed: ${message}`, Toasts.Type.FAILURE);
@@ -1373,12 +1374,12 @@ export async function uploadPickedFile(): Promise<void> {
 
 export async function uploadProvidedFiles(files: readonly File[]): Promise<void> {
     if (isUploading) {
-        showToast("Upload already in progress", Toasts.Type.MESSAGE);
+        showToast(t("الرفع قيد التقدّم بالفعل", "Upload already in progress"), Toasts.Type.MESSAGE);
         return;
     }
 
     if (!isConfigured()) {
-        showToast("Please configure FileUpload settings first", Toasts.Type.FAILURE);
+        showToast(t("يُرجى ضبط إعدادات FileUpload أولاً", "Please configure FileUpload settings first"), Toasts.Type.FAILURE);
         return;
     }
 
@@ -1413,7 +1414,7 @@ export async function uploadProvidedFiles(files: readonly File[]): Promise<void>
     } catch (error) {
         const message = error instanceof Error ? error.message : "Unknown error";
         if (isUploadCancelledError(error)) {
-            showToast("Upload cancelled", Toasts.Type.MESSAGE);
+            showToast(t("أُلغي الرفع", "Upload cancelled"), Toasts.Type.MESSAGE);
             setUploadState({ phase: "cancelled", status: "Upload cancelled.", canCancel: false, percent: 0 });
         } else {
             showToast(`Upload failed: ${message}`, Toasts.Type.FAILURE);

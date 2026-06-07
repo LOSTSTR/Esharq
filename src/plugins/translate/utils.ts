@@ -17,6 +17,7 @@
 */
 
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { onlyOnce } from "@utils/onlyOnce";
 import { PluginNative } from "@utils/types";
 import { showToast, Toasts } from "@webpack/common";
@@ -131,12 +132,12 @@ function fallbackToGoogle(text: string, sourceLang: string, targetLang: string):
 }
 
 const showDeeplApiQuotaToast = onlyOnce(
-    () => showToast("Deepl API quota exceeded. Falling back to Google Translate", Toasts.Type.FAILURE)
+    () => showToast(t("تجاوزت حصّة DeepL API. العودة إلى Google Translate", "Deepl API quota exceeded. Falling back to Google Translate"), Toasts.Type.FAILURE)
 );
 
 async function deeplTranslate(text: string, sourceLang: string, targetLang: string): Promise<TranslationValue> {
     if (!settings.store.deeplApiKey) {
-        showToast("DeepL API key is not set. Resetting to Google", Toasts.Type.FAILURE);
+        showToast(t("مفتاح DeepL API غير مُعيَّن. إعادة الضبط إلى Google", "DeepL API key is not set. Resetting to Google"), Toasts.Type.FAILURE);
 
         settings.store.service = "google";
         resetLanguageDefaults();

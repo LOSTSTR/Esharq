@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import type { Channel } from "@vencord/discord-types";
 import { ChannelType } from "@vencord/discord-types/enums";
@@ -135,7 +136,7 @@ function getInviteUrl(code: string) {
 export async function createInvite(guildId: string, currentChannel: Channel, settings: InviteSettings): Promise<string | null> {
     const inviteChannel = resolveInviteChannel(guildId, currentChannel);
     if (!inviteChannel) {
-        showToast("No channel available for invites.", Toasts.Type.FAILURE);
+        showToast(t("لا توجد قناة متاحة للدعوات.", "No channel available for invites."), Toasts.Type.FAILURE);
         return null;
     }
 
@@ -145,8 +146,8 @@ export async function createInvite(guildId: string, currentChannel: Channel, set
 
         showToast(
             reused.reason === "missing"
-                ? "No reusable invite available."
-                : "Unable to reuse invite.",
+                ? t("لا توجد دعوة قابلة لإعادة الاستخدام.", "No reusable invite available.")
+                : t("تعذّر إعادة استخدام الدعوة.", "Unable to reuse invite."),
             Toasts.Type.FAILURE,
         );
         return null;
@@ -174,11 +175,11 @@ export async function createInvite(guildId: string, currentChannel: Channel, set
             maxUses: maxUses === 0 ? null : maxUses,
             uses: 0,
         });
-        showToast("Invite created.", Toasts.Type.SUCCESS);
+        showToast(t("تمّ إنشاء الدعوة.", "Invite created."), Toasts.Type.SUCCESS);
         return getInviteUrl(code);
     } catch (error) {
         logger.error("Failed to create invite", error);
-        showToast("Unable to create invite.", Toasts.Type.FAILURE);
+        showToast(t("تعذّر إنشاء الدعوة.", "Unable to create invite."), Toasts.Type.FAILURE);
         return null;
     }
 }

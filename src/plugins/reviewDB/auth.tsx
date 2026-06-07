@@ -5,6 +5,7 @@
  */
 
 import * as DataStore from "@api/DataStore";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import { OAuth2AuthorizeModal, openModal, showToast, Toasts, UserStore } from "@webpack/common";
 
@@ -60,13 +61,13 @@ export function authorize(callback?: any) {
 
                     if (!res.ok) {
                         const { message } = await res.json();
-                        showToast(message || "An error occured while authorizing", Toasts.Type.FAILURE);
+                        showToast(message || t("حدث خطأ أثناء التفويض", "An error occured while authorizing"), Toasts.Type.FAILURE);
                         return;
                     }
 
                     const { token } = await res.json();
                     updateAuth({ token });
-                    showToast("Successfully logged in!", Toasts.Type.SUCCESS);
+                    showToast(t("تمّ تسجيل الدخول بنجاح!", "Successfully logged in!"), Toasts.Type.SUCCESS);
                     callback?.();
                 } catch (e) {
                     new Logger("ReviewDB").error("Failed to authorize", e);

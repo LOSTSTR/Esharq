@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import { Activity } from "@vencord/discord-types";
 import { ApplicationAssetUtils, FluxDispatcher, showToast } from "@webpack/common";
@@ -30,7 +31,7 @@ async function authenticate(): Promise<boolean> {
     const { abs_serverUrl, abs_username, abs_password } = settings.store;
     if (!abs_serverUrl || !abs_username || !abs_password) {
         logger.warn("AudioBookShelf server URL, username, or password is not set.");
-        showToast("AudioBookShelf RPC is not configured.", "failure", { duration: 15000 });
+        showToast(t("لم تُضبَط حالة AudioBookShelf الغنية.", "AudioBookShelf RPC is not configured."), "failure", { duration: 15000 });
         return false;
     }
 

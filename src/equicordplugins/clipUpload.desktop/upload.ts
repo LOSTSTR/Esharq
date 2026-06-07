@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "@utils/esharqI18n";
 import { isObject } from "@utils/misc";
 import type { PluginNative } from "@utils/types";
 import { User } from "@vencord/discord-types";
@@ -175,7 +176,7 @@ export async function uploadClipFile(file: File, options: ClipUploadOptions) {
     let uploadAbortController: AbortController | undefined;
 
     try {
-        showToast("Checking clip file.", Toasts.Type.MESSAGE);
+        showToast(t("جارٍ فحص ملف المقطع.", "Checking clip file."), Toasts.Type.MESSAGE);
 
         const uploadFile = await prepareClipFile(file, options.fileName);
         const attachment = await reserveClipUpload(options, uploadFile);
@@ -225,7 +226,7 @@ export async function uploadClipFile(file: File, options: ClipUploadOptions) {
 
         if (messageResponse.ok === false) throw messageResponse;
 
-        showToast("Clip uploaded.", Toasts.Type.SUCCESS);
+        showToast(t("تمّ رفع المقطع.", "Clip uploaded."), Toasts.Type.SUCCESS);
         return true;
     } catch (error) {
         showToast(getErrorMessage(error), Toasts.Type.FAILURE);

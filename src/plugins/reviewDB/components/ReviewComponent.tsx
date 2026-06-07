@@ -56,7 +56,7 @@ export default function ReviewComponent({ review, refetch, profileId }: { review
                 cancelText="Nevermind"
                 onConfirm={async () => {
                     if (!(await getToken())) {
-                        return showToast("You must be logged in to delete reviews.");
+                        return showToast(t("يجب تسجيل الدخول لحذف المراجعات.", "You must be logged in to delete reviews."));
                     } else {
                         deleteReview(review.id).then(res => {
                             if (res) {
@@ -79,7 +79,7 @@ export default function ReviewComponent({ review, refetch, profileId }: { review
                 cancelText="Nevermind"
                 onConfirm={async () => {
                     if (!(await getToken())) {
-                        return showToast("You must be logged in to report reviews.");
+                        return showToast(t("يجب تسجيل الدخول للإبلاغ عن المراجعات.", "You must be logged in to report reviews."));
                     } else {
                         reportReview(review.id);
                     }
@@ -103,7 +103,7 @@ export default function ReviewComponent({ review, refetch, profileId }: { review
                 cancelText="Nevermind"
                 onConfirm={async () => {
                     if (!(await getToken())) {
-                        return showToast("You must be logged in to block users.");
+                        return showToast(t("يجب تسجيل الدخول لحظر المستخدمين.", "You must be logged in to block users."));
                     } else {
                         blockUser(review.sender.discordID);
                     }

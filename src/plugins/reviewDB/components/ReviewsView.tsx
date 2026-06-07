@@ -22,6 +22,7 @@ import { Review, ReviewType } from "@plugins/reviewDB/entities";
 import { addReview, getReviews, REVIEWS_PER_PAGE, UserReviewsData } from "@plugins/reviewDB/reviewDbApi";
 import { settings } from "@plugins/reviewDB/settings";
 import { cl, showToast } from "@plugins/reviewDB/utils";
+import { t } from "@utils/esharqI18n";
 import { useAwaiter, useForceUpdater } from "@utils/react";
 import { findByCodeLazy, findByPropsLazy, findComponentByCodeLazy } from "@webpack";
 import { React, RelationshipStore, useRef, UserStore } from "@webpack/common";
@@ -138,7 +139,7 @@ export function ReviewsInputComponent(
         <>
             <div onClick={() => {
                 if (!token) {
-                    showToast("Opening authorization window...");
+                    showToast(t("جارٍ فتح نافذة التفويض...", "Opening authorization window..."));
                     authorize();
                 }
             }}>

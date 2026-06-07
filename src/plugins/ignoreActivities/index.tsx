@@ -89,12 +89,12 @@ function ImportCustomRPCComponent() {
                     onClick={() => {
                         const id = CustomRpcPlugin.settings.store.appID;
                         if (!id) {
-                            return showToast("CustomRPC application ID is not set.", Toasts.Type.FAILURE);
+                            return showToast(t("معرّف تطبيق CustomRPC غير مُعيَّن.", "CustomRPC application ID is not set."), Toasts.Type.FAILURE);
                         }
 
                         const isAlreadyAdded = idsListPushID?.(id);
                         if (isAlreadyAdded) {
-                            showToast("CustomRPC application ID is already added.", Toasts.Type.FAILURE);
+                            showToast(t("معرّف تطبيق CustomRPC مُضاف بالفعل.", "CustomRPC application ID is already added."), Toasts.Type.FAILURE);
                         }
                     }}
                 >{t("استيراد معرّف CustomRPC", "Import CustomRPC ID")}</Button>
