@@ -94,15 +94,11 @@ export function LogsModal({ modalProps, initalQuery }: Props) {
                         <TabBar.Item
                             className={cl("modal-tab-bar-item")}
                             id={LogTabs.DELETED}
-                        >
-                            Deleted
-                        </TabBar.Item>
+                        >{t("محذوفة", "Deleted")}</TabBar.Item>
                         <TabBar.Item
                             className={cl("modal-tab-bar-item")}
                             id={LogTabs.EDITED}
-                        >
-                            Edited
-                        </TabBar.Item>
+                        >{t("معدّلة", "Edited")}</TabBar.Item>
                         <TabBar.Item
                             className={cl("modal-tab-bar-item")}
                             id={LogTabs.GHOST_PING}
@@ -115,7 +111,7 @@ export function LogsModal({ modalProps, initalQuery }: Props) {
             }
             actions={[
                 {
-                    text: `Sort ${sortNewest ? "Oldest First" : t("الأحدث أولاً", "Newest First")}`,
+                    text: sortNewest ? t("ترتيب: الأقدم أولاً", "Sort Oldest First") : t("ترتيب: الأحدث أولاً", "Sort Newest First"),
                     variant: "secondary",
                     onClick: () => {
                         setSortNewest(e => {
@@ -239,14 +235,19 @@ function NoResults({ tab }: { tab: LogTabs; }) {
     };
 
     const { nextTab, lastTab } = generateSuggestedTabs(tab);
+    const tabLabel = (x: LogTabs | string) =>
+        x === LogTabs.DELETED ? t("محذوفة", "Deleted")
+            : x === LogTabs.EDITED ? t("معدّلة", "Edited")
+                : x === LogTabs.GHOST_PING ? t("إشارة شبحية", "Ghost Pinged")
+                    : String(x);
 
     return (
         <div className={cl("modal-empty-logs", "modal-content-inner")} style={{ textAlign: "center" }}>
             <BaseText size="lg">
-                No results in <b>{tab}</b>.
+                {t("لا نتائج في", "No results in")} <b>{tabLabel(tab)}</b>.
             </BaseText>
             <BaseText size="lg" style={{ marginTop: "0.2rem" }}>
-                Maybe try <b>{nextTab}</b> or <b>{lastTab}</b>
+                {t("جرّب", "Maybe try")} <b>{tabLabel(nextTab)}</b> {t("أو", "or")} <b>{tabLabel(lastTab)}</b>
             </BaseText>
         </div>
     );

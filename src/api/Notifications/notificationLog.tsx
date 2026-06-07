@@ -21,6 +21,7 @@ import { Settings } from "@api/Settings";
 import { Paragraph } from "@components/Paragraph";
 import { openNotificationSettingsModal } from "@components/settings/tabs/vencord/NotificationSettings";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { useAwaiter } from "@utils/react";
 import { RenderModalProps } from "@vencord/discord-types";
 import { ConfirmModal, ListScrollerThin, Modal, openModal, React, Timestamp, useEffect, useReducer, useState } from "@webpack/common";
@@ -157,24 +158,25 @@ function LogModal(props: RenderModalProps) {
         <Modal
             {...props}
             size="xl"
-            title="Notification Log"
+            title={t("سجل الإشعارات", "Notification Log")}
             actions={[
                 {
-                    text: "Notification Settings",
+                    text: t("إعدادات الإشعارات", "Notification Settings"),
                     variant: "primary",
                     onClick: openNotificationSettingsModal
                 },
                 {
-                    text: "Clear Notification Log",
+                    text: t("مسح سجل الإشعارات", "Clear Notification Log"),
                     variant: "critical-primary",
                     disabled: !log.length,
                     onClick() {
                         openModal(props =>
                             <ConfirmModal
                                 {...props}
-                                title="Are you sure?"
-                                subtitle={`This will permanently remove ${log.length} notification${log.length === 1 ? "" : "s"}. This action cannot be undone.`}
-                                confirmText="Do it!"
+                                title={t("هل أنت متأكد؟", "Are you sure?")}
+                                subtitle={t(`سيؤدي هذا إلى إزالة ${log.length} إشعار${log.length === 1 ? "" : "ات"} نهائياً. لا يمكن التراجع عن هذا الإجراء.`, `This will permanently remove ${log.length} notification${log.length === 1 ? "" : "s"}. This action cannot be undone.`)}
+                                confirmText={t("نفّذ!", "Do it!")}
+                                cancelText={t("إلغاء", "Cancel")}
                                 onConfirm={async () => {
                                     await DataStore.set(KEY, []);
                                     signals.forEach(x => x());
