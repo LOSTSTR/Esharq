@@ -59,7 +59,7 @@ const ReadAllButton = () => (
         variant="secondary"
         onClick={onClick}
         className="vc-ranb-button"
-    >{t("تعليم الكل كمقروء", "Read All")}</TextButton>
+    >{t("اقرأ الكل", "Read All")}</TextButton>
 );
 
 export default definePlugin({
