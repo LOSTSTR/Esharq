@@ -32,7 +32,7 @@ const settings = definePluginSettings({
                 addSettingsPanelButton({
                     name: "faked",
                     icon: DeafenIcon,
-                    tooltipText: "Fake Deafen",
+                    tooltipText: t("الوضع الوهمي للسماعه والمايك Fake Deafen", "Fake Deafen"),
                     onClick: toggleFakeDeafen
                 });
             }
@@ -195,7 +195,7 @@ export default definePlugin({
             addSettingsPanelButton({
                 name: "faked",
                 icon: DeafenIcon,
-                tooltipText: "Fake Deafen",
+                tooltipText: t("الوضع الوهمي للسماعه والمايك Fake Deafen", "Fake Deafen"),
                 onClick: toggleFakeDeafen
             });
         }
