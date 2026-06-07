@@ -199,8 +199,8 @@ export default definePlugin({
         const equicordEntries: SettingsLayoutNode[] = [
             buildEntry({
                 key: "equicord_main",
-                title: "Esharq",
-                panelTitle: "Esharq",
+                title: t("اشراق", "Esharq"),
+                panelTitle: t("اشراق", "Esharq"),
                 Component: VencordTab,
                 Icon: MainSettingsIcon
             }),
@@ -219,7 +219,7 @@ export default definePlugin({
             !IS_UPDATER_DISABLED && UpdaterTab && buildEntry({
                 key: "equicord_updater",
                 title: t("المُحدِّث", "Updater"),
-                panelTitle: t("مُحدِّث Esharq", "Esharq Updater"),
+                panelTitle: t("مُحدِّث اشراق", "Esharq Updater"),
                 Component: UpdaterTab,
                 Icon: UpdaterIcon
             }),
@@ -232,7 +232,7 @@ export default definePlugin({
             buildEntry({
                 key: "equicord_cloud",
                 title: t("السحابة", "Cloud"),
-                panelTitle: t("سحابة Esharq", "Esharq Cloud"),
+                panelTitle: t("سحابة اشراق", "Esharq Cloud"),
                 Component: CloudTab,
                 Icon: CloudIcon
             }),
@@ -254,7 +254,7 @@ export default definePlugin({
         const equicordSection: SettingsLayoutNode = {
             key: "equicord_section",
             type: LayoutTypes.SECTION,
-            useTitle: () => "Esharq",
+            useTitle: () => t("اشراق", "Esharq"),
             buildLayout: () => equicordEntries
         };
 

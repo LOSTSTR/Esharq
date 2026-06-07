@@ -10,6 +10,7 @@ import { Settings, useSettings } from "@api/Settings";
 import { CogWheel, InfoIcon } from "@components/Icons";
 import { AddonCard } from "@components/settings/AddonCard";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { resolvePluginDescription } from "@utils/i18n";
 import { Logger } from "@utils/Logger";
 import { Plugin } from "@utils/types";
@@ -114,8 +115,8 @@ export function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, on
         {
             condition: isForkBranded,
             src: USERPLUGINS_ICON_URI,
-            alt: "Esharq",
-            title: "Esharq Exclusive"
+            alt: t("اشراق", "Esharq"),
+            title: t("حصري لاشراق", "Esharq Exclusive")
         },
         {
             condition: isEquicordPlugin,

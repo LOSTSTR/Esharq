@@ -55,7 +55,7 @@ async function checkForUpdate() {
             title: t("تحديث جديد متاح!", "New update available!"),
             body: (
                 <>
-                    <p>{t("يتوفر إصدار جديد من", "A new version of")} <strong>Esharq</strong>{t(" متاح.", " is available.")}</p>
+                    <p>{t("يتوفر إصدار جديد من", "A new version of")} <strong>{t("اشراق", "Esharq")}</strong>{t(" متاح.", " is available.")}</p>
                     <p>{t("الإصدار الحالي:", "Current version:")} <code>{gitHash.slice(0, 7)}</code></p>
                     <p>{t("الإصدار الجديد:", "New version:")} <code>{remoteHash}</code></p>
                     <p>{t("هل تريد التحديث الآن؟", "Do you want to update now?")}</p>

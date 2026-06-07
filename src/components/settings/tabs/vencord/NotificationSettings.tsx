@@ -71,7 +71,7 @@ function NotificationSettings() {
                     "Some plugins may show notifications. These come in two types:"
                 )}
                 <ul>
-                    <li><strong>{t("إشعارات Esharq", "Esharq Notifications")}</strong>: {t("إشعارات داخل التطبيق", "in-app notifications")}</li>
+                    <li><strong>{t("إشعارات اشراق", "Esharq Notifications")}</strong>: {t("إشعارات داخل التطبيق", "in-app notifications")}</li>
                     <li><strong>{t("إشعارات سطح المكتب", "Desktop Notifications")}</strong>: {t("إشعارات سطح المكتب الأصلية (مثل إشعارات الإشارات)", "native desktop notifications (e.g. mention pings)")}</li>
                 </ul>
             </Paragraph>

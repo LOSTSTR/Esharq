@@ -124,7 +124,7 @@ export const ExcludedReasons: Record<"web" | "discordDesktop" | "vesktop" | "equ
     vesktop: t("تطبيقات Vesktop/Equibop", "Vesktop/Equibop"),
     equibop: t("تطبيقات Vesktop/Equibop", "Vesktop/Equibop"),
     web: t("تطبيقات Vesktop/Equibop ومتصفح Discord", "Vesktop/Equibop and Discord web"),
-    dev: t("إصدار المطورين من Esharq", "Esharq dev build")
+    dev: t("إصدار المطورين من اشراق", "Esharq dev build")
 };
 
 function ExcludedPluginsList({ search }: { search: string; }) {
