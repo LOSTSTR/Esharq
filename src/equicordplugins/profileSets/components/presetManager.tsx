@@ -147,7 +147,7 @@ export function PresetManager({ section, guildId }: PresetManagerProps) {
 
             <div className={cl("text")}>
                 <TextInput
-                    placeholder={searchMode ? "Search profiles..." : "Profile Name"}
+                    placeholder={searchMode ? "Search profiles..." : t("اسم الملف الشخصي", "Profile Name")}
                     value={presetName}
                     onChange={setPresetName}
                     className={cl("text-input")}
@@ -162,7 +162,7 @@ export function PresetManager({ section, guildId }: PresetManagerProps) {
                         onClick={handleSavePreset}
                         className={cl("search-button")}
                     >
-                        {isSaving ? "Saving..." : "Save Profile"}
+                        {isSaving ? "Saving..." : t("حفظ الملف الشخصي", "Save Profile")}
                     </Button>
                 )}
                 {hasPresets && (

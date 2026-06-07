@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import { proxyLazyWebpack } from "@webpack";
 import { Flux, FluxDispatcher } from "@webpack/common";
@@ -39,10 +40,10 @@ function mapApiResponseToTrack(apiData: any): Track | null {
     if (!apiData?.track) return null;
 
     const { track } = apiData;
-    const artist = track.artist?.name || (track.artists?.[0]?.name) || "Unknown Artist";
+    const artist = track.artist?.name || (track.artists?.[0]?.name) || t("فنان غير معروف", "Unknown Artist");
 
     return {
-        name: track.title || "Unknown Title",
+        name: track.title || t("عنوان غير معروف", "Unknown Title"),
         artist,
         imageSrc: apiData.coverUrl || null,
         songDuration: apiData.duration || track.duration || 0,

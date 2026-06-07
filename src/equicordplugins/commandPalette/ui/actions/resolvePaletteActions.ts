@@ -88,7 +88,7 @@ export function resolvePaletteActions({
         if (calculatorCanGraph) {
             actions.push({
                 id: calculatorViewMode === "graph" ? "calculator-show-result" : "calculator-show-graph",
-                label: calculatorViewMode === "graph" ? "Show Result" : "Show Graph",
+                label: calculatorViewMode === "graph" ? "Show Result" : t("إظهار الرسم البياني", "Show Graph"),
                 shortcut: formatPrimaryShortcutLabel("⌘G"),
                 intent: { type: "toggle-calculator-view", mode: calculatorViewMode === "graph" ? "result" : "graph" }
             });

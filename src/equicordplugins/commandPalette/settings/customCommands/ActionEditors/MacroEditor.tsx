@@ -72,7 +72,7 @@ export function MacroEditor({ command, onChange, showAdvanced }: MacroEditorProp
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     {steps.map((step, index) => {
                         const target = getCommandById(step);
-                        const title = target?.label ?? "Unknown command";
+                        const title = target?.label ?? t("أمر غير معروف", "Unknown command");
 
                         return (
                             <div

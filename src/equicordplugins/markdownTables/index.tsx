@@ -9,6 +9,7 @@ import { CodeBlock } from "@components/CodeBlock";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { waitFor } from "@webpack";
 import { Parser, useLayoutEffect, useRef, useState } from "@webpack/common";
@@ -120,7 +121,7 @@ function ToggleableTableBlock({
 
     return (
         <>
-            <div className={cl("toolbar")} role="group" aria-label="Markdown table view">
+            <div className={cl("toolbar")} role="group" aria-label={t("عرض جدول ماركداون", "Markdown table view")}>
                 <button
                     aria-pressed={!showRaw}
                     className={cl("toggle", { "toggle-active": !showRaw })}

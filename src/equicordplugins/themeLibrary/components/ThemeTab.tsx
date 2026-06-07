@@ -195,7 +195,7 @@ function ThemeTab() {
                                     overflowWrap: "break-word",
                                     marginTop: 8,
                                 }}>
-                                {searchValue.status === SearchStatus.LIKED ? "Most Liked" : "Newest Additions"}
+                                {searchValue.status === SearchStatus.LIKED ? "Most Liked" : t("أحدث الإضافات", "Newest Additions")}
                             </HeadingPrimary>
 
                             {themes.slice(0, 2).map((theme: Theme) => (

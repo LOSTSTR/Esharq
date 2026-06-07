@@ -130,7 +130,7 @@ export function cancelCurrentUpload() {
     activeXhr?.abort();
     setUploadState({
         phase: "cancelled",
-        status: "Upload cancelled.",
+        status: t("أُلغي الرفع.", "Upload cancelled."),
         canCancel: false,
         percent: 0
     });
@@ -1209,7 +1209,7 @@ async function uploadWithFallbacks(fileBlob: Blob, filename: string, primary: Se
                 throw error;
             }
 
-            const message = error instanceof Error ? error.message : "Unknown error";
+            const message = error instanceof Error ? error.message : t("خطأ غير معروف", "Unknown error");
 
             attempted.push(serviceLabels[service]);
             lastError = message;
@@ -1348,10 +1348,10 @@ export async function uploadFile(url: string): Promise<void> {
 
         await uploadPreparedBlob(blob, url);
     } catch (error) {
-        const message = error instanceof Error ? error.message : "Unknown error";
+        const message = error instanceof Error ? error.message : t("خطأ غير معروف", "Unknown error");
         if (isUploadCancelledError(error)) {
             showToast(t("أُلغي الرفع", "Upload cancelled"), Toasts.Type.MESSAGE);
-            setUploadState({ phase: "cancelled", status: "Upload cancelled.", canCancel: false, percent: 0 });
+            setUploadState({ phase: "cancelled", status: t("أُلغي الرفع.", "Upload cancelled."), canCancel: false, percent: 0 });
         } else {
             showToast(`Upload failed: ${message}`, Toasts.Type.FAILURE);
             logger.error("Upload error", error);
@@ -1412,10 +1412,10 @@ export async function uploadProvidedFiles(files: readonly File[]): Promise<void>
             await uploadPreparedBlob(file);
         }
     } catch (error) {
-        const message = error instanceof Error ? error.message : "Unknown error";
+        const message = error instanceof Error ? error.message : t("خطأ غير معروف", "Unknown error");
         if (isUploadCancelledError(error)) {
             showToast(t("أُلغي الرفع", "Upload cancelled"), Toasts.Type.MESSAGE);
-            setUploadState({ phase: "cancelled", status: "Upload cancelled.", canCancel: false, percent: 0 });
+            setUploadState({ phase: "cancelled", status: t("أُلغي الرفع.", "Upload cancelled."), canCancel: false, percent: 0 });
         } else {
             showToast(`Upload failed: ${message}`, Toasts.Type.FAILURE);
             logger.error("Manual upload error", error);

@@ -16,6 +16,7 @@ import {
     ServerListRenderPosition,
 } from "@api/ServerList";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { Guild } from "@vencord/discord-types";
 import { findStoreLazy } from "@webpack";
@@ -53,7 +54,7 @@ const Patch: NavContextMenuPatchCallback = (
     group.push(
         <Menu.MenuItem
             id="vc-hide-server"
-            label={isHidden ? "Unhide Server" : "Hide Server"}
+            label={isHidden ? "Unhide Server" : t("إخفاء الخادم", "Hide Server")}
             action={() => {
                 if (isHidden) {
                     HiddenServersStore.removeHiddenGuild(guild.id);
@@ -97,7 +98,7 @@ export default definePlugin({
                 menuItems.push(
                     <Menu.MenuItem
                         id="vc-hide-folder"
-                        label={isHidden ? "Unhide Folder" : "Hide Folder"}
+                        label={isHidden ? "Unhide Folder" : t("إخفاء المجلّد", "Hide Folder")}
                         action={() => {
                             if (isHidden) {
                                 HiddenServersStore.removeHiddenFolder(folderId, guildIds);

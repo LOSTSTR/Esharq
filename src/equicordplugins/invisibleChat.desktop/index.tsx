@@ -70,7 +70,7 @@ const ChatBarRender: ChatBarButtonFactory = ({ isMainChat }) => {
 
     return (
         <ChatBarButton
-            tooltip="Encrypt Message"
+            tooltip={t("تشفير الرسالة", "Encrypt Message")}
             onClick={() => buildEncModal()}
             buttonProps={{
                 "aria-haspopup": "dialog",
@@ -182,7 +182,7 @@ export default definePlugin({
         render(message) {
             return INV_REGEX.test(message?.content)
                 ? {
-                    label: "Decrypt Message",
+                    label: t("فكّ تشفير الرسالة", "Decrypt Message"),
                     icon: PopOverIcon,
                     message: message,
                     channel: ChannelStore.getChannel(message.channel_id),

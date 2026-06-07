@@ -143,9 +143,9 @@ function RolesAndUsersPermissionsComponent({ permissions, guild, modalProps, hea
                                         <Text variant="text-md/normal" className={cl("modal-list-item-text")}>
                                             {
                                                 permission.type === PermissionOverwriteType.ROLE
-                                                    ? role?.name ?? "Unknown Role"
+                                                    ? role?.name ?? t("دور غير معروف", "Unknown Role")
                                                     : permission.type === PermissionOverwriteType.MEMBER
-                                                        ? (user != null && getUniqueUsername(user)) ?? "Unknown User"
+                                                        ? (user != null && getUniqueUsername(user)) ?? t("مستخدم غير معروف", "Unknown User")
                                                         : (
                                                             <Flex gap="0.2em">
                                                                 @owner
@@ -267,7 +267,7 @@ function UserContextMenu({ userId }: { userId: string; }) {
         <Menu.Menu
             navId={cl("user-context-menu")}
             onClose={ContextMenuApi.closeContextMenu}
-            aria-label="User Options"
+            aria-label={t("خيارات المستخدم", "User Options")}
         >
             <Menu.MenuItem
                 id={cl("copy-user-id")}

@@ -222,7 +222,7 @@ export default definePlugin({
             if (app) {
                 logWithName(app.name);
             } else {
-                fetchApplication(appId).then(fetched => logWithName(fetched?.name ?? "Unknown activity")).catch(() => logWithName("Unknown activity"));
+                fetchApplication(appId).then(fetched => logWithName(fetched?.name ?? t("نشاط غير معروف", "Unknown activity"))).catch(() => logWithName(t("نشاط غير معروف", "Unknown activity")));
             }
         },
 

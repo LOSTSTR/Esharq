@@ -96,7 +96,7 @@ export function CustomCommandWizard({ command, categoryOptions, onDraftChange, o
             {wizardStep === 2 && <ReviewStep command={draft} issues={issues} />}
 
             <TextButton variant="secondary" onClick={() => setShowAdvanced(value => !value)}>
-                {showAdvanced ? "Hide advanced options" : "Show advanced options"}
+                {showAdvanced ? "Hide advanced options" : t("إظهار الخيارات المتقدّمة", "Show advanced options")}
             </TextButton>
 
             {showAdvanced && (

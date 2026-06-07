@@ -6,6 +6,7 @@
 
 import { Button, TextButton } from "@components/Button";
 import { Heading } from "@components/Heading";
+import { t } from "@utils/esharqI18n";
 import { React } from "@webpack/common";
 
 import type { CustomCommandDefinition } from "../../registry";
@@ -34,7 +35,7 @@ export function CustomCommandCard({ command, isNew, startCollapsed = false, cate
         <div style={{ padding: 14, borderRadius: 8, background: "var(--background-tertiary)", border: "none", display: "flex", flexDirection: "column", gap: 12 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Heading tag="h5" style={{ color: "var(--text-normal, #dcddde)", marginBottom: 0 }}>
-                    {displayLabel || "Untitled Command"}
+                    {displayLabel || t("أمر بلا عنوان", "Untitled Command")}
                 </Heading>
                 <div style={{ display: "flex", gap: 8 }}>
                     <TextButton variant="secondary" onClick={() => setCollapsed(value => !value)}>

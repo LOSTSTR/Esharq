@@ -85,7 +85,7 @@ function openViewRawModal(json: string, type: string, msgContent?: string) {
                     msgContent && {
                         text: t("نسخ المحتوى الخام", "Copy Raw Content"),
                         variant: "secondary",
-                        onClick: () => copyWithToast(msgContent, "Content copied to clipboard!")
+                        onClick: () => copyWithToast(msgContent, t("تمّ نسخ المحتوى إلى الحافظة!", "Content copied to clipboard!"))
                     }
                 ].filter(isTruthy)}
             >

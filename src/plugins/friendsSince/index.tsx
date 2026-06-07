@@ -10,6 +10,7 @@ import { BaseText } from "@components/BaseText";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
 import { getCurrentChannel } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { findByCodeLazy, findByPropsLazy, findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
 import { RelationshipStore } from "@webpack/common";
@@ -29,7 +30,7 @@ const FriendsSinceSection = ErrorBoundary.wrap(({ userId, isSideBar }: { userId:
     if (isSideBar) {
         return (
             <Section
-                heading="Friends Since"
+                heading={t("أصدقاء منذ", "Friends Since")}
                 headingVariant="text-xs/semibold"
                 headingColor="text-strong"
             >
@@ -42,7 +43,7 @@ const FriendsSinceSection = ErrorBoundary.wrap(({ userId, isSideBar }: { userId:
 
     return (
         <Section
-            heading="Friends Since"
+            heading={t("أصدقاء منذ", "Friends Since")}
             headingVariant="text-xs/medium"
             headingColor="text-default"
             className="vc-friendsSince-profile-section"

@@ -19,6 +19,7 @@
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { ImageInvisible, ImageVisible } from "@components/Icons";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { Channel, Message } from "@vencord/discord-types";
 import { Constants, Menu, PermissionsBits, PermissionStore, RestAPI, UserStore } from "@webpack/common";
@@ -45,7 +46,7 @@ const messageContextMenuPatch: NavContextMenuPatchCallback = (
         <Menu.MenuItem
             id="unsuppress-embeds"
             key="unsuppress-embeds"
-            label={isEmbedSuppressed ? "Unsuppress Embeds" : "Suppress Embeds"}
+            label={isEmbedSuppressed ? "Unsuppress Embeds" : t("كبت البطاقات", "Suppress Embeds")}
             color={isEmbedSuppressed ? undefined : "danger"}
             icon={isEmbedSuppressed ? ImageVisible : ImageInvisible}
             action={() =>

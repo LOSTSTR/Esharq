@@ -115,7 +115,7 @@ export default definePlugin({
 
         return (
             <ActionBarIcon
-                tooltip={anonymise ? "Using anonymous file name" : "Using normal file name"}
+                tooltip={anonymise ? "Using anonymous file name" : t("استخدام اسم الملف العادي", "Using normal file name")}
                 onClick={onToggleAnonymise}
             >
                 {anonymise
@@ -174,7 +174,7 @@ export default definePlugin({
             execute: async (args, ctx) => {
                 settings.store.spoilerMessages = !!findOption(args, "value", !settings.store.spoilerMessages);
                 sendBotMessage(ctx.channel.id, {
-                    content: settings.store.spoilerMessages ? "Spoiler enabled!" : "Spoiler disabled!",
+                    content: settings.store.spoilerMessages ? "Spoiler enabled!" : t("تمّ تعطيل الحارق!", "Spoiler disabled!"),
                 });
             },
         }

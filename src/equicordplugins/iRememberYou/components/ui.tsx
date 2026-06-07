@@ -75,12 +75,12 @@ function UserRow({ user, allowOwner = true }: { user: IStorageUser, allowOwner?:
                                     <Menu.Menu
                                         navId="user-context-menu"
                                         onClose={ContextMenuApi.closeContextMenu}
-                                        aria-label="User Options"
+                                        aria-label={t("خيارات المستخدم", "User Options")}
                                     >
                                         <Menu.MenuItem
                                             id="copy-user-id"
                                             label={t("نسخ معرّف المستخدم", "Copy User ID")}
-                                            action={() => copyWithToast(user.id, "User ID copied to clipboard")}
+                                            action={() => copyWithToast(user.id, t("تمّ نسخ معرّف المستخدم إلى الحافظة", "User ID copied to clipboard"))}
                                         />
                                         <Menu.MenuItem
                                             id="view-profile"
@@ -92,7 +92,7 @@ function UserRow({ user, allowOwner = true }: { user: IStorageUser, allowOwner?:
                             }
                         }}
                     >
-                        <Clickable onClick={() => copyWithToast(user.id, "User ID copied to clipboard")}>
+                        <Clickable onClick={() => copyWithToast(user.id, t("تمّ نسخ معرّف المستخدم إلى الحافظة", "User ID copied to clipboard"))}>
                             <Paragraph>
                                 {user.id}
                             </Paragraph>

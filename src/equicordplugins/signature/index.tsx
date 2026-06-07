@@ -53,7 +53,7 @@ const SignatureToggle: ChatBarButtonFactory = ({ isMainChat }) => {
 
     return (
         <ChatBarButton
-            tooltip={isEnabled ? "Disable Signature" : "Enable Signature"}
+            tooltip={isEnabled ? "Disable Signature" : t("تفعيل التوقيع", "Enable Signature")}
             onClick={toggle}
         >
             <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 21.333">
@@ -145,7 +145,7 @@ export default definePlugin({
             execute: async (args, ctx) => {
                 settings.store.isEnabled = !!findOption(args, "value", !settings.store.isEnabled);
                 sendBotMessage(ctx.channel.id, {
-                    content: settings.store.isEnabled ? "Signature enabled!" : "Signature disabled!",
+                    content: settings.store.isEnabled ? "Signature enabled!" : t("تمّ تعطيل التوقيع!", "Signature disabled!"),
                 });
             },
         }

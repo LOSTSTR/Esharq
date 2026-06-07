@@ -83,7 +83,7 @@ export const TranslateChatBarIcon: ChatBarButtonFactory = ({ isMainChat }) => {
 
     const button = (
         <ChatBarButton
-            tooltip="Open Translate Modal"
+            tooltip={t("فتح نافذة الترجمة", "Open Translate Modal")}
             onClick={e => {
                 if (e.shiftKey) return toggle();
                 else openTranslateModal();

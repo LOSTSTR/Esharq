@@ -281,7 +281,7 @@ function Info({ track }: { track: Track; }) {
                 <img
                     id={cl("album-image")}
                     src={img.url}
-                    alt="Album Image"
+                    alt={t("صورة الألبوم", "Album Image")}
                     onClick={() => setCoverExpanded(!coverExpanded)}
                     onContextMenu={e => {
                         ContextMenuApi.openContextMenu(e, () => <AlbumContextMenu track={track} />);

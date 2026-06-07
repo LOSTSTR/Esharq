@@ -115,7 +115,7 @@ export function summarizeCommandAction(command: CustomCommandDefinition): string
             if (!command.action.steps.length) return t("يشغّل ماكرو بلا خطوات مُعدّة.", "Runs a macro with no configured steps.");
             const stepSummary = command.action.steps.map((step, index) => {
                 const entry = getCommandById(step);
-                return `${index + 1}. ${entry?.label ?? "Unknown command"} (${step})`;
+                return `${index + 1}. ${entry?.label ?? t("أمر غير معروف", "Unknown command")} (${step})`;
             }).join(" ");
             return `Runs macro steps: ${stepSummary}`;
         }

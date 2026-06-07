@@ -77,7 +77,7 @@ export default definePlugin({
             const isHidden = hiddenMessages.has(msg.id);
 
             return {
-                label: isHidden ? "Show Media" : "Hide Media",
+                label: isHidden ? "Show Media" : t("إخفاء الوسائط", "Hide Media"),
                 icon: isHidden ? ImageVisible : ImageInvisible,
                 message: msg,
                 channel: ChannelStore.getChannel(msg.channel_id),

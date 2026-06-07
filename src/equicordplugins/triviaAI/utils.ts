@@ -189,7 +189,7 @@ function getSystemPrompt() {
     const currentTime = new Date().toString();
 
     return settings.store.systemPrompt
-        .replace(/{current_user}/g, currentUser?.username ?? "Unknown User")
+        .replace(/{current_user}/g, currentUser?.username ?? t("مستخدم غير معروف", "Unknown User"))
         .replace(/{current_time}/g, currentTime);
 }
 

@@ -185,7 +185,7 @@ export function authModal(callback?: () => void) {
                     showToast(t("تمّ التفويض بنجاح!", "Authorization successful!"), Toasts.Type.SUCCESS);
                     callback?.();
                 } catch (e) {
-                    handleApiError(e, "Unexpected error during authorization");
+                    handleApiError(e, t("خطأ غير متوقّع أثناء التفويض", "Unexpected error during authorization"));
                 }
             }}
         />

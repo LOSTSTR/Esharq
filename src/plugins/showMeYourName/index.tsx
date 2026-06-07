@@ -850,7 +850,7 @@ function CustomNicknameModal({ modalProps, user }: { modalProps: RenderModalProp
         <Modal
             {...modalProps}
             size="sm"
-            title={customNicknames[user.id] ? "Change SMYN Nickname" : "Add SMYN Nickname"}
+            title={customNicknames[user.id] ? "Change SMYN Nickname" : t("إضافة لقب SMYN", "Add SMYN Nickname")}
             actions={[
                 {
                     text: "Save",
@@ -914,7 +914,7 @@ const userContextPatch: NavContextMenuPatchCallback = (children, { user }) => {
     (group || children).push(
         <Menu.MenuItem
             id="smyn-custom-nickname"
-            label={customNicknames[user.id] ? "Change SMYN Nickname" : "Add SMYN Nickname"}
+            label={customNicknames[user.id] ? "Change SMYN Nickname" : t("إضافة لقب SMYN", "Add SMYN Nickname")}
             action={() => openModal(props => (
                 <ErrorBoundary>
                     <CustomNicknameModal modalProps={props} user={user} />
@@ -1069,7 +1069,7 @@ export default definePlugin({
     description: "Shows the original username next to the nickname",
     authors: [EquicordDevs.Etorix, Devs.Rini, Devs.TheKodeToad, Devs.sadan, Devs.prism],
     tags: ["Appearance", "Customisation"],
-    searchTerms: ["SMYN", "Nicknames", "Custom Nicknames"],
+    searchTerms: ["SMYN", "Nicknames", t("الألقاب المخصّصة", "Custom Nicknames")],
     isModified: true,
     settings,
 

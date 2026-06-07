@@ -123,7 +123,7 @@ async function getActivity(): Promise<Activity | null> {
             } else if (mediaData.type === "Audio") {
                 appName = store.jf_privacyMode
                     ? "[Track Hidden]"
-                    : `${mediaData.artist || "Unknown Artist"} - ${mediaData.name}`;
+                    : `${mediaData.artist || t("فنان غير معروف", "Unknown Artist")} - ${mediaData.name}`;
             } else {
                 appName = store.jf_privacyMode ? "[Movie Hidden]" : mediaData.name || "Jellyfin";
             }

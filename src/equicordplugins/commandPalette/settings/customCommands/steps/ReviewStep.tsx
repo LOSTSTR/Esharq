@@ -36,7 +36,7 @@ export function ReviewStep({ command, issues }: ReviewStepProps) {
         actionDetails.push(`Macro steps: ${command.action.steps.length}`);
         for (const [index, step] of command.action.steps.entries()) {
             const target = getCommandById(step);
-            actionDetails.push(`${index + 1}. ${target?.label ?? "Unknown command"} (${step})`);
+            actionDetails.push(`${index + 1}. ${target?.label ?? t("أمر غير معروف", "Unknown command")} (${step})`);
         }
     }
 

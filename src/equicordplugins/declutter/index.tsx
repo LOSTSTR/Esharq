@@ -26,7 +26,7 @@ const cl = classNameFactory("vc-declutter-");
 export const settings = definePluginSettings({
     userProfileHeader: {
         type: OptionType.COMPONENT,
-        component: () => SectionSeparator("User Profile"),
+        component: () => SectionSeparator(t("الملف الشخصي للمستخدم", "User Profile")),
     },
     removeAvatarDecoration: {
         type: OptionType.BOOLEAN,

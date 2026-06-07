@@ -9,6 +9,7 @@ import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { popNotice, showNotice } from "@api/Notices";
 import { definePluginSettings } from "@api/Settings";
 import { Devs, EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Channel } from "@vencord/discord-types";
 import { ChannelType } from "@vencord/discord-types/enums";
@@ -41,7 +42,7 @@ const ChannelContext: NavContextMenuPatchCallback = (children, { channel }) => {
     children.splice(-1, 0,
         <Menu.MenuItem
             id="vc-wait-for-slot"
-            label={isWaiting ? "Leave Queue" : "Join Queue"}
+            label={isWaiting ? "Leave Queue" : t("الانضمام للطابور", "Join Queue")}
             action={() => { waitingChannelId = isWaiting ? null : channel.id; }}
         />
     );

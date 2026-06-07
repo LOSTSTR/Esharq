@@ -113,7 +113,7 @@ export default definePlugin({
                                 <Menu.Menu
                                     navId="vc-playback-speed"
                                     onClose={() => FluxDispatcher.dispatch({ type: "CONTEXT_MENU_CLOSE" })}
-                                    aria-label="Playback speed control"
+                                    aria-label={t("التحكّم بسرعة التشغيل", "Playback speed control")}
                                 >
                                     <Menu.MenuGroup
                                         label={t("سرعة التشغيل", "Playback speed")}

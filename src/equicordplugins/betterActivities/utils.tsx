@@ -5,6 +5,7 @@
  */
 
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import { Activity, Application } from "@vencord/discord-types";
 import { findByPropsLazy, findComponentByCodeLazy, findStoreLazy } from "@webpack";
@@ -51,8 +52,8 @@ export function getApplicationIcons(activities: Activity[], preferSmall = false)
 
         if (assets) {
             const { small_image, small_text, large_image, large_text } = assets;
-            const smallText = small_text ?? "Small Text";
-            const largeText = large_text ?? "Large Text";
+            const smallText = small_text ?? t("نصّ صغير", "Small Text");
+            const largeText = large_text ?? t("نصّ كبير", "Large Text");
 
             const addImage = (image: string, alt: string) => {
                 if (image.startsWith("mp:")) {

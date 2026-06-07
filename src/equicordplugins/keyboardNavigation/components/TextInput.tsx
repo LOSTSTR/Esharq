@@ -42,7 +42,7 @@ export function SimpleTextInput({ modalProps, onSelect, placeholder, info }: Sim
                     value={inputValue}
                     onChange={e => setInputValue(e as unknown as string)}
                     style={{ width: "30vw", borderRadius: "5px" }}
-                    placeholder={placeholder ?? "Type and press Enter"}
+                    placeholder={placeholder ?? t("اكتب واضغط Enter", "Type and press Enter")}
                 />
                 {info && <div className="vc-command-palette-textinfo">{info}</div>}
             </div>

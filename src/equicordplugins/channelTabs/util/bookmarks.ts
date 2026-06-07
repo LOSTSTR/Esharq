@@ -5,6 +5,7 @@
  */
 
 import { DataStore } from "@api/index";
+import { t } from "@utils/esharqI18n";
 import { useAwaiter } from "@utils/react";
 import { ChannelStore, useCallback, UserStore, useState } from "@webpack/common";
 
@@ -42,7 +43,7 @@ export function bookmarkPlaceholderName(bookmark: Omit<Bookmark | BookmarkFolder
     if (!channel) return "Bookmark";
     if (channel.name) return `#${channel.name}`;
     if (channel.recipients) return UserStore.getUser(channel.recipients?.[0])?.username
-        ?? "Unknown User";
+        ?? t("مستخدم غير معروف", "Unknown User");
     return "Bookmark";
 }
 

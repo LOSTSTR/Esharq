@@ -5,6 +5,7 @@
  */
 
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import { React, TextInput } from "@webpack/common";
 
@@ -47,7 +48,7 @@ export function CommandPaletteInput({
                     value={value}
                     onChange={onChange}
                     readOnly={readOnly}
-                    placeholder={placeholder ?? "Search commands or type a query"}
+                    placeholder={placeholder ?? t("ابحث عن أوامر أو اكتب استعلاماً", "Search commands or type a query")}
                     onFocus={onInputFocus}
                     onBlur={onInputBlur}
                     onClick={onInputClick}

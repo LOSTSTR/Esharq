@@ -36,7 +36,7 @@ const AccountPanelContextMenu = ErrorBoundary.wrap(() => {
         >
             <Menu.MenuItem
                 id="vc-ap-view-alternate-popout"
-                label={prioritizeServerProfile ? "View Account Profile" : "View Server Profile"}
+                label={prioritizeServerProfile ? "View Account Profile" : t("عرض ملف الخادم", "View Server Profile")}
                 disabled={getCurrentChannel()?.getGuildId() == null}
                 action={async e => {
                     if (isPluginEnabled(alwaysExpandProfiles.name)) {

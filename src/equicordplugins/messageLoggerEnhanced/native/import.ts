@@ -7,6 +7,7 @@
 import { randomUUID } from "node:crypto";
 import { FileHandle, open } from "node:fs/promises";
 
+import { t } from "@utils/esharqI18n";
 import { dialog, IpcMainInvokeEvent } from "electron";
 
 const activeFiles = new Map<string, FileHandle>();
@@ -20,7 +21,7 @@ export async function startNativeLogImport(_event: IpcMainInvokeEvent, defaultPa
     });
     const [path] = res.filePaths;
 
-    if (!path) throw Error("No file selected");
+    if (!path) throw Error(t("لم يُحدَّد ملف", "No file selected"));
 
     const fileHandle = await open(path, "r");
     const fileId = randomUUID();

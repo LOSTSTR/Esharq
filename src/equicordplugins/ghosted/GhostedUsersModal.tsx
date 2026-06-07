@@ -27,7 +27,7 @@ function GroupDmsIcon({ channel }: { channel: Channel; }) {
     return channel.icon ? <Avatar
         src={IconUtils.getChannelIconURL({ id: channel.id, icon: channel.icon })}
         size="SIZE_40"
-        aria-label={channel?.name || "Unnamed Group"}
+        aria-label={channel?.name || t("مجموعة بلا اسم", "Unnamed Group")}
     /> : <GroupDmsRecipientsIcon
         recipients={channel?.recipients ?? []}
         channel={channel}
@@ -47,13 +47,13 @@ export function getChannelDisplayName(channelId: string): string {
     if (!channel) return "Unknown";
 
     if (channel.isGroupDM()) {
-        return channel?.name || "Unnamed Group";
+        return channel?.name || t("مجموعة بلا اسم", "Unnamed Group");
     }
 
     // 1-on-1 DM
     const recipientId = channel?.recipients?.[0] ?? "";
     const user = UserStore.getUser(recipientId);
-    return user?.username || "Unknown User";
+    return user?.username || t("مستخدم غير معروف", "Unknown User");
 }
 
 export function GhostedUsersModal({ modalProps, ghostedChannels: initialChannels, onClearGhost }: GhostedUsersModalProps) {

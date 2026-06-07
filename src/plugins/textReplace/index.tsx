@@ -238,7 +238,7 @@ function TextReplace({ title, description, rulesArray, isRegex = false }: TextRe
                                     />
                                     <TextRow
                                         label={t("بحث", "Find")}
-                                        description={isRegex ? "The regex pattern" : "The text to replace"}
+                                        description={isRegex ? "The regex pattern" : t("النصّ المراد استبداله", "The text to replace")}
                                         value={rule.find}
                                         onChange={e => onChange(e, index, "find")}
                                     />

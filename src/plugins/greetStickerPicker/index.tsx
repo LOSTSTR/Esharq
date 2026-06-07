@@ -75,7 +75,7 @@ function GreetMenu({ channel, message }: { message: Message, channel: Channel; }
         <Menu.Menu
             navId="greet-sticker-picker"
             onClose={() => FluxDispatcher.dispatch({ type: "CONTEXT_MENU_CLOSE" })}
-            aria-label="Greet Sticker Picker"
+            aria-label={t("منتقي ملصقات الترحيب", "Greet Sticker Picker")}
         >
             <Menu.MenuGroup
                 label={t("وضع الترحيب", "Greet Mode")}

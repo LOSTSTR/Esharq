@@ -1217,7 +1217,7 @@ export default definePlugin({
                     {authorAvatar && (
                         <img
                             src={authorAvatar}
-                            alt="Author avatar"
+                            alt={t("صورة المؤلّف", "Author avatar")}
                             className={cl("author-avatar")}
                         />
                     )}

@@ -238,9 +238,9 @@ export async function uploadClipFile(file: File, options: ClipUploadOptions) {
 
 export function getErrorMessage(error: unknown): string {
     console.error(error);
-    if (error instanceof DOMException && error.name === "AbortError") return "Upload canceled.";
+    if (error instanceof DOMException && error.name === "AbortError") return t("أُلغي الرفع.", "Upload canceled.");
     if (error instanceof Error) return error.message;
-    return "Failed to upload clip.";
+    return t("فشل رفع المقطع.", "Failed to upload clip.");
 }
 
 function parseJSON<T>(text?: string): T | null {

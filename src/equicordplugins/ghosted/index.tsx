@@ -99,7 +99,7 @@ function BooIndicator() {
     const getTooltipText = () => {
         const ghostedChannels = getGhostedChannels();
         if (ghostedChannels.length === 0) {
-            return "No Ghosted Users";
+            return t("لا مستخدمين متجاهَلين", "No Ghosted Users");
         }
         if (ghostedChannels.length <= 5) {
             return ghostedChannels

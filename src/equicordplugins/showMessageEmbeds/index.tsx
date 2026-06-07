@@ -151,7 +151,7 @@ async function unfurlEmbed(url: string, message: Message) {
     });
 
     if (!resp?.body?.embeds || resp.body.embeds.length === 0) {
-        showFailureToast("No embeds found");
+        showFailureToast(t("لم يُعثر على بطاقات", "No embeds found"));
         return;
     }
 

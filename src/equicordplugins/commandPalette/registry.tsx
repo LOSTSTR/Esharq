@@ -2605,7 +2605,7 @@ function createContextualCommands(): CommandEntry[] {
             keywords: ["context", "channel", "copy", "link"],
             categoryId: CONTEXT_PROVIDER_ID,
             tags: [TAG_CONTEXT, TAG_UTILITY],
-            handler: () => copyWithToast(getChannelPermalink(channelId), "Channel link copied.")
+            handler: () => copyWithToast(getChannelPermalink(channelId), t("تمّ نسخ رابط القناة.", "Channel link copied."))
         });
 
         commands.push({
@@ -2614,7 +2614,7 @@ function createContextualCommands(): CommandEntry[] {
             keywords: ["context", "channel", "copy", "id"],
             categoryId: CONTEXT_PROVIDER_ID,
             tags: [TAG_CONTEXT, TAG_UTILITY],
-            handler: () => copyWithToast(channelId, "Channel ID copied.")
+            handler: () => copyWithToast(channelId, t("تمّ نسخ معرّف القناة.", "Channel ID copied."))
         });
 
         commands.push({
@@ -2649,7 +2649,7 @@ function createContextualCommands(): CommandEntry[] {
             keywords: ["context", "guild", "copy", "id"],
             categoryId: CONTEXT_PROVIDER_ID,
             tags: [TAG_CONTEXT, TAG_UTILITY],
-            handler: () => copyWithToast(guildId, "Server ID copied.")
+            handler: () => copyWithToast(guildId, t("تمّ نسخ معرّف الخادم.", "Server ID copied."))
         });
 
         commands.push({
@@ -2658,7 +2658,7 @@ function createContextualCommands(): CommandEntry[] {
             keywords: ["context", "guild", "copy", "link"],
             categoryId: CONTEXT_PROVIDER_ID,
             tags: [TAG_CONTEXT, TAG_UTILITY],
-            handler: () => copyWithToast(getGuildPermalink(guildId), "Server link copied.")
+            handler: () => copyWithToast(getGuildPermalink(guildId), t("تمّ نسخ رابط الخادم.", "Server link copied."))
         });
 
         commands.push({
@@ -2791,7 +2791,7 @@ function describeCustomAction(command: CustomCommandDefinition): string {
             if (!action.steps.length) return "Run macro with no configured steps.";
             const steps = action.steps.map((step, index) => {
                 const target = getCommandById(step);
-                return `${index + 1}. ${target?.label ?? "Unknown command"} (${step})`;
+                return `${index + 1}. ${target?.label ?? t("أمر غير معروف", "Unknown command")} (${step})`;
             }).join("\n");
             return `Run macro steps:\n${steps}`;
         }
@@ -2890,7 +2890,7 @@ async function executeCustomCommand(command: CustomCommandDefinition) {
 function createCustomCommandEntries(): CommandEntry[] {
     return customCommands.map(command => ({
         id: command.id,
-        label: command.label || "Untitled Command",
+        label: command.label || t("أمر بلا عنوان", "Untitled Command"),
         description: command.description,
         keywords: command.keywords,
         categoryId: command.categoryId ?? CUSTOM_COMMANDS_CATEGORY_ID,
@@ -3229,7 +3229,7 @@ function registerCommandPaletteUtilities() {
         tags: [TAG_NAVIGATION, TAG_CORE],
         closeAfterExecute: true,
         queryTemplate: "go to ",
-        queryPlaceholder: "Server or channel",
+        queryPlaceholder: t("خادم أو قناة", "Server or channel"),
         handler: () => undefined
     });
 
@@ -3242,7 +3242,7 @@ function registerCommandPaletteUtilities() {
         tags: [TAG_DEVELOPER, TAG_PLUGINS],
         closeAfterExecute: true,
         queryTemplate: "toggle plugin ",
-        queryPlaceholder: "Plugin name",
+        queryPlaceholder: t("اسم الإضافة", "Plugin name"),
         handler: () => undefined
     });
 
@@ -3298,7 +3298,7 @@ function registerCommandPaletteUtilities() {
                 showToast(t("لا توجد قناة نشطة متاحة.", "No active channel available."), Toasts.Type.MESSAGE);
                 return;
             }
-            return copyWithToast(channelId, "Channel ID copied.");
+            return copyWithToast(channelId, t("تمّ نسخ معرّف القناة.", "Channel ID copied."));
         }
     });
 
@@ -3315,7 +3315,7 @@ function registerCommandPaletteUtilities() {
                 showToast(t("لا توجد قناة نشطة متاحة.", "No active channel available."), Toasts.Type.MESSAGE);
                 return;
             }
-            return copyWithToast(getChannelPermalink(channelId), "Channel link copied.");
+            return copyWithToast(getChannelPermalink(channelId), t("تمّ نسخ رابط القناة.", "Channel link copied."));
         }
     });
 
@@ -3339,7 +3339,7 @@ function registerCommandPaletteUtilities() {
                 return;
             }
 
-            return copyWithToast(getMessagePermalink(channelId, message.id), "Message link copied.");
+            return copyWithToast(getMessagePermalink(channelId, message.id), t("تمّ نسخ رابط الرسالة.", "Message link copied."));
         }
     });
 
@@ -3373,7 +3373,7 @@ function registerCommandPaletteUtilities() {
                 showToast(t("لا يوجد خادم نشط متاح.", "No active server available."), Toasts.Type.MESSAGE);
                 return;
             }
-            return copyWithToast(guildId, "Server ID copied.");
+            return copyWithToast(guildId, t("تمّ نسخ معرّف الخادم.", "Server ID copied."));
         }
     });
 
@@ -3390,7 +3390,7 @@ function registerCommandPaletteUtilities() {
                 showToast(t("تعذّر قراءة معرّف المستخدم الخاص بك.", "Unable to read your user ID."), Toasts.Type.FAILURE);
                 return;
             }
-            return copyWithToast(userId, "Your user ID was copied.");
+            return copyWithToast(userId, t("تمّ نسخ معرّف المستخدم الخاص بك.", "Your user ID was copied."));
         }
     });
 

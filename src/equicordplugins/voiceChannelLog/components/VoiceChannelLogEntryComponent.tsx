@@ -19,13 +19,13 @@ import EventIcon from "./VoiceChannelLogEntryIcons";
 function getEventDescription(entry: VoiceChannelLogEntry): string {
     switch (entry.type) {
         case "join":
-            return "Joined the channel";
+            return t("انضمّ إلى القناة", "Joined the channel");
         case "leave":
-            return "Left the channel";
+            return t("غادر القناة", "Left the channel");
         case "move":
             if (entry.newChannelId && entry.oldChannelId && entry.channelId === entry.oldChannelId)
-                return "Moved to another channel";
-            return "Moved from another channel";
+                return t("انتقل إلى قناة أخرى", "Moved to another channel");
+            return t("انتقل من قناة أخرى", "Moved from another channel");
         case "soundboard":
             return "";
         case "server_mute":

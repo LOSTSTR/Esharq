@@ -494,7 +494,7 @@ export function CommandPaletteModal({ modalProps, instanceKey }: { modalProps: R
 
     const emptyStateText = navigationLevel.type === "category" && navigationLevel.categoryId === MENTIONS_CATEGORY_ID
         ? "All caught up."
-        : "No results.";
+        : t("لا نتائج.", "No results.");
     const hasCommandItems = items.some(item => item.type === "command");
 
     const selectedItem = selectedIndex >= 0 ? items[selectedIndex] : undefined;

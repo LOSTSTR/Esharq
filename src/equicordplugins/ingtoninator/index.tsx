@@ -8,6 +8,7 @@ import { ChatBarButton, ChatBarButtonFactory } from "@api/ChatButtons";
 import { addMessagePreSendListener, removeMessagePreSendListener } from "@api/MessageEvents";
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { React } from "@webpack/common";
 
@@ -115,7 +116,7 @@ const IngtoninatorButton: ChatBarButtonFactory = ({ isMainChat }) => {
 
     return (
         <ChatBarButton
-            tooltip={isEnabled ? "Ingtoninator Enabled" : "Ingtoninator Disabled"}
+            tooltip={isEnabled ? "Ingtoninator Enabled" : t("تمّ تعطيل Ingtoninator", "Ingtoninator Disabled")}
             onClick={toggle}
         >
             {isEnabled ? (

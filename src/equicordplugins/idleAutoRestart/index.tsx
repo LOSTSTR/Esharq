@@ -6,6 +6,7 @@
 
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
 import { Menu, VoiceStateStore } from "@webpack/common";
@@ -44,7 +45,7 @@ export default definePlugin({
         return (
             <Menu.MenuItem
                 id="auto-idle-restart-toggle-toolbox"
-                label={settings.store.isEnabled ? "Disable Auto Idle Restart" : "Enable Auto Idle Restart"}
+                label={settings.store.isEnabled ? "Disable Auto Idle Restart" : t("تفعيل إعادة التشغيل التلقائي عند الخمول", "Enable Auto Idle Restart")}
                 action={() => {
                     settings.store.isEnabled = !settings.store.isEnabled;
                 }}

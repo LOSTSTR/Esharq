@@ -84,14 +84,14 @@ const ChannelTypesToChannelNames = {
 };
 
 const SortOrderTypesToNames = {
-    [SortOrderTypes.LATEST_ACTIVITY]: "Latest activity",
-    [SortOrderTypes.CREATION_DATE]: "Creation date"
+    [SortOrderTypes.LATEST_ACTIVITY]: t("آخر نشاط", "Latest activity"),
+    [SortOrderTypes.CREATION_DATE]: t("تاريخ الإنشاء", "Creation date")
 };
 
 const ForumLayoutTypesToNames = {
-    [ForumLayoutTypes.DEFAULT]: "Not set",
-    [ForumLayoutTypes.LIST]: "List view",
-    [ForumLayoutTypes.GRID]: "Gallery view"
+    [ForumLayoutTypes.DEFAULT]: t("غير مُعيَّن", "Not set"),
+    [ForumLayoutTypes.LIST]: t("عرض قائمة", "List view"),
+    [ForumLayoutTypes.GRID]: t("عرض معرض", "Gallery view")
 };
 
 const VideoQualityModesToNames = {
@@ -295,7 +295,7 @@ function HiddenChannelLockScreen({ channel }: { channel: Channel; }) {
                             </Tooltip>
                         )}
                         <BaseText size="lg" weight="bold">{t("المستخدمون والأدوار المسموح لهم:", "Allowed users and roles:")}</BaseText>
-                        <Tooltip text={defaultAllowedUsersAndRolesDropdownState ? "Hide Allowed Users and Roles" : "View Allowed Users and Roles"}>
+                        <Tooltip text={defaultAllowedUsersAndRolesDropdownState ? "Hide Allowed Users and Roles" : t("عرض المستخدمين والأدوار المسموح لهم", "View Allowed Users and Roles")}>
                             {({ onMouseLeave, onMouseEnter }) => (
                                 <button
                                     onMouseLeave={onMouseLeave}

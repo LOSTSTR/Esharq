@@ -288,7 +288,7 @@ function IconModal({ iconName, Icon, onClose, transitionState }: { iconName: str
                 <BaseText size="sm" color="text-muted">{t("انقر للنسخ", "Click to copy")}</BaseText>
             </div>
             {/* for some reason i cant make this shit codeblock full width, FF 15 */}
-            <Clickable className="vc-ic-codeblock-wrapper" onClick={() => copyWithToast(findCode, "Copied!")}>
+            <Clickable className="vc-ic-codeblock-wrapper" onClick={() => copyWithToast(findCode, t("تمّ النسخ!", "Copied!"))}>
                 <CodeBlock content={findCode} lang="ts" />
             </Clickable>
         </Modal>

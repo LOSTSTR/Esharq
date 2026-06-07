@@ -107,7 +107,7 @@ export default definePlugin({
         return (
             <Menu.MenuItem
                 id="spotify-activity-toggle-toolbox"
-                label={showActivity ? "Disable Spotify Activity" : "Enable Spotify Activity"}
+                label={showActivity ? "Disable Spotify Activity" : t("تفعيل نشاط Spotify", "Enable Spotify Activity")}
                 action={async () => {
                     showActivity = !showActivity;
 

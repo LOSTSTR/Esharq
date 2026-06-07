@@ -44,8 +44,8 @@ function createDirSelector(settingKey: "logsDir" | "imageCacheDir", successMessa
     };
 }
 
-export const ImageCacheDir = createDirSelector("imageCacheDir", "Successfully updated Image Cache Dir");
-export const LogsDir = createDirSelector("logsDir", "Successfully updated Logs Dir");
+export const ImageCacheDir = createDirSelector("imageCacheDir", t("تمّ تحديث مجلّد ذاكرة الصور بنجاح", "Successfully updated Image Cache Dir"));
+export const LogsDir = createDirSelector("logsDir", t("تمّ تحديث مجلّد السجلّات بنجاح", "Successfully updated Logs Dir"));
 
 interface Props {
     settingsKey: "imageCacheDir" | "logsDir",

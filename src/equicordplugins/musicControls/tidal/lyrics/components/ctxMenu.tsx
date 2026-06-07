@@ -28,7 +28,7 @@ export function LyricsContextMenu() {
                 id="copy-lyric"
                 label={t("نسخ السطر الحالي", "Copy current lyric")}
                 disabled={!currLyric?.text}
-                action={() => copyWithToast(currLyric!.text!, "Lyric copied!")}
+                action={() => copyWithToast(currLyric!.text!, t("تمّ نسخ السطر!", "Lyric copied!"))}
                 icon={CopyIcon}
             />
         </Menu.Menu>

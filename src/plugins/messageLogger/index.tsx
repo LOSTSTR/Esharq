@@ -95,7 +95,7 @@ const patchMessageContextMenu: NavContextMenuPatchCallback = (
             <Menu.MenuItem
                 id={TOGGLE_DIFF_VIEW_ID}
                 key={TOGGLE_DIFF_VIEW_ID}
-                label={isDisabled ? "Enable Diff View" : "Disable Diff View"}
+                label={isDisabled ? "Enable Diff View" : t("تعطيل عرض الفروق", "Disable Diff View")}
                 color="danger"
                 action={() => {
                     if (isDisabled) disabledDiffMessages.delete(id);

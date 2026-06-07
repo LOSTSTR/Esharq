@@ -264,7 +264,7 @@ function Info({ track }: { track: NonNullable<PlayerState["track"]>; }) {
                 <img
                     id={cl("album-image")}
                     src={img}
-                    alt="Album Image"
+                    alt={t("صورة الألبوم", "Album Image")}
                     onClick={() => setCoverExpanded(!coverExpanded)}
                     onContextMenu={e => {
                         ContextMenuApi.openContextMenu(e, () => <AlbumContextMenu track={track} />);

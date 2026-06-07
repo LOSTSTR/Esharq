@@ -74,7 +74,7 @@ function openDecodedBase64Modal(decodedContent) {
                 actions={decodedContent.map((content, index) => ({
                     text: `Copy Decoded Content ${index + 1}`,
                     variant: "primary",
-                    onClick: () => copyWithToast(content, "Decoded content copied to clipboard!")
+                    onClick: () => copyWithToast(content, t("تمّ نسخ المحتوى المفكوك إلى الحافظة!", "Decoded content copied to clipboard!"))
                 }))}
             >
                 <div style={{ padding: "16px 0" }}>

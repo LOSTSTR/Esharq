@@ -115,7 +115,7 @@ export function LogsModal({ modalProps, initalQuery }: Props) {
             }
             actions={[
                 {
-                    text: `Sort ${sortNewest ? "Oldest First" : "Newest First"}`,
+                    text: `Sort ${sortNewest ? "Oldest First" : t("الأحدث أولاً", "Newest First")}`,
                     variant: "secondary",
                     onClick: () => {
                         setSortNewest(e => {

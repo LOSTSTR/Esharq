@@ -83,7 +83,7 @@ const userCtxPatch: NavContextMenuPatchCallback = (children, { channel }: UserCo
     group.splice(group.findIndex(c => c?.props?.id === "close-dm"), 0, (
         <Menu.MenuItem
             id="vc-hidemessages-dm"
-            label={hidden ? "Unhide DM" : "Hide DM"}
+            label={hidden ? "Unhide DM" : t("إخفاء الرسالة الخاصّة", "Hide DM")}
             icon={EyeIcon}
             action={() => toggleDm(channel.id)}
         />
@@ -144,7 +144,7 @@ export default definePlugin({
     },
     renderHiddenMessagesToggle: ErrorBoundary.wrap(() => {
         const hasHiddenDms = hiddenDmIds.size > 0;
-        const label = !hasHiddenDms ? "No Hidden DMs" : showHiddenDms ? "Hide Hidden DMs" : "Show Hidden DMs";
+        const label = !hasHiddenDms ? "No Hidden DMs" : showHiddenDms ? "Hide Hidden DMs" : t("إظهار الرسائل الخاصّة المخفية", "Show Hidden DMs");
 
         return (
             <Tooltip text={label}>

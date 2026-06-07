@@ -90,7 +90,7 @@ function RoleMembersList({ roleId, guildId, closePopout, setPopoutRef }: { roleI
         <div className={cl("popout")} ref={setPopoutRef}>
             <div className={cl("header")}>
                 <span className={cl("color")} style={{ backgroundColor: role?.colorString ?? "var(--background-mod-strong)" }} />
-                <span className={cl("name")}>{role?.name ?? "Unknown Role"}</span>
+                <span className={cl("name")}>{role?.name ?? t("دور غير معروف", "Unknown Role")}</span>
                 <span className={cl("count")}>{totalCount}</span>
             </div>
             <ScrollerThin className={cl("list")} fade>

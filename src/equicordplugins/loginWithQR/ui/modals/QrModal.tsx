@@ -388,4 +388,4 @@ function QrModal() {
     );
 }
 
-export default wrapTab(QrModal, "Scan QR Code");
+export default wrapTab(QrModal, t("مسح رمز QR", "Scan QR Code"));

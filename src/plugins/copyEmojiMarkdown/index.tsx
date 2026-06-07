@@ -67,7 +67,7 @@ export default definePlugin({
                     action={() => {
                         copyWithToast(
                             getEmojiMarkdown(target, settings.store.copyUnicode),
-                            "Success! Copied emoji markdown."
+                            t("نجح! تمّ نسخ ماركداون الإيموجي.", "Success! Copied emoji markdown.")
                         );
                     }}
                 />

@@ -184,7 +184,7 @@ function buildMenuItems(emoji: ContextMenuEmoji) {
             <Menu.MenuItem
                 id="white-list-emoji"
                 key="white-list-emoji"
-                label={isInList ? "Remove from Whitelist" : "Add to Whitelist"}
+                label={isInList ? "Remove from Whitelist" : t("إضافة للقائمة البيضاء", "Add to Whitelist")}
                 action={() => isInList ? removeFromAllowedList(emoji) : addToAllowedList(emoji)}
             />
         </>

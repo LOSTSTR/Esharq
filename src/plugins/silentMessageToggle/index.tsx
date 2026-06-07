@@ -99,7 +99,7 @@ const SilentMessageToggle: ChatBarButtonFactory = ({ isMainChat }) => {
 
     return (
         <ChatBarButton
-            tooltip={enabled ? "Disable Silent Message" : "Enable Silent Message"}
+            tooltip={enabled ? "Disable Silent Message" : t("تفعيل الرسالة الصامتة", "Enable Silent Message")}
             onClick={() => setEnabledValue(!enabled)}
         >
             {enabled ? <SilentMessageIcon /> : <SilentMessageDisabledIcon />}

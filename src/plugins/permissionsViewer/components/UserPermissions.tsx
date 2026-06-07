@@ -105,7 +105,7 @@ function UserPermissionsComponent({ guild, guildMember, closePopout }: { guild: 
                 permissions: Object.values(PermissionsBits).reduce((prev, curr) => prev | curr, 0n)
             });
 
-            const OWNER = getIntlMessage("GUILD_OWNER") ?? "Server Owner";
+            const OWNER = getIntlMessage("GUILD_OWNER") ?? t("مالك الخادم", "Server Owner");
             userPermissions.push({
                 permission: OWNER,
                 roleName: "Owner",
@@ -140,7 +140,7 @@ function UserPermissionsComponent({ guild, guildMember, closePopout }: { guild: 
         <div className={cl("user-header-container")}>
             <HeadingTertiary>{t("الصلاحيات", "Permissions")}</HeadingTertiary>
             <div className={cl("user-header-btns")}>
-                <Tooltip text={`Sorting by ${permissionsSortOrder === PermissionsSortOrder.HighestRole ? "Highest Role" : "Lowest Role"}`}>
+                <Tooltip text={`Sorting by ${permissionsSortOrder === PermissionsSortOrder.HighestRole ? "Highest Role" : t("أدنى دور", "Lowest Role")}`}>
                     {tooltipProps => (
                         <div
                             {...tooltipProps}

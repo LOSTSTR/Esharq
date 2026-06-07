@@ -114,7 +114,7 @@ function UploadClipFileModal({ modalProps, channelId, clip }: { modalProps: Rend
                     <Heading tag="h5">File</Heading>
                     <Flex alignItems="center" gap={8}>
                         <Button onClick={() => void chooseClipFile()} disabled={uploading}>{t("اختر ملفاً", "Select File")}</Button>
-                        <Paragraph>{file?.name ?? "No file selected"}</Paragraph>
+                        <Paragraph>{file?.name ?? t("لم يُحدَّد ملف", "No file selected")}</Paragraph>
                     </Flex>
                 </section>
 

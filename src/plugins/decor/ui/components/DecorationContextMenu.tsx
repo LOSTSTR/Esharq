@@ -18,7 +18,7 @@ export default function DecorationContextMenu({ decoration }: { decoration: Deco
     return <Menu.Menu
         navId={cl("decoration-context-menu")}
         onClose={ContextMenuApi.closeContextMenu}
-        aria-label="Decoration Options"
+        aria-label={t("خيارات الزينة", "Decoration Options")}
     >
         <Menu.MenuItem
             id={cl("decoration-context-menu-copy-hash")}
