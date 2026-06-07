@@ -1069,7 +1069,7 @@ export default definePlugin({
     description: "Shows the original username next to the nickname",
     authors: [EquicordDevs.Etorix, Devs.Rini, Devs.TheKodeToad, Devs.sadan, Devs.prism],
     tags: ["Appearance", "Customisation"],
-    searchTerms: ["SMYN", "Nicknames", t("الألقاب المخصّصة", "Custom Nicknames")],
+    searchTerms: ["SMYN", "Nicknames", "Custom Nicknames"],
     isModified: true,
     settings,
 
