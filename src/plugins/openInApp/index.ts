@@ -66,6 +66,11 @@ const UrlReplacementRules: Record<string, URLReplacementRule> = {
         match: /^https:\/\/vrchat.com\/home\/(user|avatar|world|group)\/(.+)$/,
         replace: (_, type, id) => `vrcx://${type}/${id}`,
         description: t("فتح روابط VRChat في تطبيق VRCX", "Open VRChat links in the VRCX app")
+    },
+    telegram: {
+        match: /^https:\/\/t\.me\/([a-zA-Z0-9_]+)$/,
+        replace: (_, username) => `tg://resolve?domain=${username}`,
+        description: t("فتح روابط Telegram في تطبيق Telegram", "Open Telegram links in the Telegram app")
     }
 };
 
@@ -88,6 +93,7 @@ export default definePlugin({
     tags: ["Utility"],
     authors: [Devs.Ven, Devs.surgedevs],
     settings: pluginSettings,
+    isModified: true,
 
     patches: [
         {

@@ -19,6 +19,10 @@ export default definePluginI18n({
         "noShiftPin": {
             "ar": "إزالة اشتراط الضغط على Shift لتثبيت رسالة.",
             "en": "Remove the shift requirement for the pin button."
+        },
+        "noQuickReacts": {
+            "ar": "إخفاء التفاعلات السريعة. افتراضياً، إظهار القائمة الكاملة يُخفي أزرار التفاعل السريع.",
+            "en": "Hide quick reacts. By default, showing the full menu hides quick react buttons."
         }
     }
 });

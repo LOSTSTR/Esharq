@@ -31,6 +31,10 @@ export default definePluginI18n({
         "consistent": {
             "ar": "اسم الملف الثابت",
             "en": "Fixed file name."
+        },
+        "dateFormat": {
+            "ar": "صيغة التاريخ (تُدعَم YYYY وMM وDD وHH وmm وss وSSS)",
+            "en": "Date format (YYYY, MM, DD, HH, mm, ss, SSS are supported)"
         }
     }
 });
