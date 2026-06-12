@@ -6,7 +6,6 @@
 
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
-import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { ChannelStore, FluxDispatcher, GuildMemberStore, StreamerModeStore, Toasts, UserStore, VoiceStateStore } from "@webpack/common";
 
@@ -21,88 +20,12 @@ interface ChannelState {
     selfStream: boolean;
 }
 
-const liveUpdate = () => sendConfig();
-
 const settings = definePluginSettings({
     port: {
         type: OptionType.NUMBER,
         description: "Port to connect to",
         default: 6888,
         restartNeeded: true
-    },
-    isKeybindEnabled: {
-        type: OptionType.BOOLEAN,
-        description: "Enable/disable global keybind (Ctrl + `)",
-        default: true,
-        onChange: liveUpdate,
-    },
-    messageAlignment: {
-        type: OptionType.SELECT,
-        description: "Message alignment in overlay",
-        options: [
-            { label: t("أعلى اليسار", "Top left"), value: "topleft", default: true },
-            { label: t("أعلى اليمين", "Top right"), value: "topright" },
-            { label: t("أسفل اليسار", "Bottom left"), value: "bottomleft" },
-            { label: t("أسفل اليمين", "Bottom right"), value: "bottomright" },
-            { label: t("أعلى الوسط", "Top center"), value: "topcenter" },
-            { label: t("أسفل الوسط", "Bottom center"), value: "bottomcenter" },
-            { label: t("الوسط الأيسر", "Center left"), value: "centerleft" },
-            { label: t("الوسط الأيمن", "Center right"), value: "centerright" },
-        ],
-        default: "topright",
-        onChange: liveUpdate,
-    },
-    messageOffsetX: {
-        type: OptionType.NUMBER,
-        description: "Horizontal offset for messages, in pixels",
-        default: 0,
-        onChange: liveUpdate,
-    },
-    messageOffsetY: {
-        type: OptionType.NUMBER,
-        description: "Vertical offset for messages, in pixels",
-        default: 0,
-        onChange: liveUpdate,
-    },
-    userAlignment: {
-        type: OptionType.SELECT,
-        description: "User alignment in overlay",
-        options: [
-            { label: t("أعلى اليسار", "Top left"), value: "topleft", default: true },
-            { label: t("أعلى اليمين", "Top right"), value: "topright" },
-            { label: t("أسفل اليسار", "Bottom left"), value: "bottomleft" },
-            { label: t("أسفل اليمين", "Bottom right"), value: "bottomright" },
-            { label: t("أعلى الوسط", "Top center"), value: "topcenter" },
-            { label: t("أسفل الوسط", "Bottom center"), value: "bottomcenter" },
-            { label: t("الوسط الأيسر", "Center left"), value: "centerleft" },
-            { label: t("الوسط الأيمن", "Center right"), value: "centerright" },
-        ],
-        default: "topleft",
-        onChange: liveUpdate,
-    },
-    userOffsetX: {
-        type: OptionType.NUMBER,
-        description: "Horizontal offset for users, in pixels",
-        default: 0,
-        onChange: liveUpdate,
-    },
-    userOffsetY: {
-        type: OptionType.NUMBER,
-        description: "Vertical offset for users, in pixels",
-        default: 0,
-        onChange: liveUpdate,
-    },
-    voiceSemitransparent: {
-        type: OptionType.BOOLEAN,
-        description: "Make voice channel members semi-transparent",
-        default: true,
-        onChange: liveUpdate,
-    },
-    messagesSemitransparent: {
-        type: OptionType.BOOLEAN,
-        description: "Make message notifications semi-transparent",
-        default: false,
-        onChange: liveUpdate,
     },
 });
 
@@ -112,12 +35,7 @@ const sendConfig = () => {
     const userId = UserStore.getCurrentUser()?.id;
     if (!userId) return;
 
-    const config: Record<string, unknown> = { userId };
-    for (const key of Object.keys(settings.def)) {
-        config[key] = settings.store[key];
-    }
-
-    ws?.send(JSON.stringify({ cmd: "REGISTER_CONFIG", ...config }));
+    ws.send(JSON.stringify({ cmd: "REGISTER_CONFIG", userId }));
 };
 
 let ws: WebSocket | null = null;
@@ -294,7 +212,7 @@ const createWebsocket = () => {
     setTimeout(() => {
         if (ws?.readyState !== WebSocket.OPEN) {
             Toasts.show({
-                message: t("تعذّر اتصال Orbolay websocket. هل هو قيد التشغيل؟", "Orbolay websocket could not connect. Is it running?"),
+                message: "Orbolay websocket could not connect. Is it running?",
                 type: Toasts.Type.FAILURE,
                 id: Toasts.genId(),
             });
@@ -303,6 +221,7 @@ const createWebsocket = () => {
         }
     }, 1000);
 
+    // Use the configured port locally to open the websocket, but do not include it in REGISTER_CONFIG
     ws = new WebSocket("ws://127.0.0.1:" + settings.store.port);
     ws.onerror = e => {
         ws?.close?.();
@@ -317,7 +236,7 @@ const createWebsocket = () => {
     };
     ws.onopen = async () => {
         Toasts.show({
-            message: t("تم الاتصال بخادم Orbolay", "Connected to Orbolay server"),
+            message: "Connected to Orbolay server",
             type: Toasts.Type.SUCCESS,
             id: Toasts.genId(),
         });
@@ -326,6 +245,14 @@ const createWebsocket = () => {
         if (!userId) return;
 
         sendConfig();
+
+        // Let the client know whether we are in streamer mode
+        ws?.send(
+            JSON.stringify({
+                cmd: "STREAMER_MODE",
+                enabled: StreamerModeStore.enabled,
+            })
+        );
 
         const userVoiceState = VoiceStateStore.getVoiceStateForUser(userId);
         if (!userVoiceState || !userVoiceState.channelId) return;
@@ -344,20 +271,13 @@ const createWebsocket = () => {
             })
         );
 
-        ws?.send(
-            JSON.stringify({
-                cmd: "STREAMER_MODE",
-                enabled: StreamerModeStore.enabled,
-            })
-        );
-
         currentChannel = userVoiceState.channelId;
     };
 };
 
 export default definePlugin({
     name: "OrbolayBridge",
-    description: "Bridge plugin to connect Orbolay with Discord",
+    description: "Bridge plugin to connect Orbolay to Discord",
     tags: ["Utility", "Voice"],
     authors: [EquicordDevs.SpikeHD],
     settings,

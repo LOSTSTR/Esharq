@@ -8,8 +8,8 @@ import { definePluginI18n } from "@utils/i18n/types";
 
 export default definePluginI18n({
     "description": {
-        "ar": "يرفع الصور والفيديوهات إلى خدمات استضافة الملفات مثل Zipline وNest",
-        "en": "Upload images and videos to file-hosting services like Zipline and Nest."
+        "ar": "يرفع الملفات إلى خدمات الاستضافة مثل Zipline وNest وS3 وWebDAV",
+        "en": "Upload files to hosting services like Zipline, Nest, S3, and WebDAV"
     },
     "options": {
         "encryptingHostKey": {

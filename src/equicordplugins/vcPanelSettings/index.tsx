@@ -253,7 +253,7 @@ export default definePlugin({
             find: "}getAccessibilityLabel(){",
             replacement: {
                 match: /this.renderVoiceStates\(\),\i/,
-                replace: "$&$self.renderVoiceSettings()"
+                replace: "$&,$self.renderVoiceSettings()"
             }
         }
     ]

@@ -9,13 +9,14 @@ import "./styles.css";
 import { AudioProcessor, PreprocessAudioData } from "@api/AudioPlayer";
 import { get as getFromDataStore } from "@api/DataStore";
 import { definePluginSettings } from "@api/Settings";
+import { Button } from "@components/Button";
 import { Heading } from "@components/Heading";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType, StartAt } from "@utils/types";
-import { Button, React, showToast, TextInput } from "@webpack/common";
+import { React, showToast, TextInput } from "@webpack/common";
 
 import { getAllAudio, getAudioDataURI } from "./audioStore";
 import { SoundOverrideComponent } from "./SoundOverrideComponent";
@@ -326,15 +327,15 @@ const settings = definePluginSettings({
             return (
                 <div>
                     <div className="vc-custom-sounds-buttons">
-                        <Button color={Button.Colors.BRAND} onClick={triggerFileUpload}>{t("استيراد", "Import")}</Button>
-                        <Button color={Button.Colors.PRIMARY} onClick={downloadSettings}>{t("تصدير", "Export")}</Button>
-                        <Button color={Button.Colors.RED} onClick={resetOverrides}>{t("إعادة الكل", "Reset All")}</Button>
-                        <Button color={Button.Colors.WHITE} onClick={debugCustomSounds}>Debug</Button>
+                        <Button variant="primary" onClick={triggerFileUpload}>{t("استيراد", "Import")}</Button>
+                        <Button variant="secondary" onClick={downloadSettings}>{t("تصدير", "Export")}</Button>
+                        <Button variant="dangerPrimary" onClick={resetOverrides}>{t("إعادة الكل", "Reset All")}</Button>
+                        <Button variant="overlayPrimary" onClick={debugCustomSounds}>Debug</Button>
                         <input
+                            className={cl("file-input")}
                             ref={fileInputRef}
                             type="file"
                             accept=".json"
-                            style={{ display: "none" }}
                             onChange={handleSettingsUpload}
                         />
                     </div>

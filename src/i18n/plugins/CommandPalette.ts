@@ -8,8 +8,8 @@ import { definePluginI18n } from "@utils/i18n/types";
 
 export default definePluginI18n({
     "description": {
-        "ar": "تشغيل الإجراءات بسرعة عبر لوحة أوامر قابلة للبحث",
-        "en": "Run actions quickly through a searchable command palette."
+        "ar": "لوحة أوامر بأسلوب Raycast لتنفيذ الإجراءات في أي مكان في ديسكورد",
+        "en": "Raycast style command palette for running actions anywhere in Discord"
     },
     "options": {
         "customCommands": {
