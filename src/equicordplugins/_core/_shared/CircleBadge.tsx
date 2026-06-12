@@ -5,7 +5,7 @@
  */
 
 import ErrorBoundary from "@components/ErrorBoundary";
-import { Tooltip, useRef } from "@webpack/common";
+import { Tooltip } from "@webpack/common";
 import type { JSX } from "react";
 
 interface CircleBadgeProps {
@@ -22,14 +22,20 @@ interface CircleBadgeProps {
 }
 
 /**
- * Shared circular badge drawing: a colored ring with an image clipped inside,
+ * Shared circular badge drawing: a colored ring with a round image inside,
  * wrapped in a hover tooltip. Every Esharq badge draws the exact same way —
  * only the image, ring color, tooltip and CSS class differ. Each badge keeps
  * its own data and styling and just calls this one component to draw itself,
  * so the drawing recipe lives in a single place instead of being copied.
+ *
+ * Drawn with a plain HTML <img> (ring = colored padding around it) rather than
+ * an SVG <image>, because SVG <image href> does not reliably render data: URIs
+ * across Discord's render contexts, which left the badges showing as broken
+ * images. An <img> renders both data: URIs and URLs everywhere.
  */
 export function CircleBadge({ size, image, ring, tooltip, className }: CircleBadgeProps): JSX.Element {
-    const clipId = useRef(`esharq-badge-${Math.random().toString(36).slice(2, 9)}`).current;
+    // Ring thickness scales with size, matching the previous SVG ring proportions.
+    const ringWidth = Math.max(1, Math.round(size / 12));
     return (
         <ErrorBoundary noop>
             <Tooltip text={tooltip} position="top">
@@ -38,22 +44,30 @@ export function CircleBadge({ size, image, ring, tooltip, className }: CircleBad
                         className={className}
                         onMouseEnter={onMouseEnter}
                         onMouseLeave={onMouseLeave}
-                        style={{ width: size, height: size }}
+                        style={{
+                            width: size,
+                            height: size,
+                            borderRadius: "50%",
+                            backgroundColor: ring,
+                            padding: ringWidth,
+                            boxSizing: "border-box"
+                        }}
                         role="img"
                         aria-label={tooltip}
                     >
-                        <svg width={size} height={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                            <defs>
-                                <clipPath id={clipId}><circle cx="12" cy="12" r="10" /></clipPath>
-                            </defs>
-                            <circle cx="12" cy="12" r="12" fill={ring} />
-                            <image
-                                href={image}
-                                x="2" y="2" width="20" height="20"
-                                preserveAspectRatio="xMidYMid slice"
-                                clipPath={`url(#${clipId})`}
-                            />
-                        </svg>
+                        <img
+                            src={image}
+                            alt=""
+                            width={size - ringWidth * 2}
+                            height={size - ringWidth * 2}
+                            style={{
+                                width: "100%",
+                                height: "100%",
+                                borderRadius: "50%",
+                                objectFit: "cover",
+                                display: "block"
+                            }}
+                        />
                     </div>
                 )}
             </Tooltip>

@@ -9,11 +9,9 @@ import "./styles.css";
 import { addProfileBadge, BadgePosition, BadgeUserArgs, ProfileBadge, removeProfileBadge } from "@api/Badges";
 import definePlugin from "@utils/types";
 
-import { CircleBadge } from "../_shared/CircleBadge";
 import { FOUNDERS_IMAGE } from "./image";
 
 const BADGE_ID = "esharq-founder";
-const RING = "#a01b2d";
 const NAME = "Esharq Staff · إدارة إِشراق";
 
 // ─── Authorized IDs — هذه الشارة الخاصة تظهر فقط لهؤلاء ──────────────────────
@@ -31,11 +29,16 @@ const profileBadge: ProfileBadge = {
     id: BADGE_ID,
     key: BADGE_ID,
     description: NAME,
+    // Discord 1.0.9241 broke Equicord's component-badge render patch in the profile
+    // popout, so we render via iconSrc (Discord's native <img>). Only `style` reliably
+    // reaches that <img> (Discord overrides className), but inline styles block CSS
+    // :hover — so spacing stays here and all visual polish (glow/hover/transition/conic
+    // frame) lives in styles.css, targeted via the badge's aria-label. The crest's ring
+    // is part of the image. The in-chat MessageDecoration is a separate path.
+    iconSrc: FOUNDERS_IMAGE,
+    props: { style: { margin: "0 2px" } },
     position: BadgePosition.START,
     shouldShow: ({ userId }: BadgeUserArgs) => FOUNDER_IDS.has(userId),
-    component: () => (
-        <CircleBadge size={22} image={FOUNDERS_IMAGE} ring={RING} tooltip={NAME} className="esharq-founder-badge" />
-    ),
 };
 
 // required: true → cannot be disabled; hidden: true → not listed in settings
