@@ -16,10 +16,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ScreenshareProfile, ScreenshareStore } from "@plugins/betterScreenshare.desktop/stores";
 import { ProfilableStore, replaceObjectValuesIfExist, types, utils } from "@plugins/philsPluginLibrary";
 import { Logger } from "@utils/Logger";
 import { lodash } from "@webpack/common";
+
+// `betterScreenshare.desktop` is not installed in this build. These two types
+// live in that plugin's store; until it is added, fall back to permissive local
+// aliases so this screenshare-support module still type-checks. Replace with the
+// real import (`@plugins/betterScreenshare.desktop/stores`) once that plugin exists.
+type ScreenshareStore = Record<string, any>;
+type ScreenshareProfile = Record<string, any>;
 
 
 export function getDefaultVideoTransportationOptions(connection: types.Connection) {

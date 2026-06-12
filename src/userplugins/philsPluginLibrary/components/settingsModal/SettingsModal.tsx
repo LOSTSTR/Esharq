@@ -21,11 +21,21 @@ import { Button } from "@components/Button";
 import { Flex } from "@components/Flex";
 import { ContributorAuthorSummary } from "@plugins/philsPluginLibrary/components/ContributorAuthorSummary";
 import { Author, Contributor } from "@plugins/philsPluginLibrary/types";
-import { ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalRoot } from "@utils/modal";
-import React, { JSX } from "react";
+import * as ModalParts from "@utils/modal";
+import { RenderModalProps } from "@vencord/discord-types";
+import React, { ComponentType, JSX } from "react";
+
+// The low-level Modal* components in @utils/modal are deprecated and typed `never`
+// to push migration; at runtime they still resolve to the real components. Re-type
+// them as renderable components so this modal compiles without changing behavior.
+const ModalRoot = ModalParts.ModalRoot as unknown as ComponentType<any>;
+const ModalHeader = ModalParts.ModalHeader as unknown as ComponentType<any>;
+const ModalContent = ModalParts.ModalContent as unknown as ComponentType<any>;
+const ModalFooter = ModalParts.ModalFooter as unknown as ComponentType<any>;
+const ModalCloseButton = ModalParts.ModalCloseButton as unknown as ComponentType<any>;
 
 
-export interface SettingsModalProps extends React.ComponentProps<typeof ModalRoot> {
+export interface SettingsModalProps extends RenderModalProps {
     title?: string;
     onClose: () => void;
     onDone?: () => void;
@@ -33,6 +43,8 @@ export interface SettingsModalProps extends React.ComponentProps<typeof ModalRoo
     closeButtonName?: string;
     author?: Author,
     contributors?: Contributor[];
+    children?: React.ReactNode;
+    size?: ModalParts.ModalSize;
 }
 
 export const SettingsModal = (props: SettingsModalProps) => {

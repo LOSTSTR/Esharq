@@ -18,14 +18,13 @@
 
 import { fakeD } from "@plugins/fakeDeafen";
 import { replacedUserPanelComponent } from "@plugins/philsPluginLibrary/patches";
-import { Devs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 
 export default definePlugin({
     name: "PhilsPluginLibrary",
     description: "A library for phil's plugins.",
-    authors: [Devs.viciouscal],
+    authors: [{ name: "viciouscal", id: 0n }],
     patches: [
         {
             find: '"--custom-app-panels-height",',

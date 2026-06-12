@@ -21,7 +21,6 @@ import { openMicrophoneSettingsModal } from "@plugins/betterMicrophone.desktop/m
 import { MicrophonePatcher } from "@plugins/betterMicrophone.desktop/patchers";
 import { initMicrophoneStore } from "@plugins/betterMicrophone.desktop/stores";
 import { addSettingsPanelButton, Emitter, MicrophoneSettingsIcon, removeSettingsPanelButton } from "@plugins/philsPluginLibrary";
-import { Devs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin, { PluginNative } from "@utils/types";
 
@@ -30,7 +29,7 @@ export const Native = VencordNative.pluginHelpers.BetterMicrophone as PluginNati
 export default definePlugin({
     name: "BetterMicrophone",
     description: "Allows you to customize microphone settings more deeply.",
-    authors: [Devs.viciouscal],
+    authors: [{ name: "viciouscal", id: 0n }],
     dependencies: ["PhilsPluginLibrary"],
     requiresRestart: true,
 

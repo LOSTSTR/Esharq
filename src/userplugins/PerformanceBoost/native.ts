@@ -55,15 +55,31 @@ export function relaunchApp(_e: IpcMainInvokeEvent): void {
     app.exit(0);
 }
 
+// يحدد مجلد بيانات نسخة Discord الحالية (stable/ptb/canary/development) من مسار التنفيذ.
+// عند أي فشل في الاكتشاف يرجع للمجلد الافتراضي "discord" (خطة احتياطية).
+function getDiscordAppDataPath(appData: string): string {
+    try {
+        const exe = process.execPath.toLowerCase();
+        // الأكثر تحديداً أولاً — "discord" جزء من جميع الأسماء.
+        if (exe.includes("discorddevelopment")) return join(appData, "discorddevelopment");
+        if (exe.includes("discordcanary")) return join(appData, "discordcanary");
+        if (exe.includes("discordptb")) return join(appData, "discordptb");
+    } catch {
+        // تجاهل — نستخدم الافتراضي أدناه
+    }
+    return join(appData, "discord");
+}
+
 // ✅ حقيقي: حذف مجلدات كاش Discord عبر fs. الملفات قيد الاستخدام تفشل بأمان (try/catch).
 export async function cleanCache(_e: IpcMainInvokeEvent): Promise<{ ok: boolean; cleared: number; }> {
     const appData = process.env.APPDATA; // %AppData% (Windows)
     if (!appData) return { ok: false, cleared: 0 };
 
+    const base = getDiscordAppDataPath(appData);
     const targets = [
-        join(appData, "discord", "Cache"),
-        join(appData, "discord", "Code Cache"),
-        join(appData, "discord", "GPUCache"),
+        join(base, "Cache"),
+        join(base, "Code Cache"),
+        join(base, "GPUCache"),
     ];
 
     let cleared = 0;

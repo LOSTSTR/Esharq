@@ -17,13 +17,13 @@
 */
 
 import * as types from "@plugins/philsPluginLibrary/types/constants";
-import { Devs } from "@utils/constants";
 
 export const PluginInfo: types.PluginInfo = {
     PLUGIN_NAME: "PhilsPluginLibrary",
     DESCRIPTION: "A library for phil's plugins",
     AUTHOR: {
-        ...Devs.viciouscal,
+        name: "viciouscal",
+        id: 0n,
         github: "https://github.com/viciouscal"
     },
 } as const;

@@ -4,16 +4,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { copyWithToast } from "@utils/discord";
 import { t } from "@utils/esharqI18n";
 import { RenderModalProps } from "@vencord/discord-types";
-import { findByPropsLazy } from "@webpack";
-import { ChannelStore, GuildStore, Modal, React, showToast, Toasts, useEffect, useState } from "@webpack/common";
+import { ChannelStore, GuildStore, Modal, NavigationRouter, React, showToast, Toasts, useEffect, useState } from "@webpack/common";
 
 import { exportBookmarks, pickBookmarksFile } from "./backup";
 import { getBookmarks, saveBookmarks } from "./store";
 import type { Bookmark, BookmarkCategory } from "./types";
-
-const jumper = findByPropsLazy("jumpToMessage");
 
 const NEXT_CATEGORY: Record<BookmarkCategory, BookmarkCategory> = {
     general: "important",
@@ -80,12 +78,18 @@ export function BookmarksModal({ modalProps }: { modalProps: RenderModalProps; }
 
     function handleJump(bookmark: Bookmark) {
         modalProps.onClose();
-        jumper.jumpToMessage({
-            channelId: bookmark.channelId,
-            messageId: bookmark.messageId,
-            flash: true,
-            jumpType: "INSTANT",
-        });
+        // Deep-link to the message: this switches guild + channel first, then jumps
+        // to and highlights the message — so it works from anywhere, not only the
+        // channel you happen to be viewing. ("@me" covers DMs and group DMs.)
+        NavigationRouter.transitionTo(`/channels/${bookmark.guildId ?? "@me"}/${bookmark.channelId}/${bookmark.messageId}`);
+    }
+
+    function handleCopy(bookmark: Bookmark) {
+        if (!bookmark.content) {
+            showToast(t("لا يوجد نصّ لنسخه", "No text to copy"), Toasts.Type.MESSAGE);
+            return;
+        }
+        copyWithToast(bookmark.content, t("✓ تم نسخ النصّ", "✓ Text copied"));
     }
 
     function handleExport() {
@@ -246,6 +250,13 @@ export function BookmarksModal({ modalProps }: { modalProps: RenderModalProps; }
                                             {categoryLabel(bookmark.category)}
                                         </button>
                                         <div className="mb-item-right">
+                                            <button
+                                                className="mb-action mb-copy"
+                                                title={t("نسخ نصّ الرسالة", "Copy message text")}
+                                                onClick={() => handleCopy(bookmark)}
+                                            >
+                                                📋 {t("نسخ", "Copy")}
+                                            </button>
                                             <button
                                                 className="mb-action mb-jump"
                                                 title={t("الانتقال إلى الرسالة", "Jump to message")}

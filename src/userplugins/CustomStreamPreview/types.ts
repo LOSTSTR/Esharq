@@ -1,9 +1,15 @@
 /*
- * Vencord, a Discord client mod
- * Copyright (c) 2025 Vendicated and contributors
+ * Esharq — CustomStreamPreview (internal tool for the Esharq project)
+ * Copyright (c) 2026 LOSTSTR
+ *
+ * Rebuilt from the older VencordCustomScreenSharePreview plugin to use Vencord's
+ * RestAPI (no manual token handling) and DataStore instead of raw fetch + a custom
+ * state manager.
+ *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+/** Dispatched when any user (including us) starts a stream in a voice channel. */
 export interface StreamCreateEvent {
     type: "STREAM_CREATE";
     streamKey: string;
@@ -13,6 +19,7 @@ export interface StreamCreateEvent {
     paused: boolean;
 }
 
+/** Dispatched when a stream ends. */
 export interface StreamDeleteEvent {
     type: "STREAM_DELETE";
     streamKey: string;
@@ -20,7 +27,8 @@ export interface StreamDeleteEvent {
     unavailable: unknown;
 }
 
-export type StreamKey =
+/** A stream key (`call:channelId:userId` or `guild:guildId:channelId:userId`) parsed into parts. */
+export type ParsedStreamKey =
     | {
         voiceChannelType: "call";
         guildId?: undefined;

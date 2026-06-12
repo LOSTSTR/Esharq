@@ -17,13 +17,13 @@
 */
 
 import { types } from "@plugins/philsPluginLibrary";
-import { Devs } from "@utils/constants";
 
 export const PluginInfo = {
     PLUGIN_NAME: "BetterMicrophone",
     DESCRIPTION: "This plugin allows you to further customize your microphone.",
     AUTHOR: {
-        ...Devs.viciouscal,
+        name: "viciouscal",
+        id: 0n,
         github: "https://github.com/viciouscal"
     },
     CONTRIBUTORS: {

@@ -16,8 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import type { TypedEmitter } from "@plugins/philsPluginLibrary/emitter/typedEmitter";
 import { Framerate, Resolution } from "@plugins/philsPluginLibrary/types";
-import TypedEmitter from "typed-emitter";
 
 import { Conn, FramerateReducer, VideoQualityManager } from "./";
 

@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import "./CircleBadge.css";
+
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Tooltip } from "@webpack/common";
 import type { JSX } from "react";
@@ -19,6 +21,8 @@ interface CircleBadgeProps {
     tooltip: string;
     /** CSS class carrying this badge's own glow/animation (defined in its styles.css). */
     className: string;
+    /** When true, wraps the image in a rotating gold/black/red animated ring. */
+    animated?: boolean;
 }
 
 /**
@@ -32,24 +36,28 @@ interface CircleBadgeProps {
  * an SVG <image>, because SVG <image href> does not reliably render data: URIs
  * across Discord's render contexts, which left the badges showing as broken
  * images. An <img> renders both data: URIs and URLs everywhere.
+ *
+ * With `animated`, the gold padding ring is replaced by a rotating, glowing
+ * gold/black/red conic ring (`.esharq-animated-ring`, see CircleBadge.css).
  */
-export function CircleBadge({ size, image, ring, tooltip, className }: CircleBadgeProps): JSX.Element {
+export function CircleBadge({ size, image, ring, tooltip, className, animated = false }: CircleBadgeProps): JSX.Element {
     // Ring thickness scales with size, matching the previous SVG ring proportions.
     const ringWidth = Math.max(1, Math.round(size / 12));
+    const inset = animated ? 0 : ringWidth;
     return (
         <ErrorBoundary noop>
             <Tooltip text={tooltip} position="top">
                 {({ onMouseEnter, onMouseLeave }) => (
                     <div
-                        className={className}
+                        className={animated ? `${className} esharq-animated-ring` : className}
                         onMouseEnter={onMouseEnter}
                         onMouseLeave={onMouseLeave}
                         style={{
                             width: size,
                             height: size,
                             borderRadius: "50%",
-                            backgroundColor: ring,
-                            padding: ringWidth,
+                            backgroundColor: animated ? "transparent" : ring,
+                            padding: inset,
                             boxSizing: "border-box"
                         }}
                         role="img"
@@ -58,8 +66,8 @@ export function CircleBadge({ size, image, ring, tooltip, className }: CircleBad
                         <img
                             src={image}
                             alt=""
-                            width={size - ringWidth * 2}
-                            height={size - ringWidth * 2}
+                            width={size - inset * 2}
+                            height={size - inset * 2}
                             style={{
                                 width: "100%",
                                 height: "100%",

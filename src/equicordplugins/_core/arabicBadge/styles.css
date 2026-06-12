@@ -1,32 +1,15 @@
 /*
  * Esharq — Dev Esharq badge styling.
- * Emerald (#10b981) glow with a smooth hover lift.
+ * A rotating, glowing gold/black/red conic ring.
  *
- * Two render paths are styled:
- *  1. The profile-popout badge is Discord's own <img> (it overrides our className),
- *     so we target it via the badge's aria-label — a stable hook that always matches
- *     and, unlike inline style, allows CSS :hover transitions.
- *  2. The in-chat MessageDecoration uses our CircleBadge component, styled by class.
+ * Two render paths:
+ *  1. Profile popout = Discord's own <img> (className is overridden), so the ring is
+ *     targeted via the badge's aria-label, scoped to the anchor.
+ *  2. In-chat MessageDecoration = our CircleBadge with `animated` (.esharq-animated-ring,
+ *     styled in CircleBadge.css). Here we only handle layout + hover.
  */
 
-/* ── Profile popout (native <img>, scoped to the anchor so it can't hit the chat one) ── */
-a[aria-label*="Dev Esharq"] img {
-    border-radius: 50%;
-    transition: transform 0.25s ease, filter 0.25s ease;
-    filter:
-        drop-shadow(0 0 2px #10b981)
-        drop-shadow(0 0 5px rgb(16 185 129 / 50%));
-}
-
-a[aria-label*="Dev Esharq"] img:hover {
-    transform: scale(1.18);
-    filter:
-        drop-shadow(0 0 4px #34d399)
-        drop-shadow(0 0 10px #10b981)
-        drop-shadow(0 0 18px rgb(16 185 129 / 70%));
-}
-
-/* ── Rotating black/gold conic-gradient frame around the Dev Esharq badge ── */
+/* ── Profile popout: animated gold/black/red ring behind the medallion ── */
 a[aria-label*="Dev Esharq"] {
     position: relative;
 }
@@ -34,25 +17,29 @@ a[aria-label*="Dev Esharq"] {
 a[aria-label*="Dev Esharq"]::before {
     content: "";
     position: absolute;
-    inset: -2px;
+    inset: -3px;
     border-radius: 50%;
-    padding: 2px;
-    background: conic-gradient(from 0deg, #0a0a0a, #fbbf24, #0a0a0a, #fcd34d, #0a0a0a);
-
-    /* turn the filled circle into a thin ring by masking out the centre */
-    mask:
-        linear-gradient(#000 0 0) content-box,
-        linear-gradient(#000 0 0);
-    mask-composite: exclude;
-    animation: eq-arabic-spin 4s linear infinite;
+    background: conic-gradient(from 0deg, #fbbf24, #000, #dc2626, #fbbf24);
+    animation:
+        esharq-ring-spin 2s linear infinite,
+        esharq-ring-glow 1s ease-in-out infinite alternate;
+    filter: blur(1px);
+    z-index: 0;
     pointer-events: none;
 }
 
-@keyframes eq-arabic-spin {
-    to { transform: rotate(360deg); }
+a[aria-label*="Dev Esharq"] img {
+    position: relative;
+    z-index: 1;
+    border-radius: 50%;
+    transition: transform 0.25s ease;
 }
 
-/* ── In-chat message decoration (CircleBadge component) ── */
+a[aria-label*="Dev Esharq"]:hover img {
+    transform: scale(1.12);
+}
+
+/* ── In-chat message decoration (ring handled by .esharq-animated-ring) ── */
 .eq-arabic-badge {
     display: inline-flex;
     align-items: center;
@@ -60,16 +47,19 @@ a[aria-label*="Dev Esharq"]::before {
     cursor: default;
     flex-shrink: 0;
     border-radius: 50%;
-    transition: transform 0.25s ease, filter 0.25s ease;
-    filter:
-        drop-shadow(0 0 2px #10b981)
-        drop-shadow(0 0 5px rgb(16 185 129 / 50%));
+    transition: transform 0.25s ease;
 }
 
 .eq-arabic-badge:hover {
-    transform: scale(1.25);
-    filter:
-        drop-shadow(0 0 4px #34d399)
-        drop-shadow(0 0 10px #10b981)
-        drop-shadow(0 0 18px rgb(16 185 129 / 70%));
+    transform: scale(1.2);
+}
+
+@keyframes esharq-ring-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes esharq-ring-glow {
+    from { filter: blur(1px); }
+    to { filter: blur(3px); }
 }

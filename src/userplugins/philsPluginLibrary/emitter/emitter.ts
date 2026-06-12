@@ -17,7 +17,8 @@
 */
 
 import EventEmitter from "events";
-import TypedEmitter from "typed-emitter";
+
+import type { TypedEmitter } from "@plugins/philsPluginLibrary/emitter/typedEmitter";
 
 export type TypedEmitterEvents<J extends TypedEmitter<any>> = J extends TypedEmitter<
     infer N

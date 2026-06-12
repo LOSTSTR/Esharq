@@ -1,17 +1,17 @@
 /*
- * Esharq — Esharq Staff (founder) badge styling.
- * Same rotating, glowing gold/black/red conic ring as the Dev badge.
- *
- * The profile badge is Discord's own <img> (className is overridden), so the ring is
- * targeted via the badge's aria-label, scoped to the anchor. This badge has no in-chat
- * decoration, so there is no component class to style.
+ * Esharq — opt-in animated ring for CircleBadge (`animated` prop).
+ * A rotating, glowing gold/black/red conic ring drawn behind the badge image.
+ * Keyframes are namespaced (esharq-ring-*) so they can't collide with Discord
+ * or other plugins.
  */
 
-a[aria-label*="Esharq Staff"] {
+.esharq-animated-ring {
     position: relative;
+    border-radius: 50%;
+    background: transparent;
 }
 
-a[aria-label*="Esharq Staff"]::before {
+.esharq-animated-ring::before {
     content: "";
     position: absolute;
     inset: -3px;
@@ -25,15 +25,9 @@ a[aria-label*="Esharq Staff"]::before {
     pointer-events: none;
 }
 
-a[aria-label*="Esharq Staff"] img {
+.esharq-animated-ring > * {
     position: relative;
     z-index: 1;
-    border-radius: 50%;
-    transition: transform 0.25s ease;
-}
-
-a[aria-label*="Esharq Staff"]:hover img {
-    transform: scale(1.12);
 }
 
 @keyframes esharq-ring-spin {

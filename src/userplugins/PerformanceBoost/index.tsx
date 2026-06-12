@@ -27,18 +27,30 @@ const Native = IS_DISCORD_DESKTOP
     : null;
 
 let active = false;
-let ready = false; // يصبح true بعد بدء Discord بمهلة — لتجاهل بلاغ الألعاب التلقائي عند الإقلاع
+let ready = false; // يصبح true عند CONNECTION_OPEN (أو مهلة احتياطية) — لتجاهل بلاغ الألعاب عند الإقلاع
+let readyFallbackTimer: ReturnType<typeof setTimeout> | null = null; // مهلة احتياطية إن لم يصل CONNECTION_OPEN
 let manualOff = false; // المستخدم أوقفه يدوياً ⇒ يطغى على الكشف التلقائي حتى يُفعّله بنفسه
+let notifiedManualOff = false; // أُعلِم المستخدم مرة واحدة فقط أن التفعيل التلقائي مُعطَّل بسبب الإيقاف اليدوي
 const HW_ACK_KEY = "PerformanceBoost_hwRestartAcknowledged";
 const MANUAL_OFF_KEY = "PerformanceBoost_manualOff"; // يُحفَظ علَم الإيقاف اليدوي عبر إعادة التشغيل
 const buttonUpdaters = new Set<() => void>();
 const refreshButtons = () => buttonUpdaters.forEach(u => u());
 
+// يفتح الكشف الحيّ عن الألعاب (idempotent): يُستدعى من CONNECTION_OPEN أو من المهلة الاحتياطية.
+function markReady() {
+    if (ready) return;
+    ready = true;
+    if (readyFallbackTimer !== null) {
+        clearTimeout(readyFallbackTimer);
+        readyFallbackTimer = null;
+    }
+}
+
 // مفاتيح DataStore لحفظ القيم الأصلية
 const ORIG_COMPACT_KEY = "PerformanceBoost_originalCompact";
 const ORIG_GIF_KEY = "PerformanceBoost_originalGif";
 
-const NOTICE_COLORS = { success: "#3ba55c", warning: "#faa81a", error: "#ed4245" } as const;
+const NOTICE_COLORS = { success: "#3ba55c", warning: "#faa81a", error: "#ed4245", info: "#5865f2" } as const;
 function notice(message: string, type: keyof typeof NOTICE_COLORS) {
     showNotification({ title: "PerformanceBoost", body: message, color: NOTICE_COLORS[type], noPersist: true });
 }
@@ -146,6 +158,7 @@ async function promptHardwareRestart() {
 async function applyMode() {
     if (active) return;
     active = true;
+    notifiedManualOff = false; // أُعيد التفعيل ⇒ نسمح بإعلامٍ جديد لاحقاً إن أُوقف يدوياً مرة أخرى
     applyCss();
     await applyUserSettings();
     if (settings.store.changeProcessPriority) await setPriority("belowNormal");
@@ -211,9 +224,23 @@ export default definePlugin({
     settings,
     headerBarButton: { icon: () => <BoltIcon active={active} />, render: PerfHeaderButton },
     flux: {
+        CONNECTION_OPEN() {
+            // اكتمل الاتصال ⇒ نفتح الكشف الحيّ عن الألعاب (نكون قد تجاوزنا دفعة بلاغات الإقلاع).
+            markReady();
+        },
         RUNNING_GAMES_CHANGE({ games }: { games: { id: string; }[]; }) {
-            // !ready ⇒ نتجاهل بلاغ الألعاب عند الإقلاع. manualOff ⇒ المستخدم أوقفه يدوياً فنحترم قراره ولا نُعيد التفعيل.
-            if (!settings.store.autoDetectGames || !ready || manualOff) return;
+            // !ready ⇒ نتجاهل بلاغ الألعاب عند الإقلاع.
+            if (!settings.store.autoDetectGames || !ready) return;
+
+            // manualOff ⇒ المستخدم أوقفه يدوياً فنحترم قراره ولا نُعيد التفعيل، لكن نُعلمه مرة واحدة.
+            if (manualOff) {
+                if (games?.length && !notifiedManualOff) {
+                    notice(t("تم تعطيل التفعيل التلقائي لأنك أوقفت وضع الأداء يدوياً. أعد تفعيله من الزر أو الإعدادات.", "Auto-enable is disabled because you turned off Performance mode manually. Re-enable it from the button or settings."), "info");
+                    notifiedManualOff = true;
+                }
+                return;
+            }
+
             if (games?.length) { if (!active) applyMode(); }
             else if (active) revertMode();
         }
@@ -224,8 +251,18 @@ export default definePlugin({
         manualOff = (await DataStore.get<boolean>(MANUAL_OFF_KEY)) ?? false;
         if (settings.store.gameMode) await applyMode();
         else await revertUserSettings(); // مُعطَّل يبقى مُعطَّلاً + تنظيف أي إعداد عالق من جلسة سابقة
-        // نفتح الكشف الحيّ بعد انقضاء دفعة بلاغات الإقلاع — فلا يُفعَّل الوضع تلقائياً عند فتح Discord ولعبة شغّالة.
-        setTimeout(() => { ready = true; }, 8000);
+        // نفتح الكشف الحيّ عند CONNECTION_OPEN (انظر flux أعلاه)، مع مهلة احتياطية 15ث إن لم يصل الحدث —
+        // فلا يُفعَّل الوضع تلقائياً عند فتح Discord ولعبة شغّالة.
+        readyFallbackTimer = setTimeout(markReady, 15000);
     },
-    stop() { revertMode(); }
+    stop() {
+        revertMode();
+        // ننظّف المهلة الاحتياطية ونُعيد ضبط الحالة لإعادة تفعيل نظيفة لاحقاً.
+        if (readyFallbackTimer !== null) {
+            clearTimeout(readyFallbackTimer);
+            readyFallbackTimer = null;
+        }
+        ready = false;
+        notifiedManualOff = false;
+    }
 });
