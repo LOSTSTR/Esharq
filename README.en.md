@@ -74,7 +74,7 @@
 
 | Plugin | Description |
 |--------|-------------|
-| **DiscordArabicizer** *(Esharq-exclusive)* | Arabizes Discord's own UI — translates the native interface (menus, buttons, settings, Quests, and notifications) into fluent Arabic, while keeping proper nouns (games, themes, usernames) in their original language. A cohesive Arabic experience, exclusive to Esharq. |
+| **DiscordArabicizer** *(by Esharq)* | Arabizes Discord's own UI — translates the native interface (menus, buttons, settings, Quests, and notifications) into fluent Arabic, while keeping proper nouns (games, themes, usernames) in their original language. A cohesive Arabic experience, by Esharq. |
 | **NitroSniper** | Ultra-fast Nitro gift code claimer — scans every channel in real time and redeems codes before anyone else. |
 | **FakeDeafen** | Smart spoofing — appear deafened to other server members while still hearing everything perfectly. |
 | **BetterAudioPlayer** | Enhanced audio engine — enables true stereo quality with a built-in control panel and advanced frequency processing. |

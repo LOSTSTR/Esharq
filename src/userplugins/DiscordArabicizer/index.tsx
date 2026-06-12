@@ -320,8 +320,8 @@ function removePatch() {
 export default definePlugin({
     name: "DiscordArabicizer",
     description: t(
-        "تعريب واجهة ديسكورد بالكامل — حصري لاشراق.",
-        "Full Arabic localization of Discord's UI — exclusive to Esharq."
+        "تعريب شامل لواجهة ديسكورد إلى العربية — من تطوير اشراق.",
+        "Comprehensive Arabic localization of Discord's UI — by Esharq."
     ),
     authors: [EquicordDevs.LOSTSTR],
     settings,
