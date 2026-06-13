@@ -3126,5 +3126,9 @@ export const translations: Record<string, string> = {
     "Get 7 Boosts back.": "استرجِع 7 تعزيزات.",
     "This perk can't be disabled within 3 days of enabling.": "لا يمكن تعطيل هذه الميزة خلال 3 أيام من تفعيلها.",
     "{emojiName}, NaN reactions, press to react": "{emojiName}، NaN تفاعل، اضغط للتفاعل",
-    "wow this looks so cool": "واو، هذا يبدو رائعاً جداً"
+    "wow this looks so cool": "واو، هذا يبدو رائعاً جداً",
+
+    // ── دفعة 14 (الملف الشخصي/القائمة — نصوص مؤكّدة الصيغة بلا placeholder) ──
+    "Click to add a note": "اضغط لإضافة ملاحظة",
+    "View Main Profile": "عرض الملف الرئيسي"
 };
