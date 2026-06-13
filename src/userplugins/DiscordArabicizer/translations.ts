@@ -3099,5 +3099,32 @@ export const translations: Record<string, string> = {
     "Server Boost(s)": "تعزيز(ات) الخادم",
     "Subtotal": "المجموع الفرعي",
     "$3.49 / Month each": "$3.49 / شهر للواحد",
-    "You get a discount as part of your {0} subscription!": "تحصل على خصم كجزء من اشتراك {0}!"
+    "You get a discount as part of your {0} subscription!": "تحصل على خصم كجزء من اشتراك {0}!",
+
+    // ── دفعة 13 (ردود/حالة/تدرّجات/مزايا تعزيز/متفرّقات) — الأسماء العَلَم (ألعاب/Quests/حِزَم/ثيمات/مفاتيح/معرّفات) تبقى إنجليزية ──
+    "Cancel reply": "إلغاء الرد",
+    "Replying to": "الرد على",
+    "Replying to {0}": "الرد على {0}",
+    "Replying to {username}": "الرد على {username}",
+    "Click to disable pinging the original author.": "اضغط لإيقاف الإشارة إلى الكاتب الأصلي.",
+    "Message @{name}": "مراسلة @{name}",
+    "Custom status: {emoji} {status}": "حالة مخصّصة: {emoji} {status}",
+    "Pronouns: {pronouns}": "الضمائر: {pronouns}",
+    "Display {username} on your profile.": "إظهار {username} في ملفّك الشخصي.",
+    "in {guildName}": "في {guildName}",
+    "In 15 Days": "خلال 15 يوماً",
+    "Increment": "زيادة",
+    "Decrement": "إنقاص",
+    "Custom Gradient Start Color": "لون بداية التدرّج المخصّص",
+    "Custom Gradient End Color": "لون نهاية التدرّج المخصّص",
+    "Custom Server Invite Banner": "لافتة دعوة خادم مخصّصة",
+    "{totalEmojis} Server Emoji Slots (+{additionalEmojis})": "{totalEmojis} خانة إيموجي للخادم (+{additionalEmojis})",
+    "{totalSoundboards} Soundboard Slots (+{additionalSoundboards})": "{totalSoundboards} خانة لوحة أصوات (+{additionalSoundboards})",
+    "{totalStickers} Custom Sticker Slots (+{additionalStickers})": "{totalStickers} خانة ملصقات مخصّصة (+{additionalStickers})",
+    "Get 2 Boosts back.": "استرجِع تعزيزين.",
+    "Get 5 Boosts back.": "استرجِع 5 تعزيزات.",
+    "Get 7 Boosts back.": "استرجِع 7 تعزيزات.",
+    "This perk can't be disabled within 3 days of enabling.": "لا يمكن تعطيل هذه الميزة خلال 3 أيام من تفعيلها.",
+    "{emojiName}, NaN reactions, press to react": "{emojiName}، NaN تفاعل، اضغط للتفاعل",
+    "wow this looks so cool": "واو، هذا يبدو رائعاً جداً"
 };
