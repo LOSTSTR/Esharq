@@ -3130,5 +3130,13 @@ export const translations: Record<string, string> = {
 
     // ── دفعة 14 (الملف الشخصي/القائمة — نصوص مؤكّدة الصيغة بلا placeholder) ──
     "Click to add a note": "اضغط لإضافة ملاحظة",
-    "View Main Profile": "عرض الملف الرئيسي"
+    "View Main Profile": "عرض الملف الرئيسي",
+
+    // ── دفعة 15 (قائمة البث + محرّر الأدوار — نصوص مؤكّدة الصيغة) ──
+    "Stop Watching": "إيقاف المشاهدة",
+    "Stream Volume": "مستوى صوت البث",
+    "Pop Out Stream": "إخراج البث في نافذة",
+    "View Stream Privacy Code": "عرض رمز خصوصية البث",
+    "No members were found.": "لم يُعثَر على أعضاء.",
+    "This role is automatically managed by Discord for Server Boosting. It cannot be manually assigned to members or deleted.": "يُدار هذا الدور تلقائياً بواسطة ديسكورد لأجل تعزيز الخادم، ولا يمكن إسناده للأعضاء يدوياً أو حذفه."
 };
