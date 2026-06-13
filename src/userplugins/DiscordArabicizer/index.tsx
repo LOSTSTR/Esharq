@@ -325,6 +325,10 @@ export default definePlugin({
     ),
     authors: [EquicordDevs.LOSTSTR],
     settings,
+    // الترقيع يلفّ دوال i18n.intl؛ يجب أن يكون حاضراً من بداية الجلسة قبل أن تلتقط وحدات
+    // ديسكورد مراجع تلك الدوال أو ترسم نصوصها — وإلا بقيت بعض النصوص إنجليزية. لذا نطلب
+    // إعادة التشغيل عند تبديل الإضافة فلا تُطبَّق وسط الجلسة (تطبيقاً جزئياً غير ثابت).
+    restartNeeded: true,
 
     start() {
         console.log("[DiscordArabicizer] Plugin loaded.");

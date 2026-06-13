@@ -14,6 +14,7 @@
 import { definePluginSettings } from "@api/Settings";
 import { copyWithToast } from "@utils/discord";
 import { t } from "@utils/esharqI18n";
+import { relaunch } from "@utils/native";
 import { OptionType } from "@utils/types";
 import { Button } from "@webpack/common";
 
@@ -57,7 +58,21 @@ export const settings = definePluginSettings({
             "🧪 Experimental: enable Arabizing Discord's own UI strings (requires restart)"
         ),
         default: true,
-        restartNeeded: true
+        restartNeeded: true,
+        // عند التفعيل: إن كان خيار الإعادة الإجبارية مُفعّلاً، أعِد التشغيل فوراً ليُطبَّق
+        // الترقيع من بداية الجلسة قبل أن ترسم وحدات ديسكورد نصوصها — فلا تبقى بعض النصوص
+        // إنجليزية (هذا سبب فقدان بعض الترجمات سابقاً بعد إعادة التشغيل العادية).
+        onChange(value: boolean) {
+            if (value && settings.store.forceRestartOnEnable) relaunch();
+        }
+    },
+    forceRestartOnEnable: {
+        type: OptionType.BOOLEAN,
+        description: t(
+            "🔄 إعادة تشغيل تلقائية فور التفعيل — يضمن ثبات الترجمة: تُطبَّق من بداية الجلسة فلا تعود نصوص إلى الإنجليزية بعد إعادة التشغيل.",
+            "🔄 Auto-restart immediately on enable — guarantees stable translation: applied from session start so strings don't revert to English after a restart."
+        ),
+        default: true
     },
     diagnosticMode: {
         type: OptionType.BOOLEAN,
