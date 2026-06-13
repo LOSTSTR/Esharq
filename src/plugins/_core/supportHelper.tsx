@@ -30,7 +30,7 @@ import { openSettingsTabModal, UpdaterTab } from "@components/settings";
 import { platformName } from "@equicordplugins/equicordHelper/utils";
 import customIdle from "@plugins/customIdle";
 import { gitHash, gitHashShort } from "@shared/vencordUserAgent";
-import { CONTRIB_ROLE_ID, Devs, DONOR_ROLE_ID, EQUICORD_TEAM, GUILD_ID, SUPPORT_CHANNEL_ID, SUPPORT_CHANNEL_IDS, VC_CONTRIB_ROLE_ID, VC_DONOR_ROLE_ID, VC_GUILD_ID, VC_REGULAR_ROLE_ID, VENCORD_CONTRIB_ROLE_ID } from "@utils/constants";
+import { CONTRIB_ROLE_ID, Devs, DONOR_ROLE_ID, EQUICORD_TEAM, GUILD_ID, SUPPORT_CHANNEL_IDS, VC_CONTRIB_ROLE_ID, VC_DONOR_ROLE_ID, VC_GUILD_ID, VC_REGULAR_ROLE_ID, VENCORD_CONTRIB_ROLE_ID } from "@utils/constants";
 import { sendMessage } from "@utils/discord";
 import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
@@ -530,12 +530,19 @@ export default definePlugin({
         if (!isAnyPluginDev(userId)) return null;
         if (RelationshipStore.isFriend(userId) || isAnyPluginDev(UserStore.getCurrentUser()?.id)) return null;
 
+        const esharqSupportChannelId = "1502719959485255922";
+        const esharqSupportLink = "https://discord.com/channels/1211352550583042058/1502719959485255922";
+
         return (
             <Card variant="warning" className={Margins.top8} defaultPadding>
-                Please do not private message Equicord & Vencord plugin developers for support!
+                {t(
+                    "الرجاء عدم مراسلة مطوّري اشراق برسائل خاصّة طلباً للدعم!",
+                    "Please do not private message Esharq developers for support!"
+                )}
                 <br />
-                Instead, use the support channel: {Parser.parse("https://discord.com/channels/1173279886065029291/1297590739911573585")}
-                {!ChannelStore.getChannel(SUPPORT_CHANNEL_ID) && " (Click the link to join)"}
+                {t("بدلاً من ذلك، استخدم قناة الدعم:", "Instead, use the support channel:")}{" "}
+                {Parser.parse(esharqSupportLink)}
+                {!ChannelStore.getChannel(esharqSupportChannelId) && t(" (اضغط الرابط للانضمام)", " (Click the link to join)")}
             </Card>
         );
     }, { noop: true }),
