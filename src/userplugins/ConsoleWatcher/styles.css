@@ -1,0 +1,33 @@
+/* ConsoleWatcher — تنسيق زر الرأس ونافذة عرض الأحداث */
+
+/* الزر يتلوّن أحمر أثناء التسجيل (الأيقونة تستخدم currentColor) */
+.cw-button.cw-recording {
+    color: var(--status-danger, #f23f43) !important;
+}
+
+.cw-body {
+    max-height: 60vh;
+    overflow: auto;
+    padding: 12px 16px;
+}
+
+/* سجلّ الأحداث: نص برمجي بمحاذاة يسار واتجاه LTR (الكونسول إنجليزي غالباً) */
+.cw-pre {
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    direction: ltr;
+    text-align: left;
+    font-family: var(--font-code, monospace);
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text-normal);
+}
+
+.cw-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--background-modifier-accent);
+}
