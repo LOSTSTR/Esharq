@@ -22,8 +22,16 @@ import { collectMissing } from "./collector";
 import { settings } from "./settings";
 import { translations as AR } from "./translations";
 
-// دوال intl النصّية البسيطة (مطابقة مباشرة). "format" و"formatToParts" لهما منطق خاصّ.
-const STRING_METHODS = ["string", "formatToPlainString", "formatToMarkdownString"];
+// نوع معالجة كل دالة intl: نصّ بسيط (مطابقة مباشرة)، أو format، أو formatToParts،
+// أو withFormatters (تُرجِع كائناً مُشتقّاً نلفّ دواله بدوره).
+const METHOD_KINDS: Record<string, "string" | "format" | "parts" | "withFormatters"> = {
+    string: "string",
+    formatToPlainString: "string",
+    formatToMarkdownString: "string",
+    format: "format",
+    formatToParts: "parts",
+    withFormatters: "withFormatters"
+};
 
 // علامات خاصّة (Private Use Area) لاستعادة القوالب الديناميكية — لا تظهر في نصوص حقيقية.
 const PH_OPEN = String.fromCharCode(0xE000);
@@ -31,7 +39,12 @@ const PH_CLOSE = String.fromCharCode(0xE001);
 const PH_RE = new RegExp(PH_OPEN + "([^" + PH_CLOSE + "]+)" + PH_CLOSE, "g");
 
 type StrFn = (msg: any, values?: any) => any;
-const originals = new Map<string, StrFn>();
+
+// سجلّ ما لُفّ: لكل (مالك، اسم) نحفظ الأصل لاستعادته بدقّة عند الإيقاف.
+interface PatchedEntry { owner: any; name: string; orig: (...a: any[]) => any; }
+const patchedEntries: PatchedEntry[] = [];
+// خريطة هوية (مالك → أسماء مَلفوفة): تمنع اللفّ المزدوج/التكرار عند مشاركة prototype.
+let patchedByOwner = new WeakMap<object, Set<string>>();
 let active = false;
 
 // تطبيع: ديسكورد يستخدم فواصل/علامات اقتباس منحنية (’ ‘ “ ”) — نوحّدها بالمستقيمة
@@ -225,66 +238,78 @@ function translateParts(orig: StrFn, msg: any, values: any): any {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// لفّ دوال intl الأساسي
+// لفّ دوال intl على «مالكها» الفعلي (الكائن نفسه أو الـprototype). لفّ الـprototype
+// يُترجِم رجعياً كل الكائنات المشتركة فيه — بما فيها المُنسِّقات المُخزَّنة التي أنشأتها
+// وحدات ديسكورد عبر withFormatters قبل التفعيل (سبب رجوع بعض النصوص للإنجليزية).
+// كل نداء داخل try/catch → أي خطأ يُرجِع الأصل فوراً (لا شاشة بيضاء، لا تعطّل).
 // ─────────────────────────────────────────────────────────────────────────────
 
-function wrapMethod(intl: any, name: string) {
-    if (typeof intl[name] !== "function" || originals.has(name)) return;
-    const orig = intl[name].bind(intl) as StrFn;
-    originals.set(name, orig);
-    intl[name] = (msg: any, values?: any) => translateString(orig, msg, values, name);
+// يجد الكائن الذي يملك الدالة فعلياً (الكائن نفسه أو أحد آبائه في سلسلة prototype).
+function findOwner(obj: any, name: string): any | null {
+    for (let o = obj, depth = 0; o != null && depth < 8; o = Object.getPrototypeOf(o), depth++) {
+        if (Object.prototype.hasOwnProperty.call(o, name) && typeof o[name] === "function") return o;
+    }
+    return null;
 }
 
-function wrapFormat(intl: any) {
-    if (typeof intl.format !== "function" || originals.has("format")) return;
-    const orig = intl.format.bind(intl) as StrFn;
-    originals.set("format", orig);
-    intl.format = (msg: any, values?: any) => translateFormat(orig, msg, values);
+function isPatched(owner: object, name: string): boolean {
+    return patchedByOwner.get(owner)?.has(name) === true;
 }
 
-function wrapFormatToParts(intl: any) {
-    if (typeof intl.formatToParts !== "function" || originals.has("formatToParts")) return;
-    const orig = intl.formatToParts.bind(intl) as StrFn;
-    originals.set("formatToParts", orig);
-    intl.formatToParts = (msg: any, values?: any) => translateParts(orig, msg, values);
+function markPatched(owner: object, name: string) {
+    let names = patchedByOwner.get(owner);
+    if (names == null) { names = new Set(); patchedByOwner.set(owner, names); }
+    names.add(name);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// لفّ withFormatters: ديسكورد يستدعيها لرسم النصوص الغنيّة (الأوصاف ذات الروابط).
-// تُرجِع كائن intl جديداً — نُغلّفه بـProxy فتمرّ كل دواله عبر الترجمة نفسها.
-// ─────────────────────────────────────────────────────────────────────────────
+// يلفّ دالة واحدة على مالكها: this-aware، محميّة بـtry/catch، مع منع اللفّ المزدوج.
+function patchMethod(intlLike: any, name: string) {
+    const kind = METHOD_KINDS[name];
+    if (kind == null) return;
+    const owner = findOwner(intlLike, name);
+    if (owner == null || isPatched(owner, name)) return;
 
-function wrapIntlLikeProxy(obj: any): any {
-    return new Proxy(obj, {
-        get(target, prop) {
-            const v = (target as any)[prop];
-            if (typeof v !== "function" || typeof prop === "symbol") return v;
-            const name = prop as string;
-            const bound = v.bind(target) as StrFn;
-            if (name === "string" || name === "formatToPlainString" || name === "formatToMarkdownString")
-                return (msg: any, values?: any) => translateString(bound, msg, values, name);
-            if (name === "format")
-                return (msg: any, values?: any) => translateFormat(bound, msg, values);
-            if (name === "formatToParts")
-                return (msg: any, values?: any) => translateParts(bound, msg, values);
-            if (name === "withFormatters")
-                return (...a: any[]) => {
-                    const r = (bound as any)(...a);
-                    return (r != null && typeof r === "object") ? wrapIntlLikeProxy(r) : r;
-                };
-            return bound;
-        }
-    });
+    const origRaw = owner[name] as (...a: any[]) => any;
+
+    let wrapper: (...a: any[]) => any;
+    if (kind === "withFormatters") {
+        wrapper = function (this: any, ...args: any[]) {
+            const result = origRaw.apply(this, args); // الأصل أولاً (سلوك مطابق)
+            // الكائن الناتج: نلفّ دواله بالآلية نفسها. لو شارك prototype مَلفوفاً
+            // فالـdedup يتخطّاه — فلا لفّ مزدوج ولا تكرار.
+            if (result != null && typeof result === "object") {
+                try { patchIntlObject(result); }
+                catch (e) { if (settings.store.logErrors) console.debug("[DiscordArabicizer] withFormatters patch error:", e); }
+            }
+            return result;
+        };
+    } else {
+        wrapper = function (this: any, msg: any, values?: any) {
+            // نمرّر الأصل مربوطاً بـthis الفعلي (يدعم الكائن والكائنات المشتقّة منه).
+            const boundOrig: StrFn = (m, v) => origRaw.call(this, m, v);
+            try {
+                if (kind === "string") return translateString(boundOrig, msg, values, name);
+                if (kind === "format") return translateFormat(boundOrig, msg, values);
+                return translateParts(boundOrig, msg, values); // "parts"
+            } catch (e) {
+                if (settings.store.logErrors) console.debug(`[DiscordArabicizer] translate error in ${name}:`, e);
+                return origRaw.call(this, msg, values); // أمان مطلق: أي خطأ → الأصل
+            }
+        };
+    }
+
+    try {
+        owner[name] = wrapper;
+    } catch (e) {
+        if (settings.store.logErrors) console.debug(`[DiscordArabicizer] patch-assign error for ${name}:`, e);
+        return; // مالك مجمّد/غير قابل للكتابة — نتركه دون لفّ (لا ضرر)
+    }
+    patchedEntries.push({ owner, name, orig: origRaw });
+    markPatched(owner, name);
 }
 
-function wrapWithFormatters(intl: any) {
-    if (typeof intl.withFormatters !== "function" || originals.has("withFormatters")) return;
-    const orig = intl.withFormatters.bind(intl) as StrFn;
-    originals.set("withFormatters", orig);
-    intl.withFormatters = (...args: any[]) => {
-        const result = (orig as any)(...args);
-        return (result != null && typeof result === "object") ? wrapIntlLikeProxy(result) : result;
-    };
+function patchIntlObject(intlLike: any) {
+    for (const name of Object.keys(METHOD_KINDS)) patchMethod(intlLike, name);
 }
 
 function applyPatch() {
@@ -296,24 +321,23 @@ function applyPatch() {
     }
 
     console.log("[DiscordArabicizer] دوال intl المتاحة:", discoverMethods(intl).join(", "));
+    patchIntlObject(intl);
 
-    for (const name of STRING_METHODS) wrapMethod(intl, name);
-    wrapFormat(intl);
-    wrapFormatToParts(intl);
-    wrapWithFormatters(intl);
-
-    console.log("[DiscordArabicizer] i18n.intl patched. (لُفّت:",
-        [...originals.keys()].join(", "), ")");
+    // تشخيص: أين لُفّت كل دالة (own = على الكائن نفسه، proto = على النموذج الأولي).
+    console.log("[DiscordArabicizer] i18n.intl patched (prototype-aware). لُفّت:",
+        patchedEntries.map(e => `${e.name}[${e.owner === intl ? "own" : "proto"}]`).join(", "));
     active = true;
 }
 
 function removePatch() {
     if (!active) return;
-    const intl = (i18n as any).intl;
-    if (intl != null) {
-        for (const [name, orig] of originals) intl[name] = orig;
+    // استعادة عكسية (الأحدث أولاً): كل (مالك، اسم) إلى أصله بالضبط.
+    for (let i = patchedEntries.length - 1; i >= 0; i--) {
+        const { owner, name, orig } = patchedEntries[i];
+        try { owner[name] = orig; } catch { /* تجاهل */ }
     }
-    originals.clear();
+    patchedEntries.length = 0;
+    patchedByOwner = new WeakMap(); // إفراغ خريطة الهوية
     active = false;
 }
 

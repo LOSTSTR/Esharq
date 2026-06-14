@@ -90,6 +90,14 @@ export const settings = definePluginSettings({
         ),
         default: false
     },
+    logErrors: {
+        type: OptionType.BOOLEAN,
+        description: t(
+            "🛠️ تسجيل أخطاء محرّك الترجمة في الكونسول (يُلتقَط عبر ConsoleWatcher للصيانة) — مُطفأ افتراضياً، لا يُضعِف الأمان.",
+            "🛠️ Log translation-engine errors to the console (captured by ConsoleWatcher for maintenance) — off by default, does not weaken safety."
+        ),
+        default: false
+    },
     tools: {
         type: OptionType.COMPONENT,
         description: t(
