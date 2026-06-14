@@ -13,6 +13,15 @@ export type ConsoleEventType =
     | "time" | "timeEnd" | "clear"
     | "window.onerror" | "unhandledrejection";
 
+/**
+ * مصدر الحدث المُكتشَف من وسمه:
+ * - `arabicizer`: سجلّات DiscordArabicizer (وسم [DiscordArabicizer]).
+ * - `plugin`: إضافة Vencord/Equicord عبر Logger (بادئة "Equicord <اسم>").
+ * - `discord`: وحدة ديسكورد أساسية (سجلّ معنون بـ [Module]).
+ * - `unknown`: بلا وسم يُميّزه (مثل أخطاء window.onerror الخام).
+ */
+export type ConsoleSource = "arabicizer" | "plugin" | "discord" | "unknown";
+
 export interface ConsoleEvent {
     /** وقت الحدث (Date.now()) */
     timestamp: number;
@@ -22,4 +31,8 @@ export interface ConsoleEvent {
     args: string[];
     /** سياق إضافي اختياري (مثل stack للأخطاء) */
     detail?: string;
+    /** مصدر الحدث المُكتشَف (للترشيح حسب الإضافة/ديسكورد/المشروع) */
+    source: ConsoleSource;
+    /** اسم الإضافة إن أمكن استخراجه من الوسم */
+    pluginName?: string;
 }

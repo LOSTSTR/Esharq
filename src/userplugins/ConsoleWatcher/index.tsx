@@ -24,7 +24,7 @@ import { getBuildNumber } from "@webpack/patcher";
 
 import { settings } from "./settings";
 import type { ConsoleEvent, ConsoleEventType } from "./types";
-import { cleanConsoleArgs, safeSerializeArg } from "./utilities";
+import { cleanConsoleArgs, detectSource, safeSerializeArg } from "./utilities";
 
 const BUTTON_ID = "ConsoleWatcher";
 
@@ -66,7 +66,9 @@ function capture(type: ConsoleEventType, args: unknown[], detail?: string) {
             const err = cleaned.find(a => a instanceof Error) as Error | undefined;
             if (err?.stack) stack = err.stack;
         }
-        events.push({ timestamp: Date.now(), type, args: cleaned.map(safeSerializeArg), detail: stack });
+        const serialized = cleaned.map(safeSerializeArg);
+        const { source, pluginName } = detectSource(serialized); // انسب الحدث لمصدره
+        events.push({ timestamp: Date.now(), type, args: serialized, detail: stack, source, pluginName });
         const max = clampMax(settings.store.maxEvents);
         while (events.length > max) events.shift(); // احذف الأقدم عند تجاوز الحد
     } catch {
@@ -147,15 +149,17 @@ function formatEvents(list: ConsoleEvent[]): string {
     return list
         .map(e => {
             const ts = new Date(e.timestamp).toISOString().slice(11, 23); // HH:MM:SS.mmm
-            const head = `[${ts}] [${e.type}] ${e.args.join(" ")}`;
+            const src = e.source !== "unknown" ? ` (${e.pluginName ?? e.source})` : "";
+            const head = `[${ts}] [${e.type}]${src} ${e.args.join(" ")}`;
             return e.detail ? `${head}\n    ${e.detail}` : head;
         })
         .join("\n");
 }
 
-// ترويسة سياق تلقائية — تختصر أسئلة التشخيص (إصدار/بناء/نظام/أعداد)
+// ترويسة سياق تلقائية — تختصر أسئلة التشخيص (إصدار/بناء/نظام + أعداد الأخطاء حسب المصدر)
 function buildReportHeader(list: ConsoleEvent[]): string {
-    const errors = list.filter(e => ERROR_TYPES.has(e.type)).length;
+    const errs = list.filter(e => ERROR_TYPES.has(e.type) && !isNoise(e));
+    const bySrc = (s: string) => errs.filter(e => e.source === s).length;
     const warnings = list.filter(e => e.type === "warn").length;
     let build = "?";
     try {
@@ -168,39 +172,62 @@ function buildReportHeader(list: ConsoleEvent[]): string {
         `Equicord:      v${VERSION} (${gitHashShort})`,
         `Discord build: ${build}`,
         `Client:        ${navigator.userAgent}`,
-        `Events:        total=${list.length}  errors=${errors}  warnings=${warnings}`,
+        `Events:        total=${list.length}  warnings=${warnings}`,
+        `Errors:        total=${errs.length}  (discord=${bySrc("discord")}, plugins=${bySrc("plugin")}, arabicizer=${bySrc("arabicizer")}, unknown=${bySrc("unknown")})`,
         "============================="
     ].join("\n");
 }
 
-function EventsModal({ modalProps, snapshot }: { modalProps: RenderModalProps; snapshot: ConsoleEvent[]; }) {
-    const header = buildReportHeader(snapshot);
-    const errorEvents = snapshot.filter(e => ERROR_TYPES.has(e.type) && !isNoise(e));
+// شرائح ترشيح حسب المصدر — لعزل أخطاء جهة بعينها وقت الإرسال للتشخيص.
+type FilterId = "all" | "errors" | "discord" | "plugins" | "arabicizer";
+const FILTERS: { id: FilterId; label: string; }[] = [
+    { id: "all", label: t("الكل", "All") },
+    { id: "errors", label: t("الأخطاء", "Errors") },
+    { id: "discord", label: t("ديسكورد", "Discord") },
+    { id: "plugins", label: t("الإضافات", "Plugins") },
+    { id: "arabicizer", label: "Arabicizer" }
+];
 
-    const fullText = `${header}\n\n${snapshot.length ? formatEvents(snapshot) : t("لا أحداث.", "No events.")}`;
-    const errorsText = `${header}\n\n${errorEvents.length ? formatEvents(errorEvents) : t("لا أخطاء.", "No errors.")}`;
+function matchesFilter(e: ConsoleEvent, f: FilterId): boolean {
+    switch (f) {
+        case "errors": return ERROR_TYPES.has(e.type) && !isNoise(e);
+        case "discord": return e.source === "discord";
+        case "plugins": return e.source === "plugin";
+        case "arabicizer": return e.source === "arabicizer";
+        default: return true; // "all"
+    }
+}
+
+function EventsModal({ modalProps, snapshot }: { modalProps: RenderModalProps; snapshot: ConsoleEvent[]; }) {
+    const [filter, setFilter] = useState<FilterId>("all");
+    const header = buildReportHeader(snapshot);
+    const filtered = snapshot.filter(e => matchesFilter(e, filter));
+    const body = filtered.length ? formatEvents(filtered) : t("لا أحداث مطابقة.", "No matching events.");
+    const text = `${header}\n\n${body}`;
 
     return (
         <Modal
             {...modalProps}
             size="lg"
-            title={t(
-                `سجلّ الكونسول (${snapshot.length} حدثاً · ${errorEvents.length} خطأ)`,
-                `Console log (${snapshot.length} events · ${errorEvents.length} errors)`
-            )}
+            title={t(`سجلّ الكونسول (${snapshot.length} حدثاً)`, `Console log (${snapshot.length} events)`)}
         >
+            <div className="cw-filters">
+                {FILTERS.map(f => (
+                    <button
+                        key={f.id}
+                        className={filter === f.id ? "cw-chip cw-chip-active" : "cw-chip"}
+                        onClick={() => setFilter(f.id)}
+                    >
+                        {f.label} ({snapshot.filter(e => matchesFilter(e, f.id)).length})
+                    </button>
+                ))}
+            </div>
             <div className="cw-body">
-                <pre className="cw-pre">{fullText}</pre>
+                <pre className="cw-pre">{text}</pre>
             </div>
             <div className="cw-footer">
-                <Button
-                    color={Button.Colors.RED}
-                    onClick={() => copyWithToast(errorsText, t("✓ نُسخت الأخطاء", "✓ Errors copied"))}
-                >
-                    {t(`نسخ الأخطاء فقط (${errorEvents.length})`, `Copy errors only (${errorEvents.length})`)}
-                </Button>
-                <Button onClick={() => copyWithToast(fullText, t("✓ نُسخ السجلّ", "✓ Log copied"))}>
-                    {t("نسخ الكل", "Copy all")}
+                <Button onClick={() => copyWithToast(text, t("✓ نُسخ المعروض", "✓ Copied shown"))}>
+                    {t(`نسخ المعروض (${filtered.length})`, `Copy shown (${filtered.length})`)}
                 </Button>
             </div>
         </Modal>

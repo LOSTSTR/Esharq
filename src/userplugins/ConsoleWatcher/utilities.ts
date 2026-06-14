@@ -7,6 +7,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import type { ConsoleSource } from "./types";
+
 // مُسلسِل آمن: يحوّل أي وسيطة كونسول إلى نصّ دون أن يرمي استثناءً.
 // يكشف المراجع الدائرية، ويحدّ العمق/الطول/العدد، ويعالج الأنواع الخاصّة.
 // لا يستخدم eval أو Function — مجرّد تكرار (recursion).
@@ -108,4 +110,26 @@ export function cleanConsoleArgs(args: unknown[]): unknown[] {
     const cleanedFirst = first.replace(/%c/g, "").trim();
     const rest = args.slice(1 + cssCount); // أسقِط وسائط الـCSS
     return cleanedFirst ? [cleanedFirst, ...rest] : rest;
+}
+
+/**
+ * يكتشف مصدر حدث الكونسول من نصوصه (بعد التنظيف) — heuristic مبنيّ على صيغة
+ * Logger في Vencord (بعد إزالة %c يصبح "Equicord <اسم>") ووسوم وحدات ديسكورد.
+ * ليست نسبةً مثاليةً (الأخطاء الخام بلا وسم تبقى unknown)، لكنها موثوقة للموسوم.
+ */
+export function detectSource(args: string[]): { source: ConsoleSource; pluginName?: string; } {
+    // DiscordArabicizer: تستخدم وسم [DiscordArabicizer] صراحةً في سجلّاتها.
+    if (args.some(a => a.includes("[DiscordArabicizer]")))
+        return { source: "arabicizer", pluginName: "DiscordArabicizer" };
+
+    const head = (args[0] ?? "").trim();
+
+    // Vencord/Equicord Logger: بعد تنظيف %c تصبح البادئة "Equicord <اسم> ...".
+    const eq = head.match(/^Equicord\s+(\S+)/);
+    if (eq) return { source: "plugin", pluginName: eq[1] };
+
+    // وحدة ديسكورد أساسية: سجلّ معنون بـ [ModuleName].
+    if (/^\[[^\]]+\]/.test(head)) return { source: "discord" };
+
+    return { source: "unknown" };
 }
