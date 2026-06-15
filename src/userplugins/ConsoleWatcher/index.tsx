@@ -280,7 +280,7 @@ export default definePlugin({
         "أداة مطوّر: تسجّل أحداث الكونسول والأخطاء أثناء التسجيل النشط فقط ثم تعرضها للنسخ — للصيانة.",
         "Developer tool: records console events & errors only while recording, then shows them for copying — for maintenance."
     ),
-    authors: [EquicordDevs.LOSTSTR],
+    authors: [EquicordDevs.LOSTSTR, EquicordDevs["3j_7"]],
     dependencies: ["HeaderBarAPI"],
     settings,
 
