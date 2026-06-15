@@ -23,6 +23,7 @@ const FOUNDER_IDS: ReadonlySet<string> = new Set([
     "683031548672606264",
     "1161389239112568902",
     "1295464673264664747",
+    "428275226883915778",
 ]);
 
 const profileBadge: ProfileBadge = {
