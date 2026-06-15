@@ -11,12 +11,22 @@
 import { isPluginEnabled } from "@api/PluginManager";
 import Plugins from "~plugins";
 
+/**
+ * continuous = runs/renders in the background throughout the session (Flux,
+ * patches, message listeners, member-list/message/profile render surfaces,
+ * header-bar/user-area/profile-badge injects).
+ * ondemand   = does nothing until the user acts (slash commands, context
+ * menus, message-popover button, chat-bar button) — no persistent cost.
+ */
+export type PluginType = "continuous" | "ondemand";
+
 export interface RawPluginStat {
     name: string;
     patches: number;     // webpack code patches
     listeners: number;   // Flux events + message listeners
     uiInjects: number;   // context menus + every declarative UI surface
     hooks: number;       // slash commands
+    type: PluginType;    // continuous (background) vs on-demand (user-triggered)
 }
 
 /** Single synchronous snapshot of every enabled plugin's footprint. */
@@ -57,7 +67,19 @@ export function scanPlugins(): RawPluginStat[] {
         if (p.renderProfileCollection) uiInjects++;
         if (p.toolboxActions) uiInjects++;
 
-        out.push({ name, patches, listeners, uiInjects, hooks });
+        // Classify: continuous if it has any background-running signal. `listeners`
+        // already folds in flux + onMessage* hooks, `patches` the webpack patches;
+        // the rest are the always-rendering surfaces. Everything else (commands,
+        // context menus, message-popover/chat-bar buttons) is purely on-demand.
+        const isContinuous =
+            patches > 0 ||
+            listeners > 0 ||
+            !!(p.renderMessageAccessory || p.renderMessageDecoration || p.renderMemberListDecorator ||
+                p.renderNicknameIcon || p.renderProfileSection || p.renderProfileCollection ||
+                p.headerBarButton || p.userAreaButton || p.userProfileBadge || p.userProfileBadges);
+        const type: PluginType = isContinuous ? "continuous" : "ondemand";
+
+        out.push({ name, patches, listeners, uiInjects, hooks, type });
     }
 
     return out;

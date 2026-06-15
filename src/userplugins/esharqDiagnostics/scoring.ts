@@ -26,3 +26,20 @@ export function scorePlugin(s: RawPluginStat): ScoredPlugin {
 export function processSnapshot(raw: RawPluginStat[]): ScoredPlugin[] {
     return raw.map(scorePlugin).sort((a, b) => b.risk - a.risk);
 }
+
+export interface SnapshotSummary {
+    total: number;        // total scanned plugins
+    continuous: number;   // how many run in the background
+    totalRisk: number;    // sum of every plugin's load (rough total footprint)
+}
+
+/** Aggregate footer stats — pure, derived from the already-scored rows. */
+export function summarize(rows: ScoredPlugin[]): SnapshotSummary {
+    let continuous = 0;
+    let totalRisk = 0;
+    for (const r of rows) {
+        if (r.type === "continuous") continuous++;
+        totalRisk += r.risk;
+    }
+    return { total: rows.length, continuous, totalRisk: Math.round(totalRisk * 10) / 10 };
+}

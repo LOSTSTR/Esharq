@@ -24,9 +24,10 @@ function runScan() {
 function openDiagnostics() {
     const initial = runScan();          // single pass at click time
     const heapMB = sampleHeapMB();
+    const interval = settings.store.liveInterval ?? 5;   // live-monitoring refresh seconds
     openModal(props => (
         <ErrorBoundary>
-            <DiagnosticsModal modalProps={props} initial={initial} heapMB={heapMB} rescan={runScan} />
+            <DiagnosticsModal modalProps={props} initial={initial} heapMB={heapMB} rescan={runScan} interval={interval} />
         </ErrorBoundary>
     ));
     // `initial` is referenced only by the modal closure; released for GC when the modal unmounts.
@@ -53,6 +54,13 @@ function HeaderBarDiagnosticsButton() {
 }
 
 const settings = definePluginSettings({
+    liveInterval: {
+        type: OptionType.SLIDER,
+        description: t("الفاصل الزمني لتحديث المراقبة الحية (بالثواني)", "Live-monitoring refresh interval (seconds)"),
+        markers: [3, 5, 10, 15, 30],
+        default: 5,
+        stickToMarkers: true,
+    },
     open: {
         type: OptionType.COMPONENT,
         component: () => (
