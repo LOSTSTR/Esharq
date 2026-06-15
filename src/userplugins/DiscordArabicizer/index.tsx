@@ -19,6 +19,7 @@ import definePlugin from "@utils/types";
 import { i18n } from "@webpack/common";
 
 import { collectMissing } from "./collector";
+import { startDomFallback, stopDomFallback } from "./domFallback";
 import { settings } from "./settings";
 import { translations as AR } from "./translations";
 
@@ -74,6 +75,38 @@ export function formatMessage(template: string, values?: Record<string, any>): s
     if (values == null) return template;
     return template.replace(/\{(\w+)\}/g, (m, name) =>
         Object.prototype.hasOwnProperty.call(values, name) ? String(values[name]) : m);
+}
+
+// قوالب رقمية «مخبوزة»: ديسكورد يُدمج العدد عبر صيغ الجمع ICU فيخرج النصّ جاهزاً
+// ("12 Mutual Friends") — فلا يستعيده recoverTemplate ولا يُطابِق القاموس. نطابقه بنمط
+// مضبوط ونُعيد صياغته بالعربية. قائمة قصيرة جداً ومُقيّدة بـ ^…$ لتفادي أي مطابقة خاطئة.
+const NUMERIC_PATTERNS: { re: RegExp; ar: (m: RegExpMatchArray) => string }[] = [
+    { re: /^(\d+) Mutual Friends$/, ar: m => `${m[1]} صديق مشترك` },
+    { re: /^(\d+) Mutual Servers$/, ar: m => `${m[1]} خادم مشترك` },
+    { re: /^(\d+) Boosts?$/, ar: m => `${m[1]} تعزيز` },
+    { re: /^(\d+) of (\d+) users$/, ar: m => `${m[1]} من ${m[2]} مستخدم` },
+    // مدد زمنية مخبوزة (وقت تشغيل البثّ، مدّة المكالمة…) — صيغة مبسّطة مقبولة
+    { re: /^(\d+) hours?$/, ar: m => `${m[1]} ساعة` },
+    { re: /^(\d+) minutes?$/, ar: m => `${m[1]} دقيقة` },
+    { re: /^(\d+) seconds?$/, ar: m => `${m[1]} ثانية` },
+    { re: /^(\d+) days?$/, ar: m => `${m[1]} يوم` },
+    // وقت نسبيّ مختصر ("25m ago")
+    { re: /^(\d+)s ago$/, ar: m => `قبل ${m[1]} ثانية` },
+    { re: /^(\d+)m ago$/, ar: m => `قبل ${m[1]} دقيقة` },
+    { re: /^(\d+)h ago$/, ar: m => `قبل ${m[1]} ساعة` },
+    { re: /^(\d+)d ago$/, ar: m => `قبل ${m[1]} يوم` },
+    { re: /^(\d+)w ago$/, ar: m => `قبل ${m[1]} أسبوع` },
+    { re: /^(\d+)y ago$/, ar: m => `قبل ${m[1]} سنة` },
+    // عدّاد أسئلة الإعداد ("Questions (1/5)")
+    { re: /^Questions \((\d+)\/(\d+)\)$/, ar: m => `أسئلة (${m[1]}/${m[2]})` }
+];
+
+function numericTemplate(text: string): string | null {
+    for (const { re, ar } of NUMERIC_PATTERNS) {
+        const m = text.match(re);
+        if (m != null) return ar(m);
+    }
+    return null;
 }
 
 /** يكشف كل الدوال المتاحة على كائن intl (own + prototype) لنعرف ماذا نلفّ بلا تخمين. */
@@ -154,6 +187,10 @@ function translateString(orig: StrFn, msg: any, values: any, methodName: string)
             return diag(false, out);
         }
     }
+
+    // قوالب رقمية مخبوزة (Mutual Friends/Servers، Boosts، عدد المستخدمين) — تُطابَق بنمط.
+    const num = numericTemplate(out);
+    if (num != null) return diag(true, num);
 
     collectMissing(out);
     if (settings.store.logMissingKeys) {
@@ -262,21 +299,16 @@ function markPatched(owner: object, name: string) {
     names.add(name);
 }
 
-// يلفّ دالة واحدة على مالكها: this-aware، محميّة بـtry/catch، مع منع اللفّ المزدوج.
-function patchMethod(intlLike: any, name: string) {
-    const kind = METHOD_KINDS[name];
-    if (kind == null) return;
-    const owner = findOwner(intlLike, name);
-    if (owner == null || isPatched(owner, name)) return;
+// علامة على ملفوفاتنا — تمنع اللفّ المزدوج وتُتيح التشخيص عبر intl.string.__arabicizerPatched.
+const PATCH_MARK = "__arabicizerPatched";
 
-    const origRaw = owner[name] as (...a: any[]) => any;
-
+// يبني ملفوفاً this-aware محميّاً بـtry/catch حول الدالة الأصلية المُعطاة، موسوماً بعلامتنا.
+function makeWrapper(origRaw: (...a: any[]) => any, name: string, kind: "string" | "format" | "parts" | "withFormatters"): (...a: any[]) => any {
     let wrapper: (...a: any[]) => any;
     if (kind === "withFormatters") {
         wrapper = function (this: any, ...args: any[]) {
             const result = origRaw.apply(this, args); // الأصل أولاً (سلوك مطابق)
-            // الكائن الناتج: نلفّ دواله بالآلية نفسها. لو شارك prototype مَلفوفاً
-            // فالـdedup يتخطّاه — فلا لفّ مزدوج ولا تكرار.
+            // الكائن الناتج: نلفّ دواله بالآلية نفسها (dedup يمنع التكرار/اللفّ المزدوج).
             if (result != null && typeof result === "object") {
                 try { patchIntlObject(result); }
                 catch (e) { if (settings.store.logErrors) console.debug("[DiscordArabicizer] withFormatters patch error:", e); }
@@ -285,8 +317,7 @@ function patchMethod(intlLike: any, name: string) {
         };
     } else {
         wrapper = function (this: any, msg: any, values?: any) {
-            // نمرّر الأصل مربوطاً بـthis الفعلي (يدعم الكائن والكائنات المشتقّة منه).
-            const boundOrig: StrFn = (m, v) => origRaw.call(this, m, v);
+            const boundOrig: StrFn = (m, v) => origRaw.call(this, m, v); // this الفعلي (يدعم المشتقّات)
             try {
                 if (kind === "string") return translateString(boundOrig, msg, values, name);
                 if (kind === "format") return translateFormat(boundOrig, msg, values);
@@ -297,12 +328,35 @@ function patchMethod(intlLike: any, name: string) {
             }
         };
     }
+    (wrapper as any)[PATCH_MARK] = true;
+    return wrapper;
+}
+
+// ترقيع «لاصق»: نلفّ الدالة على مالكها عبر defineProperty (get/set). لو أعاد ديسكورد
+// إسناد الدالة لاحقاً (سبب ارتداد بعض النصوص للإنجليزية بعد فترة) يلتقطها الـsetter
+// ويلفّ الجديدة فوراً — فيبقى التعريب ثابتاً مع الوقت.
+function patchMethod(intlLike: any, name: string) {
+    const kind = METHOD_KINDS[name];
+    if (kind == null) return;
+    const owner = findOwner(intlLike, name);
+    if (owner == null || isPatched(owner, name)) return;
+
+    const origRaw = owner[name] as (...a: any[]) => any;
+    let wrapped = makeWrapper(origRaw, name, kind);
 
     try {
-        owner[name] = wrapper;
+        Object.defineProperty(owner, name, {
+            configurable: true,
+            enumerable: true,
+            get() { return wrapped; },
+            set(v) {
+                // إن كان المُسنَد ملفوفنا أصلاً نُبقيه؛ وإلا نلفّ الجديد (يصمد أمام إعادة الإسناد).
+                wrapped = (typeof v === "function" && (v as any)[PATCH_MARK]) ? v : makeWrapper(v, name, kind);
+            }
+        });
     } catch (e) {
-        if (settings.store.logErrors) console.debug(`[DiscordArabicizer] patch-assign error for ${name}:`, e);
-        return; // مالك مجمّد/غير قابل للكتابة — نتركه دون لفّ (لا ضرر)
+        if (settings.store.logErrors) console.debug(`[DiscordArabicizer] defineProperty failed for ${name}:`, e);
+        return; // غير قابل لإعادة التعريف (مجمّد) — نتركه دون لفّ (لا ضرر)
     }
     patchedEntries.push({ owner, name, orig: origRaw });
     markPatched(owner, name);
@@ -326,15 +380,22 @@ function applyPatch() {
     // تشخيص: أين لُفّت كل دالة (own = على الكائن نفسه، proto = على النموذج الأولي).
     console.log("[DiscordArabicizer] i18n.intl patched (prototype-aware). لُفّت:",
         patchedEntries.map(e => `${e.name}[${e.owner === intl ? "own" : "proto"}]`).join(", "));
+
+    // طبقة احتياطية للنصوص التي تتجاوز intl (تُفعَّل بالخيار، تُفصَل عند الإيقاف).
+    if (settings.store.domFallback) startDomFallback();
     active = true;
 }
 
 function removePatch() {
     if (!active) return;
-    // استعادة عكسية (الأحدث أولاً): كل (مالك، اسم) إلى أصله بالضبط.
+    stopDomFallback();
+    // استعادة عكسية (الأحدث أولاً): نُعيد كل خاصية إلى «قيمة بيانات» عادية بأصلها بالضبط.
+    // (الإسناد العادي owner[name]=orig سيستدعي الـsetter لا يستعيد — لذا defineProperty.)
     for (let i = patchedEntries.length - 1; i >= 0; i--) {
         const { owner, name, orig } = patchedEntries[i];
-        try { owner[name] = orig; } catch { /* تجاهل */ }
+        try {
+            Object.defineProperty(owner, name, { value: orig, writable: true, configurable: true, enumerable: true });
+        } catch { /* تجاهل */ }
     }
     patchedEntries.length = 0;
     patchedByOwner = new WeakMap(); // إفراغ خريطة الهوية

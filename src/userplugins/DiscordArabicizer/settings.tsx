@@ -14,11 +14,11 @@
 import { definePluginSettings } from "@api/Settings";
 import { copyWithToast } from "@utils/discord";
 import { t } from "@utils/esharqI18n";
-import { relaunch } from "@utils/native";
 import { OptionType } from "@utils/types";
 import { Button } from "@webpack/common";
 
 import { clearMissing, getMissing } from "./collector";
+import { startDomFallback, stopDomFallback } from "./domFallback";
 import { translations } from "./translations";
 
 function StatsAndTools() {
@@ -58,21 +58,9 @@ export const settings = definePluginSettings({
             "🧪 Experimental: enable Arabizing Discord's own UI strings (requires restart)"
         ),
         default: true,
-        restartNeeded: true,
-        // عند التفعيل: إن كان خيار الإعادة الإجبارية مُفعّلاً، أعِد التشغيل فوراً ليُطبَّق
-        // الترقيع من بداية الجلسة قبل أن ترسم وحدات ديسكورد نصوصها — فلا تبقى بعض النصوص
-        // إنجليزية (هذا سبب فقدان بعض الترجمات سابقاً بعد إعادة التشغيل العادية).
-        onChange(value: boolean) {
-            if (value && settings.store.forceRestartOnEnable) relaunch();
-        }
-    },
-    forceRestartOnEnable: {
-        type: OptionType.BOOLEAN,
-        description: t(
-            "🔄 إعادة تشغيل تلقائية فور التفعيل — يضمن ثبات الترجمة: تُطبَّق من بداية الجلسة فلا تعود نصوص إلى الإنجليزية بعد إعادة التشغيل.",
-            "🔄 Auto-restart immediately on enable — guarantees stable translation: applied from session start so strings don't revert to English after a restart."
-        ),
-        default: true
+        // إعادة تشغيل يدوية واحدة عبر شريط ديسكورد: يُطبَّق الترقيع من بداية الجلسة فيثبت
+        // التعريب (يكفي وحده؛ لا حاجة لإعادة تلقائية فورية بعد الترقيع اللاصق وطبقة DOM).
+        restartNeeded: true
     },
     diagnosticMode: {
         type: OptionType.BOOLEAN,
@@ -97,6 +85,19 @@ export const settings = definePluginSettings({
             "🛠️ Log translation-engine errors to the console (captured by ConsoleWatcher for maintenance) — off by default, does not weaken safety."
         ),
         default: false
+    },
+    domFallback: {
+        type: OptionType.BOOLEAN,
+        description: t(
+            "🩹 طبقة احتياطية للنصوص العنيدة التي تتجاوز محرّك الترجمة (مثل «أنماط الرتب المحسّنة») — تستبدلها بعد الرسم. مراقِب حدثي خفيف: صفر استهلاك عند ثبات الشاشة، يُفصَل فور الإيقاف.",
+            "🩹 Fallback for stubborn strings that bypass the translation engine (e.g. “Enhanced Role Styles”) — replaces them right after render. Lightweight event-driven observer: zero idle cost, disconnects on disable."
+        ),
+        default: true,
+        onChange(value: boolean) {
+            // تشغيل/إيقاف فوري (لا يحتاج إعادة تشغيل) — يبدأ فقط إن كانت الإضافة مُفعّلة.
+            if (value && settings.store.enabled) startDomFallback();
+            else stopDomFallback();
+        }
     },
     tools: {
         type: OptionType.COMPONENT,
