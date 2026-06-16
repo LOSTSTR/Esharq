@@ -98,7 +98,9 @@ const NUMERIC_PATTERNS: { re: RegExp; ar: (m: RegExpMatchArray) => string }[] = 
     { re: /^(\d+)w ago$/, ar: m => `قبل ${m[1]} أسبوع` },
     { re: /^(\d+)y ago$/, ar: m => `قبل ${m[1]} سنة` },
     // عدّاد أسئلة الإعداد ("Questions (1/5)")
-    { re: /^Questions \((\d+)\/(\d+)\)$/, ar: m => `أسئلة (${m[1]}/${m[2]})` }
+    { re: /^Questions \((\d+)\/(\d+)\)$/, ar: m => `أسئلة (${m[1]}/${m[2]})` },
+    // تقدّم المهمة ("Quest progress: 0%".."99%"؛ الـ100% مفتاح في القاموس)
+    { re: /^Quest progress: (\d+)%$/, ar: m => `تقدّم المهمة: ${m[1]}%` }
 ];
 
 function numericTemplate(text: string): string | null {
