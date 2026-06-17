@@ -10,6 +10,7 @@ import { Button } from "@components/Button";
 import { EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { getCurrentChannel } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import { Margins } from "@utils/margins";
 import definePlugin, { OptionType } from "@utils/types";
@@ -96,7 +97,7 @@ const messageContextMenuPatch: NavContextMenuPatchCallback = (children, props) =
     children.push(
         <Menu.MenuItem
             id={GIFMAKER_ID}
-            label="Make GIF"
+            label={t("صنع GIF", "Make GIF")}
             action={() => openModal(modalProps => (
                 <GifMakerModal url={info.url} isVideo={info.isVideo} sourceWidth={info.sourceWidth} sourceHeight={info.sourceHeight} {...modalProps} />
             ))}
@@ -115,7 +116,7 @@ const imageContextMenuPatch: NavContextMenuPatchCallback = (children, props) => 
     children.push(
         <Menu.MenuItem
             id={GIFMAKER_ID}
-            label="Make GIF"
+            label={t("صنع GIF", "Make GIF")}
             action={() => openModal(modalProps => <GifMakerModal url={info.url} isVideo={info.isVideo} sourceWidth={info.sourceWidth} sourceHeight={info.sourceHeight} {...modalProps} />)}
         />
     );
@@ -171,12 +172,12 @@ function FontSelector({ initialFont, onSelect }: { initialFont: string; onSelect
     };
 
     if (!fonts.length) {
-        return <div>Loading fonts...</div>;
+        return <div>{t("جارٍ تحميل الخطوط...", "Loading fonts...")}</div>;
     }
 
     return (
         <Select
-            placeholder="Select a font..."
+            placeholder={t("اختر خطاً...", "Select a font...")}
             options={options}
             maxVisibleItems={10}
             closeOnSelect={true}
@@ -310,15 +311,15 @@ function GifMakerModal({ url, isVideo, sourceWidth, sourceHeight, ...props }: Re
         <Modal
             {...props}
             size="lg"
-            title="Make GIF"
+            title={t("صنع GIF", "Make GIF")}
             actions={[
                 {
-                    text: "Send",
+                    text: t("إرسال", "Send"),
                     variant: "primary",
                     onClick: handleSend
                 },
                 {
-                    text: "Export",
+                    text: t("تصدير", "Export"),
                     variant: "primary",
                     onClick: handleExport
                 }
@@ -329,7 +330,7 @@ function GifMakerModal({ url, isVideo, sourceWidth, sourceHeight, ...props }: Re
                     <div className={cl("preview-wrapper")}>
                         <img
                             ref={previewRef}
-                            alt="GIF preview"
+                            alt={t("معاينة GIF", "GIF preview")}
                             src={previewUrl ?? ""}
                             onClick={handlePreviewClick}
                             className={cl("preview", { "preview-generating": generating, "preview-crosshair": options.captionMode === "speechbubble" })}
@@ -337,7 +338,7 @@ function GifMakerModal({ url, isVideo, sourceWidth, sourceHeight, ...props }: Re
 
                         {generating && (
                             <div className={cl("generating-overlay")}>
-                                Generating GIF...
+                                {t("جارٍ إنشاء GIF...", "Generating GIF...")}
                             </div>
                         )}
 
@@ -350,7 +351,7 @@ function GifMakerModal({ url, isVideo, sourceWidth, sourceHeight, ...props }: Re
                 </div>
 
                 <div className={cl("controls-section")}>
-                    <div className={cl("section-heading")}>Captions</div>
+                    <div className={cl("section-heading")}>{t("التعليقات", "Captions")}</div>
                     <div style={{ display: "flex", gap: 8 }} className={Margins.bottom16}>
                         {CAPTIONS.map(c => (
                             <Button
@@ -367,15 +368,15 @@ function GifMakerModal({ url, isVideo, sourceWidth, sourceHeight, ...props }: Re
                     {options.captionMode === "caption" && (
                         <div className={cl("section")}>
                             <div className={Margins.bottom16}>
-                                <label className={cl("label")}>Text</label>
+                                <label className={cl("label")}>{t("النص", "Text")}</label>
                                 <TextInput
                                     value={options.captionText}
                                     onChange={v => patch({ captionText: v })}
-                                    placeholder="Enter caption..."
+                                    placeholder={t("أدخل تعليقاً...", "Enter caption...")}
                                 />
                             </div>
                             <div className="vc-gifmaker-font-range">
-                                <div>Font</div>
+                                <div>{t("الخط", "Font")}</div>
                                 <div className={cl("font-selector")}>
                                     <FontSelector
                                         initialFont={options.fontFamily}
@@ -386,7 +387,7 @@ function GifMakerModal({ url, isVideo, sourceWidth, sourceHeight, ...props }: Re
                                 </div>
                             </div>
                             <div className="vc-gifmaker-font-range">
-                                <div>Font size</div>
+                                <div>{t("حجم الخط", "Font size")}</div>
                                 <Slider
                                     initialValue={options.captionSize}
                                     onValueChange={v => patch({ captionSize: v })}
@@ -402,10 +403,10 @@ function GifMakerModal({ url, isVideo, sourceWidth, sourceHeight, ...props }: Re
                     {options.captionMode === "speechbubble" && (
                         <div className={cl("section")}>
                             <div className={cl("section-hint")}>
-                                Click on the preview to position the bubble tip
+                                {t("انقر على المعاينة لتحديد موضع طرف الفقاعة", "Click on the preview to position the bubble tip")}
                             </div>
                             <div className="vc-gifmaker-font-range">
-                                <div>Tip Base</div>
+                                <div>{t("قاعدة الطرف", "Tip Base")}</div>
                                 <Slider
                                     initialValue={Math.round(options.bubbleTipBase * 100)}
                                     onValueChange={v => patch({ bubbleTipBase: v / 100 })}
@@ -417,10 +418,10 @@ function GifMakerModal({ url, isVideo, sourceWidth, sourceHeight, ...props }: Re
                         </div>
                     )}
 
-                    <div className={cl("section-heading")}>Dimensions</div>
+                    <div className={cl("section-heading")}>{t("الأبعاد", "Dimensions")}</div>
                     <div className={cl("dims-row")}>
                         <div className={cl("field")}>
-                            <label className={cl("label")}>Width</label>
+                            <label className={cl("label")}>{t("العرض", "Width")}</label>
                             <input
                                 type="number"
                                 min={32}
@@ -429,11 +430,11 @@ function GifMakerModal({ url, isVideo, sourceWidth, sourceHeight, ...props }: Re
                                 onChange={e => patch({ width: Number(e.target.value) })}
                                 onBlur={e => patch({ width: clamp(Number(e.target.value), 32, 1024, 32) })}
                                 className={cl("input")}
-                                aria-label="Width"
+                                aria-label={t("العرض", "Width")}
                             />
                         </div>
                         <div className={cl("field")}>
-                            <label className={cl("label")}>Height</label>
+                            <label className={cl("label")}>{t("الارتفاع", "Height")}</label>
                             <input
                                 type="number"
                                 min={32}
@@ -442,7 +443,7 @@ function GifMakerModal({ url, isVideo, sourceWidth, sourceHeight, ...props }: Re
                                 onChange={e => patch({ height: Number(e.target.value) })}
                                 onBlur={e => patch({ height: clamp(Number(e.target.value), 32, 1024, 32) })}
                                 className={cl("input")}
-                                aria-label="Height"
+                                aria-label={t("الارتفاع", "Height")}
                             />
                         </div>
                     </div>
@@ -496,7 +497,7 @@ export default definePlugin({
             <Menu.MenuItem
                 id="gif-maker-edit"
                 key="gif-maker-edit"
-                label="Edit GIF"
+                label={t("تعديل GIF", "Edit GIF")}
                 action={() => openGifMakerFromItem(instance?.props?.item)}
             />
         );
