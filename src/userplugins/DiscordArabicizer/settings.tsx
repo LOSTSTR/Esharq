@@ -89,8 +89,8 @@ export const settings = definePluginSettings({
     domFallback: {
         type: OptionType.BOOLEAN,
         description: t(
-            "🩹 طبقة احتياطية للنصوص العنيدة التي تتجاوز محرّك الترجمة (مثل «أنماط الرتب المحسّنة») — تستبدلها بعد الرسم. مراقِب حدثي خفيف: صفر استهلاك عند ثبات الشاشة، يُفصَل فور الإيقاف.",
-            "🩹 Fallback for stubborn strings that bypass the translation engine (e.g. “Enhanced Role Styles”) — replaces them right after render. Lightweight event-driven observer: zero idle cost, disconnects on disable."
+            "طبقة احتياطية للنصوص العنيدة التي تتجاوز محرّك الترجمة فقط (مثل «أنماط الرتب المحسّنة») — قائمة محدودة تُستبدَل بعد الرسم، لا تمسّ بقية النصوص.",
+            "Fallback only for stubborn strings that bypass the translation engine (e.g. “Enhanced Role Styles”) — a small fixed whitelist replaced after render, never touching any other text."
         ),
         default: true,
         onChange(value: boolean) {
