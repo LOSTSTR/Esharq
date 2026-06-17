@@ -117,7 +117,8 @@ const settings = definePluginSettings({
         ]
     },
     idList: {
-        description: "Server/channel/user IDs to include in the blacklist or whitelist (comma-separated)",
+        displayName: "ID List",
+        description: "Guild/channel/user IDs to blacklist or whitelist (separate with comma)",
         type: OptionType.STRING,
         default: "",
         multiline: true,

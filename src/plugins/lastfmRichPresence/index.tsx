@@ -70,7 +70,8 @@ function setActivity(activity: Activity | null) {
 
 const settings = definePluginSettings({
     apiKey: {
-        description: "Last.fm API key. Optional but recommended to avoid exceeding the shared request limit",
+        displayName: "API Key",
+        description: "Custom Last.fm API key. Not required but highly recommended to avoid rate limiting with our shared key",
         type: OptionType.STRING,
     },
     username: {
@@ -173,7 +174,8 @@ const settings = definePluginSettings({
         ],
     },
     showLastFmLogo: {
-        description: "Show the Last.fm logo next to the album cover",
+        displayName: "Show Last.fm Logo",
+        description: "Show the Last.fm logo by the album cover",
         type: OptionType.BOOLEAN,
         default: true,
     },

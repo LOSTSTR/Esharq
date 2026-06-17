@@ -50,7 +50,8 @@ const settings = definePluginSettings({
         default: false
     },
     applyColorOnlyInDms: {
-        description: "Apply colors in direct messages only; do not apply them in servers",
+        displayName: "Apply Color Only In DMs",
+        description: "Apply colors only in direct messages; do not apply colors in servers.",
         restartNeeded: false,
         type: OptionType.BOOLEAN,
         default: false

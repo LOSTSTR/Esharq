@@ -41,7 +41,7 @@ export async function updateAuth(newAuth: ReviewDBAuth) {
     });
 }
 
-export function authorize(callback?: any) {
+export function authorize(callback?: () => void) {
     openModal(props =>
         <OAuth2AuthorizeModal
             {...props}
@@ -51,7 +51,7 @@ export function authorize(callback?: any) {
             permissions={0n}
             clientId="915703782174752809"
             cancelCompletesFlow={false}
-            callback={async (response: any) => {
+            callback={async (response: { location: string }) => {
                 try {
                     const url = new URL(response.location);
                     url.searchParams.append("clientMod", "vencord");
@@ -61,7 +61,7 @@ export function authorize(callback?: any) {
 
                     if (!res.ok) {
                         const { message } = await res.json();
-                        showToast(message || t("حدث خطأ أثناء التفويض", "An error occured while authorizing"), Toasts.Type.FAILURE);
+                        showToast(message ?? t("حدث خطأ أثناء التفويض", "An error occured while authorizing"), Toasts.Type.FAILURE);
                         return;
                     }
 

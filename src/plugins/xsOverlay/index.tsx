@@ -104,7 +104,8 @@ const settings = definePluginSettings({
     },
     preferUDP: {
         type: OptionType.BOOLEAN,
-        description: "Enable if you are using an older version of XSOverlay that cannot connect via WebSocket. This setting is ignored on web.",
+        displayName: "Prefer UDP",
+        description: "Enable if you use an older build of XSOverlay unable to connect through websockets. This setting is ignored on web.",
         default: false,
         disabled: () => IS_WEB
     },
@@ -120,12 +121,14 @@ const settings = definePluginSettings({
     },
     dmNotifications: {
         type: OptionType.BOOLEAN,
-        description: "Allow DM notifications",
+        displayName: "DM Notifications",
+        description: "Allow Direct Message notifications",
         default: true
     },
     groupDmNotifications: {
         type: OptionType.BOOLEAN,
-        description: "Allow group DM notifications",
+        displayName: "Group DM Notifications",
+        description: "Allow Group DM notifications",
         default: true
     },
     callNotifications: {

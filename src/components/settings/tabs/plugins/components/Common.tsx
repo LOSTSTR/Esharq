@@ -36,23 +36,24 @@ export function resolveError(isValidResult: boolean | string) {
 }
 
 interface SettingsSectionProps extends PropsWithChildren {
-    name: string;
+    name?: string;
+    id: string;
     description: string;
     error?: string | null;
     inlineSetting?: boolean;
     tag?: "label" | "div";
 }
 
-export function SettingsSection({ tag: Tag = "div", name, description, error, inlineSetting, children }: SettingsSectionProps) {
+export function SettingsSection({ tag: Tag = "div", name, id, description, error, inlineSetting, children }: SettingsSectionProps) {
     // عند تفعيل العربية: نعرض الوصف المُعرَّب (من الـoverlay) كعنوان غامق ونُخفي السطر المكرّر،
     // بدل العنوان الإنجليزي المُشتقّ من مفتاح الإعداد. عند الإنجليزية: السلوك القياسي (عنوان من المفتاح + وصف).
     const arabic = isArabicMode();
-    const title = arabic && description ? description : wordsToTitle(wordsFromCamel(name));
+    const title = arabic && description ? description : (name ?? wordsToTitle(wordsFromCamel(id)));
     return (
         <Tag className={cl("section")}>
             <div className={classes(cl("content"), inlineSetting && cl("inline"))}>
                 <div className={cl("label")}>
-                    {name && <BaseText className={cl("title")} size="md" weight="medium">{title}</BaseText>}
+                    <BaseText className={cl("title")} size="md" weight="medium">{title}</BaseText>
                     {!arabic && description && <BaseText className={cl("description")} size="sm">{description}</BaseText>}
                 </div>
                 {children}

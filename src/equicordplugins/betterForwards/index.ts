@@ -4,12 +4,15 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { definePluginSettings } from "@api/Settings";
+import { definePluginSettings, migratePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import { sendMessage } from "@utils/discord";
 import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { Channel, Message } from "@vencord/discord-types";
+import { MouseEvent } from "react";
+
+let ignore = false;
 
 // Taken From Signature :)
 const settings = definePluginSettings({
@@ -20,14 +23,22 @@ const settings = definePluginSettings({
             { label: t(">", ">"), value: ">", default: true },
             { label: t("-#", "-#"), value: "-#" }
         ]
+    },
+    dontFollowForwards: {
+        description: "After forwarding a single message, don't jump to it. Hold shift to ignore this behavior",
+        displayName: "Don't Follow Forwards",
+        type: OptionType.BOOLEAN,
+        default: false,
+        restartNeeded: true,
     }
 });
 
+migratePluginSettings("BetterForwards", "ForwardAnywhere");
 export default definePlugin({
-    name: "ForwardAnywhere",
-    description: "If forwarding fails, sends it as a regular message, and also allows forwarding explicit (NSFW) content",
+    name: "BetterForwards",
+    description: "If a forward fails, send it as a normal message. Also allows nsfw forwards. See settings for various other improvements to forwarding.",
     tags: ["Chat", "Utility"],
-    authors: [Devs.thororen],
+    authors: [Devs.thororen, Devs.sadan],
     settings,
     patches: [
         {
@@ -44,6 +55,22 @@ export default definePlugin({
                 replace: "if ($1) return $self.sendForward($1,$2);",
             }
         },
+        {
+            find: "#{intl::MESSAGE_FORWARD_MESSAGE_PLACEHOLDER}",
+            predicate: () => settings.store.dontFollowForwards,
+            replacement: [
+                {
+                    match: /(?<=transitionToDestination:)(1===\i\.length)(?=,|\})/,
+                    replace: "$self.shouldTransition($1)"
+                },
+                {
+                    // there are two useCallbacks with clearDraft in this module
+                    // we need to anchor to the one that is used as an onClick handler
+                    match: /((\i)=\i\.useCallback\(\()(\)=>\{)(null!=\i&&\i\.\i\.clearDraft)(?=.{1500,2000}onClick:\2)/,
+                    replace: (_, beforeParen, _1, beforeBody, body) => `${beforeParen}vencordArg1${beforeBody}$self.setShift(vencordArg1);${body}`
+                }
+            ]
+        }
     ],
 
     sendForward(channels: Channel[], message: Message) {
@@ -61,5 +88,13 @@ export default definePlugin({
                 });
             }
         });
+    },
+
+    shouldTransition(origCond: boolean): boolean {
+        return ignore ? origCond : false;
+    },
+
+    setShift(event: MouseEvent | undefined) {
+        ignore = !!event?.shiftKey;
     }
 });

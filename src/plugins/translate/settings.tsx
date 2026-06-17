@@ -62,6 +62,7 @@ export const settings = definePluginSettings({
     },
     deeplApiKey: {
         type: OptionType.STRING,
+        displayName: "DeepL API Key",
         description: t("مفتاح DeepL API الخاص بك (من deepl.com/your-account)", "Your DeepL API key (from deepl.com/your-account)"),
         default: ""
     },
