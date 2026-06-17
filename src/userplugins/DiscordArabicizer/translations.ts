@@ -3762,5 +3762,24 @@ export const translations: Record<string, string> = {
     "{count}h ago": "قبل {count} ساعة",
     "unread, {channelName} (announcement channel)": "غير مقروء، {channelName} (قناة إعلانات)",
     "{0} of {1}": "{0} من {1}",
-    "escape to {0} • enter to {1}": "Esc لـ {0} • Enter لـ {1}"
+    "escape to {0} • enter to {1}": "Esc لـ {0} • Enter لـ {1}",
+
+    // ── دفعة 34 (حصاد: نافذة الويب هوكس + حذف/تأكيد) ──
+    "You have no webhooks!": "لا توجد لديك ويب هوكس!",
+    "New Webhook": "ويب هوك جديد",
+    "Posting to": "النشر في",
+    "Posting to {0}": "النشر في {0}",
+    "Copy Webhook URL": "نسخ رابط الويب هوك",
+    "Copied!": "تم النسخ!",
+    "Select a Channel": "اختر قناة",
+    "Minimum Size:": "الحد الأدنى للحجم:",
+    "Minimum Size: {0}": "الحد الأدنى للحجم: {0}",
+    "Delete {name}": "حذف {name}",
+    "Are you sure you want to delete the": "هل أنت متأكّد أنك تريد حذف",
+    "Are you sure you want to delete the {0} webhook? This action cannot be undone.": "هل أنت متأكّد أنك تريد حذف الويب هوك {0}؟ لا يمكن التراجع عن هذا الإجراء.",
+    "webhook? This action cannot be undone.": "الويب هوك؟ لا يمكن التراجع عن هذا الإجراء.",
+    "Webhooks are a simple way to post messages from other apps and websites into Discord using internet magic.": "الويب هوكس طريقة بسيطة لنشر الرسائل من تطبيقات ومواقع أخرى إلى ديسكورد بسحر الإنترنت.",
+    "Webhooks are a simple way to post messages from other apps and websites into Discord using internet magic. {0}, or try {1}": "الويب هوكس طريقة بسيطة لنشر الرسائل من تطبيقات ومواقع أخرى إلى ديسكورد بسحر الإنترنت. {0}، أو جرّب {1}",
+    ", or try": "، أو جرّب",
+    "Change\nAvatar": "تغيير\nالصورة الرمزية"
 };
