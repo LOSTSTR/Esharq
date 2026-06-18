@@ -29,6 +29,9 @@ function StatsAndTools() {
             <div style={{ color: "var(--text-muted)", fontSize: 13 }}>
                 🟢 مُترجَم في القاموس: <b>{total}</b>　·　🔴 غير مُترجَم (هذه الجلسة): <b>{missing.length}</b>
             </div>
+            <div style={{ color: "var(--text-muted)", fontSize: 12 }}>
+                ℹ️ {t("الجمع يبدأ فقط عند تشغيل «الوضع التشخيصي» أعلاه — لا تلقائياً.", "Collection starts only when “Diagnostic mode” above is on — never automatically.")}
+            </div>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                 <Button
                     onClick={() => copyWithToast(
@@ -65,8 +68,8 @@ export const settings = definePluginSettings({
     diagnosticMode: {
         type: OptionType.BOOLEAN,
         description: t(
-            "🔬 الوضع التشخيصي (للمطوّر): يضع 🟢 أمام كل نصّ مُترجَم و🔴 أمام غير المترجَم — لرؤية ما يحتاج ترجمة بنظرة. أطفئه عند الاستخدام العادي.",
-            "🔬 Diagnostic mode (dev): prefixes 🟢 to every translated string and 🔴 to untranslated ones — to spot what needs translation at a glance. Turn off for normal use."
+            "🔬 الوضع التشخيصي (للمطوّر): يضع 🟢 أمام كل نصّ مُترجَم و🔴 أمام غير المترجَم، ويبدأ جمع النصوص غير المترجَمة للحصاد. لا جمع تلقائياً قبل تشغيله — أطفئه عند الاستخدام العادي.",
+            "🔬 Diagnostic mode (dev): prefixes 🟢 to every translated string and 🔴 to untranslated ones, and starts collecting untranslated strings for harvest. No collection happens until it's on — turn off for normal use."
         ),
         default: false
     },

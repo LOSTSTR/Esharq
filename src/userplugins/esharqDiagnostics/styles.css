@@ -142,3 +142,58 @@
     color: var(--text-muted);
     text-align: end;
 }
+
+/* ── Runtime profiling panel ───────────────────────────────────────────────── */
+.esharq-diag-runtime {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--background-modifier-accent);
+    background: linear-gradient(180deg, rgb(88 101 242 / 8%), rgb(255 255 255 / 0%));
+}
+
+.esharq-diag-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+}
+
+.esharq-diag-metric {
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--background-secondary);
+}
+
+.esharq-diag-metric-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--text-muted);
+}
+
+.esharq-diag-metric-value {
+    font-family: monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-normal);
+    font-variant-numeric: tabular-nums;
+}
+
+.esharq-diag-leak {
+    font-size: 13px;
+    font-weight: 600;
+    color: #ed4245;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: rgb(237 66 69 / 12%);
+}
+
+.esharq-diag-fn-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--header-secondary);
+    margin-top: 2px;
+}

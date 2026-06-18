@@ -18,7 +18,7 @@ import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { i18n } from "@webpack/common";
 
-import { collectMissing } from "./collector";
+import { collectMissing as rawCollect } from "./collector";
 import { startDomFallback, stopDomFallback } from "./domFallback";
 import { settings } from "./settings";
 import { translations as AR } from "./translations";
@@ -68,6 +68,12 @@ export const translationCount = NORM.size;
 // وضع تشخيصي: يُعلّم المُترجَم بـ🟢 وغير المُترجَم بـ🔴 (للمطوّر فقط — يُطفأ عند الإطلاق).
 function diag(ok: boolean, text: string): string {
     return settings.store.diagnosticMode ? (ok ? "🟢" : "🔴") + text : text;
+}
+
+// جمع النصوص غير المترجَمة للحصاد — لا يعمل تلقائياً (طلب المالك: لا تخزين خلفي صامت).
+// يبدأ الجمع فقط عند تشغيل «الوضع التشخيصي». مكان واحد يُقيّد كل مواضع النداء أدناه.
+function collect(text: string): void {
+    if (settings.store.diagnosticMode) rawCollect(text);
 }
 
 /** استبدال المتغيّرات في قالب عربي: "لديك {count} رسالة" + { count: 3 } → "لديك 3 رسالة". */
@@ -185,7 +191,7 @@ function translateString(orig: StrFn, msg: any, values: any, methodName: string)
         if (tmpl != null && tmpl !== out) {
             const arTmpl = lookup(tmpl);
             if (arTmpl != null) return diag(true, formatMessage(arTmpl, values));
-            collectMissing(tmpl);
+            collect(tmpl);
             return diag(false, out);
         }
     }
@@ -194,7 +200,7 @@ function translateString(orig: StrFn, msg: any, values: any, methodName: string)
     const num = numericTemplate(out);
     if (num != null) return diag(true, num);
 
-    collectMissing(out);
+    collect(out);
     if (settings.store.logMissingKeys) {
         console.log(`[DiscordArabicizer DEBUG] ${methodName} (غير مترجَم):`, JSON.stringify(out));
     }
@@ -211,7 +217,7 @@ function translatePartsArray(parts: any[]): any {
         const joined = parts.join("");
         const ar = lookup(joined);
         if (ar != null) return [diag(true, ar)];
-        collectMissing(joined);
+        collect(joined);
         return settings.store.diagnosticMode ? [diag(false, joined)] : parts;
     }
 
@@ -236,12 +242,12 @@ function translatePartsArray(parts: any[]): any {
         if (core.length < 2) return p;
         const t = lookup(core);
         if (t != null) { changed = true; return lead + t + trail; }
-        collectMissing(core); // اجمع الجملة المفقودة نفسها (أنفع للحصاد من جمع القالب)
+        collect(core); // اجمع الجملة المفقودة نفسها (أنفع للحصاد من جمع القالب)
         return p;
     });
     if (changed) return perPart;
 
-    collectMissing(template);
+    collect(template);
     return settings.store.diagnosticMode ? ["🔴", ...parts] : parts;
 }
 
@@ -262,11 +268,11 @@ function translateFormat(orig: StrFn, msg: any, values: any): any {
         if (tmpl != null && tmpl !== out) {
             const arTmpl = lookup(tmpl);
             if (arTmpl != null) return diag(true, formatMessage(arTmpl, values));
-            collectMissing(tmpl);
+            collect(tmpl);
             return diag(false, out);
         }
     }
-    collectMissing(out);
+    collect(out);
     return diag(false, out);
 }
 
@@ -321,6 +327,17 @@ function makeWrapper(origRaw: (...a: any[]) => any, name: string, kind: "string"
         wrapper = function (this: any, msg: any, values?: any) {
             const boundOrig: StrFn = (m, v) => origRaw.call(this, m, v); // this الفعلي (يدعم المشتقّات)
             try {
+                // خطّاف تشخيص اختياري: يعمل فقط أثناء تسجيل EsharqDiagnostics (الخطّاف العام
+                // موجود)، وإلا فالمسار مطابق تماماً للأصل عدا قراءة خاصّية واحدة — صفر تكلفة فعلياً.
+                const prof = (globalThis as any).__esharqProf;
+                if (prof) {
+                    const t0 = performance.now();
+                    const r = kind === "string" ? translateString(boundOrig, msg, values, name)
+                        : kind === "format" ? translateFormat(boundOrig, msg, values)
+                            : translateParts(boundOrig, msg, values);
+                    prof.hit("DiscordArabicizer.intl." + name, performance.now() - t0);
+                    return r;
+                }
                 if (kind === "string") return translateString(boundOrig, msg, values, name);
                 if (kind === "format") return translateFormat(boundOrig, msg, values);
                 return translateParts(boundOrig, msg, values); // "parts"

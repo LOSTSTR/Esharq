@@ -13,21 +13,78 @@ import { t } from "@utils/esharqI18n";
 import { saveFile } from "@utils/web";
 import { Button, Modal, React, TextInput, useEffect, useState } from "@webpack/common";
 
+import type { RuntimeReport } from "./runtimeProfiler";
+import { runtimeProfiler } from "./runtimeProfiler";
 import type { ScoredPlugin } from "./scoring";
 import { summarize } from "./scoring";
 
 type SortKey = "name" | "type" | "hooks" | "listeners" | "patches" | "uiInjects" | "risk";
 
-function exportJson(rows: ScoredPlugin[], heapMB: number | null) {
+function exportJson(rows: ScoredPlugin[], heapMB: number | null, runtime: RuntimeReport | null) {
     const payload = {
         _esharq: "diagnostics",
-        version: 1,
+        version: 2,
         takenAt: new Date().toISOString(),
         heapMB,
+        runtime,
         plugins: rows,
     };
     const date = new Date().toISOString().slice(0, 10);
     saveFile(new File([JSON.stringify(payload, null, 2)], `esharq-diagnostics-${date}.json`, { type: "application/json" }));
+}
+
+// ── لوحة قياس زمن التشغيل الحيّ (تظهر أثناء التسجيل) ─────────────────────────
+function RuntimePanel({ report }: { report: RuntimeReport; }) {
+    const cell = (label: string, value: React.ReactNode, warn = false) => (
+        <div className="esharq-diag-metric">
+            <div className="esharq-diag-metric-label">{label}</div>
+            <div className="esharq-diag-metric-value" style={warn ? { color: "#ed4245" } : undefined}>{value}</div>
+        </div>
+    );
+    return (
+        <div className="esharq-diag-runtime">
+            <div className="esharq-diag-metrics">
+                {cell(t("المعالج الآن", "CPU now"), report.cpu.available ? `${report.cpu.totalNow}%` : t("غير متاح", "n/a"))}
+                {cell(t("ذروة المعالج", "CPU peak"), report.cpu.available ? `${report.cpu.peakTotal}%` : "—")}
+                {cell(t("ذاكرة JS", "JS heap"), report.heap.currentMB != null ? `${report.heap.currentMB} MB` : "—")}
+                {cell(t("نموّ الذاكرة", "Mem growth"), `${report.heap.growthMBPerMin} MB/${t("د", "min")}`, report.heap.leakSuspected)}
+                {cell(t("تأخّر متوسط", "Lag avg"), `${report.eventLoop.avgLagMs} ms`)}
+                {cell(t("تأخّر أقصى", "Lag max"), `${report.eventLoop.maxLagMs} ms`, report.eventLoop.maxLagMs > 100)}
+                {cell(t("حجب الخيط", "Blocking"), `${report.longtasks.count}× / ${report.longtasks.totalBlockingMs}ms`, report.longtasks.totalBlockingMs > 500)}
+                {cell(t("المدّة", "Duration"), `${report.durationSec}s`)}
+            </div>
+            {report.heap.leakSuspected && (
+                <div className="esharq-diag-leak">{t("⚠️ اشتباه تسريب: خطّ أساس الذاكرة يرتفع باطّراد", "⚠️ Leak suspected: heap baseline is rising steadily")}</div>
+            )}
+            <div className="esharq-diag-fn-title">{t("أغلى الدوال (مقيسة)", "Top functions (measured)")}</div>
+            {report.topFunctions.length === 0 ? (
+                <div className="esharq-diag-empty">{t("لا قياسات بعد — تفاعل مع الواجهة أثناء التسجيل", "No samples yet — interact with the UI while recording")}</div>
+            ) : (
+                <table className="esharq-diag-table">
+                    <thead>
+                        <tr>
+                            <th>{t("الدالة", "Function")}</th>
+                            <th className="num">{t("نداء/ث", "calls/s")}</th>
+                            <th className="num">{t("متوسط ms", "avg ms")}</th>
+                            <th className="num">{t("أقصى ms", "max ms")}</th>
+                            <th className="num">{t("إجمالي ms", "total ms")}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {report.topFunctions.map(f => (
+                            <tr key={f.name} className="esharq-diag-row">
+                                <td>{f.name}</td>
+                                <td className="num">{f.callsPerSec}</td>
+                                <td className="num">{f.avgMs}</td>
+                                <td className="num">{f.maxMs}</td>
+                                <td className="num">{f.totalMs}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            )}
+        </div>
+    );
 }
 
 export function DiagnosticsModal({ modalProps, initial, heapMB, rescan, interval = 5 }: {
@@ -46,6 +103,20 @@ export function DiagnosticsModal({ modalProps, initial, heapMB, rescan, interval
     const [live, setLive] = useState(false);
     const [countdown, setCountdown] = useState(interval);
     const [resetNonce, setResetNonce] = useState(0); // bump → restart the timer (manual re-scan)
+
+    // ── Runtime profiling (opt-in) — real CPU/RAM/function timing while recording ──
+    const [recording, setRecording] = useState(false);
+    const [runtime, setRuntime] = useState<RuntimeReport | null>(null);
+
+    // Start/stop the profiler with the toggle; refresh the report every 1s while on.
+    // Cleanup stops the profiler on toggle-off / modal close → no global hook left behind.
+    useEffect(() => {
+        if (!recording) return;
+        runtimeProfiler.start();
+        setRuntime(runtimeProfiler.getReport());
+        const id = setInterval(() => setRuntime(runtimeProfiler.getReport()), 1000);
+        return () => { clearInterval(id); runtimeProfiler.stop(); };
+    }, [recording]);
 
     // Manual re-scan: refresh now AND reset the live countdown (no double allocation,
     // the previous rows are released for GC once setRows replaces them).
@@ -155,11 +226,22 @@ export function DiagnosticsModal({ modalProps, initial, heapMB, rescan, interval
                                 {t("بدء المراقبة الحية", "Start Live Monitoring")}
                             </Button>
                         )}
-                        <Button size={Button.Sizes.SMALL} color={Button.Colors.PRIMARY} onClick={() => exportJson(view, heapMB)}>
+                        {recording ? (
+                            <Button size={Button.Sizes.SMALL} color={Button.Colors.RED} onClick={() => setRecording(false)}>
+                                {t("إيقاف التسجيل", "Stop Recording")}
+                            </Button>
+                        ) : (
+                            <Button size={Button.Sizes.SMALL} color={Button.Colors.GREEN} onClick={() => setRecording(true)}>
+                                {t("⏺ تسجيل الأداء", "⏺ Record Profile")}
+                            </Button>
+                        )}
+                        <Button size={Button.Sizes.SMALL} color={Button.Colors.PRIMARY} onClick={() => exportJson(view, heapMB, runtime)}>
                             {t("تصدير JSON", "Export JSON")}
                         </Button>
                     </div>
                 </div>
+
+                {recording && runtime && <RuntimePanel report={runtime} />}
 
                 <div className="esharq-diag-tablewrap">
                     <table className="esharq-diag-table">

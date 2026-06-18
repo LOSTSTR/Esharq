@@ -68,6 +68,9 @@ function scanElement(el: Element): void {
 }
 
 function onMutations(records: MutationRecord[]): void {
+    // قياس تشخيصي اختياري (أثناء تسجيل EsharqDiagnostics فقط) — كم مرّة يُطلَق المراقِب وكم يستغرق.
+    const prof = (globalThis as any).__esharqProf;
+    const t0 = prof ? performance.now() : 0;
     try {
         for (const rec of records) {
             if (rec.type === "characterData") {
@@ -81,6 +84,7 @@ function onMutations(records: MutationRecord[]): void {
             }
         }
     } catch { /* أمان مطلق: طبقة احتياطية لا يجوز أن تضرّ أبداً */ }
+    if (prof) prof.hit("domFallback.onMutations", performance.now() - t0);
 }
 
 /** يبدأ الطبقة: كنسة أوّلية مرّة واحدة + مراقِب حدثي (لا فحص دوري). آمن للاستدعاء المتكرّر. */
