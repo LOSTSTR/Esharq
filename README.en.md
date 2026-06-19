@@ -72,18 +72,9 @@
 
 ## ✨ Featured Plugins
 
-| Plugin | Description |
-|--------|-------------|
-| **DiscordArabicizer** *(by Esharq)* | Arabizes Discord's own UI — translates the native interface (menus, buttons, settings, Quests, and notifications) into fluent Arabic, while keeping proper nouns (games, themes, usernames) in their original language. A cohesive Arabic experience, by Esharq. |
-| **NitroSniper** | Ultra-fast Nitro gift code claimer — scans every channel in real time and redeems codes before anyone else. |
-| **FakeDeafen** | Smart spoofing — appear deafened to other server members while still hearing everything perfectly. |
-| **BetterAudioPlayer** | Enhanced audio engine — enables true stereo quality with a built-in control panel and advanced frequency processing. |
-| **MessageLoggerEnhanced** | Advanced message logger — tracks deleted and edited messages and attachments with smart memory management to prevent slowdowns during long sessions. |
-| **BigFileUploadEnhanced** | Unlimited external upload — bypass Discord's upload limit via multiple hosting options (Catbox, Litterbox, and more), fully localized, works on both browser and desktop. |
-| **MessageBookmarks** | Private message bookmarks — save any message to a personal list (unlike server Pins, only you can see these), categorize them as General / Important / Later, search across all saved messages, and jump back with one click. Stored locally. |
-| **EsharqDiagnostics** | On-demand plugin resource inspector — takes a one-shot snapshot of each enabled plugin's footprint (patches, listeners, UI injects) and ranks them by a computed risk score, so you can see which plugin is heavy. No background loops, zero cost when idle. |
-| **PerformanceBoost** | Game/performance mode — cuts CPU & RAM usage while gaming at the press of a button: disables animations/transitions, compacts messages, stops GIF autoplay, lowers all Discord processes to Below Normal priority (Windows), and cleans the cache — all fully revertible. Works manually via a header-bar button or automatically when a game starts, and respects your manual off (stays off until you re-enable it). Disabling hardware acceleration requires a one-time manual toggle + Discord restart. |
-| **ConsoleWatcher** | Console error recorder (developer tool) — captures console events & errors **only while recording**, toggled by a header-bar button (no permanent hook, zero idle cost). Click to start (turns red), reproduce the issue, then stop to get a window with all events, a context header (client version, Discord build, OS, counts), and "Copy errors only" / "Copy all" buttons. Hooks all console methods + window errors with a safe serializer (handles circular refs, DOM, functions), captures error stacks, and strips styling noise — for easier maintenance and bug reporting. |
+Browse **all** the bundled and custom plugins — each with a detailed description — on the official website:
+
+### 🔗 [esharq-website.vercel.app](https://esharq-website.vercel.app/)
 
 ---
 
