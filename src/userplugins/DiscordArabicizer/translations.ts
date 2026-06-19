@@ -3959,5 +3959,31 @@ export const translations: Record<string, string> = {
     "Members of the server must meet the following criteria before they can send messages in text channels or initiate a direct message conversation. If a member has an assigned role and server onboarding is not enabled, this does not apply.": "يجب أن يستوفي أعضاء الخادم المعايير التالية قبل أن يتمكّنوا من إرسال رسائل في القنوات النصّية أو بدء محادثة خاصّة. إن كان للعضو رتبة مُعيَّنة ولم يُفعَّل الإعداد التمهيدي للخادم، فلا ينطبق هذا.",
     "We recommend setting a verification level for a Community Server.": "نوصي بتعيين مستوى توثيق لخادم المجتمع.",
     "A server template is an easy way to share your server setup and help anyone create a server instantly.": "قالب الخادم طريقة سهلة لمشاركة إعداد خادمك ومساعدة أي شخص على إنشاء خادم فوراً.",
-    "When someone uses your server template link, they create a new server pre-filled with the same channels, roles, permissions, and settings as yours.": "عندما يستخدم أحدهم رابط قالب خادمك، يُنشئ خادماً جديداً مملوءاً مسبقاً بنفس القنوات والرتب والأذونات والإعدادات التي لديك."
+    "When someone uses your server template link, they create a new server pre-filled with the same channels, roles, permissions, and settings as yours.": "عندما يستخدم أحدهم رابط قالب خادمك، يُنشئ خادماً جديداً مملوءاً مسبقاً بنفس القنوات والرتب والأذونات والإعدادات التي لديك.",
+
+    // ── دفعة 39 (حصاد: تفويض OAuth + AutoMod مسموح/ممنوع + أنواع القنوات + الإرشاد/المشاعر) ──
+    "{keyword} has an invalid length. Keywords must be between {min} and {max} characters.": "طول {keyword} غير صالح. يجب أن تكون الكلمات المفتاحية بين {min} و{max} حرفاً.",
+    "👋  Wave": "👋  تلويح",
+    "Allowed": "مسموح",
+    "Announcements (Limited)": "إعلانات (محدودة)",
+    "applies to data it receives.": "تنطبق على البيانات التي يتلقّاها.",
+    "Authorize": "تفويض",
+    "Forum (Limited)": "منتدى (محدود)",
+    "Heads up! Your status & activity are hidden if you’re Invisible": "تنبيه! حالتك ونشاطك مخفيّان إن كنت في وضع التخفّي",
+    "Intermediate": "متوسّط",
+    "Keep Scrolling...": "واصل التمرير...",
+    "Kind of love it": "أحبّه نوعاً ما",
+    "Looking for tips": "أبحث عن نصائح",
+    "Not allowed": "غير مسموح",
+    "Obsessed": "مهووس به",
+    "Once you authorize, you will be redirected": "بعد التفويض، ستتم إعادة توجيهك",
+    "Once you authorize, you will be redirected {0} to: {1}": "بعد التفويض، ستتم إعادة توجيهك {0} إلى: {1}",
+    "Open to teach": "مستعدّ للتعليم",
+    "read your messages or send messages as you.": "قراءة رسائلك أو إرسال رسائل باسمك.",
+    "Repeat Mission": "تكرار المهمة",
+    "Search with Google": "البحث بواسطة Google",
+    "See your friends, pending friend requests, and blocked users": "رؤية أصدقائك وطلبات الصداقة المعلّقة والمستخدمين المحظورين",
+    "This application": "هذا التطبيق",
+    "This application {0} read your messages or send messages as you.": "هذا التطبيق {0} قراءة رسائلك أو إرسال رسائل باسمك.",
+    "wants to access your Discord account": "يريد الوصول إلى حساب Discord الخاص بك"
 };
