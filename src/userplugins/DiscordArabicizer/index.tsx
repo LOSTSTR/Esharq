@@ -90,6 +90,7 @@ const NUMERIC_PATTERNS: { re: RegExp; ar: (m: RegExpMatchArray) => string }[] = 
     { re: /^(\d+) Mutual Friends$/, ar: m => `${m[1]} صديق مشترك` },
     { re: /^(\d+) Mutual Servers$/, ar: m => `${m[1]} خادم مشترك` },
     { re: /^(\d+) Boosts?$/, ar: m => `${m[1]} تعزيز` },
+    { re: /^(\d+)\+ Boosts?$/, ar: m => `${m[1]}+ تعزيز` },
     { re: /^(\d+) of (\d+) users$/, ar: m => `${m[1]} من ${m[2]} مستخدم` },
     // مدد زمنية مخبوزة (وقت تشغيل البثّ، مدّة المكالمة…) — صيغة مبسّطة مقبولة
     { re: /^(\d+) hours?$/, ar: m => `${m[1]} ساعة` },
