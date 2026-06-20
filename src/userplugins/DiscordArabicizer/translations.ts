@@ -4024,5 +4024,21 @@ export const translations: Record<string, string> = {
     "Mention @everyone": "الإشارة إلى @everyone",
     "Currently Disabled": "مُعطَّل حالياً",
     "Manage Emoji": "إدارة الإيموجي",
-    "All risky permissions disabled!": "عُطّلت كل الأذونات الخطرة!"
+    "All risky permissions disabled!": "عُطّلت كل الأذونات الخطرة!",
+
+    // ── دفعة 41 (حصاد: التذييل القانوني لصفحة الاشتراكات) ──
+    ". Nitro and Server Boost are auto-recurring subscriptions. You authorize Discord to immediately charge the payment method provided at $9.99 and to continue to do so automatically monthly until you cancel. Prices subject to change with notice to you. You may cancel anytime.": ". اشتراكا Nitro وتعزيز الخادم متجدّدان تلقائياً. أنت تُخوّل Discord بخصم المبلغ فوراً من طريقة الدفع المقدّمة بقيمة $9.99 ومواصلة ذلك تلقائياً شهرياً حتى تُلغي. الأسعار عرضة للتغيير مع إشعارك. يمكنك الإلغاء في أي وقت.",
+
+    // ── دفعة 42 (حصاد: الإبلاغ عن رسالة + حظر/تجاهل مستخدم) ──
+    "and do not submit false or duplicate reports.": "ولا تُرسِل بلاغات كاذبة أو مكرّرة.",
+    "Block {username}": "حظر {username}",
+    "By submitting this report you confirm that it is truthful and made in good faith. Please follow our": "بإرسالك هذا البلاغ تؤكّد أنه صادق ومقدَّم بحُسن نيّة. يُرجى اتّباع",
+    "By submitting this report you confirm that it is truthful and made in good faith. Please follow our {0} and do not submit false or duplicate reports.": "بإرسالك هذا البلاغ تؤكّد أنه صادق ومقدَّم بحُسن نيّة. يُرجى اتّباع {0} ولا تُرسِل بلاغات كاذبة أو مكرّرة.",
+    "direct message closed": "رسالة خاصّة مغلقة",
+    "Get space without letting them know": "احصل على مساحتك دون أن يعلموا",
+    "Ignore {username}": "تجاهل {username}",
+    "More you can do": "المزيد مما يمكنك فعله",
+    "Selected Message": "الرسالة المحدّدة",
+    "Stop seeing their messages": "أوقِف رؤية رسائلهم",
+    "Submit Report": "إرسال البلاغ"
 };
