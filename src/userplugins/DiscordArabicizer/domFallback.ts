@@ -27,11 +27,21 @@ const BYPASS_KEYS = [
     "Level 1",
     "Level 2",
     "Level 3",
-    // وصف «مستوى التوثيق» — يُرسَم كأجزاء (جملة عريضة في آخره) فيقسمه ديسكورد إلى عقدتين
-    // نصّيتين لا يلتقطهما محرّك intl بنظافة؛ نلتقط كلاً منهما هنا (كلاهما مُترجَم في القاموس).
-    "Members of the server must meet the following criteria before they can send messages in text channels or initiate a direct message conversation. If a member has an assigned role and server onboarding is not enabled, this does not apply.",
+    // الجملة العريضة في آخر وصف «مستوى التوثيق» — عقدة منفصلة قصيرة، مطابقة حرفية كاملة.
     "We recommend setting a verification level for a Community Server.",
 ];
+
+// نصوص طويلة متجاوِزة يصعب مطابقتها حرفياً (يقسمها ديسكورد أو يغيّر طولها) — نطابقها
+// ببادئة مميّزة (أول 40 حرفاً) ضمن حدّ طول، فتصمد أمام أي اختلاف في وسط/آخر النصّ،
+// ونستبدل العقدة كاملةً بترجمتها من القاموس. كل مفتاح هنا مُترجَم في القاموس.
+const PREFIX_BYPASS_KEYS = [
+    "Members of the server must meet the following criteria before they can send messages in text channels or initiate a direct message conversation. If a member has an assigned role and server onboarding is not enabled, this does not apply.",
+];
+const PREFIX_BYPASS: { prefix: string; ar: string; max: number; }[] = [];
+for (const key of PREFIX_BYPASS_KEYS) {
+    const ar = (AR as Record<string, string>)[key];
+    if (ar != null) PREFIX_BYPASS.push({ prefix: normalize(key.slice(0, 40)), ar, max: key.length + 60 });
+}
 
 // خريطة (إنجليزي مُطبَّع → عربي) من القاموس نفسه (مصدر واحد للترجمة).
 const bypassMap = new Map<string, string>();
@@ -42,6 +52,9 @@ for (const key of BYPASS_KEYS) {
 // أطول مفتاح — لتخطّي النصوص الطويلة (الرسائل…) بمقارنة طول واحدة قبل أي بحث.
 let maxKeyLen = 0;
 for (const k of bypassMap.keys()) if (k.length > maxKeyLen) maxKeyLen = k.length;
+// أقصى طول عقدة نفحصها (يشمل قائمة البادئات الطويلة) — ما فوقه يخرج فوراً (نصوص الدردشة).
+let scanMax = maxKeyLen + 4;
+for (const p of PREFIX_BYPASS) if (p.max > scanMax) scanMax = p.max;
 
 let observer: MutationObserver | null = null;
 
@@ -49,18 +62,32 @@ let observer: MutationObserver | null = null;
 function tryTranslateTextNode(node: Text): void {
     const raw = node.nodeValue;
     if (raw == null) return;
-    // مسار سريع: تجاهل ما هو أقصر/أطول من أي مفتاح ممكن (يخرج فوراً لنصوص الدردشة).
-    if (raw.length < 3 || raw.length > maxKeyLen + 4) return;
+    // مسار سريع: تجاهل ما هو أقصر/أطول من أي مفتاح ممكن (يخرج فوراً لنصوص الدردشة الطويلة).
+    if (raw.length < 3 || raw.length > scanMax) return;
 
-    const direct = bypassMap.get(normalize(raw));
-    if (direct !== undefined) {
-        if (raw !== direct) node.nodeValue = direct; // عربيّتنا ليست مفتاحاً → لا حلقة لا نهائية
-        return;
+    // (أ) القائمة القصيرة: مطابقة حرفية كاملة (مع/بدون مسافات محيطة).
+    if (raw.length <= maxKeyLen + 4) {
+        const direct = bypassMap.get(normalize(raw));
+        if (direct !== undefined) {
+            if (raw !== direct) node.nodeValue = direct; // عربيّتنا ليست مفتاحاً → لا حلقة لا نهائية
+            return;
+        }
+        const trimmed = raw.trim();
+        if (trimmed.length !== raw.length) {
+            const ar = bypassMap.get(normalize(trimmed));
+            if (ar !== undefined) { node.nodeValue = raw.replace(trimmed, ar); return; }
+        }
     }
-    const trimmed = raw.trim();
-    if (trimmed.length !== raw.length) {
-        const ar = bypassMap.get(normalize(trimmed));
-        if (ar !== undefined) node.nodeValue = raw.replace(trimmed, ar);
+
+    // (ب) النصوص الطويلة المتجاوِزة: مطابقة ببادئة مميّزة ضمن حدّ طول → استبدال العقدة كاملةً.
+    if (PREFIX_BYPASS.length !== 0) {
+        const trimmed = raw.trim();
+        for (const { prefix, ar, max } of PREFIX_BYPASS) {
+            if (trimmed.length <= max && normalize(trimmed).startsWith(prefix)) {
+                if (trimmed !== ar) node.nodeValue = raw.replace(trimmed, ar);
+                return;
+            }
+        }
     }
 }
 
