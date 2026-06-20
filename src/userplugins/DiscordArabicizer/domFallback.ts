@@ -27,6 +27,10 @@ const BYPASS_KEYS = [
     "Level 1",
     "Level 2",
     "Level 3",
+    // وصف «مستوى التوثيق» — يُرسَم كأجزاء (جملة عريضة في آخره) فيقسمه ديسكورد إلى عقدتين
+    // نصّيتين لا يلتقطهما محرّك intl بنظافة؛ نلتقط كلاً منهما هنا (كلاهما مُترجَم في القاموس).
+    "Members of the server must meet the following criteria before they can send messages in text channels or initiate a direct message conversation. If a member has an assigned role and server onboarding is not enabled, this does not apply.",
+    "We recommend setting a verification level for a Community Server.",
 ];
 
 // خريطة (إنجليزي مُطبَّع → عربي) من القاموس نفسه (مصدر واحد للترجمة).
