@@ -70,10 +70,10 @@ jobs:
             - name: Collect files to be released
               run: |
                   mkdir -p dist/release
-                  # Only desktop.asar — required by the HTTP auto-updater (http.ts).
-                  # Built at dist/desktop.asar by pnpm buildStandalone.
-                  # The installer is a separate repo (LOSTSTR/Esharq-Installer), like Equicord/Equilotl.
-                  cp dist/desktop.asar dist/release/
+                  # Mirror Equicord's release: ALL top-level build outputs (desktop.asar for the
+                  # HTTP updater + browser/equibop/userscript/extensions/JSONs/patcher). The installer
+                  # is a separate repo (LOSTSTR/Esharq-Installer), like Equicord/Equilotl.
+                  find dist -maxdepth 1 -type f -exec cp {} dist/release/ \;
                   find dist/release -size 0 -delete
 
             - name: Upload Equicord Stable
@@ -90,4 +90,4 @@ jobs:
                   gh release edit v1.0.0-stable \
                       --title "Esharq $HASH" \
                       --notes "Official Release"
-                  gh release upload v1.0.0-stable --clobber dist/release/*.asar
+                  gh release upload v1.0.0-stable --clobber dist/release/*

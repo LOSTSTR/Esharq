@@ -9,7 +9,7 @@
 ### The Arabic-Enhanced Discord Client Mod
 
 **A high-performance Discord experience with exclusive customizations by**  
-**LOSTSTR · krym511 · 𝚁𝙰𝚈𝙼𝙾𝙽𝙳♞ · Abo Ahmed · S99 · iosiph**
+**LOSTSTR · krym511 · 𝚁𝙰𝚈𝙼𝙾𝙽𝙳♞ · Abo Ahmed · S99 · iosiph · Bspeed**
 
 ---
 
@@ -105,6 +105,7 @@ Join our community: **[discord.gg/QamdqDNEDa](https://discord.gg/QamdqDNEDa)**
 | **𝚁𝙰𝚈𝙼𝙾𝙽𝙳♞** | Contributor |
 | **Abo Ahmed** | Contributor |
 | **S99** | Contributor |
+| **Bspeed** | Contributor |
 
 ---
 
