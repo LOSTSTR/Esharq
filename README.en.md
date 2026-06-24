@@ -110,34 +110,34 @@ Join our community: **[discord.gg/QamdqDNEDa](https://discord.gg/QamdqDNEDa)**
 
 ## 📥 Installation
 
+Install via **[Esharq-Installer](https://github.com/LOSTSTR/Esharq-Installer)** — a cross-platform GUI/CLI app.
+
 ### Supported Platforms
 
-| Platform | Method | Download |
-|----------|--------|----------|
-| 🪟 **Windows** | GUI Installer | [![Windows Setup](https://img.shields.io/badge/Windows-EsharqSetup.exe-0078D4?style=flat&logo=windows&logoColor=white)](https://github.com/LOSTSTR/Esharq/releases/latest/download/EsharqSetup.exe) |
-| 🍎 **macOS** | Apple Silicon & Intel | [![macOS Script](https://img.shields.io/badge/macOS-Shell_Script-000000?style=flat&logo=apple&logoColor=white)](https://github.com/LOSTSTR/Esharq/releases/latest/download/install-macos.sh) |
-| 🐧 **Linux** | Automated CLI script | [![Linux Script](https://img.shields.io/badge/Linux-Shell_Script-FCC624?style=flat&logo=linux&logoColor=black)](https://github.com/LOSTSTR/Esharq/releases/latest/download/install-linux.sh) |
+| Platform | GUI | CLI |
+|----------|-----|-----|
+| 🪟 **Windows** | [EsharqInstaller.exe](https://github.com/LOSTSTR/Esharq-Installer/releases/latest/download/EsharqInstaller.exe) | [EsharqInstallerCli.exe](https://github.com/LOSTSTR/Esharq-Installer/releases/latest/download/EsharqInstallerCli.exe) |
+| 🍎 **macOS** | [Apple Silicon](https://github.com/LOSTSTR/Esharq-Installer/releases/latest/download/EsharqInstaller-darwin-arm64.zip) · [Intel](https://github.com/LOSTSTR/Esharq-Installer/releases/latest/download/EsharqInstaller-darwin-x64.zip) | [arm64](https://github.com/LOSTSTR/Esharq-Installer/releases/latest/download/EsharqInstallerCli-darwin-arm64) · [x64](https://github.com/LOSTSTR/Esharq-Installer/releases/latest/download/EsharqInstallerCli-darwin-x64) |
+| 🐧 **Linux** | [X11](https://github.com/LOSTSTR/Esharq-Installer/releases/latest/download/EsharqInstaller-x11) · [Wayland](https://github.com/LOSTSTR/Esharq-Installer/releases/latest/download/EsharqInstaller-wayland) | [CLI](https://github.com/LOSTSTR/Esharq-Installer/releases/latest/download/EsharqInstallerCli-linux) |
 
-> All releases are available on the [**Releases**](https://github.com/LOSTSTR/Esharq/releases) page.
+> All binaries are on the [**Esharq-Installer releases**](https://github.com/LOSTSTR/Esharq-Installer/releases/latest) page.
 
 ---
 
 ### 🪟 Windows
 
-Download **EsharqSetup.exe** and run it — it automatically detects Discord and applies the patch.
+Download **EsharqInstaller.exe** and run it — it automatically detects Discord and installs Esharq.
 
 ### 🍎 macOS — Apple Silicon & Intel
 
-```bash
-curl -fsSL https://github.com/LOSTSTR/Esharq/releases/latest/download/install-macos.sh | bash
-```
-
-The script auto-detects your processor (ARM64 / Intel) and supports all Discord variants (Stable, PTB, Canary).
+Download the `.zip` for your processor, unzip it, and run **EsharqInstaller**.
+> ⚠️ The app is unsigned — open it via **Right-click → Open** the first time.
 
 ### 🐧 Linux
 
+Download **EsharqInstaller-x11** (or `-wayland`), make it executable, and run it:
 ```bash
-curl -fsSL https://github.com/LOSTSTR/Esharq/releases/latest/download/install-linux.sh | bash
+chmod +x EsharqInstaller-x11 && ./EsharqInstaller-x11
 ```
 
 Supports Ubuntu/Debian, Fedora/RHEL, Arch Linux, Flatpak, and Snap installations.

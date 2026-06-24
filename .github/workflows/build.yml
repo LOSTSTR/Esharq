@@ -72,7 +72,7 @@ jobs:
                   mkdir -p dist/release
                   # Only desktop.asar — required by the HTTP auto-updater (http.ts).
                   # Built at dist/desktop.asar by pnpm buildStandalone.
-                  # The EXE installer is uploaded separately by build-installer.yml.
+                  # The installer is a separate repo (LOSTSTR/Esharq-Installer), like Equicord/Equilotl.
                   cp dist/desktop.asar dist/release/
                   find dist/release -size 0 -delete
 
@@ -91,13 +91,3 @@ jobs:
                       --title "Esharq $HASH" \
                       --notes "Official Release"
                   gh release upload v1.0.0-stable --clobber dist/release/*.asar
-
-            # ── Esharq: trigger installer build after ASAR release ──
-            - name: Trigger installer build workflows
-              if: ${{ vars.ACT != 'true' }}
-              run: |
-                  gh workflow run build-installer.yml --ref main
-                  gh workflow run build-installer-macos.yml --ref main
-                  gh workflow run build-installer-linux.yml --ref main
-              env:
-                  GITHUB_TOKEN: ${{ github.token }}
