@@ -19,7 +19,7 @@ on:
 env:
     FORCE_COLOR: true
     GITHUB_TOKEN: ${{ secrets.ETOKEN }}
-    REPO: Equicord/Equibuilds
+    REPO: LOSTSTR/Esharq-Builds
     USERNAME: GitHub-Actions
 
 permissions:
@@ -29,7 +29,7 @@ jobs:
     Build:
         name: Build Equicord
         runs-on: ubuntu-latest
-        if: github.repository == 'Equicord/Equicord'
+        if: github.repository == 'LOSTSTR/Esharq'
 
         steps:
             - uses: actions/checkout@v6
