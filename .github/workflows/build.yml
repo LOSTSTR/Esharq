@@ -69,12 +69,27 @@ jobs:
 
             - name: Collect files to be released
               run: |
-                  mkdir -p dist/release
-                  # Mirror Equicord's release: ALL top-level build outputs (desktop.asar for the
-                  # HTTP updater + browser/equibop/userscript/extensions/JSONs/patcher). The installer
-                  # is a separate repo (LOSTSTR/Esharq-Installer), like Equicord/Equilotl.
-                  find dist -maxdepth 1 -type f -exec cp {} dist/release/ \;
-                  find dist/release -size 0 -delete
+                  # Exact mirror of Equicord's release collect step (browser/desktop/equibop subdirs
+                  # + top-level asars/zips/jsons + userscript). Installer is a separate repo.
+                  cd dist
+                  mkdir -p release
+
+                  cp browser/browser.* release 2>/dev/null || true
+                  cp Equicord.user.{js,js.LEGAL.txt} release 2>/dev/null || true
+
+                  # plugin data jsons, extension zips, desktop/equibop asars
+                  cp *.{json,zip,asar} release 2>/dev/null || true
+
+                  # legacy un-asared files (desktop) + equibop files renamed with equibop prefix
+                  cp desktop/* release 2>/dev/null || true
+                  for file in equibop/*; do
+                    [ -e "$file" ] || continue
+                    filename=$(basename "$file")
+                    cp "$file" "release/equibop${filename^}"
+                  done
+
+                  find release -size 0 -delete
+                  rm -f release/package.json release/*.map
 
             - name: Upload Equicord Stable
               if: ${{ vars.ACT != 'true' }}
@@ -91,3 +106,21 @@ jobs:
                       --title "Esharq $HASH" \
                       --notes "Official Release"
                   gh release upload v1.0.0-stable --clobber dist/release/*
+
+            # ── Link to Esharq-Bored (like Equicord pushes plugin JSONs to Equibored) ──
+            - name: Upload plugin JSONs to Esharq-Bored
+              if: ${{ vars.ACT != 'true' }}
+              env:
+                  REPO: LOSTSTR/Esharq-Bored
+                  USERNAME: GitHub-Actions
+                  ETOKEN: ${{ secrets.ETOKEN }}
+              run: |
+                  git config --global user.name "GitHub-Actions"
+                  git config --global user.email actions@github.com
+                  git clone https://$USERNAME:$ETOKEN@github.com/$REPO.git boredrepo
+                  cd boredrepo
+                  cp ../dist/release/*plugins.json . 2>/dev/null || true
+                  cp ../dist/release/devs.json . 2>/dev/null || true
+                  git add -A
+                  git diff --staged --quiet || git commit -m "Plugins for https://github.com/$GITHUB_REPOSITORY/commit/$GITHUB_SHA"
+                  git push --force https://$USERNAME:$ETOKEN@github.com/$REPO.git
