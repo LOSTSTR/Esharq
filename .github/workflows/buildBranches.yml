@@ -91,7 +91,7 @@ jobs:
                   bun run generateDevsList dist/devs.json
 
             - name: Upload to Equibuilds repo
-              if: ${{ vars.ACT == 'false' }}
+              if: ${{ vars.ACT != 'true' }}
               run: |
                   BRANCH="${{ github.event.inputs.branch || github.ref_name }}"
                   COMMIT_SHA=$(git rev-parse --short HEAD)
@@ -110,11 +110,11 @@ jobs:
                   cp -r ../dist/* .
                   find . -size 0 -delete
 
-                  mkdir -p userscript
-                  mv Equicord.user.* userscript/
-                  mv desktop.asar desktop/
-                  mv equibop.asar equibop/
-                  mv extension-*.zip browser/
+                  mkdir -p userscript desktop equibop browser
+                  mv Equicord.user.* userscript/ 2>/dev/null || true
+                  mv desktop.asar desktop/ 2>/dev/null || true
+                  mv equibop.asar equibop/ 2>/dev/null || true
+                  mv extension-*.zip browser/ 2>/dev/null || true
 
                   git add -A
 
