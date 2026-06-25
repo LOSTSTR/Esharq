@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/env node
 /**
  * Discord webhook notifier — Esharq
  *
@@ -93,8 +93,9 @@ function run(cmd) {
 }
 
 const REPO_URL = "https://github.com/LOSTSTR/Esharq";
+// Shared by BOTH webhooks (plugins + updates) — avatar + embed thumbnail.
 const ICON_URL  =
-    "https://raw.githubusercontent.com/LOSTSTR/Esharq/main/browser/icon.png";
+    "https://raw.githubusercontent.com/LOSTSTR/Esharq/main/.github/assets/notify-icon.png";
 
 const commitHash   = run("git log -1 --pretty=%H").slice(0, 7);
 const commitTime   = run("git log -1 --pretty=%aI");
@@ -136,9 +137,25 @@ function extractPluginInfo(filePath) {
     if (!existsSync(filePath)) return null;
     const src = readFileSync(filePath, "utf8");
     const name = sanitise((src.match(/\bname:\s*["']([^"']+)["']/) ?? [])[1] ?? "", 80);
-    const desc = sanitise((src.match(/\bdescription:\s*["']([^"']+)["']/) ?? [])[1] ?? "", 300);
+    const descEn = sanitise((src.match(/\bdescription:\s*["']([^"']+)["']/) ?? [])[1] ?? "", 300);
     const dirName = (filePath.match(/\/(equicordplugins|userplugins)\/([^/]+)\//) ?? [])[2] ?? filePath;
-    return { name: name || sanitise(dirName, 80), description: desc || "لا يوجد وصف بعد" };
+    const resolvedName = name || sanitise(dirName, 80);
+
+    // Arabic description from the i18n overlay (src/i18n/plugins/<PluginName>.ts),
+    // so every new-plugin notification carries both languages.
+    let descAr = "";
+    const overlayPath = `src/i18n/plugins/${resolvedName}.ts`;
+    if (existsSync(overlayPath)) {
+        const overlay = readFileSync(overlayPath, "utf8");
+        const m = overlay.match(/description["']?\s*:\s*\{[^}]*?["']?ar["']?\s*:\s*["']([^"']+)["']/);
+        if (m) descAr = sanitise(m[1], 300);
+    }
+
+    return {
+        name: resolvedName,
+        descriptionEn: descEn || "No description yet.",
+        descriptionAr: descAr,
+    };
 }
 
 // ─── Embed builders ───────────────────────────────────────────────────────────
@@ -156,7 +173,9 @@ function pluginEmbed(info) {
         fields: [
             { name: "📦 اسم الإضافة",  value: `\`${info.name}\``,        inline: true  },
             { name: "🔗 المستودع",      value: `[GitHub](${REPO_URL})`,   inline: true  },
-            { name: "📝 الوصف",         value: info.description,          inline: false },
+            { name: "📝 الوصف",         value: info.descriptionAr
+                ? `${info.descriptionAr}\n${info.descriptionEn}`
+                : info.descriptionEn,                                    inline: false },
             { name: "🔑 Commit",        value: `[\`${commitHash}\`](${commitUrl})`, inline: true },
             { name: "👤 بواسطة",        value: commitAuthor,              inline: true  },
         ],
