@@ -83,9 +83,16 @@ export function formatMessage(template: string, values?: Record<string, any>): s
         Object.prototype.hasOwnProperty.call(values, name) ? String(values[name]) : m);
 }
 
+// أسماء أيام الأسبوع (للطوابع الزمنية «Monday at 9:00am»).
+const WEEKDAYS_AR: Record<string, string> = {
+    Sunday: "الأحد", Monday: "الاثنين", Tuesday: "الثلاثاء", Wednesday: "الأربعاء",
+    Thursday: "الخميس", Friday: "الجمعة", Saturday: "السبت"
+};
+
 // قوالب رقمية «مخبوزة»: ديسكورد يُدمج العدد عبر صيغ الجمع ICU فيخرج النصّ جاهزاً
 // ("12 Mutual Friends") — فلا يستعيده recoverTemplate ولا يُطابِق القاموس. نطابقه بنمط
 // مضبوط ونُعيد صياغته بالعربية. قائمة قصيرة جداً ومُقيّدة بـ ^…$ لتفادي أي مطابقة خاطئة.
+// نُبقي الاسم العَلَم (قناة/رتبة/مستخدم) بالإنجليزية ونُعرّب التسمية المحيطة فقط.
 const NUMERIC_PATTERNS: { re: RegExp; ar: (m: RegExpMatchArray) => string }[] = [
     { re: /^(\d+) Mutual Friends$/, ar: m => `${m[1]} صديق مشترك` },
     { re: /^(\d+) Mutual Servers$/, ar: m => `${m[1]} خادم مشترك` },
@@ -109,7 +116,31 @@ const NUMERIC_PATTERNS: { re: RegExp; ar: (m: RegExpMatchArray) => string }[] = 
     // تقدّم المهمة ("Quest progress: 0%".."99%"؛ الـ100% مفتاح في القاموس)
     { re: /^Quest progress: (\d+)%$/, ar: m => `تقدّم المهمة: ${m[1]}%` },
     // رصيد سيُطبَّق في تاريخ مخبوز ("Credit will be applied on Jun 22, 2026.") — نُبقي التاريخ كصيغة ديسكورد
-    { re: /^Credit will be applied on (.+)\.$/, ar: m => `سيُطبَّق الرصيد في ${m[1]}.` }
+    { re: /^Credit will be applied on (.+)\.$/, ar: m => `سيُطبَّق الرصيد في ${m[1]}.` },
+    // ── الإعداد التمهيدي / دليل الخادم / الأذونات ──
+    { re: /^Question (\d+)$/, ar: m => `السؤال ${m[1]}` },
+    { re: /^Available Answers — (\d+) of (\d+)$/, ar: m => `الإجابات المتاحة — ${m[1]} من ${m[2]}` },
+    { re: /^@everyone currently has (\d+) risky permissions? enabled$/, ar: m => `يملك @everyone حالياً ${m[1]} صلاحية خطرة مفعّلة` },
+    { re: /^\((\d+) words?, (\d+) regexe?s?\)$/, ar: m => `(${m[1]} كلمة، ${m[2]} نمط)` },
+    { re: /^\((\d+) words?\)$/, ar: m => `(${m[1]} كلمة)` },
+    // ── رسائل بداية القناة / الترحيب (يبقى اسم القناة كما هو) ──
+    { re: /^This is the start of the #(.+) channel\.$/, ar: m => `هذه بداية قناة #${m[1]}.` },
+    { re: /^Welcome to #(.+)!$/, ar: m => `مرحباً بك في #${m[1]}!` },
+    { re: /^in #(.+)$/, ar: m => `في #${m[1]}` },
+    // ── ترويسات الرتب في قائمة الأعضاء (يبقى اسم الرتبة كما هو) ──
+    { re: /^(.+), (\d+) members?$/, ar: m => `${m[1]}، ${m[2]} عضو` },
+    // ── الملفات الشخصية / المتفرّجون (يبقى الاسم كما هو) ──
+    { re: /^(.+?)['’]s profile$/, ar: m => `الملف الشخصي لـ${m[1]}` },
+    { re: /^Spectators - (\d+)$/, ar: m => `المتفرّجون - ${m[1]}` },
+    { re: /^Created on (.+) by (.+)$/, ar: m => `أُنشئ في ${m[1]} بواسطة ${m[2]}` },
+    // ── مدد / أوقات نسبية مخبوزة ──
+    { re: /^For (\d+) Hours?$/, ar: m => `لمدّة ${m[1]} ساعة` },
+    { re: /^in (\d+)h$/, ar: m => `خلال ${m[1]} ساعة` },
+    { re: /^in (\d+)m$/, ar: m => `خلال ${m[1]} دقيقة` },
+    // ── طوابع زمنية مطلقة ("Today at 9:00am" / "Monday at 9:00am") ──
+    { re: /^Today at (.+)$/, ar: m => `اليوم في ${m[1]}` },
+    { re: /^Yesterday at (.+)$/, ar: m => `أمس في ${m[1]}` },
+    { re: /^(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday) at (.+)$/, ar: m => `${WEEKDAYS_AR[m[1]]} في ${m[2]}` }
 ];
 
 function numericTemplate(text: string): string | null {
@@ -275,6 +306,11 @@ function translateFormat(orig: StrFn, msg: any, values: any): any {
             return diag(false, out);
         }
     }
+
+    // قوالب رقمية مخبوزة (تظهر أيضاً عبر دالة format لا string فقط) — تُطابَق بنمط.
+    const num = numericTemplate(out);
+    if (num != null) return diag(true, num);
+
     collect(out);
     return diag(false, out);
 }
