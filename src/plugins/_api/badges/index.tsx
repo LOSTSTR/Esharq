@@ -25,7 +25,7 @@ import { Devs } from "@utils/constants";
 import { copyWithToast } from "@utils/discord";
 import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
-import { shouldShowContributorBadge, shouldShowEquicordContributorBadge } from "@utils/misc";
+import { shouldShowContributorBadge, shouldShowEquicordContributorBadge, shouldShowEsharqDeveloperBadge } from "@utils/misc";
 import definePlugin from "@utils/types";
 import { ContextMenuApi, Menu, Toasts, UserStore } from "@webpack/common";
 
@@ -36,6 +36,22 @@ import { EquicordDonorModal, EquicordTranslatorModal, VencordDonorModal } from "
 const CONTRIBUTOR_BADGE = "https://cdn.discordapp.com/emojis/1092089799109775453.png?size=64";
 const EQUICORD_CONTRIBUTOR_BADGE = "https://equicord.org/assets/favicon.png";
 const USERPLUGIN_CONTRIBUTOR_BADGE = "https://equicord.org/assets/icons/misc/userplugin.png";
+const ESHARQ_DEVELOPER_BADGE = "https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges/esharq.png";
+
+const EsharqDeveloperBadge: ProfileBadge = {
+    id: "esharq_developer_badge",
+    get description() { return t("مطوّر Esharq", "Esharq Developer"); },
+    iconSrc: ESHARQ_DEVELOPER_BADGE,
+    position: BadgePosition.START,
+    shouldShow: ({ userId }) => shouldShowEsharqDeveloperBadge(userId),
+    onClick: (_, { userId }) => openContributorModal(UserStore.getUser(userId)),
+    props: {
+        style: {
+            borderRadius: "50%",
+            transform: "scale(0.9)"
+        }
+    },
+};
 
 const ContributorBadge: ProfileBadge = {
     id: "vencord_contributor_badge",
@@ -85,6 +101,9 @@ const UserPluginContributorBadge: ProfileBadge = {
 
 let DonorBadges = {} as Record<string, Array<Record<"tooltip" | "badge", string>>>;
 let EquicordDonorBadges = {} as Record<string, Array<Record<"tooltip" | "badge", string>>>;
+// Esharq's own donors only (from Esharq-Bored). The merged set above is used to render badges;
+// this one decides who sees the "thank you for donating" card, so Equicord donors don't trigger it.
+let EsharqDonorBadges = {} as Record<string, Array<Record<"tooltip" | "badge", string>>>;
 
 async function loadBadges(url: string, noCache = false) {
     const init = {} as RequestInit;
@@ -95,10 +114,14 @@ async function loadBadges(url: string, noCache = false) {
 
 async function loadAllBadges(noCache = false) {
     const vencordBadges = await loadBadges("https://badges.vencord.dev/badges.json", noCache);
-    const equicordBadges = await loadBadges("https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges.json", noCache);
+    // Equicord's original donor badges (so Equicord donors keep their badges) plus Esharq's own
+    // custom donor badges. Esharq's entries take precedence when an id appears in both.
+    const equicordBadges = await loadBadges("https://raw.githubusercontent.com/Equicord/Equibored/main/badges.json", noCache);
+    const esharqBadges = await loadBadges("https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges.json", noCache);
 
     DonorBadges = vencordBadges;
-    EquicordDonorBadges = equicordBadges;
+    EquicordDonorBadges = { ...equicordBadges, ...esharqBadges };
+    EsharqDonorBadges = esharqBadges;
 }
 
 let intervalId: any;
@@ -170,6 +193,10 @@ export default definePlugin({
         return EquicordDonorBadges;
     },
 
+    get EsharqDonorBadges() {
+        return EsharqDonorBadges;
+    },
+
     toolboxActions: {
         async "Refetch Badges"() {
             await loadAllBadges(true);
@@ -181,7 +208,7 @@ export default definePlugin({
         }
     },
 
-    userProfileBadges: [ContributorBadge, EquicordContributorBadge, UserPluginContributorBadge],
+    userProfileBadges: [EsharqDeveloperBadge, ContributorBadge, EquicordContributorBadge, UserPluginContributorBadge],
 
     async start() {
         await loadAllBadges();

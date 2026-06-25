@@ -21,7 +21,7 @@ import { QuickAction, QuickActionCard } from "@components/settings/QuickAction";
 import { SpecialCard } from "@components/settings/SpecialCard";
 import BadgeAPI from "@plugins/_api/badges";
 import { gitRemote } from "@shared/vencordUserAgent";
-import { DONOR_ROLE_ID, GUILD_ID, IS_WINDOWS, VC_DONOR_ROLE_ID, VC_GUILD_ID } from "@utils/constants";
+import { IS_WINDOWS, VC_DONOR_ROLE_ID, VC_GUILD_ID } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
@@ -176,12 +176,12 @@ function EquicordSettings() {
 
     return (
         <SettingsTab>
-            {(isEquicordDonor(user?.id) || isVencordDonor(user?.id)) ? (
+            {(isEsharqDonor(user?.id) || isVencordDonor(user?.id)) ? (
                 <SpecialCard
                     title={t("التبرعات", "Donations")}
                     subtitle={t("شكراً لتبرعك!", "Thank you for donating!")}
                     description={
-                        isEquicordDonor(user?.id) && isVencordDonor(user?.id)
+                        isEsharqDonor(user?.id) && isVencordDonor(user?.id)
                             ? t(
                                 "يرى جميع مستخدمي Vencord شارة متبرع Vencord، ويرى مستخدمو Esharq شارة متبرع Esharq. لتغيير شارتك في Vencord تواصل مع @vending.machine، ولشارة Esharq افتح تذكرة في سيرفر Esharq.",
                                 "All Vencord users see a Vencord donor badge, and Esharq users see an Esharq donor badge. To change your Vencord badge contact @vending.machine, and for the Esharq badge open a ticket in the Esharq server."
@@ -382,9 +382,9 @@ function EquicordSettings() {
 
 export default wrapTab(EquicordSettings, "Equicord Settings");
 
-export function isEquicordDonor(userId: string): boolean {
-    const donorBadges = BadgeAPI.getEquicordDonorBadges(userId);
-    return GuildMemberStore.getMember(GUILD_ID, userId)?.roles.includes(DONOR_ROLE_ID) || !!donorBadges;
+export function isEsharqDonor(userId: string): boolean {
+    // Card depends only on Esharq's own donor list, so donating to Equicord doesn't trigger it.
+    return !!BadgeAPI.EsharqDonorBadges[userId];
 }
 
 export function isVencordDonor(userId: string): boolean {
