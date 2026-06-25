@@ -288,7 +288,7 @@ If your account is critically important to you, it's safest to avoid all client 
 ## 📜 Credits & License
 
 > [!IMPORTANT]
-> This project is a fork of the original [Equicord](https://github.com/Equicord/Equicord) project. All credits for the core engine and framework belong to the original creators. This version is a specialized Arabic distribution managed by LOSTSTR under the name **Esharq**, with contributions from **krym511**, **𝚁𝙰𝚈𝙼𝙾𝙽𝙳♞**, **Abo Ahmed**, **S99**, and **iosiph**.
+> This project is a fork of the original [Equicord](https://github.com/Equicord/Equicord) project. All credits for the core engine and framework belong to the original creators. This version is a specialized Arabic distribution managed by LOSTSTR under the name **Esharq**, with contributions from **krym511**, **𝚁𝙰𝚈𝙼𝙾𝙽𝙳♞**, **Abo Ahmed**, **S99**, **iosiph**, and **Bspeed**.
 
 ### Key enhancements in this version
 
