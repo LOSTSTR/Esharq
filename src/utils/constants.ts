@@ -1368,21 +1368,29 @@ export const EquicordDevs = Object.freeze({
     },
 } satisfies Record<string, Dev>);
 
-// Esharq's own core developers. Anyone listed here shows the Esharq Developer badge.
-export const EsharqDevs = Object.freeze({
-    LOSTSTR: {
-        name: "LOSTSTR",
-        id: 681465758127226900n
-    },
-} satisfies Record<string, Dev>);
+// Esharq core team ids — these show the Esharq Developer badge.
+export const EsharqDevs: ReadonlySet<string> = new Set([
+    "681465758127226900",
+    "1072961475125182564",
+    "538699316232060938",
+    "1046545292100653177",
+    "683031548672606264",
+    "1161389239112568902",
+    "1295464673264664747",
+    "428275226883915778",
+]);
 
-// Esharq administration. Anyone listed here shows the Esharq Administration badge.
-export const EsharqAdmins = Object.freeze({
-    LOSTSTR: {
-        name: "LOSTSTR",
-        id: 681465758127226900n
-    },
-} satisfies Record<string, Dev>);
+// Esharq administration ids — these show the Esharq Administration badge.
+export const EsharqAdmins: ReadonlySet<string> = new Set([
+    "681465758127226900",
+    "1072961475125182564",
+    "538699316232060938",
+    "1046545292100653177",
+    "683031548672606264",
+    "1161389239112568902",
+    "1295464673264664747",
+    "428275226883915778",
+]);
 
 // iife so #__PURE__ works correctly
 export const VencordDevsById = /* #__PURE__*/ (() =>
@@ -1396,22 +1404,6 @@ export const VencordDevsById = /* #__PURE__*/ (() =>
 export const EquicordDevsById = /* #__PURE__*/ (() =>
     Object.freeze(Object.fromEntries(
         Object.entries(EquicordDevs)
-            .filter(d => d[1].id !== 0n)
-            .map(([_, v]) => [v.id, v] as const)
-    ))
-)() as Record<string, Dev>;
-
-export const EsharqDevsById = /* #__PURE__*/ (() =>
-    Object.freeze(Object.fromEntries(
-        Object.entries(EsharqDevs)
-            .filter(d => d[1].id !== 0n)
-            .map(([_, v]) => [v.id, v] as const)
-    ))
-)() as Record<string, Dev>;
-
-export const EsharqAdminsById = /* #__PURE__*/ (() =>
-    Object.freeze(Object.fromEntries(
-        Object.entries(EsharqAdmins)
             .filter(d => d[1].id !== 0n)
             .map(([_, v]) => [v.id, v] as const)
     ))

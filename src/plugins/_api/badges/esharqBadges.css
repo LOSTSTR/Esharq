@@ -1,0 +1,66 @@
+/*
+ * Esharq Administration + Developer badges — the rotating, glowing gold/black/red conic
+ * ring (with hover scale) carried over from the old founder/dev badges. Discord overrides
+ * the badge className and only inline style reaches its <img>, so the ring is targeted via
+ * the badge's aria-label (both the Arabic and English labels of each badge). Keyframes are
+ * namespaced (esharq-ring-*) so they can't collide with Discord or other plugins.
+ */
+
+:is(
+    a[aria-label*="Esharq Administration"],
+    a[aria-label*="إدارة Esharq"],
+    a[aria-label*="Esharq Developer"],
+    a[aria-label*="مطوّر Esharq"]
+) {
+    position: relative;
+}
+
+:is(
+    a[aria-label*="Esharq Administration"],
+    a[aria-label*="إدارة Esharq"],
+    a[aria-label*="Esharq Developer"],
+    a[aria-label*="مطوّر Esharq"]
+)::before {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #fbbf24, #000, #dc2626, #fbbf24);
+    animation:
+        esharq-ring-spin 2s linear infinite,
+        esharq-ring-glow 1s ease-in-out infinite alternate;
+    filter: blur(1px);
+    z-index: 0;
+    pointer-events: none;
+}
+
+:is(
+    a[aria-label*="Esharq Administration"],
+    a[aria-label*="إدارة Esharq"],
+    a[aria-label*="Esharq Developer"],
+    a[aria-label*="مطوّر Esharq"]
+) img {
+    position: relative;
+    z-index: 1;
+    border-radius: 50%;
+    transition: transform 0.25s ease;
+}
+
+:is(
+    a[aria-label*="Esharq Administration"],
+    a[aria-label*="إدارة Esharq"],
+    a[aria-label*="Esharq Developer"],
+    a[aria-label*="مطوّر Esharq"]
+):hover img {
+    transform: scale(1.12);
+}
+
+@keyframes esharq-ring-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes esharq-ring-glow {
+    from { filter: blur(1px); }
+    to { filter: blur(3px); }
+}

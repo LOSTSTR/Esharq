@@ -19,7 +19,7 @@
 import { User } from "@vencord/discord-types";
 import { ChannelStore, GuildMemberStore, IconUtils } from "@webpack/common";
 
-import { EQUICORD_HELPERS, EquicordDevsById, EsharqAdminsById, EsharqDevsById, GUILD_ID, KNOWN_ISSUES_CHANNEL_ID, SUPPORT_CHANNEL_ID, VencordDevsById } from "./constants";
+import { EQUICORD_HELPERS, EquicordDevsById, EsharqAdmins, EsharqDevs, GUILD_ID, KNOWN_ISSUES_CHANNEL_ID, SUPPORT_CHANNEL_ID, VencordDevsById } from "./constants";
 
 /**
  * Calls .join(" ") on the arguments
@@ -84,11 +84,11 @@ export const shouldShowContributorBadge = (id: string) => isPluginDev(id) && Ven
 export const isEquicordPluginDev = (id: string) => Object.hasOwn(EquicordDevsById, id);
 export const shouldShowEquicordContributorBadge = (id: string) => isEquicordPluginDev(id) && EquicordDevsById[id].badge !== false;
 
-export const isEsharqDev = (id: string) => Object.hasOwn(EsharqDevsById, id);
-export const shouldShowEsharqDeveloperBadge = (id: string) => isEsharqDev(id) && EsharqDevsById[id].badge !== false;
+export const isEsharqDev = (id: string) => EsharqDevs.has(id);
+export const shouldShowEsharqDeveloperBadge = (id: string) => isEsharqDev(id);
 
-export const isEsharqAdmin = (id: string) => Object.hasOwn(EsharqAdminsById, id);
-export const shouldShowEsharqAdministrationBadge = (id: string) => isEsharqAdmin(id) && EsharqAdminsById[id].badge !== false;
+export const isEsharqAdmin = (id: string) => EsharqAdmins.has(id);
+export const shouldShowEsharqAdministrationBadge = (id: string) => isEsharqAdmin(id);
 
 export const isAnyPluginDev = (id: string) => Object.hasOwn(VencordDevsById, id) || Object.hasOwn(EquicordDevsById, id);
 

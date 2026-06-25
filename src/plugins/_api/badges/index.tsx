@@ -17,6 +17,7 @@
 */
 
 import "./fixDiscordBadgePadding.css";
+import "./esharqBadges.css";
 
 import { _getBadges, BadgePosition, BadgeUserArgs, ProfileBadge } from "@api/Badges";
 import ErrorBoundary from "@components/ErrorBoundary";
@@ -39,6 +40,8 @@ const USERPLUGIN_CONTRIBUTOR_BADGE = "https://equicord.org/assets/icons/misc/use
 const ESHARQ_DEVELOPER_BADGE = "https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges/developers/esharq.png";
 const ESHARQ_ADMINISTRATION_BADGE = "https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges/administration/esharq-admin.png";
 
+// Visual polish (round image, spinning glow ring, hover scale) lives in esharqBadges.css,
+// targeted via the aria-label — inline style would block the CSS :hover transform.
 const EsharqAdministrationBadge: ProfileBadge = {
     id: "esharq_administration_badge",
     get description() { return t("إدارة Esharq", "Esharq Administration"); },
@@ -46,12 +49,7 @@ const EsharqAdministrationBadge: ProfileBadge = {
     position: BadgePosition.START,
     shouldShow: ({ userId }) => shouldShowEsharqAdministrationBadge(userId),
     onClick: (_, { userId }) => openContributorModal(UserStore.getUser(userId)),
-    props: {
-        style: {
-            borderRadius: "50%",
-            transform: "scale(0.9)"
-        }
-    },
+    props: { style: { margin: "0 2px" } },
 };
 
 const EsharqDeveloperBadge: ProfileBadge = {
@@ -61,12 +59,7 @@ const EsharqDeveloperBadge: ProfileBadge = {
     position: BadgePosition.START,
     shouldShow: ({ userId }) => shouldShowEsharqDeveloperBadge(userId),
     onClick: (_, { userId }) => openContributorModal(UserStore.getUser(userId)),
-    props: {
-        style: {
-            borderRadius: "50%",
-            transform: "scale(0.9)"
-        }
-    },
+    props: { style: { margin: "0 2px" } },
 };
 
 const ContributorBadge: ProfileBadge = {
@@ -224,7 +217,9 @@ export default definePlugin({
         }
     },
 
-    userProfileBadges: [EsharqAdministrationBadge, EsharqDeveloperBadge, ContributorBadge, EquicordContributorBadge, UserPluginContributorBadge],
+    // Listed in reverse display order: every START badge is unshifted, so the last one here
+    // ends up first. This puts the Esharq Administration badge first, then Developer.
+    userProfileBadges: [UserPluginContributorBadge, EquicordContributorBadge, ContributorBadge, EsharqDeveloperBadge, EsharqAdministrationBadge],
 
     async start() {
         await loadAllBadges();
