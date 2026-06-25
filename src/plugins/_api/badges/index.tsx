@@ -25,7 +25,7 @@ import { Devs } from "@utils/constants";
 import { copyWithToast } from "@utils/discord";
 import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
-import { shouldShowContributorBadge, shouldShowEquicordContributorBadge, shouldShowEsharqDeveloperBadge } from "@utils/misc";
+import { shouldShowContributorBadge, shouldShowEquicordContributorBadge, shouldShowEsharqAdministrationBadge, shouldShowEsharqDeveloperBadge } from "@utils/misc";
 import definePlugin from "@utils/types";
 import { ContextMenuApi, Menu, Toasts, UserStore } from "@webpack/common";
 
@@ -37,6 +37,22 @@ const CONTRIBUTOR_BADGE = "https://cdn.discordapp.com/emojis/1092089799109775453
 const EQUICORD_CONTRIBUTOR_BADGE = "https://equicord.org/assets/favicon.png";
 const USERPLUGIN_CONTRIBUTOR_BADGE = "https://equicord.org/assets/icons/misc/userplugin.png";
 const ESHARQ_DEVELOPER_BADGE = "https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges/developers/esharq.png";
+const ESHARQ_ADMINISTRATION_BADGE = "https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges/administration/esharq-admin.png";
+
+const EsharqAdministrationBadge: ProfileBadge = {
+    id: "esharq_administration_badge",
+    get description() { return t("إدارة Esharq", "Esharq Administration"); },
+    iconSrc: ESHARQ_ADMINISTRATION_BADGE,
+    position: BadgePosition.START,
+    shouldShow: ({ userId }) => shouldShowEsharqAdministrationBadge(userId),
+    onClick: (_, { userId }) => openContributorModal(UserStore.getUser(userId)),
+    props: {
+        style: {
+            borderRadius: "50%",
+            transform: "scale(0.9)"
+        }
+    },
+};
 
 const EsharqDeveloperBadge: ProfileBadge = {
     id: "esharq_developer_badge",
@@ -208,7 +224,7 @@ export default definePlugin({
         }
     },
 
-    userProfileBadges: [EsharqDeveloperBadge, ContributorBadge, EquicordContributorBadge, UserPluginContributorBadge],
+    userProfileBadges: [EsharqAdministrationBadge, EsharqDeveloperBadge, ContributorBadge, EquicordContributorBadge, UserPluginContributorBadge],
 
     async start() {
         await loadAllBadges();
