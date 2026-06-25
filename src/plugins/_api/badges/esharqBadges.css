@@ -1,25 +1,56 @@
 /*
  * Esharq Administration + Developer badges — the rotating, glowing gold/black/red conic
- * ring (with hover scale) carried over from the old founder/dev badges. Discord overrides
- * the badge className and only inline style reaches its <img>, so the ring is targeted via
- * the badge's aria-label (both the Arabic and English labels of each badge). Keyframes are
- * namespaced (esharq-ring-*) so they can't collide with Discord or other plugins.
+ * ring (with hover scale). Discord overrides the badge className and only inline style
+ * reaches its <img>, so the profile ring is targeted via the badge's aria-label. Both
+ * badges' bilingual tooltips contain their English name, so matching that name covers
+ * both languages. Keyframes are namespaced (esharq-ring-*) so they can't collide.
  */
+
+/* Administration badge shown inline next to the name in chat (message decoration). Same
+ * spinning glow ring, sized to sit beside the username. */
+.esharq-admin-chat-badge {
+    position: relative;
+    display: inline-flex;
+    width: 18px;
+    height: 18px;
+    margin: 0 2px;
+    vertical-align: middle;
+    border-radius: 50%;
+}
+
+.esharq-admin-chat-badge::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #fbbf24, #000, #dc2626, #fbbf24);
+    animation:
+        esharq-ring-spin 2s linear infinite,
+        esharq-ring-glow 1s ease-in-out infinite alternate;
+    filter: blur(1px);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.esharq-admin-chat-badge img {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
 
 :is(
     a[aria-label*="Esharq Administration"],
-    a[aria-label*="إدارة Esharq"],
-    a[aria-label*="Esharq Developer"],
-    a[aria-label*="مطوّر Esharq"]
+    a[aria-label*="Esharq Developer"]
 ) {
     position: relative;
 }
 
 :is(
     a[aria-label*="Esharq Administration"],
-    a[aria-label*="إدارة Esharq"],
-    a[aria-label*="Esharq Developer"],
-    a[aria-label*="مطوّر Esharq"]
+    a[aria-label*="Esharq Developer"]
 )::before {
     content: "";
     position: absolute;
@@ -36,9 +67,7 @@
 
 :is(
     a[aria-label*="Esharq Administration"],
-    a[aria-label*="إدارة Esharq"],
-    a[aria-label*="Esharq Developer"],
-    a[aria-label*="مطوّر Esharq"]
+    a[aria-label*="Esharq Developer"]
 ) img {
     position: relative;
     z-index: 1;
@@ -48,9 +77,7 @@
 
 :is(
     a[aria-label*="Esharq Administration"],
-    a[aria-label*="إدارة Esharq"],
-    a[aria-label*="Esharq Developer"],
-    a[aria-label*="مطوّر Esharq"]
+    a[aria-label*="Esharq Developer"]
 ):hover img {
     transform: scale(1.12);
 }

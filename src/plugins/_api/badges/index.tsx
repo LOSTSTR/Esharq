@@ -20,13 +20,14 @@ import "./fixDiscordBadgePadding.css";
 import "./esharqBadges.css";
 
 import { _getBadges, BadgePosition, BadgeUserArgs, ProfileBadge } from "@api/Badges";
+import { addMessageDecoration, removeMessageDecoration } from "@api/MessageDecorations";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { openContributorModal } from "@components/settings/tabs";
 import { Devs } from "@utils/constants";
 import { copyWithToast } from "@utils/discord";
 import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
-import { shouldShowContributorBadge, shouldShowEquicordContributorBadge, shouldShowEsharqAdministrationBadge, shouldShowEsharqDeveloperBadge } from "@utils/misc";
+import { isEsharqAdmin, shouldShowContributorBadge, shouldShowEquicordContributorBadge, shouldShowEsharqAdministrationBadge, shouldShowEsharqDeveloperBadge } from "@utils/misc";
 import definePlugin from "@utils/types";
 import { ContextMenuApi, Menu, Toasts, UserStore } from "@webpack/common";
 
@@ -40,11 +41,12 @@ const USERPLUGIN_CONTRIBUTOR_BADGE = "https://equicord.org/assets/icons/misc/use
 const ESHARQ_DEVELOPER_BADGE = "https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges/developers/esharq.png";
 const ESHARQ_ADMINISTRATION_BADGE = "https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges/administration/esharq-admin.png";
 
-// Visual polish (round image, spinning glow ring, hover scale) lives in esharqBadges.css,
-// targeted via the aria-label — inline style would block the CSS :hover transform.
+// Tooltips carry both languages at once. Visual polish (round image, spinning glow ring,
+// hover scale) lives in esharqBadges.css, targeted via the aria-label — inline style would
+// block the CSS :hover transform.
 const EsharqAdministrationBadge: ProfileBadge = {
     id: "esharq_administration_badge",
-    get description() { return t("إدارة Esharq", "Esharq Administration"); },
+    description: "إدارة إشراق · Esharq Administration",
     iconSrc: ESHARQ_ADMINISTRATION_BADGE,
     position: BadgePosition.START,
     shouldShow: ({ userId }) => shouldShowEsharqAdministrationBadge(userId),
@@ -54,13 +56,20 @@ const EsharqAdministrationBadge: ProfileBadge = {
 
 const EsharqDeveloperBadge: ProfileBadge = {
     id: "esharq_developer_badge",
-    get description() { return t("مطوّر Esharq", "Esharq Developer"); },
+    description: "مطوّر إشراق · Esharq Developer",
     iconSrc: ESHARQ_DEVELOPER_BADGE,
     position: BadgePosition.START,
     shouldShow: ({ userId }) => shouldShowEsharqDeveloperBadge(userId),
     onClick: (_, { userId }) => openContributorModal(UserStore.getUser(userId)),
     props: { style: { margin: "0 2px" } },
 };
+
+// The Administration badge also shows inline next to the name in chat (message decoration).
+const EsharqAdminChatBadge = () => (
+    <span className="esharq-admin-chat-badge" role="img" aria-label="إدارة إشراق · Esharq Administration">
+        <img src={ESHARQ_ADMINISTRATION_BADGE} alt="" />
+    </span>
+);
 
 const ContributorBadge: ProfileBadge = {
     id: "vencord_contributor_badge",
@@ -165,6 +174,7 @@ export default definePlugin({
     description: "API to add badges to users",
     authors: [Devs.Megu, Devs.Ven, Devs.TheSun],
     required: true,
+    dependencies: ["MessageDecorationsAPI"],
     patches: [
         {
             find: "#{intl::PROFILE_USER_BADGES}",
@@ -231,10 +241,15 @@ export default definePlugin({
         await loadAllBadges();
         clearInterval(intervalId);
         intervalId = setInterval(loadAllBadges, 1000 * 60 * 30); // 30 minutes
+
+        addMessageDecoration("esharq-admin", ({ message }) =>
+            isEsharqAdmin(message?.author?.id ?? "") ? <EsharqAdminChatBadge /> : null
+        );
     },
 
     async stop() {
         clearInterval(intervalId);
+        removeMessageDecoration("esharq-admin");
     },
 
     getBadges(profile: { userId: string; guildId: string; }) {
