@@ -36,7 +36,7 @@ import { EquicordDonorModal, EquicordTranslatorModal, VencordDonorModal } from "
 const CONTRIBUTOR_BADGE = "https://cdn.discordapp.com/emojis/1092089799109775453.png?size=64";
 const EQUICORD_CONTRIBUTOR_BADGE = "https://equicord.org/assets/favicon.png";
 const USERPLUGIN_CONTRIBUTOR_BADGE = "https://equicord.org/assets/icons/misc/userplugin.png";
-const ESHARQ_DEVELOPER_BADGE = "https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges/esharq.png";
+const ESHARQ_DEVELOPER_BADGE = "https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges/developers/esharq.png";
 
 const EsharqDeveloperBadge: ProfileBadge = {
     id: "esharq_developer_badge",
@@ -114,13 +114,13 @@ async function loadBadges(url: string, noCache = false) {
 
 async function loadAllBadges(noCache = false) {
     const vencordBadges = await loadBadges("https://badges.vencord.dev/badges.json", noCache);
-    // Equicord's original donor badges (so Equicord donors keep their badges) plus Esharq's own
-    // custom donor badges. Esharq's entries take precedence when an id appears in both.
-    const equicordBadges = await loadBadges("https://raw.githubusercontent.com/Equicord/Equibored/main/badges.json", noCache);
+    // Esharq's own donor badges only. Equicord's donors are intentionally not pulled in to avoid
+    // flooding Esharq with ~100 unrelated badges; Equicord devs/contributors keep their original
+    // badges via the devs lists, which are untouched.
     const esharqBadges = await loadBadges("https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges.json", noCache);
 
     DonorBadges = vencordBadges;
-    EquicordDonorBadges = { ...equicordBadges, ...esharqBadges };
+    EquicordDonorBadges = esharqBadges;
     EsharqDonorBadges = esharqBadges;
 }
 
