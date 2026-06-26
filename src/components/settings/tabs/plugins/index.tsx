@@ -435,7 +435,7 @@ export default function PluginSettings() {
                             { label: t("عرض الكل", "Show All"), value: SearchStatus.ALL, default: true },
                             { label: t("عرض المفعَّلة", "Show Enabled"), value: SearchStatus.ENABLED },
                             { label: t("عرض المعطَّلة", "Show Disabled"), value: SearchStatus.DISABLED },
-                            { label: t("عرض اشراق", "Show Esharq"), value: SearchStatus.ESHARQ },
+                            { label: t("عرض Esharq", "Show Esharq"), value: SearchStatus.ESHARQ },
                             { label: t("عرض Equicord", "Show Equicord"), value: SearchStatus.EQUICORD },
                             { label: t("عرض Vencord", "Show Vencord"), value: SearchStatus.VENCORD },
                             { label: t("عرض الجديدة", "Show New"), value: SearchStatus.NEW },
