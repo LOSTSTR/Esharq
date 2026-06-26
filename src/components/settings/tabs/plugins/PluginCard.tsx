@@ -31,7 +31,7 @@ interface PluginCardProps extends React.HTMLProps<HTMLDivElement> {
     onMouseLeave?: React.MouseEventHandler<HTMLDivElement>;
 }
 
-const FORK_EXCLUSIVE_PLUGINS = new Set([
+export const FORK_EXCLUSIVE_PLUGINS = new Set([
     "ArabicAutoUpdater",
 ]);
 

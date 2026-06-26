@@ -43,7 +43,7 @@ import { JSX } from "react";
 
 import Plugins, { ExcludedPlugins, PluginMeta } from "~plugins";
 
-import { PluginCard } from "./PluginCard";
+import { FORK_EXCLUSIVE_PLUGINS, PluginCard } from "./PluginCard";
 import { openWarningModal } from "./PluginModal";
 import { StockPluginsCard, UserPluginsCard } from "./PluginStatCards";
 import { UIElementsButton } from "./UIElements";
@@ -115,7 +115,8 @@ const enum SearchStatus {
     VENCORD,
     NEW,
     USER_PLUGINS,
-    API_PLUGINS
+    API_PLUGINS,
+    ESHARQ
 }
 
 export const ExcludedReasons: Record<"web" | "discordDesktop" | "vesktop" | "equibop" | "desktop" | "dev", string> = {
@@ -225,6 +226,13 @@ export default function PluginSettings() {
                 break;
             case SearchStatus.EQUICORD:
                 if (!PluginMeta[plugin.name].folderName.startsWith("src/equicordplugins/")) return false;
+                // Esharq-branded plugins live here too but belong under "Show Esharq", not Equicord.
+                if (FORK_EXCLUSIVE_PLUGINS.has(plugin.name)) return false;
+                break;
+            case SearchStatus.ESHARQ:
+                // Esharq-branded plugins only — same predicate that shows the EA badge
+                // in PluginCard (isForkBranded = fork-exclusive OR userplugin).
+                if (!FORK_EXCLUSIVE_PLUGINS.has(plugin.name) && !PluginMeta[plugin.name].folderName.startsWith("src/userplugins/")) return false;
                 break;
             case SearchStatus.VENCORD:
                 if (!PluginMeta[plugin.name].folderName.startsWith("src/plugins/")) return false;
@@ -427,7 +435,8 @@ export default function PluginSettings() {
                             { label: t("عرض الكل", "Show All"), value: SearchStatus.ALL, default: true },
                             { label: t("عرض المفعَّلة", "Show Enabled"), value: SearchStatus.ENABLED },
                             { label: t("عرض المعطَّلة", "Show Disabled"), value: SearchStatus.DISABLED },
-                            { label: t("عرض Esharq", "Show Esharq"), value: SearchStatus.EQUICORD },
+                            { label: t("عرض اشراق", "Show Esharq"), value: SearchStatus.ESHARQ },
+                            { label: t("عرض Equicord", "Show Equicord"), value: SearchStatus.EQUICORD },
                             { label: t("عرض Vencord", "Show Vencord"), value: SearchStatus.VENCORD },
                             { label: t("عرض الجديدة", "Show New"), value: SearchStatus.NEW },
                             hasUserPlugins && { label: t("عرض الإضافات الشخصية", "Show User Plugins"), value: SearchStatus.USER_PLUGINS },
