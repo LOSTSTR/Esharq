@@ -16,6 +16,9 @@
 - Don't manage state Discord manages. `useStateFromStores` over `useState` + flux that mirrors a store.
 - Don't recreate Discord components. Reuse `Button`, `TextInput`, `Tooltip`, `Menu.*`, etc. Hand-rolled `<button>` loses theme, focus rings, a11y.
 - No state machine for boolean. No class wrapping single function. No `Strategy`/`Manager`/`Handler` suffix unless multiple implementations exist.
+- Understand before shrinking. The smallest change in the wrong place is a second bug, not a smaller diff. Read the task and trace the real flow first, then cut.
+- Fix the root cause, not the symptom. Grep every caller of the function you touch and fix the shared function once. One guard there beats one per caller and leaves no sibling broken.
+- Minimalism has a floor. Never shrink away trust-boundary validation, error handling that prevents data loss, security, accessibility, or behavior that was explicitly requested.
 
 ## TypeScript
 
