@@ -1,14 +1,18 @@
 /*
- * Esharq Administration + Developer badges — the rotating, glowing gold/black/red conic
- * ring (with hover scale). Discord overrides the badge className and only inline style
- * reaches its <img>, so the profile ring is targeted via the badge's aria-label. Both
- * badges' bilingual tooltips contain their English name, so matching that name covers
- * both languages. Keyframes are namespaced (esharq-ring-*) so they can't collide.
+ * Esharq Developer badge — the rotating, glowing gold/black/red conic ring (with hover
+ * scale). Discord overrides the badge className and only inline style reaches its <img>,
+ * so the profile ring is targeted via the badge's aria-label (the bilingual tooltip
+ * contains the English name, covering both languages). Keyframes are namespaced
+ * (esharq-ring-*) so they can't collide.
+ *
+ * Also below: the RGB (rainbow) ring design for Esharq Custom badges — specific members
+ * (outside the donor/contributor/developer tiers) each get their own circular image with a
+ * spinning rainbow ring. Mapped per user id in Esharq-Bored/badges/custom/custom.json.
  */
 
-/* Administration badge shown inline next to the name in chat (message decoration). Same
+/* Developer badge shown inline next to the name in chat (message decoration). Same gold
  * spinning glow ring, sized to sit beside the username. */
-.esharq-admin-chat-badge {
+.esharq-dev-chat-badge {
     position: relative;
     display: inline-flex;
     width: 18px;
@@ -18,7 +22,7 @@
     border-radius: 50%;
 }
 
-.esharq-admin-chat-badge::before {
+.esharq-dev-chat-badge::before {
     content: "";
     position: absolute;
     inset: -2px;
@@ -32,7 +36,7 @@
     pointer-events: none;
 }
 
-.esharq-admin-chat-badge img {
+.esharq-dev-chat-badge img {
     position: relative;
     z-index: 1;
     width: 100%;
@@ -41,17 +45,47 @@
     object-fit: cover;
 }
 
-:is(
-    a[aria-label*="Esharq Administration"],
-    a[aria-label*="Esharq Developer"]
-) {
+/* ── Esharq Custom badge — per-member circular image + spinning RGB (rainbow) ring.
+ * Each special member's round image is wrapped in .esharq-custom-badge. Same keyframes as
+ * the developer ring, but a rainbow gradient. ── */
+.esharq-custom-badge {
+    position: relative;
+    display: inline-flex;
+    width: 18px;
+    height: 18px;
+    margin: 0 2px;
+    vertical-align: middle;
+    border-radius: 50%;
+}
+
+.esharq-custom-badge::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #ff0040, #ff8c00, #ffe600, #00e676, #00e5ff, #2979ff, #d500f9, #ff0040);
+    animation:
+        esharq-ring-spin 2s linear infinite,
+        esharq-ring-glow 1s ease-in-out infinite alternate;
+    filter: blur(1px);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.esharq-custom-badge img {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+a[aria-label*="Esharq Developer"] {
     position: relative;
 }
 
-:is(
-    a[aria-label*="Esharq Administration"],
-    a[aria-label*="Esharq Developer"]
-)::before {
+a[aria-label*="Esharq Developer"]::before {
     content: "";
     position: absolute;
     inset: -3px;
@@ -65,20 +99,14 @@
     pointer-events: none;
 }
 
-:is(
-    a[aria-label*="Esharq Administration"],
-    a[aria-label*="Esharq Developer"]
-) img {
+a[aria-label*="Esharq Developer"] img {
     position: relative;
     z-index: 1;
     border-radius: 50%;
     transition: transform 0.25s ease;
 }
 
-:is(
-    a[aria-label*="Esharq Administration"],
-    a[aria-label*="Esharq Developer"]
-):hover img {
+a[aria-label*="Esharq Developer"]:hover img {
     transform: scale(1.12);
 }
 

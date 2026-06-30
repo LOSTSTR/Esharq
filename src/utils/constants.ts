@@ -1404,18 +1404,6 @@ export const EsharqDevs: ReadonlySet<string> = new Set([
     "428275226883915778",
 ]);
 
-// Esharq administration ids — these show the Esharq Administration badge.
-export const EsharqAdmins: ReadonlySet<string> = new Set([
-    "681465758127226900",
-    "1072961475125182564",
-    "538699316232060938",
-    "1046545292100653177",
-    "683031548672606264",
-    "1161389239112568902",
-    "1295464673264664747",
-    "428275226883915778",
-]);
-
 // iife so #__PURE__ works correctly
 export const VencordDevsById = /* #__PURE__*/ (() =>
     Object.freeze(Object.fromEntries(

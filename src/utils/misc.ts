@@ -19,7 +19,7 @@
 import { User } from "@vencord/discord-types";
 import { ChannelStore, GuildMemberStore, IconUtils } from "@webpack/common";
 
-import { EQUICORD_HELPERS, EquicordDevsById, EsharqAdmins, EsharqDevs, GUILD_ID, KNOWN_ISSUES_CHANNEL_ID, SUPPORT_CHANNEL_ID, VencordDevsById } from "./constants";
+import { EQUICORD_HELPERS, EquicordDevsById, EsharqDevs, GUILD_ID, KNOWN_ISSUES_CHANNEL_ID, SUPPORT_CHANNEL_ID, VencordDevsById } from "./constants";
 
 /**
  * Calls .join(" ") on the arguments
@@ -86,9 +86,6 @@ export const shouldShowEquicordContributorBadge = (id: string) => isEquicordPlug
 
 export const isEsharqDev = (id: string) => EsharqDevs.has(id);
 export const shouldShowEsharqDeveloperBadge = (id: string) => isEsharqDev(id);
-
-export const isEsharqAdmin = (id: string) => EsharqAdmins.has(id);
-export const shouldShowEsharqAdministrationBadge = (id: string) => isEsharqAdmin(id);
 
 export const isAnyPluginDev = (id: string) => Object.hasOwn(VencordDevsById, id) || Object.hasOwn(EquicordDevsById, id);
 

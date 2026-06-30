@@ -27,7 +27,7 @@ import { Devs } from "@utils/constants";
 import { copyWithToast } from "@utils/discord";
 import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
-import { isEsharqAdmin, shouldShowContributorBadge, shouldShowEquicordContributorBadge, shouldShowEsharqAdministrationBadge, shouldShowEsharqDeveloperBadge } from "@utils/misc";
+import { isEsharqDev, shouldShowContributorBadge, shouldShowEquicordContributorBadge, shouldShowEsharqDeveloperBadge } from "@utils/misc";
 import definePlugin from "@utils/types";
 import { ContextMenuApi, Menu, Toasts, UserStore } from "@webpack/common";
 
@@ -39,21 +39,10 @@ const CONTRIBUTOR_BADGE = "https://cdn.discordapp.com/emojis/1092089799109775453
 const EQUICORD_CONTRIBUTOR_BADGE = "https://equicord.org/assets/favicon.png";
 const USERPLUGIN_CONTRIBUTOR_BADGE = "https://equicord.org/assets/icons/misc/userplugin.png";
 const ESHARQ_DEVELOPER_BADGE = "https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges/developers/esharq.png";
-const ESHARQ_ADMINISTRATION_BADGE = "https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges/administration/esharq-admin.png";
 
 // Tooltips carry both languages at once. Visual polish (round image, spinning glow ring,
 // hover scale) lives in esharqBadges.css, targeted via the aria-label — inline style would
 // block the CSS :hover transform.
-const EsharqAdministrationBadge: ProfileBadge = {
-    id: "esharq_administration_badge",
-    description: "إدارة إشراق · Esharq Administration",
-    iconSrc: ESHARQ_ADMINISTRATION_BADGE,
-    position: BadgePosition.START,
-    shouldShow: ({ userId }) => shouldShowEsharqAdministrationBadge(userId),
-    onClick: (_, { userId }) => openContributorModal(UserStore.getUser(userId)),
-    props: { style: { margin: "0 2px" } },
-};
-
 const EsharqDeveloperBadge: ProfileBadge = {
     id: "esharq_developer_badge",
     description: "مطوّر إشراق · Esharq Developer",
@@ -64,12 +53,29 @@ const EsharqDeveloperBadge: ProfileBadge = {
     props: { style: { margin: "0 2px" } },
 };
 
-// The Administration badge also shows inline next to the name in chat (message decoration).
-const EsharqAdminChatBadge = () => (
-    <span className="esharq-admin-chat-badge" role="img" aria-label="إدارة إشراق · Esharq Administration">
-        <img src={ESHARQ_ADMINISTRATION_BADGE} alt="" />
+// The Developer badge also shows inline next to the name in chat (message decoration).
+const EsharqDevChatBadge = () => (
+    <span className="esharq-dev-chat-badge" role="img" aria-label="مطوّر إشراق · Esharq Developer">
+        <img src={ESHARQ_DEVELOPER_BADGE} alt="" />
     </span>
 );
+
+// Esharq Custom badges — a per-member custom round image with a spinning RGB ring, for
+// specific members who don't fit the donor/contributor/developer tiers. Profile only.
+// Each member's image is mapped by Discord user id in
+// Esharq-Bored/badges/custom/custom.json (loaded into EsharqCustomBadges).
+const EsharqCustomBadge: ProfileBadge = {
+    id: "esharq_custom_badge",
+    description: "مخصّص · Esharq Custom",
+    position: BadgePosition.START,
+    shouldShow: ({ userId }) => userId in EsharqCustomBadges,
+    component: ({ userId }: ProfileBadge & BadgeUserArgs) => (
+        <span className="esharq-custom-badge" role="img" aria-label="مخصّص · Esharq Custom">
+            <img src={EsharqCustomBadges[userId]} alt="" />
+        </span>
+    ),
+    onClick: (_, { userId }) => openContributorModal(UserStore.getUser(userId)),
+};
 
 const ContributorBadge: ProfileBadge = {
     id: "vencord_contributor_badge",
@@ -122,6 +128,8 @@ let EquicordDonorBadges = {} as Record<string, Array<Record<"tooltip" | "badge",
 // Esharq's own donors only (from Esharq-Bored). The merged set above is used to render badges;
 // this one decides who sees the "thank you for donating" card, so Equicord donors don't trigger it.
 let EsharqDonorBadges = {} as Record<string, Array<Record<"tooltip" | "badge", string>>>;
+// Esharq Custom badges: Discord user id → custom badge image url (from Esharq-Bored).
+let EsharqCustomBadges = {} as Record<string, string>;
 
 async function loadBadges(url: string, noCache = false) {
     const init = {} as RequestInit;
@@ -136,10 +144,13 @@ async function loadAllBadges(noCache = false) {
     // flooding Esharq with ~100 unrelated badges; Equicord devs/contributors keep their original
     // badges via the devs lists, which are untouched.
     const esharqBadges = await loadBadges("https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges.json", noCache);
+    // Per-member Esharq Custom badge images (user id → image url).
+    const esharqCustom = await loadBadges("https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges/custom/custom.json", noCache);
 
     DonorBadges = vencordBadges;
     EquicordDonorBadges = esharqBadges;
     EsharqDonorBadges = esharqBadges;
+    EsharqCustomBadges = esharqCustom;
 }
 
 let intervalId: any;
@@ -234,22 +245,22 @@ export default definePlugin({
     },
 
     // Listed in reverse display order: every START badge is unshifted, so the last one here
-    // ends up first. This puts the Esharq Administration badge first, then Developer.
-    userProfileBadges: [UserPluginContributorBadge, EquicordContributorBadge, ContributorBadge, EsharqDeveloperBadge, EsharqAdministrationBadge],
+    // ends up first. This puts the Esharq Developer badge first, then the Custom badge.
+    userProfileBadges: [UserPluginContributorBadge, EquicordContributorBadge, ContributorBadge, EsharqCustomBadge, EsharqDeveloperBadge],
 
     async start() {
         await loadAllBadges();
         clearInterval(intervalId);
         intervalId = setInterval(loadAllBadges, 1000 * 60 * 30); // 30 minutes
 
-        addMessageDecoration("esharq-admin", ({ message }) =>
-            isEsharqAdmin(message?.author?.id ?? "") ? <EsharqAdminChatBadge /> : null
+        addMessageDecoration("esharq-dev", ({ message }) =>
+            isEsharqDev(message?.author?.id ?? "") ? <EsharqDevChatBadge /> : null
         );
     },
 
     async stop() {
         clearInterval(intervalId);
-        removeMessageDecoration("esharq-admin");
+        removeMessageDecoration("esharq-dev");
     },
 
     getBadges(profile: { userId: string; guildId: string; }) {
