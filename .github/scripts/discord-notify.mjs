@@ -167,26 +167,27 @@ const ICON_NEW = "✨";    // new plugin
 const ICON_FEAT = "🚀";   // update / feature
 const ICON_FIX = "🔧";    // fix
 
-const FOLLOW = what => `\n\n🔔 تابِع القناة (**Follow**) لتصلك ${what} فور صدورها.`;
+// Follow CTA + a single subtext meta line (commit + author). Kept in the description (not
+// inline fields) so it stays tidy and wraps cleanly for long names/messages, and the link
+// never triggers Discord's auto GitHub card (embed links don't auto-expand).
+const followAndMeta = what =>
+    `\n\n🔔 تابِع القناة (**Follow**) لتصلك ${what} فور صدورها.` +
+    `\n-# 🔑 [\`${commitHash}\`](${commitUrl})  ·  👤 بواسطة ${commitAuthor}`;
 
+// One Esharq logo only (the thumbnail) — plus the webhook avatar Discord shows on its own.
 const baseEmbed = (title, description) => ({
-    author: { name: "Esharq · إشراق", icon_url: ICON_URL },
     title,
     description,
     color: GOLD,
     thumbnail: { url: ICON_URL },
-    fields: [
-        { name: "🔑 Commit", value: `[\`${commitHash}\`](${commitUrl})`, inline: true },
-        { name: "👤 بواسطة", value: commitAuthor, inline: true },
-    ],
-    footer: { text: "Esharq · نسخة عربية من Equicord", icon_url: ICON_URL },
+    footer: { text: "Esharq · نسخة عربية من Equicord" },
     timestamp: commitTime,
 });
 
 function pluginEmbed(info) {
     let desc = `### ${info.name}\n${info.descriptionAr || info.descriptionEn}`;
     if (info.descriptionAr && info.descriptionEn) desc += `\n-# ${info.descriptionEn}`;
-    desc += FOLLOW("كل إضافة جديدة");
+    desc += followAndMeta("كل إضافة جديدة");
     return baseEmbed(`${ICON_NEW}  إضافة جديدة · New Plugin`, desc);
 }
 
@@ -195,7 +196,7 @@ function updateEmbed() {
     const title = isFixType ? `${ICON_FIX}  إصلاح · Fix` : `${ICON_FEAT}  تحديث جديد · Update`;
     let desc = `### ${msgTitle}`;
     if (msgBody) desc += `\n-# ${msgBody}`;
-    desc += FOLLOW("تحديثات إشراق أوّلاً بأوّل");
+    desc += followAndMeta("تحديثات إشراق أوّلاً بأوّل");
     return baseEmbed(title, desc);
 }
 
