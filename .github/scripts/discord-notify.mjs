@@ -160,26 +160,23 @@ function extractPluginInfo(filePath) {
 
 // ─── Embed builders ───────────────────────────────────────────────────────────
 
-const FOOTER = { text: "Esharq • نسخة عربية مخصصة من Equicord" };
+// دعوة المتابعة (أصلية — تحفّز متابعة قناة الإعلانات).
+const FOLLOW_NEW = "🔔 **تابِع القناة (Follow)** لتصلك كل إضافة جديدة فور صدورها.";
+const FOLLOW_UPDATE = "🔔 **تابِع القناة (Follow)** لتصلك تحديثات إشراق أوّلاً بأوّل.";
 
 function pluginEmbed(info) {
+    const desc = info.descriptionAr
+        ? `${info.descriptionAr}\n${info.descriptionEn}`
+        : info.descriptionEn;
     return {
-        title: "🆕 إضافة جديدة",
-        description:
-            "تم إضافة إضافة جديدة إلى **Esharq**!\n" +
-            "قم بتحديث النسخة للحصول عليها.",
+        title: "✨ إضافة جديدة · New plugin",
+        description: `**${info.name}**\n${desc}\n\n${FOLLOW_NEW}`,
         color: 5763719,
         thumbnail: { url: ICON_URL },
         fields: [
-            { name: "📦 اسم الإضافة",  value: `\`${info.name}\``,        inline: true  },
-            { name: "🔗 المستودع",      value: `[GitHub](${REPO_URL})`,   inline: true  },
-            { name: "📝 الوصف",         value: info.descriptionAr
-                ? `${info.descriptionAr}\n${info.descriptionEn}`
-                : info.descriptionEn,                                    inline: false },
-            { name: "🔑 Commit",        value: `[\`${commitHash}\`](${commitUrl})`, inline: true },
-            { name: "👤 بواسطة",        value: commitAuthor,              inline: true  },
+            { name: "🔑 Commit", value: `[\`${commitHash}\`](${commitUrl})`, inline: true },
         ],
-        footer: FOOTER,
+        footer: { text: `Esharq · بواسطة ${commitAuthor}`, icon_url: ICON_URL },
         timestamp: commitTime,
     };
 }
@@ -187,22 +184,17 @@ function pluginEmbed(info) {
 function updateEmbed() {
     const isFixType = isFix || isSync;
     return {
-        title: isFixType ? "🔧 إصلاح / تحديث" : "✨ تحديث جديد",
+        title: isFixType ? "🔧 إصلاح · Fix" : "✨ تحديث جديد · Update",
         description:
-            `تم نشر **${isFixType ? "إصلاح" : "تحديث"}** على **Esharq**\n` +
-            "قم بتحديث النسخة للحصول على آخر التغييرات.",
+            `**${msgTitle}**\n` +
+            (msgBody ? `${msgBody}\n` : "") +
+            `\n${FOLLOW_UPDATE}`,
         color: isFixType ? 16705372 : 3447003,
         thumbnail: { url: ICON_URL },
         fields: [
-            { name: "📋 وصف التغيير",  value: msgTitle,                  inline: false },
-            ...(msgBody
-                ? [{ name: "📄 التفاصيل", value: msgBody, inline: false }]
-                : []),
-            { name: "🔑 Commit",       value: `[\`${commitHash}\`](${commitUrl})`, inline: true },
-            { name: "👤 بواسطة",       value: commitAuthor,              inline: true  },
-            { name: "🔗 المستودع",     value: `[GitHub](${REPO_URL})`,   inline: true  },
+            { name: "🔑 Commit", value: `[\`${commitHash}\`](${commitUrl})`, inline: true },
         ],
-        footer: FOOTER,
+        footer: { text: `Esharq · بواسطة ${commitAuthor}`, icon_url: ICON_URL },
         timestamp: commitTime,
     };
 }
