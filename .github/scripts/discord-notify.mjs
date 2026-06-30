@@ -167,20 +167,24 @@ const ICON_NEW = "✨";    // new plugin
 const ICON_FEAT = "🚀";   // update / feature
 const ICON_FIX = "🔧";    // fix
 
-// Follow CTA + a single subtext meta line (commit + author). Kept in the description (not
-// inline fields) so it stays tidy and wraps cleanly for long names/messages, and the link
-// never triggers Discord's auto GitHub card (embed links don't auto-expand).
+// A gold divider line that sits across the card, separating the content from the CTA.
+const DIVIDER = "🔸 ━━━━━━━━━━━━━━━━ 🔸";
+
+// Divider + Follow CTA + a single subtext meta line (commit + author), with airy spacing.
+// Kept in the description (not inline fields) so it stays tidy and wraps cleanly for long
+// names/messages, and the link never triggers Discord's auto GitHub card.
 const followAndMeta = what =>
-    `\n\n🔔 تابِع القناة (**Follow**) لتصلك ${what} فور صدورها.` +
-    `\n-# 🔑 [\`${commitHash}\`](${commitUrl})  ·  👤 بواسطة ${commitAuthor}`;
+    `\n\n${DIVIDER}\n\n` +
+    `🔔 تابِع القناة (**Follow**) لتصلك ${what} فور صدورها.\n\n` +
+    `-# 🔑 [\`${commitHash}\`](${commitUrl})　·　👤 بواسطة ${commitAuthor}`;
 
 // One Esharq logo only (the thumbnail) — plus the webhook avatar Discord shows on its own.
+// No footer text — only the native timestamp (date · day · time) is shown at the bottom.
 const baseEmbed = (title, description) => ({
     title,
     description,
     color: GOLD,
     thumbnail: { url: ICON_URL },
-    footer: { text: "Esharq · نسخة عربية من Equicord" },
     timestamp: commitTime,
 });
 
