@@ -92,22 +92,17 @@ function run(cmd) {
     return execSync(cmd, { encoding: "utf8" }).trim();
 }
 
-const REPO_URL = "https://github.com/LOSTSTR/Esharq";
-// Shared by BOTH webhooks (plugins + updates) — avatar + embed thumbnail.
+// Shared by BOTH webhooks (plugins + updates) — the EA webhook avatar.
 const ICON_URL  =
     "https://raw.githubusercontent.com/LOSTSTR/Esharq/main/.github/assets/notify-icon.png";
 
-const commitHash   = run("git log -1 --pretty=%H").slice(0, 7);
 const commitTime   = run("git log -1 --pretty=%aI");
-const commitUrl    = `${REPO_URL}/commit/${commitHash}`;
 
 // Sanitise all user-controlled fields
-const commitAuthor = sanitise(run("git log -1 --pretty=%an"), 80);
 const commitMsg    = sanitise(run("git log -1 --pretty=%B"), 2000);
 
 const msgLines = commitMsg.split("\n").filter(Boolean);
 const msgTitle = sanitise(msgLines[0] ?? "", 256);
-const msgBody  = sanitise(msgLines.slice(1).join("\n").trim(), 500);
 
 // ─── Detect new plugin files ──────────────────────────────────────────────────
 
@@ -158,60 +153,52 @@ function extractPluginInfo(filePath) {
     };
 }
 
-// ─── Embed builders (modern Esharq card — gold accent, EA mark, bilingual) ─────
-// Rich embeds (not a plain message) so the commit link never triggers Discord's ugly
-// auto GitHub preview card, and we get a clean colored card with the EA logo.
+// ─── Message builders (plain Discord markdown, VencordAR style; NO embed) ──────
+// A plain message (not an embed) → no colored border, no author, no footer timestamp, and
+// with no links it never triggers Discord's auto GitHub card. Discord still shows the EA
+// webhook avatar on its own. The cloud is the only icon; the plugin name is colored via an
+// ANSI code block (rebane2001 generator style).
 
-// Accent colors per notification type (edge bar) — quick visual scanning.
-const GOLD = 0xE0B341, GREEN = 0x57F287, ORANGE = 0xE67E22, BLURPLE = 0x5865F2;
-const ICON_NEW = "✨";   // new plugin
+const CLOUD = "☁️";
+const ANSI_RED = "[1;31m", ANSI_RESET = "[0m";
 
-// An elegant gold divider, centered, separating the content from the CTA.
-const DIVIDER = "─────────── 🔶 ───────────";
+const dateLine = () => `- ${commitTime.slice(0, 10)}`;                 // e.g. "- 2026-06-30"
+const followCTA = phrase => `-# اضغط زر **Follow** إذا كنت مهتمّاً ${phrase}`;
 
-// Divider + Follow CTA + a single subtext meta line (commit + author), with airy spacing.
-// Kept in the description (not inline fields) so it wraps cleanly for long text, and the
-// link never triggers Discord's auto GitHub card.
-const followAndMeta = what =>
-    `\n\n${DIVIDER}\n\n` +
-    `🔔 تابِع القناة (**Follow**) لتصلك ${what} فور صدورها.\n\n` +
-    `-# 🔑 [\`${commitHash}\`](${commitUrl})　·　👤 بواسطة ${commitAuthor}`;
-
-// One Esharq logo only (the thumbnail) — plus the webhook avatar Discord shows on its own.
-// No footer text — only the native timestamp (date · day · time) is shown at the bottom.
-const baseEmbed = (title, description, color = GOLD) => ({
-    title,
-    description,
-    color,
-    thumbnail: { url: ICON_URL },
-    timestamp: commitTime,
-});
-
-function pluginEmbed(info) {
-    let desc = `### ${info.name}\n${info.descriptionAr || info.descriptionEn}`;
-    if (info.descriptionAr && info.descriptionEn) desc += `\n-# ${info.descriptionEn}`;
-    desc += followAndMeta("كل إضافة جديدة");
-    return baseEmbed(`${ICON_NEW}  إضافة جديدة · New Plugin`, desc, GREEN);
+function pluginMessage(info) {
+    const lines = [
+        `## ${CLOUD} إضافة جديدة · New Plugin`,
+        dateLine(),
+        "```ansi",
+        `${ANSI_RED}${info.name}${ANSI_RESET}`,
+        "```",
+        `> ${info.descriptionAr || info.descriptionEn}`,
+    ];
+    if (info.descriptionAr && info.descriptionEn) lines.push(`> ${info.descriptionEn}`);
+    lines.push(followCTA("بالإضافات الجديدة"));
+    return lines.join("\n");
 }
 
-// Turn a raw conventional-commit title ("style(notifier): clean up") into a friendly
-// bilingual heading + a clean human message (prefix stripped). Falls back gracefully.
+// Friendly bilingual update heading + clean message (conventional-commit prefix stripped).
 function classifyUpdate() {
     const m = msgTitle.match(/^(\w+)(?:\([^)]*\))?!?:\s*([\s\S]+)$/);
     const type = (m?.[1] ?? "").toLowerCase();
     const clean = (m?.[2] ?? msgTitle).trim();
-    if (isSync)          return { icon: "🔄", label: "مزامنة مع المصدر · Sync", color: BLURPLE, clean };
-    if (type === "feat") return { icon: "✨", label: "ميزة جديدة · New Feature", color: GOLD, clean };
-    if (type === "fix")  return { icon: "🔧", label: "إصلاح · Fix", color: ORANGE, clean };
-    return { icon: "🛠️", label: "تحسينات · Improvements", color: GOLD, clean };
+    if (isSync)          return { label: "مزامنة · Sync", clean };
+    if (type === "feat") return { label: "تحديث جديد · Update", clean };
+    if (type === "fix")  return { label: "إصلاح · Fix", clean };
+    return { label: "تحديث · Update", clean };
 }
 
-function updateEmbed() {
+function updateMessage() {
     const u = classifyUpdate();
-    let desc = `### ${u.clean}`;
-    if (msgBody) desc += `\n-# ${msgBody}`;
-    desc += followAndMeta("كل تحديثات إشراق");
-    return baseEmbed(`${u.icon}  ${u.label}`, desc, u.color);
+    const lines = [
+        `## ${CLOUD} ${u.label}`,
+        dateLine(),
+        `> ${u.clean}`,
+    ];
+    lines.push(followCTA("بتحديثات إشراق"));
+    return lines.join("\n");
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
@@ -242,7 +229,7 @@ async function main() {
             await postWebhook(WEBHOOK_PLUGINS, {
                 username: "Esharq",
                 avatar_url: ICON_URL,
-                embeds: [pluginEmbed(info)],
+                content: pluginMessage(info),
             });
         } catch (e) {
             console.error(`  Plugin webhook failed: ${e.message}`);
@@ -257,7 +244,7 @@ async function main() {
             await postWebhook(WEBHOOK_UPDATES, {
                 username: "Esharq",
                 avatar_url: ICON_URL,
-                embeds: [updateEmbed()],
+                content: updateMessage(),
             });
         } catch (e) {
             console.error(`  Updates webhook failed: ${e.message}`);
