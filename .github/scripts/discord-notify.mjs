@@ -98,6 +98,7 @@ const ICON_URL  =
     "https://raw.githubusercontent.com/LOSTSTR/Esharq/main/.github/assets/notify-icon.png";
 
 const commitHash   = run("git log -1 --pretty=%H").slice(0, 7);
+const commitTime   = run("git log -1 --pretty=%aI");
 const commitUrl    = `${REPO_URL}/commit/${commitHash}`;
 
 // Sanitise all user-controlled fields
@@ -157,47 +158,45 @@ function extractPluginInfo(filePath) {
     };
 }
 
-// ─── Message builders (clean Discord markdown, no embed) ──────────────────────
+// ─── Embed builders (modern Esharq card — gold accent, EA mark, bilingual) ─────
+// Rich embeds (not a plain message) so the commit link never triggers Discord's ugly
+// auto GitHub preview card, and we get a clean colored card with the EA logo.
 
-// أيقونات مميّزة (رموز ديسكورد) لنوع الإشعار.
-const ICON_NEW = "✨";   // إضافة جديدة
-const ICON_FEAT = "🚀";  // تحديث/ميزة
-const ICON_FIX = "🔧";   // إصلاح
+const GOLD = 0xE0B341;   // Esharq gold accent
+const ICON_NEW = "✨";    // new plugin
+const ICON_FEAT = "🚀";   // update / feature
+const ICON_FIX = "🔧";    // fix
 
-// سطر دعوة المتابعة (صياغة أصلية).
-const followLine = what =>
-    `🔔 تابِع القناة (**Follow**) لتصلك ${what} فور صدورها.`;
+const FOLLOW = what => `\n\n🔔 تابِع القناة (**Follow**) لتصلك ${what} فور صدورها.`;
 
-// سطر تذييل صغير (subtext): رابط الـcommit + الكاتب.
-const footerLine = () =>
-    `-# 🔗 [\`${commitHash}\`](${commitUrl})  ·  بواسطة ${commitAuthor}`;
+const baseEmbed = (title, description) => ({
+    author: { name: "Esharq · إشراق", icon_url: ICON_URL },
+    title,
+    description,
+    color: GOLD,
+    thumbnail: { url: ICON_URL },
+    fields: [
+        { name: "🔑 Commit", value: `[\`${commitHash}\`](${commitUrl})`, inline: true },
+        { name: "👤 بواسطة", value: commitAuthor, inline: true },
+    ],
+    footer: { text: "Esharq · نسخة عربية من Equicord", icon_url: ICON_URL },
+    timestamp: commitTime,
+});
 
-// نقتبس نصّاً متعدّد الأسطر مع بادئة "> " لكل سطر.
-const quote = text => text.split("\n").map(l => `> ${l}`).join("\n");
-
-function pluginMessage(info) {
-    const out = [
-        `## ${ICON_NEW}  إضافة جديدة  ·  New Plugin`,
-        "",
-        `> ### \`${info.name}\``,
-        `> ${info.descriptionAr || info.descriptionEn}`,
-    ];
-    if (info.descriptionAr && info.descriptionEn) out.push(`> -# ${info.descriptionEn}`);
-    out.push("", followLine("كل إضافة جديدة"), footerLine());
-    return out.join("\n");
+function pluginEmbed(info) {
+    let desc = `### ${info.name}\n${info.descriptionAr || info.descriptionEn}`;
+    if (info.descriptionAr && info.descriptionEn) desc += `\n-# ${info.descriptionEn}`;
+    desc += FOLLOW("كل إضافة جديدة");
+    return baseEmbed(`${ICON_NEW}  إضافة جديدة · New Plugin`, desc);
 }
 
-function updateMessage() {
+function updateEmbed() {
     const isFixType = isFix || isSync;
-    const head = isFixType ? `${ICON_FIX}  إصلاح  ·  Fix` : `${ICON_FEAT}  تحديث جديد  ·  Update`;
-    const out = [
-        `## ${head}`,
-        "",
-        `> ### ${msgTitle}`,
-    ];
-    if (msgBody) out.push(quote(`-# ${msgBody}`));
-    out.push("", followLine("كل تحديثات إشراق"), footerLine());
-    return out.join("\n");
+    const title = isFixType ? `${ICON_FIX}  إصلاح · Fix` : `${ICON_FEAT}  تحديث جديد · Update`;
+    let desc = `### ${msgTitle}`;
+    if (msgBody) desc += `\n-# ${msgBody}`;
+    desc += FOLLOW("تحديثات إشراق أوّلاً بأوّل");
+    return baseEmbed(title, desc);
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
@@ -228,7 +227,7 @@ async function main() {
             await postWebhook(WEBHOOK_PLUGINS, {
                 username: "Esharq",
                 avatar_url: ICON_URL,
-                content: pluginMessage(info),
+                embeds: [pluginEmbed(info)],
             });
         } catch (e) {
             console.error(`  Plugin webhook failed: ${e.message}`);
@@ -243,7 +242,7 @@ async function main() {
             await postWebhook(WEBHOOK_UPDATES, {
                 username: "Esharq",
                 avatar_url: ICON_URL,
-                content: updateMessage(),
+                embeds: [updateEmbed()],
             });
         } catch (e) {
             console.error(`  Updates webhook failed: ${e.message}`);
