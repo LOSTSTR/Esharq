@@ -162,17 +162,16 @@ function extractPluginInfo(filePath) {
 // Rich embeds (not a plain message) so the commit link never triggers Discord's ugly
 // auto GitHub preview card, and we get a clean colored card with the EA logo.
 
-const GOLD = 0xE0B341;   // Esharq gold accent
-const ICON_NEW = "✨";    // new plugin
-const ICON_FEAT = "🚀";   // update / feature
-const ICON_FIX = "🔧";    // fix
+// Accent colors per notification type (edge bar) — quick visual scanning.
+const GOLD = 0xE0B341, GREEN = 0x57F287, ORANGE = 0xE67E22, BLURPLE = 0x5865F2;
+const ICON_NEW = "✨";   // new plugin
 
-// A gold divider line that sits across the card, separating the content from the CTA.
-const DIVIDER = "🔸 ━━━━━━━━━━━━━━━━ 🔸";
+// An elegant gold divider, centered, separating the content from the CTA.
+const DIVIDER = "─────────── 🔶 ───────────";
 
 // Divider + Follow CTA + a single subtext meta line (commit + author), with airy spacing.
-// Kept in the description (not inline fields) so it stays tidy and wraps cleanly for long
-// names/messages, and the link never triggers Discord's auto GitHub card.
+// Kept in the description (not inline fields) so it wraps cleanly for long text, and the
+// link never triggers Discord's auto GitHub card.
 const followAndMeta = what =>
     `\n\n${DIVIDER}\n\n` +
     `🔔 تابِع القناة (**Follow**) لتصلك ${what} فور صدورها.\n\n` +
@@ -180,10 +179,10 @@ const followAndMeta = what =>
 
 // One Esharq logo only (the thumbnail) — plus the webhook avatar Discord shows on its own.
 // No footer text — only the native timestamp (date · day · time) is shown at the bottom.
-const baseEmbed = (title, description) => ({
+const baseEmbed = (title, description, color = GOLD) => ({
     title,
     description,
-    color: GOLD,
+    color,
     thumbnail: { url: ICON_URL },
     timestamp: commitTime,
 });
@@ -192,16 +191,27 @@ function pluginEmbed(info) {
     let desc = `### ${info.name}\n${info.descriptionAr || info.descriptionEn}`;
     if (info.descriptionAr && info.descriptionEn) desc += `\n-# ${info.descriptionEn}`;
     desc += followAndMeta("كل إضافة جديدة");
-    return baseEmbed(`${ICON_NEW}  إضافة جديدة · New Plugin`, desc);
+    return baseEmbed(`${ICON_NEW}  إضافة جديدة · New Plugin`, desc, GREEN);
+}
+
+// Turn a raw conventional-commit title ("style(notifier): clean up") into a friendly
+// bilingual heading + a clean human message (prefix stripped). Falls back gracefully.
+function classifyUpdate() {
+    const m = msgTitle.match(/^(\w+)(?:\([^)]*\))?!?:\s*([\s\S]+)$/);
+    const type = (m?.[1] ?? "").toLowerCase();
+    const clean = (m?.[2] ?? msgTitle).trim();
+    if (isSync)          return { icon: "🔄", label: "مزامنة مع المصدر · Sync", color: BLURPLE, clean };
+    if (type === "feat") return { icon: "✨", label: "ميزة جديدة · New Feature", color: GOLD, clean };
+    if (type === "fix")  return { icon: "🔧", label: "إصلاح · Fix", color: ORANGE, clean };
+    return { icon: "🛠️", label: "تحسينات · Improvements", color: GOLD, clean };
 }
 
 function updateEmbed() {
-    const isFixType = isFix || isSync;
-    const title = isFixType ? `${ICON_FIX}  إصلاح · Fix` : `${ICON_FEAT}  تحديث جديد · Update`;
-    let desc = `### ${msgTitle}`;
+    const u = classifyUpdate();
+    let desc = `### ${u.clean}`;
     if (msgBody) desc += `\n-# ${msgBody}`;
-    desc += followAndMeta("تحديثات إشراق أوّلاً بأوّل");
-    return baseEmbed(title, desc);
+    desc += followAndMeta("كل تحديثات إشراق");
+    return baseEmbed(`${u.icon}  ${u.label}`, desc, u.color);
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
