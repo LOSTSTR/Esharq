@@ -98,7 +98,6 @@ const ICON_URL  =
     "https://raw.githubusercontent.com/LOSTSTR/Esharq/main/.github/assets/notify-icon.png";
 
 const commitHash   = run("git log -1 --pretty=%H").slice(0, 7);
-const commitTime   = run("git log -1 --pretty=%aI");
 const commitUrl    = `${REPO_URL}/commit/${commitHash}`;
 
 // Sanitise all user-controlled fields
@@ -158,45 +157,47 @@ function extractPluginInfo(filePath) {
     };
 }
 
-// ─── Embed builders ───────────────────────────────────────────────────────────
+// ─── Message builders (clean Discord markdown, no embed) ──────────────────────
 
-// دعوة المتابعة (أصلية — تحفّز متابعة قناة الإعلانات).
-const FOLLOW_NEW = "🔔 **تابِع القناة (Follow)** لتصلك كل إضافة جديدة فور صدورها.";
-const FOLLOW_UPDATE = "🔔 **تابِع القناة (Follow)** لتصلك تحديثات إشراق أوّلاً بأوّل.";
+// أيقونات مميّزة (رموز ديسكورد) لنوع الإشعار.
+const ICON_NEW = "✨";   // إضافة جديدة
+const ICON_FEAT = "🚀";  // تحديث/ميزة
+const ICON_FIX = "🔧";   // إصلاح
 
-function pluginEmbed(info) {
-    const desc = info.descriptionAr
-        ? `${info.descriptionAr}\n${info.descriptionEn}`
-        : info.descriptionEn;
-    return {
-        title: "✨ إضافة جديدة · New plugin",
-        description: `**${info.name}**\n${desc}\n\n${FOLLOW_NEW}`,
-        color: 5763719,
-        thumbnail: { url: ICON_URL },
-        fields: [
-            { name: "🔑 Commit", value: `[\`${commitHash}\`](${commitUrl})`, inline: true },
-        ],
-        footer: { text: `Esharq · بواسطة ${commitAuthor}`, icon_url: ICON_URL },
-        timestamp: commitTime,
-    };
+// سطر دعوة المتابعة (صياغة أصلية).
+const followLine = what =>
+    `🔔 تابِع القناة (**Follow**) لتصلك ${what} فور صدورها.`;
+
+// سطر تذييل صغير (subtext): رابط الـcommit + الكاتب.
+const footerLine = () =>
+    `-# 🔗 [\`${commitHash}\`](${commitUrl})  ·  بواسطة ${commitAuthor}`;
+
+// نقتبس نصّاً متعدّد الأسطر مع بادئة "> " لكل سطر.
+const quote = text => text.split("\n").map(l => `> ${l}`).join("\n");
+
+function pluginMessage(info) {
+    const out = [
+        `## ${ICON_NEW}  إضافة جديدة  ·  New Plugin`,
+        "",
+        `> ### \`${info.name}\``,
+        `> ${info.descriptionAr || info.descriptionEn}`,
+    ];
+    if (info.descriptionAr && info.descriptionEn) out.push(`> -# ${info.descriptionEn}`);
+    out.push("", followLine("كل إضافة جديدة"), footerLine());
+    return out.join("\n");
 }
 
-function updateEmbed() {
+function updateMessage() {
     const isFixType = isFix || isSync;
-    return {
-        title: isFixType ? "🔧 إصلاح · Fix" : "✨ تحديث جديد · Update",
-        description:
-            `**${msgTitle}**\n` +
-            (msgBody ? `${msgBody}\n` : "") +
-            `\n${FOLLOW_UPDATE}`,
-        color: isFixType ? 16705372 : 3447003,
-        thumbnail: { url: ICON_URL },
-        fields: [
-            { name: "🔑 Commit", value: `[\`${commitHash}\`](${commitUrl})`, inline: true },
-        ],
-        footer: { text: `Esharq · بواسطة ${commitAuthor}`, icon_url: ICON_URL },
-        timestamp: commitTime,
-    };
+    const head = isFixType ? `${ICON_FIX}  إصلاح  ·  Fix` : `${ICON_FEAT}  تحديث جديد  ·  Update`;
+    const out = [
+        `## ${head}`,
+        "",
+        `> ### ${msgTitle}`,
+    ];
+    if (msgBody) out.push(quote(`-# ${msgBody}`));
+    out.push("", followLine("كل تحديثات إشراق"), footerLine());
+    return out.join("\n");
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
@@ -227,7 +228,7 @@ async function main() {
             await postWebhook(WEBHOOK_PLUGINS, {
                 username: "Esharq",
                 avatar_url: ICON_URL,
-                embeds: [pluginEmbed(info)],
+                content: pluginMessage(info),
             });
         } catch (e) {
             console.error(`  Plugin webhook failed: ${e.message}`);
@@ -242,7 +243,7 @@ async function main() {
             await postWebhook(WEBHOOK_UPDATES, {
                 username: "Esharq",
                 avatar_url: ICON_URL,
-                embeds: [updateEmbed()],
+                content: updateMessage(),
             });
         } catch (e) {
             console.error(`  Updates webhook failed: ${e.message}`);
