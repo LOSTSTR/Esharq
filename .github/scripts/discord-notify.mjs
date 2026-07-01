@@ -160,17 +160,26 @@ function extractPluginInfo(filePath) {
 // ANSI code block (rebane2001 generator style).
 
 const CLOUD = "<:esharqcloud:1521664147346034728>";
-const ANSI_RED = "[1;31m", ANSI_RESET = "[0m";
 
-const dateLine = () => `- ${commitTime.slice(0, 10)}`;                 // e.g. "- 2026-06-30"
+// ANSI helpers — real ESC via the \x1b source escape (no raw control bytes in the file).
+// Discord renders ANSI colors inside ```ansi code blocks. Each notification type gets its
+// own colored "pill" behind the date; new-plugin names are bold red.
+const ESC = "\x1b";
+const ansi = code => `${ESC}[${code}m`;
+const RESET = ansi("0");
+const NEW_BG = "1;30;47";    // dark text on cream
+const UPDATE_BG = "1;37;45"; // white on purple
+const FIX_BG = "1;37;41";    // white on orange-red
+const datePill = bg => `${ansi(bg)} ${commitTime.slice(0, 10)} ${RESET}`;
+
 const followCTA = phrase => `-# اضغط زر **Follow** إذا كنت مهتمّاً ${phrase}`;
 
 function pluginMessage(info) {
     const lines = [
         `## ${CLOUD} إضافة جديدة · New Plugin`,
-        dateLine(),
         "```ansi",
-        `${ANSI_RED}${info.name}${ANSI_RESET}`,
+        datePill(NEW_BG),
+        `${ansi("1;31")}${info.name}${RESET}`,
         "```",
         `> ${info.descriptionAr || info.descriptionEn}`,
     ];
@@ -179,22 +188,25 @@ function pluginMessage(info) {
     return lines.join("\n");
 }
 
-// Friendly bilingual update heading + clean message (conventional-commit prefix stripped).
+// Friendly bilingual update heading + clean message (conventional-commit prefix stripped);
+// each type gets its own date-pill background color.
 function classifyUpdate() {
     const m = msgTitle.match(/^(\w+)(?:\([^)]*\))?!?:\s*([\s\S]+)$/);
     const type = (m?.[1] ?? "").toLowerCase();
     const clean = (m?.[2] ?? msgTitle).trim();
-    if (isSync)          return { label: "مزامنة · Sync", clean };
-    if (type === "feat") return { label: "تحديث جديد · Update", clean };
-    if (type === "fix")  return { label: "إصلاح · Fix", clean };
-    return { label: "تحديث · Update", clean };
+    if (isSync)          return { label: "مزامنة · Sync", clean, bg: UPDATE_BG };
+    if (type === "fix")  return { label: "إصلاح · Fix", clean, bg: FIX_BG };
+    if (type === "feat") return { label: "تحديث جديد · Update", clean, bg: UPDATE_BG };
+    return { label: "تحديث · Update", clean, bg: UPDATE_BG };
 }
 
 function updateMessage() {
     const u = classifyUpdate();
     const lines = [
         `## ${CLOUD} ${u.label}`,
-        dateLine(),
+        "```ansi",
+        datePill(u.bg),
+        "```",
         `> ${u.clean}`,
     ];
     lines.push(followCTA("بتحديثات إشراق"));
