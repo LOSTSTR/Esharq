@@ -159,28 +159,19 @@ function extractPluginInfo(filePath) {
 // webhook avatar on its own. The cloud is the only icon; the plugin name is colored via an
 // ANSI code block (rebane2001 generator style).
 
-const CLOUD = "<:esharqcloud:1521664147346034728>";
+const CLOUD = "<:esharqcloud:1521840260831641681>";
 
-// ANSI helpers — real ESC via the \x1b source escape (no raw control bytes in the file).
-// Discord renders ANSI colors inside ```ansi code blocks. Each notification type gets its
-// own colored "pill" behind the date; new-plugin names are bold red.
-const ESC = "\x1b";
-const ansi = code => `${ESC}[${code}m`;
-const RESET = ansi("0");
-const NEW_BG = "1;30;47";    // dark text on cream
-const UPDATE_BG = "1;37;45"; // white on purple
-const FIX_BG = "1;37;41";    // white on orange-red
-const datePill = bg => `${ansi(bg)} ${commitTime.slice(0, 10)} ${RESET}`;
+// Date as a small grey inline-code "pill" (fits the date, no wide box). No ANSI/colors —
+// Discord can't do a fit-content colored highlight (ANSI needs a full-width code block).
+const datePill = () => `\`${commitTime.slice(0, 10)}\``;
 
 const followCTA = phrase => `-# اضغط زر **Follow** إذا كنت مهتمّاً ${phrase}`;
 
 function pluginMessage(info) {
     const lines = [
         `## ${CLOUD} إضافة جديدة · New Plugin`,
-        "```ansi",
-        datePill(NEW_BG),
-        `${ansi("1;31")}${info.name}${RESET}`,
-        "```",
+        datePill(),
+        `**\`${info.name}\`**`,
         `> ${info.descriptionAr || info.descriptionEn}`,
     ];
     if (info.descriptionAr && info.descriptionEn) lines.push(`> ${info.descriptionEn}`);
@@ -188,25 +179,22 @@ function pluginMessage(info) {
     return lines.join("\n");
 }
 
-// Friendly bilingual update heading + clean message (conventional-commit prefix stripped);
-// each type gets its own date-pill background color.
+// Friendly bilingual update heading + clean message (conventional-commit prefix stripped).
 function classifyUpdate() {
     const m = msgTitle.match(/^(\w+)(?:\([^)]*\))?!?:\s*([\s\S]+)$/);
     const type = (m?.[1] ?? "").toLowerCase();
     const clean = (m?.[2] ?? msgTitle).trim();
-    if (isSync)          return { label: "مزامنة · Sync", clean, bg: UPDATE_BG };
-    if (type === "fix")  return { label: "إصلاح · Fix", clean, bg: FIX_BG };
-    if (type === "feat") return { label: "تحديث جديد · Update", clean, bg: UPDATE_BG };
-    return { label: "تحديث · Update", clean, bg: UPDATE_BG };
+    if (isSync)          return { label: "مزامنة · Sync", clean };
+    if (type === "fix")  return { label: "إصلاح · Fix", clean };
+    if (type === "feat") return { label: "تحديث جديد · Update", clean };
+    return { label: "تحديث · Update", clean };
 }
 
 function updateMessage() {
     const u = classifyUpdate();
     const lines = [
         `## ${CLOUD} ${u.label}`,
-        "```ansi",
-        datePill(u.bg),
-        "```",
+        datePill(),
         `> ${u.clean}`,
     ];
     lines.push(followCTA("بتحديثات إشراق"));
