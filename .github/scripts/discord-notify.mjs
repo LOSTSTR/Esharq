@@ -159,7 +159,7 @@ function extractPluginInfo(filePath) {
 // webhook avatar on its own. The cloud is the only icon; the plugin name is colored via an
 // ANSI code block (rebane2001 generator style).
 
-const CLOUD = "☁️";
+const CLOUD = "<:esharqcloud:1521664147346034728>";
 const ANSI_RED = "[1;31m", ANSI_RESET = "[0m";
 
 const dateLine = () => `- ${commitTime.slice(0, 10)}`;                 // e.g. "- 2026-06-30"
