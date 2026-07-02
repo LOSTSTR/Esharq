@@ -167,16 +167,40 @@ const datePill = () => `\`${commitTime.slice(0, 10)}\``;
 
 const followCTA = phrase => `-# اضغط زر **Follow** إذا كنت مهتمّاً ${phrase}`;
 
-function pluginMessage(info) {
-    const lines = [
-        `## ${CLOUD} إضافة جديدة · New Plugin`,
-        datePill(),
-        `**\`${info.name}\`**`,
-        `> ${info.descriptionAr || info.descriptionEn}`,
-    ];
+// One plugin's block: bold name + Arabic then English description as blockquotes.
+function pluginEntry(info) {
+    const lines = [`**\`${info.name}\`**`, `> ${info.descriptionAr || info.descriptionEn}`];
     if (info.descriptionAr && info.descriptionEn) lines.push(`> ${info.descriptionEn}`);
-    lines.push(followCTA("بالإضافات الجديدة"));
     return lines.join("\n");
+}
+
+// Pack ALL new plugins into as few messages as possible (one when it fits): a single header +
+// date at the top, every plugin listed under it, and the Follow CTA at the very end. Splits into
+// extra messages only when the content would exceed Discord's 2000-char limit.
+function buildPluginMessages(infos) {
+    const header = `## ${CLOUD} إضافة جديدة · New Plugin\n${datePill()}`;
+    const cta = followCTA("بالإضافات الجديدة");
+    const LIMIT = 1900;
+
+    const messages = [];
+    let current = header;
+    for (const info of infos) {
+        const entry = pluginEntry(info);
+        const candidate = `${current}\n\n${entry}`;
+        if (candidate.length > LIMIT) {
+            messages.push(current);
+            current = entry;
+        } else {
+            current = candidate;
+        }
+    }
+    if (`${current}\n\n${cta}`.length > LIMIT) {
+        messages.push(current);
+        messages.push(cta);
+    } else {
+        messages.push(`${current}\n\n${cta}`);
+    }
+    return messages;
 }
 
 // Friendly bilingual update heading + clean message (conventional-commit prefix stripped).
@@ -219,20 +243,21 @@ assertWebhookUrl(WEBHOOK_UPDATES, "WEBHOOK_UPDATES");
 async function main() {
     let sent = false;
 
-    // 1. New plugin(s) detected
+    // 1. New plugin(s) detected — collect all, then send as ONE message (chunked only if needed).
+    const infos = [];
     for (const file of newPluginFiles) {
         console.log(`🆕 New plugin: ${file}`);
         const info = extractPluginInfo(file);
         if (!info) { console.warn(`  ⚠ Could not read metadata from ${file}`); continue; }
-
-        try {
-            await postWebhook(WEBHOOK_PLUGINS, {
-                username: "Esharq",
-                avatar_url: ICON_URL,
-                content: pluginMessage(info),
-            });
-        } catch (e) {
-            console.error(`  Plugin webhook failed: ${e.message}`);
+        infos.push(info);
+    }
+    if (infos.length) {
+        for (const content of buildPluginMessages(infos)) {
+            try {
+                await postWebhook(WEBHOOK_PLUGINS, { username: "Esharq", avatar_url: ICON_URL, content });
+            } catch (e) {
+                console.error(`  Plugin webhook failed: ${e.message}`);
+            }
         }
         sent = true;
     }
