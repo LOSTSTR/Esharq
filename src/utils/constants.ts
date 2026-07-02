@@ -1404,6 +1404,13 @@ export const EsharqDevs: ReadonlySet<string> = new Set([
     "428275226883915778",
 ]);
 
+// Esharq contributor ids — these show the Esharq Contributor badge (shared circular EA
+// image + spinning RGB ring). Seeded with the whole dev team, and extendable with anyone
+// else who contributes to Esharq. (Add ids here to grant the contributor badge.)
+export const EsharqContributors: ReadonlySet<string> = new Set([
+    ...EsharqDevs,
+]);
+
 // iife so #__PURE__ works correctly
 export const VencordDevsById = /* #__PURE__*/ (() =>
     Object.freeze(Object.fromEntries(

@@ -81,6 +81,41 @@
     object-fit: cover;
 }
 
+/* ── Esharq Contributor badge — shared circular EA image + the SAME spinning RGB (rainbow)
+ * ring as the Custom badge. Granted to everyone in EsharqContributors. ── */
+.esharq-contributor-badge {
+    position: relative;
+    display: inline-flex;
+    width: 18px;
+    height: 18px;
+    margin: 0 2px;
+    vertical-align: middle;
+    border-radius: 50%;
+}
+
+.esharq-contributor-badge::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #ff0040, #ff8c00, #ffe600, #00e676, #00e5ff, #2979ff, #d500f9, #ff0040);
+    animation:
+        esharq-ring-spin 2s linear infinite,
+        esharq-ring-glow 1s ease-in-out infinite alternate;
+    filter: blur(1px);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.esharq-contributor-badge img {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
 a[aria-label*="Esharq Developer"] {
     position: relative;
 }

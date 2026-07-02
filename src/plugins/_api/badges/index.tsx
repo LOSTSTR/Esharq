@@ -27,7 +27,7 @@ import { Devs } from "@utils/constants";
 import { copyWithToast } from "@utils/discord";
 import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
-import { isEsharqDev, shouldShowContributorBadge, shouldShowEquicordContributorBadge, shouldShowEsharqDeveloperBadge } from "@utils/misc";
+import { isEsharqDev, shouldShowContributorBadge, shouldShowEquicordContributorBadge, shouldShowEsharqContributorBadge, shouldShowEsharqDeveloperBadge } from "@utils/misc";
 import definePlugin from "@utils/types";
 import { ContextMenuApi, Menu, Toasts, UserStore } from "@webpack/common";
 
@@ -39,6 +39,7 @@ const CONTRIBUTOR_BADGE = "https://cdn.discordapp.com/emojis/1092089799109775453
 const EQUICORD_CONTRIBUTOR_BADGE = "https://equicord.org/assets/favicon.png";
 const USERPLUGIN_CONTRIBUTOR_BADGE = "https://equicord.org/assets/icons/misc/userplugin.png";
 const ESHARQ_DEVELOPER_BADGE = "https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges/developers/esharq.png";
+const ESHARQ_CONTRIBUTOR_BADGE = "https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges/contributors/Esharq.png";
 
 // Tooltips carry both languages at once. Visual polish (round image, spinning glow ring,
 // hover scale) lives in esharqBadges.css, targeted via the aria-label — inline style would
@@ -72,6 +73,22 @@ const EsharqCustomBadge: ProfileBadge = {
     component: ({ userId }: ProfileBadge & BadgeUserArgs) => (
         <span className="esharq-custom-badge" role="img" aria-label="مخصّص · Esharq Custom">
             <img src={EsharqCustomBadges[userId]} alt="" />
+        </span>
+    ),
+    onClick: (_, { userId }) => openContributorModal(UserStore.getUser(userId)),
+};
+
+// Esharq Contributor badge — a shared circular EA image with the same spinning RGB ring as
+// the Custom badge. Granted to everyone in EsharqContributors (seeded with the whole dev
+// team). Profile only. Rendered via component so the .esharq-contributor-badge ring applies.
+const EsharqContributorBadge: ProfileBadge = {
+    id: "esharq_contributor_badge",
+    description: "مساهم إشراق · Esharq Contributor",
+    position: BadgePosition.START,
+    shouldShow: ({ userId }) => shouldShowEsharqContributorBadge(userId),
+    component: ({ userId }: ProfileBadge & BadgeUserArgs) => (
+        <span className="esharq-contributor-badge" role="img" aria-label="مساهم إشراق · Esharq Contributor">
+            <img src={ESHARQ_CONTRIBUTOR_BADGE} alt="" />
         </span>
     ),
     onClick: (_, { userId }) => openContributorModal(UserStore.getUser(userId)),
@@ -246,7 +263,7 @@ export default definePlugin({
 
     // Listed in reverse display order: every START badge is unshifted, so the last one here
     // ends up first. This puts the Esharq Developer badge first, then the Custom badge.
-    userProfileBadges: [UserPluginContributorBadge, EquicordContributorBadge, ContributorBadge, EsharqCustomBadge, EsharqDeveloperBadge],
+    userProfileBadges: [UserPluginContributorBadge, EquicordContributorBadge, ContributorBadge, EsharqContributorBadge, EsharqCustomBadge, EsharqDeveloperBadge],
 
     async start() {
         await loadAllBadges();

@@ -25,7 +25,7 @@ import { IS_WINDOWS, VC_DONOR_ROLE_ID, VC_GUILD_ID } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
-import { isAnyPluginDev } from "@utils/misc";
+import { isAnyPluginDev, isEsharqContributor } from "@utils/misc";
 import { relaunch } from "@utils/native";
 import { Alerts, GuildMemberStore, React, useMemo, UserStore } from "@webpack/common";
 
@@ -216,7 +216,7 @@ function EquicordSettings() {
                     <DonateButtonComponent />
                 </SpecialCard>
             )}
-            {isAnyPluginDev(user?.id) && (
+            {(isAnyPluginDev(user?.id) || isEsharqContributor(user?.id)) && (
                 <SpecialCard
                     title={t("المساهمات", "Contributions")}
                     subtitle={t("شكراً لمساهمتك!", "Thank you for contributing!")}
