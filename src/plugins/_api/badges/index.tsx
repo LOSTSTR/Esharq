@@ -78,20 +78,18 @@ const EsharqCustomBadge: ProfileBadge = {
     onClick: (_, { userId }) => openContributorModal(UserStore.getUser(userId)),
 };
 
-// Esharq Contributor badge — a shared circular EA image with the same spinning RGB ring as
-// the Custom badge. Granted to everyone in EsharqContributors (seeded with the whole dev
-// team). Profile only. Rendered via component so the .esharq-contributor-badge ring applies.
+// Esharq Contributor badge — a shared circular EA image with a spinning RGB ring. Granted to
+// everyone in EsharqContributors (seeded with the whole dev team). Profile only. Uses iconSrc
+// (not component) so Discord shows the description tooltip ("مساهم إشراق · Esharq Contributor"),
+// same as the Developer badge; the RGB ring is applied via the aria-label CSS selector.
 const EsharqContributorBadge: ProfileBadge = {
     id: "esharq_contributor_badge",
     description: "مساهم إشراق · Esharq Contributor",
+    iconSrc: ESHARQ_CONTRIBUTOR_BADGE,
     position: BadgePosition.START,
     shouldShow: ({ userId }) => shouldShowEsharqContributorBadge(userId),
-    component: ({ userId }: ProfileBadge & BadgeUserArgs) => (
-        <span className="esharq-contributor-badge" role="img" aria-label="مساهم إشراق · Esharq Contributor">
-            <img src={ESHARQ_CONTRIBUTOR_BADGE} alt="" />
-        </span>
-    ),
     onClick: (_, { userId }) => openContributorModal(UserStore.getUser(userId)),
+    props: { style: { margin: "0 2px" } },
 };
 
 const ContributorBadge: ProfileBadge = {
