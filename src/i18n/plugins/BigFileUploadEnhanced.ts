@@ -8,8 +8,8 @@ import { definePluginI18n } from "@utils/i18n/types";
 
 export default definePluginI18n({
     "description": {
-        "ar": "تجاوز حد رفع Discord برفع الملفات إلى خادم خارجي وإرسال الرابط في الدردشة، هذه النسخة أسرع ولا تستخدم تعديل DOM",
-        "en": "Bypass Discord's upload limit by uploading files to an external server and sharing the link in chat. Faster and uses no DOM manipulation."
+        "ar": "تجاوز حد رفع Discord برفع الملفات إلى خادم خارجي وإرسال الرابط في الدردشة، هذه النسخة أسرع ولا تستخدم تعديل DOM. ⚠️ تُرفع ملفّاتك إلى مضيفين خارجيين (Catbox/GoFile/Litterbox) — استخدمها على مسؤوليتك التامّة",
+        "en": "Bypass Discord's upload limit by uploading files to an external server and sharing the link in chat. Faster and uses no DOM manipulation. ⚠️ Your files are uploaded to third-party hosts (Catbox/GoFile/Litterbox) — use at your own responsibility."
     },
     "options": {
         "uploader": {

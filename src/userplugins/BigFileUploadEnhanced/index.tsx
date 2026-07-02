@@ -953,7 +953,7 @@ function SettingsComponent() {
 
 export default definePlugin({
     name: "BigFileUploadEnhanced",
-    description: "Bypass Discord's upload limit by uploading files to an external server and sharing the link in chat — this version is faster and does not use DOM manipulation.",
+    description: "Bypass Discord's upload limit by uploading files to an external server and sharing the link in chat — this version is faster and does not use DOM manipulation. ⚠️ Your files are uploaded to third-party hosts (Catbox / GoFile / Litterbox) — use at your own responsibility.",
     tags: ["Utility", "Chat"],
     authors: [EquicordDevs.benjii, { name: "x2b", id: 0n }],
     settings,
