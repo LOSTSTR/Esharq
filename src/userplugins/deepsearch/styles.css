@@ -1,0 +1,429 @@
+/*
+ * Vencord, a Discord client mod
+ * Copyright (c) 2026 Vendicated and contributors
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+/* Button icon color */
+.vc-deepsearch-btn {
+    color: white !important;
+}
+
+.vc-deepsearch-btn svg {
+    color: white !important;
+}
+
+/* Modal root */
+.vc-deepsearch-modal-root [class*="root"] {
+    background: #1a1a2e !important;
+    width: min(700px, 95vw) !important;
+    height: min(80vh, 750px) !important;
+    max-width: 700px !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    border: 1px solid #2a2a3e !important;
+    color: white !important;
+}
+
+.vc-deepsearch-modal-root [class*="content"] {
+    padding: 0 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    color: white !important;
+}
+
+/* Force all text inside modal white */
+.vc-deepsearch-modal-root,
+.vc-deepsearch-modal-root * {
+    color: white;
+}
+
+/* Header */
+.vc-deepsearch-header {
+    display: flex;
+    align-items: center;
+    padding: 14px 18px;
+    background: #16162a;
+    border-bottom: 1px solid #2a2a3e;
+    flex-shrink: 0;
+    gap: 10px;
+}
+
+.vc-deepsearch-header-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: white !important;
+}
+
+.vc-deepsearch-header-guild {
+    font-size: 13px;
+    color: #aaa !important;
+    background: #2a2a3e;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-left: 4px;
+}
+
+/* Container */
+.vc-deepsearch-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    background: #1a1a2e;
+}
+
+/* Search section */
+.vc-deepsearch-search-section {
+    padding: 14px 18px;
+    background: #16162a;
+    border-bottom: 1px solid #2a2a3e;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.vc-deepsearch-search-bar {
+    display: flex;
+    align-items: center;
+    background: #0e0e1a;
+    border-radius: 8px;
+    padding: 8px 12px;
+    gap: 8px;
+}
+
+.vc-deepsearch-search-icon {
+    color: #888 !important;
+    flex-shrink: 0;
+}
+
+.vc-deepsearch-search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white !important;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.vc-deepsearch-search-input::placeholder {
+    color: #666 !important;
+}
+
+.vc-deepsearch-search-clear {
+    background: #2a2a3e;
+    color: #aaa !important;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+    padding: 0;
+}
+
+.vc-deepsearch-search-clear:hover {
+    background: #3a3a4e;
+    color: white !important;
+}
+
+/* Quick filters */
+.vc-deepsearch-quick-filters {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.vc-deepsearch-chip {
+    background: #2a2a3e;
+    color: #ccc !important;
+    border: 1px solid #3a3a4e;
+    border-radius: 16px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+}
+
+.vc-deepsearch-chip:hover {
+    background: #3a3a4e;
+    color: white !important;
+}
+
+.vc-deepsearch-chip-active {
+    background: #5865f2;
+    color: white !important;
+    border-color: #5865f2;
+}
+
+.vc-deepsearch-chip-active:hover {
+    background: #4752c4;
+    color: white !important;
+}
+
+.vc-deepsearch-clear-filters {
+    background: transparent;
+    color: #f38688 !important;
+    border: none;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 16px;
+}
+
+.vc-deepsearch-clear-filters:hover {
+    background: #2a2a3e;
+}
+
+/* Advanced filters */
+.vc-deepsearch-advanced-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 4px;
+    border-top: 1px solid #2a2a3e;
+}
+
+.vc-deepsearch-advanced-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.vc-deepsearch-filter-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 140px;
+}
+
+.vc-deepsearch-filter-input-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #888 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.vc-deepsearch-filter-input {
+    background: #0e0e1a;
+    border: 1px solid #2a2a3e;
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: white !important;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.vc-deepsearch-filter-input:focus {
+    border-color: #5865f2;
+}
+
+.vc-deepsearch-filter-input::placeholder {
+    color: #555 !important;
+}
+
+/* Results */
+.vc-deepsearch-results-header {
+    padding: 8px 18px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.vc-deepsearch-results-stats {
+    font-size: 12px;
+    color: #888 !important;
+}
+
+.vc-deepsearch-export {
+    background: #2a2a3e;
+    color: #ddd !important;
+    border: 1px solid #3a3a4e;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.vc-deepsearch-export:hover {
+    background: #3a3a4e;
+    color: white !important;
+}
+
+.vc-deepsearch-results {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 18px 18px;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(255 255 255 / 10%) transparent;
+}
+
+.vc-deepsearch-results::-webkit-scrollbar {
+    width: 6px;
+}
+
+.vc-deepsearch-results::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.vc-deepsearch-results::-webkit-scrollbar-thumb {
+    background: rgb(255 255 255 / 10%);
+    border-radius: 3px;
+}
+
+/* Result item */
+.vc-deepsearch-result-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    margin-bottom: 6px;
+    border-radius: 10px;
+    background: #22223a;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s;
+}
+
+.vc-deepsearch-result-item:hover {
+    background: #2a2a42;
+    border-color: #3a3a4e;
+}
+
+.vc-deepsearch-result-item-selected {
+    background: #2a2a4a;
+    border-color: #5865f2;
+}
+
+.vc-deepsearch-result-avatar {
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 2px;
+}
+
+.vc-deepsearch-result-avatar-img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.vc-deepsearch-result-avatar-fallback {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #5865f2;
+    color: white !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.vc-deepsearch-result-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.vc-deepsearch-result-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.vc-deepsearch-result-author {
+    font-size: 14px;
+    font-weight: 600;
+    color: white !important;
+}
+
+.vc-deepsearch-result-channel {
+    font-size: 12px;
+    font-weight: 500;
+    color: #aaa !important;
+    background: #2a2a3e;
+    padding: 1px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.vc-deepsearch-result-pin {
+    font-size: 11px;
+    font-weight: 600;
+    color: #faa61a !important;
+    background: rgb(250 166 26 / 15%);
+    padding: 1px 6px;
+    border-radius: 4px;
+}
+
+.vc-deepsearch-result-time {
+    font-size: 11px;
+    color: #777 !important;
+    margin-left: auto;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.vc-deepsearch-result-content {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #ddd !important;
+    overflow-wrap: anywhere;
+}
+
+.vc-deepsearch-highlight {
+    background: rgb(250 166 26 / 35%);
+    color: white !important;
+    border-radius: 2px;
+    padding: 0 1px;
+}
+
+.vc-deepsearch-result-meta {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 2px;
+}
+
+.vc-deepsearch-result-badge {
+    font-size: 11px;
+    font-weight: 500;
+    color: #bbb !important;
+    background: #2a2a3e;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.vc-deepsearch-result-badge-link {
+    color: #58a6ff !important;
+    background: rgb(88 166 255 / 12%);
+}
