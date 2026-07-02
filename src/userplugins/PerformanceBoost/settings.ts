@@ -52,5 +52,21 @@ export const settings = definePluginSettings({
     cleanCacheOnStart: {
         type: OptionType.BOOLEAN, default: false,
         description: "Clean Discord's cache when game mode starts"
+    },
+    skipSpringAnimations: {
+        type: OptionType.BOOLEAN, default: true,
+        description: "Skip Discord's spring animations for a snappier UI"
+    },
+    passiveListeners: {
+        type: OptionType.BOOLEAN, default: true,
+        description: "Make scroll and touch listeners passive for smoother scrolling"
+    },
+    lazyImages: {
+        type: OptionType.BOOLEAN, default: true,
+        description: "Lazy-load and async-decode images to reduce jank"
+    },
+    clearStoreCaches: {
+        type: OptionType.BOOLEAN, default: false,
+        description: "Free memory by clearing many Discord caches (messages, emojis, profiles, experiments, and more) when performance mode starts"
     }
 });

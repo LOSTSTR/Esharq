@@ -1,0 +1,23 @@
+body::before {
+    content: "";
+    position: fixed;
+    left: -50%;
+    right: -50%;
+    bottom: 0;
+    height: 38vh;
+    z-index: 1;
+    pointer-events: none;
+    background-image:
+        linear-gradient(rgba(1, 205, 254, 0.5) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(255, 113, 206, 0.45) 2px, transparent 2px);
+    background-size: 48px 48px;
+    transform: perspective(320px) rotateX(74deg);
+    mask-image: linear-gradient(transparent, #000 80%);
+    -webkit-mask-image: linear-gradient(transparent, #000 80%);
+    animation: mc-grid 4s linear infinite;
+}
+
+@keyframes mc-grid {
+    from { background-position: 0 0; }
+    to { background-position: 0 48px; }
+}

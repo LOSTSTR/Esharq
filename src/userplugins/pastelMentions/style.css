@@ -1,0 +1,11 @@
+/* MallCord PastelMentions — pastel mention/role pills */
+[class*="mention"] {
+    background: linear-gradient(90deg, rgba(255, 113, 206, 0.35), rgba(1, 205, 254, 0.35)) !important;
+    color: #fff0fb !important;
+    border-radius: 6px;
+    transition: filter 0.15s ease;
+}
+
+[class*="mention"]:hover {
+    filter: brightness(1.2);
+}

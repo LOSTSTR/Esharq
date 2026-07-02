@@ -20,3 +20,18 @@ html.vc-perfboost-hide-activities [class*="nowPlayingColumn"],
 html.vc-perfboost-hide-activities [class*="activityFeed"] {
     display: none !important;
 }
+
+/* ⚡ تحسينات عرض خفيفة عند تفعيل وضع الأداء (مدموجة من CacheResetButton) */
+html.vc-perfboost-active [class*="messageListItem_"] {
+    contain: layout style;
+}
+
+html.vc-perfboost-active [class*="scroller_"],
+html.vc-perfboost-active [class*="messageListItem_"] {
+    will-change: auto !important;
+}
+
+html.vc-perfboost-active [class*="backdrop_"],
+html.vc-perfboost-active [class*="layer_"] {
+    backdrop-filter: none !important;
+}

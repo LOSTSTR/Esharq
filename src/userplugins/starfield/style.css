@@ -1,0 +1,22 @@
+html::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+        radial-gradient(1px 1px at 20% 30%, #fff, transparent),
+        radial-gradient(1px 1px at 70% 60%, #01cdfe, transparent),
+        radial-gradient(1px 1px at 40% 80%, #ff71ce, transparent),
+        radial-gradient(1px 1px at 90% 20%, #fff, transparent),
+        radial-gradient(1px 1px at 55% 15%, #b967ff, transparent);
+    background-repeat: repeat;
+    background-size: 240px 240px;
+    opacity: 0.5;
+    animation: mc-twinkle 5s ease-in-out infinite alternate;
+}
+
+@keyframes mc-twinkle {
+    from { opacity: 0.25; }
+    to { opacity: 0.65; }
+}

@@ -1,0 +1,22 @@
+/* MallCord CRTEffect — scanline + flicker overlay */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.16) 0,
+        rgba(0, 0, 0, 0.16) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    mix-blend-mode: multiply;
+    animation: mc-crt-flicker 6s steps(60) infinite;
+}
+
+@keyframes mc-crt-flicker {
+    0%, 100% { opacity: 0.85; }
+    50% { opacity: 1; }
+}
