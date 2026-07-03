@@ -18,6 +18,7 @@ import { EquicordDevs } from "@utils/constants";
 import { copyWithToast } from "@utils/discord";
 import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
+import { saveFile } from "@utils/web";
 import type { RenderModalProps } from "@vencord/discord-types";
 import { Button, Modal, openModal, useEffect, useState } from "@webpack/common";
 import { getBuildNumber } from "@webpack/patcher";
@@ -228,6 +229,15 @@ function EventsModal({ modalProps, snapshot }: { modalProps: RenderModalProps; s
             <div className="cw-footer">
                 <Button onClick={() => copyWithToast(text, t("✓ نُسخ المعروض", "✓ Copied shown"))}>
                     {t(`نسخ المعروض (${filtered.length})`, `Copy shown (${filtered.length})`)}
+                </Button>
+                <Button
+                    color={Button.Colors.PRIMARY}
+                    onClick={() => {
+                        const date = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+                        saveFile(new File([text], `consolewatcher-${filter}-${date}.log`, { type: "text/plain" }));
+                    }}
+                >
+                    {t("تنزيل كملف", "Download as file")}
                 </Button>
             </div>
         </Modal>
