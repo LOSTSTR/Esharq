@@ -1,0 +1,36 @@
+name: Esharq Check
+
+# Esharq-layer quality gate, kept in its OWN workflow file so upstream merges
+# never conflict with it. Covers what upstream's Test workflow deliberately
+# skips: src/userplugins (excluded from tsconfig + lint-styles) and the
+# DiscordArabicizer dictionary.
+on:
+    push:
+        branches:
+            - main
+            - dev
+    pull_request:
+        branches:
+            - main
+            - dev
+
+jobs:
+    EsharqCheck:
+        name: Esharq Check
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v6
+            - uses: pnpm/action-setup@v6 # Install pnpm using packageManager key in package.json
+
+            - name: Use Node.js 24
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: "pnpm"
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Dictionary + userplugins type-check + userplugins styles
+              run: pnpm testEsharq

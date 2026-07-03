@@ -1,0 +1,7 @@
+{
+    // Esharq quality gate: same config as the base, but WITHOUT the
+    // src/userplugins exclusion — so Esharq's own plugins are type-checked too.
+    // Used by `pnpm testEsharq` and .github/workflows/esharq-check.yml.
+    "extends": "./tsconfig.json",
+    "exclude": []
+}

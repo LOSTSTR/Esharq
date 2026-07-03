@@ -1820,8 +1820,7 @@ export const translations: Record<string, string> = {
     "You'll be muted and deafened in your voice session during Mic Testing.": "ستُكتَم ويُصمَت سماعك في جلستك الصوتية أثناء اختبار الميكروفون.",
 
     // ── رسائل فارغة / حالات ──
-    "There are no pending message requests. Here's Wumpus for now.":
-        "لا توجد طلبات رسائل معلّقة. إليك ومبوس في انتظارها.",
+    "There are no pending message requests. Here's Wumpus for now.": "لا توجد طلبات رسائل معلّقة. إليك ومبوس في انتظارها.",
 
     // ── دفعة المراجعة (لقطات N.13): الملفات/العائلة/المحتوى/الخصوصية/الصوت/نيترو/التعزيز/الاشتراكات ──
 

@@ -39,7 +39,8 @@
         "lint:patches": "node scripts/lintPatches.mjs",
         "test": "pnpm buildStandalone && pnpm testTsc && pnpm lint:fix && pnpm lint-styles && pnpm lint:intl && pnpm lint:patches && pnpm generatePluginJson",
         "testWeb": "pnpm lint:fix && pnpm buildWeb && pnpm testTsc",
-        "testTsc": "tsc --noEmit"
+        "testTsc": "tsc --noEmit",
+        "testEsharq": "node scripts/esharqCheck.mjs && tsc --noEmit -p tsconfig.esharq.json && stylelint \"src/userplugins/**/*.css\""
     },
     "dependencies": {
         "@ffmpeg/ffmpeg": "^0.12.10",
