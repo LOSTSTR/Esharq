@@ -11,5 +11,5 @@
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(25, 0, 51, 0.4) !important;
+    background: rgb(25 0 51 / 40%) !important;
 }

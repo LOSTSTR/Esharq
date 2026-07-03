@@ -8,12 +8,11 @@ body::before {
     z-index: 1;
     pointer-events: none;
     background-image:
-        linear-gradient(rgba(1, 205, 254, 0.5) 2px, transparent 2px),
-        linear-gradient(90deg, rgba(255, 113, 206, 0.45) 2px, transparent 2px);
+        linear-gradient(rgb(1 205 254 / 50%) 2px, transparent 2px),
+        linear-gradient(90deg, rgb(255 113 206 / 45%) 2px, transparent 2px);
     background-size: 48px 48px;
     transform: perspective(320px) rotateX(74deg);
     mask-image: linear-gradient(transparent, #000 80%);
-    -webkit-mask-image: linear-gradient(transparent, #000 80%);
     animation: mc-grid 4s linear infinite;
 }
 
