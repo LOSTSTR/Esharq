@@ -49,4 +49,6 @@ allowedDeprecatedVersions:
     urix: "*"
     q: "*"
 
+strictPeerDependencies: false
+pmOnFail: warn
 verifyDepsBeforeRun: prompt

@@ -8,8 +8,8 @@ import { definePluginI18n } from "@utils/i18n/types";
 
 export default definePluginI18n({
     "description": {
-        "ar": "يعرض عدد الأعضاء في الخادم والقناة",
-        "en": "Shows the member count of a server and channel."
+        "ar": "يعرض عدد الأعضاء المتصلين وإجمالي الأعضاء ومن هم في القنوات الصوتية بالخادم — في قائمة الأعضاء والتلميح",
+        "en": "Shows the number of online members, total members, and users in voice channels on the server - in the member list and tooltip."
     },
     "options": {
         "toolTip": {
