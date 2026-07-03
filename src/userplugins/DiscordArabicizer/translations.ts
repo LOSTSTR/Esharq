@@ -4367,4 +4367,7 @@ export const translations: Record<string, string> = {
     "You are currently in preview mode. Join this server to start chatting!": "أنت حالياً في وضع المعاينة. انضم إلى هذا الخادم لبدء الدردشة!",
     "setting.": "لديك.",
     "Larger File Uploads": "رفع ملفات أكبر",
+
+    // ── الدفعة 49: نصوص متجاوِزة intl (تُطبَّق عبر domFallback) ──
+    "This is a dangerous permission to grant.": "هذه صلاحية خطرة يُفضَّل عدم منحها.",
 };
