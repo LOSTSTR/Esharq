@@ -20,6 +20,18 @@ export const settings = definePluginSettings({
         type: OptionType.BOOLEAN, default: false,
         description: "Automatically enable when a game is detected"
     },
+    // افتراضياً مُطفأ: مراقب حمل اختياري — عيّنة CPU كل 30 ثانية فقط عند تفعيله.
+    autoHighLoad: {
+        type: OptionType.BOOLEAN, default: false,
+        description: "Automatically enable performance mode when Discord's CPU usage stays above the threshold (checks every 30s, desktop only)"
+    },
+    cpuThreshold: {
+        type: OptionType.SLIDER,
+        description: "CPU threshold (%) that triggers automatic performance mode (total across Discord processes)",
+        markers: [80, 120, 160, 220, 300],
+        default: 160,
+        stickToMarkers: true
+    },
     reduceHardwareAcceleration: {
         type: OptionType.BOOLEAN, default: true,
         description: "Disable hardware acceleration (requires a Discord restart)"

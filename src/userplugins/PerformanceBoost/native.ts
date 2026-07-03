@@ -23,6 +23,20 @@ function getAllDiscordPids(): number[] {
     }
 }
 
+// ✅ إجمالي استهلاك المعالج لكل عمليات Discord (نسبة من نواة واحدة؛ قد تتجاوز 100).
+// عبر Electron app.getAppMetrics() نفسه — لا PowerShell ولا أي عملية خارجية.
+// percentCPUUsage تُحتسب منذ النداء السابق، فالنداء الأول يُرجِع 0 — غير ضارّ لأن مراقب
+// الحمل يشترط عيّنتين متتاليتين فوق الحدّ قبل أي تصرّف.
+export function getTotalCpu(_e: IpcMainInvokeEvent): number {
+    try {
+        let total = 0;
+        for (const m of app.getAppMetrics()) total += m.cpu?.percentCPUUsage ?? 0;
+        return total;
+    } catch {
+        return 0;
+    }
+}
+
 // ✅ خفض أولوية كل عمليات Discord عبر os.setPriority المدمج (Windows فقط).
 // خفض الأولوية لعملياتك لا يتطلب صلاحيات مدير؛ بعض العمليات قد ترفض فنتجاهلها.
 export async function setProcessPriority(_e: IpcMainInvokeEvent, level: "belowNormal" | "normal"): Promise<{ ok: boolean; reason: string; changed: number; }> {

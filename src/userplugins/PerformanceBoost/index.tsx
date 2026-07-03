@@ -220,6 +220,50 @@ async function promptHardwareRestart() {
     );
 }
 
+// ── مراقب الحمل الاختياري (autoHighLoad — مُطفأ افتراضياً) ──
+// عيّنة CPU إجمالية كل 30 ثانية عبر getAppMetrics (بلا عمليات خارجية). عيّنتان متتاليتان
+// فوق الحدّ → تفعيل تلقائي؛ وعيّنتان متتاليتان دون 60% من الحدّ → إيقاف تلقائي، لكن فقط
+// إن كان التفعيل الأخير بسبب الحمل (لا نلمس ما فعّله المستخدم/كشف الألعاب).
+let loadTimer: ReturnType<typeof setInterval> | null = null;
+let highStreak = 0, lowStreak = 0;
+let autoByLoad = false; // آخر تفعيل كان بسبب الحمل ⇒ يجوز لنا وحدنا عكسه تلقائياً
+
+async function sampleLoad() {
+    if (!Native || !settings.store.autoHighLoad) return;
+    try {
+        const cpu = await Native.getTotalCpu();
+        const threshold = settings.store.cpuThreshold ?? 160;
+        if (cpu >= threshold) { highStreak++; lowStreak = 0; }
+        else if (cpu < threshold * 0.6) { lowStreak++; highStreak = 0; }
+        else { highStreak = 0; lowStreak = 0; }
+
+        if (!active && !manualOff && highStreak >= 2) {
+            highStreak = 0;
+            autoByLoad = true;
+            await applyMode();
+            notice(t(`استهلاك المعالج مرتفع (${Math.round(cpu)}%) — فُعّل وضع الأداء تلقائياً.`, `High CPU usage (${Math.round(cpu)}%) — performance mode enabled automatically.`), "info");
+        } else if (active && autoByLoad && lowStreak >= 2) {
+            lowStreak = 0;
+            autoByLoad = false;
+            await revertMode();
+        }
+    } catch (e) { logger.warn("load sample failed", e); }
+}
+
+// المؤقّت يعمل طوال تفعيل الإضافة على سطح المكتب؛ sampleLoad يخرج فوراً (فحص boolean
+// واحد، بلا أي نداء native) ما دام الخيار مُطفأً — فيستجيب التبديل حيّاً بلا إعادة تشغيل.
+function startLoadMonitor() {
+    if (loadTimer !== null || !Native) return;
+    highStreak = 0; lowStreak = 0;
+    loadTimer = setInterval(sampleLoad, 30_000);
+}
+
+function stopLoadMonitor() {
+    if (loadTimer !== null) { clearInterval(loadTimer); loadTimer = null; }
+    highStreak = 0; lowStreak = 0;
+    autoByLoad = false;
+}
+
 // ── التفعيل والإيقاف (كل شيء تلقائي) ──
 async function applyMode() {
     if (active) return;
@@ -247,6 +291,7 @@ async function revertMode() {
 }
 
 function toggle() {
+    autoByLoad = false; // تدخّل يدوي ⇒ مراقب الحمل لا يملك عكس هذه الحالة تلقائياً
     if (active) {
         revertMode();
         manualOff = true;  // إيقاف يدوي ⇒ يطغى على الكشف التلقائي حتى تُفعّله بنفسك
@@ -322,8 +367,10 @@ export default definePlugin({
         // نفتح الكشف الحيّ عند CONNECTION_OPEN (انظر flux أعلاه)، مع مهلة احتياطية 15ث إن لم يصل الحدث —
         // فلا يُفعَّل الوضع تلقائياً عند فتح Discord ولعبة شغّالة.
         readyFallbackTimer = setTimeout(markReady, 15000);
+        startLoadMonitor(); // مراقب الحمل الاختياري (لا يفعل شيئاً ما دام autoHighLoad مُطفأً)
     },
     stop() {
+        stopLoadMonitor();
         revertMode();
         removeRuntimeOpts(); // ضمان عكس رقعة addEventListener حتى لو لم يكن الوضع مفعّلاً (بلا تسريب)
         // ننظّف المهلة الاحتياطية ونُعيد ضبط الحالة لإعادة تفعيل نظيفة لاحقاً.
