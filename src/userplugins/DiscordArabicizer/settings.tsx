@@ -15,24 +15,52 @@ import { definePluginSettings } from "@api/Settings";
 import { copyWithToast } from "@utils/discord";
 import { t } from "@utils/esharqI18n";
 import { OptionType } from "@utils/types";
-import { Button } from "@webpack/common";
+import { saveFile } from "@utils/web";
+import { Button, useEffect, useState } from "@webpack/common";
 
-import { clearMissing, getMissing } from "./collector";
+import { clearMissing, getMissing, sessionStats } from "./collector";
 import { startDomFallback, stopDomFallback } from "./domFallback";
 import { translations } from "./translations";
 
+// يبني ملف JSON من المفقودات ويطلب حفظه (أنسب من الحافظة للقوائم الكبيرة).
+function downloadMissing() {
+    const list = getMissing();
+    const date = new Date().toISOString().slice(0, 10);
+    saveFile(new File(
+        [JSON.stringify(list, null, 2)],
+        `arabicizer-missing-${date}.json`,
+        { type: "application/json" }
+    ));
+}
+
 function StatsAndTools() {
+    // إنعاش دوري خفيف أثناء فتح الصفحة فقط — تتحدّث الأرقام حيّاً بلا أي عمل خلفي دائم.
+    const [, setTick] = useState(0);
+    useEffect(() => {
+        const id = setInterval(() => setTick(n => n + 1), 2000);
+        return () => clearInterval(id);
+    }, []);
+
     const missing = getMissing();
     const total = Object.keys(translations).length;
+    const { hits, misses } = sessionStats;
+    const passed = hits + misses;
+    const pct = passed > 0 ? Math.round((hits / passed) * 100) : null;
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <div style={{ color: "var(--text-muted)", fontSize: 13 }}>
                 🟢 مُترجَم في القاموس: <b>{total}</b>　·　🔴 غير مُترجَم (هذه الجلسة): <b>{missing.length}</b>
             </div>
+            <div style={{ color: "var(--text-muted)", fontSize: 13 }}>
+                📊 {t("تغطية الجلسة الفعلية:", "Live session coverage:")}{" "}
+                {pct === null
+                    ? t("لا نصوص مرّت بعد", "no strings passed yet")
+                    : <>‏<b>{pct}%</b> — {t(`تُرجم ${hits.toLocaleString()} من ${passed.toLocaleString()} نصّاً مرّ بالمحرّك`, `${hits.toLocaleString()} of ${passed.toLocaleString()} strings translated`)}</>}
+            </div>
             <div style={{ color: "var(--text-muted)", fontSize: 12 }}>
                 ℹ️ {t("الجمع يبدأ فقط عند تشغيل «الوضع التشخيصي» أعلاه — لا تلقائياً.", "Collection starts only when “Diagnostic mode” above is on — never automatically.")}
             </div>
-            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
                 <Button
                     onClick={() => copyWithToast(
                         JSON.stringify(getMissing(), null, 2),
@@ -40,6 +68,12 @@ function StatsAndTools() {
                     )}
                 >
                     انسخ النصوص غير المترجَمة ({missing.length})
+                </Button>
+                <Button
+                    color={Button.Colors.PRIMARY}
+                    onClick={downloadMissing}
+                >
+                    {t("تنزيل كملف JSON", "Download as JSON")}
                 </Button>
                 <Button
                     look={Button.Looks.LINK}

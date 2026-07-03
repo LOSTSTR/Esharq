@@ -18,7 +18,7 @@ import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { i18n } from "@webpack/common";
 
-import { collectMissing as rawCollect } from "./collector";
+import { collectMissing as rawCollect, sessionStats } from "./collector";
 import { startDomFallback, stopDomFallback } from "./domFallback";
 import { settings } from "./settings";
 import { translations as AR } from "./translations";
@@ -67,6 +67,7 @@ export const translationCount = NORM.size;
 
 // وضع تشخيصي: يُعلّم المُترجَم بـ🟢 وغير المُترجَم بـ🔴 (للمطوّر فقط — يُطفأ عند الإطلاق).
 function diag(ok: boolean, text: string): string {
+    if (ok) sessionStats.hits++; else sessionStats.misses++;
     return settings.store.diagnosticMode ? (ok ? "🟢" : "🔴") + text : text;
 }
 
@@ -140,7 +141,44 @@ const NUMERIC_PATTERNS: { re: RegExp; ar: (m: RegExpMatchArray) => string }[] = 
     // ── طوابع زمنية مطلقة ("Today at 9:00am" / "Monday at 9:00am") ──
     { re: /^Today at (.+)$/, ar: m => `اليوم في ${m[1]}` },
     { re: /^Yesterday at (.+)$/, ar: m => `أمس في ${m[1]}` },
-    { re: /^(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday) at (.+)$/, ar: m => `${WEEKDAYS_AR[m[1]]} في ${m[2]}` }
+    { re: /^(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday) at (.+)$/, ar: m => `${WEEKDAYS_AR[m[1]]} في ${m[2]}` },
+    // ── طبقة الألعاب (يبقى اسم اللعبة كما هو) ──
+    { re: /^Enable Overlay for (.+)$/, ar: m => `تفعيل الطبقة للعبة ${m[1]}` },
+    { re: /^Enable Legacy overlay for (.+)$/, ar: m => `تفعيل الطبقة القديمة للعبة ${m[1]}` },
+    // ── نشاط الصوت في قائمة الأعضاء (يبقى اسم المستخدم كما هو) ──
+    { re: /^(.+) joined voice$/, ar: m => `انضم ${m[1]} إلى الصوت` },
+    // ── الدولة/المنطقة (يبقى اسم الدولة بصيغة ديسكورد) ──
+    { re: /^Country\/Region: (.+)$/, ar: m => `الدولة/المنطقة: ${m[1]}` },
+    // ── الإعداد التمهيدي: قنوات ناقصة + عدّادا القنوات ──
+    { re: /^(\d+) public channels? are missing from Questions and Default Channels\.$/, ar: m => `${m[1]} قناة عامة غير مضافة إلى الأسئلة أو القنوات الافتراضية.` },
+    { re: /^(\d+) CHATTABLE$/, ar: m => `${m[1]} قابلة للدردشة` },
+    { re: /^(\d+) TOTAL$/, ar: m => `${m[1]} الإجمالي` },
+    // ── المهام والمتجر: استلام الزينة، تواريخ الانتهاء، الأسعار (تبقى العملة/التاريخ بصيغة ديسكورد) ──
+    { re: /^\{0\} claimed on (\d+\/\d+)$/, ar: m => `{0} استُلمت في ${m[1]}` },
+    { re: /^claimed on (\d+\/\d+)$/, ar: m => `استُلمت في ${m[1]}` },
+    { re: /^Ends (\d+\/\d+)$/, ar: m => `تنتهي في ${m[1]}` },
+    { re: /^Price: (.+) after (\d+)% discount$/, ar: m => `السعر: ${m[1]} بعد خصم ${m[2]}%` },
+    { re: /^Price: (.+)$/, ar: m => `السعر: ${m[1]}` },
+    { re: /^(.+) has been added to your collection\.$/, ar: m => `أُضيفت ${m[1]} إلى مجموعتك.` },
+    // ── تعليمات المهام (يبقى اسم اللعبة/العملة كما هو) ──
+    { re: /^for (\d+) minutes and win (\d+) Orbs\.$/, ar: m => `لمدة ${m[1]} دقيقة واربح ${m[2]} Orbs.` },
+    { re: /^for (\d+) minutes with your Discord client open and win (\d+) Orbs\.$/, ar: m => `لمدة ${m[1]} دقيقة مع فتح عميل ديسكورد واربح ${m[2]} Orbs.` },
+    { re: /^Use (.+) for (\d+) minutes with your Discord client open and win (\d+) Orbs\.$/, ar: m => `استخدم ${m[1]} لمدة ${m[2]} دقيقة مع فتح عميل ديسكورد واربح ${m[3]} Orbs.` },
+    { re: /^Watch the video to win (\d+) Orbs!$/, ar: m => `شاهد الفيديو واربح ${m[1]} Orbs!` },
+    // ── سجلّ المكالمات (يبقى اسم المتصل كما هو) ──
+    { re: /^\{0\} started a call that lasted (\d+) minutes?\.$/, ar: m => `بدأ {0} مكالمة استمرت ${m[1]} دقيقة.` },
+    { re: /^started a call that lasted (\d+) minutes?\.$/, ar: m => `بدأ مكالمة استمرت ${m[1]} دقيقة.` },
+    // ── عودة صديق بعد غياب ──
+    { re: /^Returning after (\d+) months?$/, ar: m => `عائد بعد ${m[1]} شهر` },
+    // ── بدايات القنوات: النسخ المبتورة/ذات {0} التي لا يغطيها نمط "channel." الكامل ──
+    { re: /^This is the start of the #(.+) channel\. \{0\}$/, ar: m => `هذه بداية قناة #${m[1]}. {0}` },
+    { re: /^This is the start of the #(.+)$/, ar: m => `هذه بداية قناة #${m[1]}` },
+    // ── تسمية منطقة الدردشة لقارئ الشاشة ("X chat" — يبقى اسم القناة كما هو) ──
+    { re: /^(.+) chat$/, ar: m => `دردشة ${m[1]}` },
+    // ── إعداد الأمان: "N of M enabled" + متجر الخادم + مزايا التعزيز (يبقى اسم اللعبة/الحجم) ──
+    { re: /^(\d+) of (\d+) enabled$/, ar: m => `مفعّل ${m[1]} من ${m[2]}` },
+    { re: /^Explore the latest drops from (.+)!$/, ar: m => `استكشف أحدث الإصدارات من ${m[1]}!` },
+    { re: /^Let everyone share bigger files in this server, up to (\d+)MB\.$/, ar: m => `دَع الجميع يشاركون ملفات أكبر في هذا الخادم، حتى ${m[1]}MB.` }
 ];
 
 function numericTemplate(text: string): string | null {
