@@ -5,6 +5,7 @@
  */
 
 import { HeaderBarButton } from "@api/HeaderBar";
+import { showNotification } from "@api/Notifications";
 import { definePluginSettings, useSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { EquicordDevs } from "@utils/constants";
@@ -13,6 +14,7 @@ import definePlugin, { OptionType } from "@utils/types";
 import { Button, openModal, React } from "@webpack/common";
 
 import { DiagnosticsModal } from "./DiagnosticsModal";
+import { startMemoryGuard, stopMemoryGuard } from "./memoryGuard";
 import { sampleHeapMB, scanPlugins } from "./scanner";
 import { processSnapshot } from "./scoring";
 
@@ -53,6 +55,21 @@ function HeaderBarDiagnosticsButton() {
     );
 }
 
+// يبدأ حارس الذاكرة (بإشعار يفتح نافذة التشخيص عند الرصد) — idempotent.
+function armMemoryGuard() {
+    startMemoryGuard(growthMB => {
+        showNotification({
+            title: "EsharqDiagnostics",
+            body: t(
+                `يبدو أن هناك تسريب ذاكرة: خطّ أساس الذاكرة ارتفع ~${growthMB}MB خلال آخر 15 دقيقة رغم عمل جامع المهملات. افتح التشخيص لعزل المسبّب.`,
+                `Possible memory leak: the heap baseline grew ~${growthMB}MB over the last 15 minutes despite garbage collection. Open Diagnostics to isolate the cause.`
+            ),
+            color: "#faa81a",
+            onClick: openDiagnostics
+        });
+    });
+}
+
 const settings = definePluginSettings({
     liveInterval: {
         type: OptionType.SLIDER,
@@ -60,6 +77,20 @@ const settings = definePluginSettings({
         markers: [3, 5, 10, 15, 30],
         default: 5,
         stickToMarkers: true,
+    },
+    // مُطفأ افتراضياً — المستخدم وحده يقرّر تشغيله. عند تفعيله: عيّنة heap كل دقيقة فقط
+    // (قراءة خاصية واحدة)، وإشعار واحد في الجلسة إذا نما خطّ الأساس بعد GC نموّاً مطّرداً.
+    memoryGuard: {
+        type: OptionType.BOOLEAN,
+        description: t(
+            "🛡️ حارس الذاكرة (اختياري): مراقبة خلفية خفيفة جداً (عيّنة/دقيقة) تُنبّهك مرة واحدة إذا رُصد نموّ ذاكرة مطّرد يشبه التسريب — مُطفأ افتراضياً.",
+            "🛡️ Memory guard (optional): ultra-light background watch (one sample/minute) that notifies you once if sustained leak-like memory growth is detected — off by default."
+        ),
+        default: false,
+        onChange(value: boolean) {
+            if (value) armMemoryGuard();
+            else stopMemoryGuard();
+        }
     },
     open: {
         type: OptionType.COMPONENT,
@@ -81,5 +112,14 @@ export default definePlugin({
     headerBarButton: {
         icon: DiagnosticsIcon,
         render: HeaderBarDiagnosticsButton,
+    },
+
+    start() {
+        // الحارس اختياري ومُطفأ افتراضياً — لا يعمل شيء في الخلفية إلا إذا فعّله المستخدم.
+        if (settings.store.memoryGuard) armMemoryGuard();
+    },
+
+    stop() {
+        stopMemoryGuard();
     },
 });
