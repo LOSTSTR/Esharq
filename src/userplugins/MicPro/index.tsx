@@ -121,8 +121,11 @@ async function setLoopback(on: boolean, autoDeafen: boolean) {
     } catch { /* آمن */ }
 }
 
-// ── مستوى الإدخال الحيّ (VU) — getUserMedia محلّي + resume() لتفادي AudioContext المُعلَّق ──
-function useLiveLevel(deviceId: string): number {
+// ── مستوى الإدخال الحيّ (VU) — getUserMedia للجهاز الافتراضي + resume() لتفادي التعليق ──
+// ملاحظة: لا نمرّر deviceId من getInputDeviceId() لأنه مُعرّف ديسكورد الداخلي وغير متوافق
+// مع Web MediaDevices (قيد exact عليه يرمي OverconstrainedError فيبقى المقياس فارغاً). نستخدم
+// الميكروفون الافتراضي — وهو عادةً نفس المُختار — فيعمل المتر بثبات.
+function useLiveLevel(): number {
     const [level, setLevel] = useState(0);
     const ref = useRef<{ ctx?: AudioContext; stream?: MediaStream; raf?: number; }>({});
 
@@ -130,9 +133,7 @@ function useLiveLevel(deviceId: string): number {
         let cancelled = false;
         (async () => {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    audio: deviceId && deviceId !== "default" ? { deviceId: { exact: deviceId } } : true
-                });
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 if (cancelled) { stream.getTracks().forEach(t => t.stop()); return; }
                 const ctx = new AudioContext();
                 // كروميوم يبدأ السياق «معلّقاً» أحياناً فلا يصل الصوت ⇒ المقياس فارغ. resume() يحلّها.
@@ -161,14 +162,14 @@ function useLiveLevel(deviceId: string): number {
             r.ctx?.close().catch(() => { });
             ref.current = {};
         };
-    }, [deviceId]);
+    }, []);
 
     return level;
 }
 
 // تحكّم «مستوى الإدخال»: مؤشّر حيّ ملوّن خلفه (المتر) + مقبض أبيض قابل للسحب يمين/يسار يضبط الكسب.
-function InputLevel({ deviceId, gain, onGain }: { deviceId: string; gain: number; onGain: (v: number) => void; }) {
-    const level = useLiveLevel(deviceId);
+function InputLevel({ gain, onGain }: { gain: number; onGain: (v: number) => void; }) {
+    const level = useLiveLevel();
     return (
         <div className="micpro-il">
             <span className="micpro-il-live" style={{ width: `${Math.round(level * 100)}%` }} />
@@ -349,7 +350,7 @@ function ProcessingPane() {
         <>
             <Tile span>
                 <Cap label={t("مستوى الإدخال", "Input level")} value={`${Math.round(s.inputVolume)}%`} />
-                <InputLevel deviceId={s.deviceId} gain={Math.round(s.inputVolume)}
+                <InputLevel gain={Math.round(s.inputVolume)}
                     onGain={v => { apply.inputVolume(v); setS(p => ({ ...p, inputVolume: v })); }} />
             </Tile>
 
