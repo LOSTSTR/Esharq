@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { PluginInfo } from "@plugins/betterMicrophone.desktop/constants";
+import { PluginInfo } from "@plugins/_micProEngine/constants";
 import { createPluginStore, ProfilableInitializer, ProfilableStore, profileable, ProfileableProfile } from "@plugins/philsPluginLibrary";
 
 
@@ -92,3 +92,4 @@ export const initMicrophoneStore = () =>
             Object.values(defaultMicrophoneProfiles)
         )
     );
+

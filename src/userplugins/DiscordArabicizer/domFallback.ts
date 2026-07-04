@@ -31,6 +31,8 @@ const BYPASS_KEYS = [
     "We recommend setting a verification level for a Community Server.",
     // تحذير الصلاحية الخطرة (جزء منفصل يُلحَق بعد وصف الصلاحية — يتجاوز intl).
     "This is a dangerous permission to grant.",
+    // عنوان بطاقة ميزة التعزيز «رفع ملفات أكبر» (بطاقات المزايا تتجاوز intl).
+    "Larger File Uploads",
 ];
 
 // أنماط متجاوِزة تحمل رقماً مدموجاً (عدّادات الإعداد التمهيدي) — لا تُطابَق حرفياً. عربيّتها
@@ -38,7 +40,11 @@ const BYPASS_KEYS = [
 const PATTERN_BYPASS: { re: RegExp; ar: (m: RegExpMatchArray) => string; max: number; }[] = [
     { re: /^(\d+) CHATTABLE$/, ar: m => `${m[1]} قابلة للدردشة`, max: 24 },
     { re: /^(\d+) TOTAL$/, ar: m => `${m[1]} الإجمالي`, max: 20 },
-    { re: /^(\d+) public channels? are missing from Questions and Default Channels\.$/, ar: m => `${m[1]} قناة عامة غير مضافة إلى الأسئلة أو القنوات الافتراضية.`, max: 90 }
+    { re: /^(\d+) public channels? are missing from Questions and Default Channels\.$/, ar: m => `${m[1]} قناة عامة غير مضافة إلى الأسئلة أو القنوات الافتراضية.`, max: 90 },
+    // وصف بطاقة «رفع ملفات أكبر» — الحجم متغيّر (100/250/500MB) فنمط لا مفتاح ثابت.
+    { re: /^Let everyone share bigger files in this server, up to (\d+)MB\.$/, ar: m => `دَع الجميع يشاركون ملفات أكبر في هذا الخادم، حتى ${m[1]} ميغابايت.`, max: 70 },
+    // الملف الشخصي الخاص (نسخة احتياطية إن تجاوز intl — الاسم يبقى، مع دعم ' و ’).
+    { re: /^(.+?)['’]s profile is private, so some info is hidden\. Add them as a friend to see more\.$/, ar: m => `الملف الشخصي لـ${m[1]} خاصّ، لذا بعض المعلومات مخفيّة. أضِفه صديقاً لرؤية المزيد.`, max: 130 }
 ];
 
 // نصوص طويلة متجاوِزة يصعب مطابقتها حرفياً (يقسمها ديسكورد أو يغيّر طولها) — نطابقها

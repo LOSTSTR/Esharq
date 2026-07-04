@@ -95,8 +95,10 @@ const WEEKDAYS_AR: Record<string, string> = {
 // مضبوط ونُعيد صياغته بالعربية. قائمة قصيرة جداً ومُقيّدة بـ ^…$ لتفادي أي مطابقة خاطئة.
 // نُبقي الاسم العَلَم (قناة/رتبة/مستخدم) بالإنجليزية ونُعرّب التسمية المحيطة فقط.
 const NUMERIC_PATTERNS: { re: RegExp; ar: (m: RegExpMatchArray) => string }[] = [
-    { re: /^(\d+) Mutual Friends$/, ar: m => `${m[1]} صديق مشترك` },
-    { re: /^(\d+) Mutual Servers$/, ar: m => `${m[1]} خادم مشترك` },
+    { re: /^(\d+) Mutual Friends?$/, ar: m => `${m[1]} صديق مشترك` },
+    { re: /^(\d+) Mutual Servers?$/, ar: m => `${m[1]} خادم مشترك` },
+    // الملف الشخصي الخاص (يبقى اسم المستخدم، مع دعم الفاصلة المنحنية والمستقيمة).
+    { re: /^(.+?)['’]s profile is private, so some info is hidden\. Add them as a friend to see more\.$/, ar: m => `الملف الشخصي لـ${m[1]} خاصّ، لذا بعض المعلومات مخفيّة. أضِفه صديقاً لرؤية المزيد.` },
     { re: /^(\d+) Boosts?$/, ar: m => `${m[1]} تعزيز` },
     { re: /^(\d+)\+ Boosts?$/, ar: m => `${m[1]}+ تعزيز` },
     { re: /^(\d+) of (\d+) users$/, ar: m => `${m[1]} من ${m[2]} مستخدم` },
