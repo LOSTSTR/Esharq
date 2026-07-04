@@ -27,8 +27,18 @@ function trackDrift(key: string): void {
     if (IS_DEV) console.warn(`[Esharq i18n] drift — overlay exists but key missing: ${key}`);
 }
 
+// عزل ثنائي الاتجاه: نغلّف كل نصّ عربي (وصف/خيار/تسمية إضافة) بعازل RTL (RLI U+2067 …
+// PDI U+2069) فيُعرَض من اليمين لليسار مهما كان اتجاه حاوية الإعدادات، مع بقاء الأسماء
+// اللاتينية بداخله (Esharq/MicPro/AGC…) LTR في مكانها — يحلّ تشوّه العربية المختلطة.
+const HAS_ARABIC = /[؀-ۿ]/;
+const RLI = String.fromCharCode(0x2067);
+const PDI = String.fromCharCode(0x2069);
+function rtl(s: string): string {
+    return HAS_ARABIC.test(s) ? RLI + s + PDI : s;
+}
+
 function pick(str: LocalizedString, original: string): string {
-    return isArabicMode() ? str.ar : (str.en ?? original);
+    return isArabicMode() ? rtl(str.ar) : (str.en ?? original);
 }
 
 /**
