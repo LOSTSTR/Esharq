@@ -18,7 +18,7 @@ import { MicrophonePatcher } from "@plugins/_micProEngine/patchers";
 import { initMicrophoneStore, microphoneStore } from "@plugins/_micProEngine/stores";
 import { addSettingsPanelButton, Emitter, MicrophoneSettingsIcon, removeSettingsPanelButton } from "@plugins/philsPluginLibrary";
 import { EquicordDevs } from "@utils/constants";
-import { t } from "@utils/esharqI18n";
+import { isArabicMode, t } from "@utils/esharqI18n";
 import { ModalContent, ModalHeader, ModalRoot, openModal, type RenderModalProps } from "@utils/esharqModals";
 import { ModalSize } from "@utils/modal";
 import definePlugin, { PluginNative } from "@utils/types";
@@ -402,10 +402,13 @@ function MicProModal({ rootProps }: { rootProps: RenderModalProps; }) {
     const [tab, setTab] = useState<"proc" | "trans">("proc");
     useEffect(() => () => { if (loopbackOn) void setLoopback(false, settings.store.autoDeafenOnTest); }, []);
 
+    // اتجاه اللوحة حسب اللغة — يمنع تشوّه العربية المختلطة (bidi) في نصوصنا.
+    const dir = isArabicMode() ? "rtl" : "ltr";
+
     return (
         <ModalRoot {...rootProps} size={ModalSize.SMALL} className="micpro-root">
             <ModalHeader separator={false}>
-                <div className="micpro-head">
+                <div className="micpro-head" dir={dir}>
                     <MicIconGlyph />
                     <div>
                         <div className="micpro-title">MicPro</div>
@@ -414,11 +417,11 @@ function MicProModal({ rootProps }: { rootProps: RenderModalProps; }) {
                 </div>
             </ModalHeader>
             <ModalContent>
-                <div className="micpro-tabs">
+                <div className="micpro-tabs" dir={dir}>
                     <button type="button" className={"micpro-tab" + (tab === "proc" ? " micpro-tab-on" : "")} onClick={() => setTab("proc")}>{t("المعالجة", "Processing")}</button>
                     <button type="button" className={"micpro-tab" + (tab === "trans" ? " micpro-tab-on" : "")} onClick={() => setTab("trans")}>{t("النقل عالي الجودة", "Transmission")}</button>
                 </div>
-                <div className="micpro-body">
+                <div className="micpro-body" dir={dir}>
                     {tab === "proc" ? <ProcessingPane /> : <TransmissionPane />}
                 </div>
             </ModalContent>

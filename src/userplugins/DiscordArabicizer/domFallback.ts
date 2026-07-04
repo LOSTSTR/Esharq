@@ -16,6 +16,14 @@ function normalize(s: string): string {
     return s.replace(/[‘’‛]/g, "'").replace(/[“”]/g, '"');
 }
 
+// عزل RTL (نفس منطق المحرّك) — يُعرَض العربي صحيحاً في حاويات ديسكورد ذات الاتجاه LTR.
+const HAS_ARABIC = /[؀-ۿ]/;
+const RLI = String.fromCharCode(0x2067);
+const PDI = String.fromCharCode(0x2069);
+function rtl(s: string): string {
+    return HAS_ARABIC.test(s) ? RLI + s + PDI : s;
+}
+
 // النصوص المتجاوِزة المؤكَّدة فقط — قائمة قصيرة عمداً. الباقي يتولّاه المحرّك العادي.
 // (كلها موجودة في القاموس؛ الطبقة تقرأ ترجمتها من هناك. تتجاوز محرّك intl فلا تُترجَم إلا هنا.)
 const BYPASS_KEYS = [
@@ -88,17 +96,17 @@ function tryTranslateTextNode(node: Text): void {
     // مسار سريع: تجاهل ما هو أقصر/أطول من أي مفتاح ممكن (يخرج فوراً لنصوص الدردشة الطويلة).
     if (raw.length < 3 || raw.length > scanMax) return;
 
-    // (أ) القائمة القصيرة: مطابقة حرفية كاملة (مع/بدون مسافات محيطة).
+    // (أ) القائمة القصيرة: مطابقة حرفية كاملة (مع/بدون مسافات محيطة). نغلّف العربية بعازل RTL.
     if (raw.length <= maxKeyLen + 4) {
         const direct = bypassMap.get(normalize(raw));
         if (direct !== undefined) {
-            if (raw !== direct) node.nodeValue = direct; // عربيّتنا ليست مفتاحاً → لا حلقة لا نهائية
+            if (raw !== direct) node.nodeValue = rtl(direct); // عربيّتنا ليست مفتاحاً → لا حلقة لا نهائية
             return;
         }
         const trimmed = raw.trim();
         if (trimmed.length !== raw.length) {
             const ar = bypassMap.get(normalize(trimmed));
-            if (ar !== undefined) { node.nodeValue = raw.replace(trimmed, ar); return; }
+            if (ar !== undefined) { node.nodeValue = raw.replace(trimmed, rtl(ar)); return; }
         }
     }
 
@@ -107,7 +115,7 @@ function tryTranslateTextNode(node: Text): void {
         const trimmed = raw.trim();
         for (const { prefix, ar, max } of PREFIX_BYPASS) {
             if (trimmed.length <= max && normalize(trimmed).startsWith(prefix)) {
-                if (trimmed !== ar) node.nodeValue = raw.replace(trimmed, ar);
+                if (trimmed !== ar) node.nodeValue = raw.replace(trimmed, rtl(ar));
                 return;
             }
         }
@@ -119,7 +127,7 @@ function tryTranslateTextNode(node: Text): void {
         for (const { re, ar, max } of PATTERN_BYPASS) {
             if (trimmed.length > max) continue;
             const m = trimmed.match(re);
-            if (m != null) { node.nodeValue = raw.replace(trimmed, ar(m)); return; }
+            if (m != null) { node.nodeValue = raw.replace(trimmed, rtl(ar(m))); return; }
         }
     }
 }

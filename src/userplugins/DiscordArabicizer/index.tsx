@@ -65,10 +65,22 @@ function lookup(text: string): string | undefined {
 // عدد الترجمات في القاموس (للإحصائيات في الإعدادات).
 export const translationCount = NORM.size;
 
+// عزل ثنائي الاتجاه (bidi): نغلّف كل نصّ عربي مُترجَم بعازل RTL (RLI U+2067 … PDI U+2069)
+// فيُعرَض من اليمين لليسار بصرف النظر عن اتجاه حاوية ديسكورد (كثير منها LTR فتتشوّه العربية)،
+// مع بقاء أي مقطع لاتيني/رقمي بداخله (اسم/اختصار) LTR في مكانه الصحيح عبر خوارزمية bidi.
+// حرفان غير مرئيّين فقط — يحلّان تشوّه ترتيب العربية المختلطة بلا أي أثر آخر.
+const HAS_ARABIC = /[؀-ۿ]/;
+const RLI = String.fromCharCode(0x2067); // RIGHT-TO-LEFT ISOLATE
+const PDI = String.fromCharCode(0x2069); // POP DIRECTIONAL ISOLATE
+function rtl(s: string): string {
+    return HAS_ARABIC.test(s) ? RLI + s + PDI : s;
+}
+
 // وضع تشخيصي: يُعلّم المُترجَم بـ🟢 وغير المُترجَم بـ🔴 (للمطوّر فقط — يُطفأ عند الإطلاق).
 function diag(ok: boolean, text: string): string {
     if (ok) sessionStats.hits++; else sessionStats.misses++;
-    return settings.store.diagnosticMode ? (ok ? "🟢" : "🔴") + text : text;
+    const out = ok ? rtl(text) : text; // نعزل المُترجَم فقط (غير المُترجَم إنجليزي يبقى كما هو)
+    return settings.store.diagnosticMode ? (ok ? "🟢" : "🔴") + out : out;
 }
 
 // جمع النصوص غير المترجَمة للحصاد — لا يعمل تلقائياً (طلب المالك: لا تخزين خلفي صامت).
