@@ -12,6 +12,8 @@ permissions:
 jobs:
     sync:
         name: Sync from Equicord/Equicord
+        # المستودع العام فقط — الخاص نسخة احتياطية لا تُزامِن upstream ولا ETOKEN فيه.
+        if: github.repository == 'LOSTSTR/Esharq'
         runs-on: ubuntu-latest
 
         steps:

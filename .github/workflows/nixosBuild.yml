@@ -13,6 +13,8 @@ permissions:
 jobs:
     Build:
         name: Build Equicord
+        # المستودع العام فقط — الخاص نسخة احتياطية لا تبني يومياً.
+        if: github.repository == 'LOSTSTR/Esharq'
         runs-on: ubuntu-latest
 
         steps:

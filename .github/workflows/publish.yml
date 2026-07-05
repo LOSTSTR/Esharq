@@ -12,6 +12,8 @@ permissions:
 
 jobs:
     release:
+        # المستودع العام فقط — الخاص نسخة احتياطية لا تنشر امتداد المتصفّح.
+        if: github.repository == 'LOSTSTR/Esharq'
         runs-on: ubuntu-latest
 
         steps:

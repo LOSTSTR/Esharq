@@ -92,7 +92,7 @@ jobs:
                   rm -f release/package.json release/*.map
 
             - name: Upload Equicord Stable
-              if: ${{ vars.ACT != 'true' }}
+              if: ${{ github.repository == 'LOSTSTR/Esharq' && vars.ACT != 'true' }}
               run: |
                   HASH=$(git rev-parse --short HEAD)
                   # Create the `v1.0.0-stable` release if it doesn't exist, then update its title
@@ -108,8 +108,9 @@ jobs:
                   gh release upload v1.0.0-stable --clobber dist/release/*
 
             # ── Link to Esharq-Bored (like Equicord pushes plugin JSONs to Equibored) ──
+            # يعمل على المستودع العام فقط — الخاص نسخة احتياطية لا تدفع إلى Esharq-Bored (ولا ETOKEN فيه).
             - name: Upload plugin JSONs to Esharq-Bored
-              if: ${{ vars.ACT != 'true' }}
+              if: ${{ github.repository == 'LOSTSTR/Esharq' && vars.ACT != 'true' }}
               env:
                   REPO: LOSTSTR/Esharq-Bored
                   USERNAME: GitHub-Actions
