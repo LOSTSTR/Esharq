@@ -25,7 +25,7 @@ import { join } from "path";
 
 const PRELOAD_WORLD_ID = 999;
 const PATCHER_RELEASE_API = "https://api.github.com/repos/sultriness/DiscordVoicePatcher/releases/latest";
-const PATCHER_CACHE_DIR = join(DATA_DIR, "plugins", "BetterMicrophone");
+const PATCHER_CACHE_DIR = join(DATA_DIR, "plugins", "MicPro");
 const PATCHER_CACHE_NODE_PATH = join(PATCHER_CACHE_DIR, "patcher.node");
 const PATCHER_CACHE_INI_PATH = join(PATCHER_CACHE_DIR, "patcher.ini");
 const PATCHER_CACHE_META_PATH = join(PATCHER_CACHE_DIR, "release.json");
@@ -86,7 +86,7 @@ async function resolveAssets(): Promise<ResolvedAssets | null> {
 
 export async function applyPatches(event: IpcMainInvokeEvent) {
     const assets = await resolveAssets();
-    if (!assets) throw new Error("Could not locate BetterMicrophone voice assets");
+    if (!assets) throw new Error("Could not locate MicPro voice assets");
     const { patcherPath, iniPath, source } = assets;
     const result = await event.sender.executeJavaScriptInIsolatedWorld(PRELOAD_WORLD_ID, [{
         code: `(() => {

@@ -33,6 +33,8 @@ const Native = IS_DISCORD_DESKTOP
 let micPatcher: MicrophonePatcher | undefined;
 // جاهزية محرّك النقل الأصلي (patcher.node): null=لم يُحسم، true=طُبّق، false=فشل ⇒ الستيريو لن يُحترَم.
 let nativeReady: boolean | null = null;
+// إلغاء اشتراك حارس الستيريو على الاتصالات الجديدة (البند 1) — يُفصَل عند الإيقاف.
+let stereoGuardOff: (() => void) | undefined;
 
 type NoiseMode = "none" | "standard" | "krisp";
 
@@ -90,10 +92,29 @@ const apply = {
     }
 };
 
+// يُطفئ على اتصال واحد كل ما يُحوّل الصوت إلى أحادي فيكسر الستيريو: إلغاء ضوضاء/صدى/AGC.
+function disableMonoBreakers(c: any) {
+    try {
+        c.setNoiseCancellation(false);
+        c.setNoiseSuppression(false);
+        c.setEchoCancellation(false);
+        c.setAutomaticGainControl({ ...DEFAULT_AGC, enabled: false });
+    } catch { /* آمن */ }
+}
+
+// حالة المعالجة المحفوظة قبل تفعيل الستيريو — لاستعادتها عند إطفائه (البند 2).
+let savedProcessing: { noiseMode: NoiseMode; echo: boolean; agc: boolean; } | null = null;
+
 // تفعيل/إيقاف الستيريو. عند التفعيل نُوقف تلقائياً ما يُحوّل الصوت لأحادي (إلغاء ضوضاء/صدى/AGC)
-// وإلا لن يعمل الستيريو فعلياً — ونُعلم المستخدم عبر تنبيه في اللوحة.
+// وإلا لن يعمل الستيريو فعلياً — ونُعلم المستخدم عبر تنبيه في اللوحة. حارس الاتصالات (البند 1)
+// يُعيد تطبيق هذا الإطفاء على أي مكالمة تُفتَح لاحقاً ما دام الستيريو مفعّلاً.
 function toggleStereo(st: any, on: boolean, flush: () => void) {
     if (on) {
+        // احفظ حالة المعالجة الحالية مرّة واحدة كي نُعيدها عند الإطفاء (البند 2).
+        if (savedProcessing == null) {
+            const s = readState();
+            savedProcessing = { noiseMode: s.noiseMode, echo: s.echo, agc: s.agc };
+        }
         st.setChannels(2);
         st.setChannelsEnabled(true);
         apply.noise("none");
@@ -101,6 +122,13 @@ function toggleStereo(st: any, on: boolean, flush: () => void) {
         apply.agc(false);
     } else {
         st.setChannelsEnabled(false);
+        // البند 2: أعِد تحسينات الصوت التي أطفأناها قسراً (وإلا يبقى المايك «عارياً»).
+        if (savedProcessing != null) {
+            apply.noise(savedProcessing.noiseMode);
+            apply.echo(savedProcessing.echo);
+            apply.agc(savedProcessing.agc);
+            savedProcessing = null;
+        }
     }
     flush();
 }
@@ -121,10 +149,20 @@ async function setLoopback(on: boolean, autoDeafen: boolean) {
     } catch { /* آمن */ }
 }
 
-// ── مستوى الإدخال الحيّ (VU) — getUserMedia للجهاز الافتراضي + resume() لتفادي التعليق ──
-// ملاحظة: لا نمرّر deviceId من getInputDeviceId() لأنه مُعرّف ديسكورد الداخلي وغير متوافق
-// مع Web MediaDevices (قيد exact عليه يرمي OverconstrainedError فيبقى المقياس فارغاً). نستخدم
-// الميكروفون الافتراضي — وهو عادةً نفس المُختار — فيعمل المتر بثبات.
+// ── مستوى الإدخال الحيّ (VU) — يُطابق جهاز ديسكورد المختار متى أمكن + resume() لتفادي التعليق ──
+// البند 5: نُمرّر deviceId المُختار في ديسكورد كـ {ideal} لا {exact} — فيُطابَق الجهاز الصحيح إن
+// كان مُعرّفه متوافقاً مع Web MediaDevices، وإلا يسقط تلقائياً للافتراضي بلا OverconstrainedError
+// (بخلاف exact الذي كان يُفرِغ المقياس). أي فشل ⇒ الجهاز الافتراضي، فيعمل المتر بثبات دائماً.
+async function openLevelStream(): Promise<MediaStream> {
+    let id = "";
+    try { id = String((MediaEngineStore as any)?.getInputDeviceId?.() ?? ""); } catch { /* آمن */ }
+    if (id && id !== "default") {
+        try { return await navigator.mediaDevices.getUserMedia({ audio: { deviceId: { ideal: id } } }); }
+        catch { /* يسقط للافتراضي أدناه */ }
+    }
+    return navigator.mediaDevices.getUserMedia({ audio: true });
+}
+
 function useLiveLevel(): number {
     const [level, setLevel] = useState(0);
     const ref = useRef<{ ctx?: AudioContext; stream?: MediaStream; raf?: number; }>({});
@@ -133,7 +171,7 @@ function useLiveLevel(): number {
         let cancelled = false;
         (async () => {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const stream = await openLevelStream();
                 if (cancelled) { stream.getTracks().forEach(t => t.stop()); return; }
                 const ctx = new AudioContext();
                 // كروميوم يبدأ السياق «معلّقاً» أحياناً فلا يصل الصوت ⇒ المقياس فارغ. resume() يحلّها.
@@ -342,6 +380,21 @@ function TransmissionControls() {
 function ProcessingPane() {
     const [s, setS] = useState(readState);
     const [testing, setTesting] = useState(loopbackOn);
+
+    // البند 3: زامِن الحالة حيّاً بدل قراءتها مرّة واحدة عند الفتح — نستمع لتغيّرات محرّك الصوت
+    // (بدء/إنهاء مكالمة، تبديل جهاز…) ونُحدّث كل ثانية كشبكة أمان لكشف الدخول/الخروج من المكالمة.
+    // القراءة تعكس القيَم المُطبَّقة فعلاً فلا تُصادم تحديثات المستخدم التفاؤلية.
+    useEffect(() => {
+        const resync = () => setS(readState());
+        const id = setInterval(resync, 1000);
+        let subbed = false;
+        try { (MediaEngineStore as any).addChangeListener?.(resync); subbed = true; } catch { /* آمن */ }
+        return () => {
+            clearInterval(id);
+            if (subbed) { try { (MediaEngineStore as any).removeChangeListener?.(resync); } catch { /* آمن */ } }
+        };
+    }, []);
+
     const isVAD = s.inputMode === "VOICE_ACTIVITY";
     const sensitivityPct = Math.round(Math.max(0, Math.min(100, s.vadThreshold + 100)));
     const off = !s.inCall;
@@ -460,6 +513,21 @@ export default definePlugin({
         try {
             initMicrophoneStore();
             micPatcher = new MicrophonePatcher().patch();
+
+            // البند 1: احرس كل اتصال صوتي جديد — إن كان الستيريو مفعّلاً في الملف، أطفئ مُفسِداته
+            // (ضوضاء/صدى/AGC) على ذلك الاتصال فوراً؛ وإلا يبدأ بافتراضات ديسكورد فيُحوَّل صوتك لأحادي
+            // بصمت رغم تفعيل الستيريو قبل المكالمة. يُطبَّق مرّة عند بدء كل مكالمة، بلا أي كلفة دورية.
+            const me = mediaEngine() as any;
+            if (me?.emitter) {
+                stereoGuardOff = Emitter.addListener(me.emitter, "on", "connection", (connection: any) => {
+                    try {
+                        if (connection?.context !== "default") return;
+                        const p = microphoneStore?.get?.().currentProfile;
+                        if (p?.channelsEnabled === true && (p.channels ?? 1) >= 2) disableMonoBreakers(connection);
+                    } catch { /* آمن */ }
+                }, "MicPro");
+            }
+
             const nativeModules = globalThis.DiscordNative?.nativeModules;
             if (!nativeModules?.requireModule) throw new Error("DiscordNative.nativeModules is unavailable");
             nativeModules.requireModule("discord_voice");
@@ -476,6 +544,8 @@ export default definePlugin({
     stop() {
         removeSettingsPanelButton("MicPro");
         if (loopbackOn) void setLoopback(false, settings.store.autoDeafenOnTest);
+        try { stereoGuardOff?.(); } catch { /* آمن */ }
+        stereoGuardOff = undefined;
         try {
             micPatcher?.unpatch();
             Emitter.removeAllListeners(MicEngineInfo.PLUGIN_NAME);
