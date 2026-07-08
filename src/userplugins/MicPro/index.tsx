@@ -290,6 +290,59 @@ function NumberTile({ label, hint, unit, def, enabled, value, onToggle, onValue 
     );
 }
 
+// شريط ملفات الإعدادات (profiles): اختيار/حفظ/جديد/نسخ/حذف. المحرّك يحفظها بشكل دائم عبر
+// DataStore (createPluginStore) — فكلّ ملف محفوظ يبقى بعد إعادة تشغيل ديسكورد. المنطق يطابق
+// إدارة الملفات المُثبَتة في المحرّك (saveProfile/duplicate/delete/setCurrentProfile).
+function ProfileBar({ st, flush }: { st: any; flush: () => void; }) {
+    const [saving, setSaving] = useState(false);
+    const [nameInput, setNameInput] = useState("");
+
+    const name: string = st.currentProfile?.name ?? "";
+    const call = <T,>(fn: () => T, dflt: T): T => { try { return fn(); } catch { return dflt; } };
+    const profiles: { name: string; }[] = call(() => st.getProfiles(true), []);
+    const isDefault = call(() => st.isCurrentProfileADefaultProfile(), false);
+
+    const save = () => {
+        if (!saving) { setNameInput(name); setSaving(true); return; }
+        const nm = nameInput.trim();
+        if (!nm || call(() => st.getDefaultProfiles().some((v: any) => v.name === nm), false)) return;
+        st.saveProfile({ ...st.getCurrentProfile(), name: nm });
+        st.setCurrentProfile(st.getProfile(nm) || { name: "" });
+        setSaving(false);
+        flush();
+    };
+    const newProfile = () => st.setCurrentProfile({ name: "" });
+    const copy = () => { st.setCurrentProfile({ ...st.getCurrentProfile(), name: "" }); setNameInput(""); setSaving(true); };
+    const del = () => {
+        st.deleteProfile(st.currentProfile);
+        st.setCurrentProfile(call(() => st.getDefaultProfiles()[0], { name: "" }) ?? { name: "" });
+        flush();
+    };
+    const pick = (v: string) => { st.setCurrentProfile(st.getProfile(v) || { name: "" }); flush(); };
+
+    return (
+        <Tile span>
+            <Cap label={t("ملف الإعدادات", "Profile")} value={name || t("غير محفوظ", "unsaved")} />
+            <div className="micpro-profrow">
+                {saving ? (
+                    <input className="micpro-num micpro-profname" type="text" placeholder={t("اسم الملف…", "Profile name…")}
+                        value={nameInput} onChange={e => setNameInput(e.currentTarget.value)}
+                        onKeyDown={e => { if (e.key === "Enter") save(); if (e.key === "Escape") setSaving(false); }} />
+                ) : (
+                    <select className="micpro-select micpro-profsel" value={name} onChange={e => pick(e.currentTarget.value)}>
+                        {name === "" && <option value="">{t("(غير محفوظ)", "(unsaved)")}</option>}
+                        {profiles.map(pr => <option key={pr.name} value={pr.name}>{pr.name}</option>)}
+                    </select>
+                )}
+                <button type="button" className="micpro-pbtn micpro-pbtn-save" title={t("حفظ", "Save")} onClick={save}>{saving ? "✓" : "💾"}</button>
+                <button type="button" className="micpro-pbtn" title={t("جديد", "New")} disabled={saving} onClick={newProfile}>＋</button>
+                <button type="button" className="micpro-pbtn" title={t("نسخ", "Copy")} disabled={saving} onClick={copy}>⧉</button>
+                <button type="button" className="micpro-pbtn micpro-pbtn-del" title={t("حذف", "Delete")} disabled={saving || isDefault || !name} onClick={del}>🗑</button>
+            </div>
+        </Tile>
+    );
+}
+
 // ── ② طبقة النقل: بسيط/متقدّم ─────────────────────────────────────────────────────────
 const SIMPLE_BITRATES: [number, string][] = [
     [96, t("عادي", "Normal")], [160, t("متوسط-عالٍ", "Medium-High")],
@@ -312,6 +365,8 @@ function TransmissionControls() {
 
     return (
         <>
+            <ProfileBar st={st} flush={flush} />
+
             <SwitchTile
                 label={t("الوضع المبسّط", "Simple mode")}
                 note={simple ? t("مفعّل — خيارات سهلة. أطفئه لعرض الإعدادات المتقدّمة.", "On — easy options. Turn off for advanced settings.") : t("متقدّم — تحكّم كامل بمعاملات النقل.", "Advanced — full control over transport parameters.")}
@@ -361,6 +416,12 @@ function TransmissionControls() {
                     </div>
                 </>
             )}
+
+            {/* تطبيق الإعدادات/الملف الحالي على مكالمتك الجارية (إعادة دفع خيارات النقل حيّاً) —
+                مفيد بعد تبديل ملف الإعدادات. التغييرات الفردية تُطبَّق حيّاً أصلاً، وهذا يضمن دفع الكل. */}
+            <button type="button" className="micpro-apply" onClick={flush}>
+                {t("✓ تطبيق على المكالمة", "✓ Apply to call")}
+            </button>
 
             {nativeReady === false ? (
                 <div className="micpro-warn">⚠️ {t("محرّك الستيريو لم يُحمَّل، فلن يُبَثّ الصوت ستيريو فعلياً. أعد تشغيل ديسكورد؛ وإن استمرّ الأمر فتحقّق من اتصالك بالإنترنت.", "The stereo engine didn't load, so audio won't actually transmit in stereo. Restart Discord; if it persists, check your internet connection.")}</div>

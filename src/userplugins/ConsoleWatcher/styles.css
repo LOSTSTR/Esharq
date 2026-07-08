@@ -5,6 +5,25 @@
     color: var(--status-danger, #f23f43) !important;
 }
 
+/* نبض خفيف عندما تُلتقَط أخطاء أثناء التسجيل — إشارة بصرية بلا إزعاج */
+.cw-button.cw-has-errors {
+    animation: cw-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes cw-pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.45;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
 /* شرائح ترشيح المصدر */
 .cw-filters {
     display: flex;

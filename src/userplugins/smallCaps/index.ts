@@ -5,7 +5,6 @@
  */
 
 import { findOption, RequiredMessageOption } from "@api/Commands";
-import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 
@@ -18,7 +17,7 @@ const caps: Record<string, string> = {
 export default definePlugin({
     name: "SmallCaps",
     description: "/smallcaps writes your message in ꜱᴍᴀʟʟ ᴄᴀᴘꜱ.",
-    authors: [EquicordDevs.LOSTSTR, { name: "Sharp", id: 0n }],
+    authors: [{ name: "Sharp", id: 0n }],
     dependencies: ["CommandsAPI"],
     commands: [
         {

@@ -6,7 +6,6 @@
 
 import { definePluginSettings } from "@api/Settings";
 import { disableStyle, enableStyle, setStyleClassNames } from "@api/Styles";
-import { EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
 import { findCssClassesLazy } from "@webpack";
 
@@ -33,7 +32,7 @@ const settings = definePluginSettings({
 export default definePlugin({
     name: "SmoothMessages",
     description: "Makes new messages slide in smoothly from the left instead of appearing sharply.",
-    authors: [EquicordDevs.LOSTSTR, { name: "x2b", id: 0n }],
+    authors: [{ name: "x2b", id: 0n }],
     settings,
 
     start() {

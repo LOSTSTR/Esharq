@@ -5,14 +5,13 @@
  */
 
 import { findOption, RequiredMessageOption } from "@api/Commands";
-import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 
 export default definePlugin({
     name: "ClapText",
     description: "Adds /clap to 👏 put 👏 claps 👏 between 👏 your 👏 words.",
-    authors: [EquicordDevs.LOSTSTR, { name: "Sharp", id: 0n }],
+    authors: [{ name: "Sharp", id: 0n }],
     dependencies: ["CommandsAPI"],
     commands: [
         {

@@ -5,7 +5,6 @@
  */
 
 import { ApplicationCommandInputType, findOption, RequiredMessageOption, sendBotMessage } from "@api/Commands";
-import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 
@@ -20,7 +19,7 @@ interface DictEntry {
 export default definePlugin({
     name: "Define",
     description: "/define looks up a word's dictionary definition (sent only to you).",
-    authors: [EquicordDevs.LOSTSTR, { name: "Sharp", id: 0n }],
+    authors: [{ name: "Sharp", id: 0n }],
     dependencies: ["CommandsAPI"],
     commands: [
         {

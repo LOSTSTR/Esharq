@@ -6,7 +6,6 @@
 
 import { ApplicationCommandInputType, ApplicationCommandOptionType, findOption, sendBotMessage } from "@api/Commands";
 import { definePluginSettings } from "@api/Settings";
-import { EquicordDevs } from "@utils/constants";
 import { AIChatMessage, esharqChat, GROQ_MODEL_OPTIONS } from "@utils/esharqAI";
 import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
@@ -116,7 +115,7 @@ export default definePlugin({
     description: "Summarize Discord channel conversations using AI (Groq, with your own free API key).",
     dependencies: ["CommandsAPI"],
     tags: ["Utility"],
-    authors: [EquicordDevs.LOSTSTR, { name: "x2b", id: 996137713432530976n }],
+    authors: [{ name: "x2b", id: 996137713432530976n }],
     settings,
 
     commands: [

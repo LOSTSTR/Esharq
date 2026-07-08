@@ -9,6 +9,8 @@
 // fields. No loops, no listeners, no persistent allocations.
 
 import { isPluginEnabled } from "@api/PluginManager";
+import { patches as pendingPatchList } from "@webpack/patcher";
+
 import Plugins from "~plugins";
 
 /**
@@ -27,11 +29,31 @@ export interface RawPluginStat {
     uiInjects: number;   // context menus + every declarative UI surface
     hooks: number;       // slash commands
     type: PluginType;    // continuous (background) vs on-demand (user-triggered)
+    /**
+     * ترقيعات لم تُطبَّق بعد: ما زالت في قائمة الانتظار لأن وحدتها لم تُطابَق.
+     * بيانات حقيقية من مصفوفة patchWebpack (تُسحَب منها المُطبَّقة). تنبيه صادق:
+     * قد تعني وحدة كسولة لم تُحمَّل بعد — وليس بالضرورة ترقيعاً مكسوراً.
+     * (ترقيعات all:true تبقى في القائمة دائماً بحكم التصميم — نستبعدها.)
+     */
+    pendingPatches: number;
+}
+
+/** خريطة (إضافة → عدد الترقيعات المعلّقة) من قائمة الانتظار الفعلية — طازجة عند كل فحص. */
+function countPendingPatches(): Map<string, number> {
+    const map = new Map<string, number>();
+    try {
+        for (const patch of pendingPatchList) {
+            if (patch.all) continue; // تبقى في القائمة دائماً — ليست إشارة
+            map.set(patch.plugin, (map.get(patch.plugin) ?? 0) + 1);
+        }
+    } catch { /* غير متاح — الأعمدة تعرض صفراً بصدق */ }
+    return map;
 }
 
 /** Single synchronous snapshot of every enabled plugin's footprint. */
 export function scanPlugins(): RawPluginStat[] {
     const out: RawPluginStat[] = [];
+    const pendingByPlugin = countPendingPatches();
 
     for (const name of Object.keys(Plugins)) {
         if (!isPluginEnabled(name)) continue;
@@ -41,6 +63,7 @@ export function scanPlugins(): RawPluginStat[] {
 
         const patches = p.patches?.length ?? 0;
         const hooks = p.commands?.length ?? 0;
+        const pendingPatches = pendingByPlugin.get(name) ?? 0;
 
         // Flux events + the message listeners (each runs on a recurring event,
         // so they belong with Flux subscriptions, not the UI surfaces below).
@@ -79,7 +102,7 @@ export function scanPlugins(): RawPluginStat[] {
                 p.headerBarButton || p.userAreaButton || p.userProfileBadge || p.userProfileBadges);
         const type: PluginType = isContinuous ? "continuous" : "ondemand";
 
-        out.push({ name, patches, listeners, uiInjects, hooks, type });
+        out.push({ name, patches, listeners, uiInjects, hooks, type, pendingPatches });
     }
 
     return out;

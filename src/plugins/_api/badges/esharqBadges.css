@@ -1,17 +1,35 @@
 /*
- * Esharq Developer badge — the rotating, glowing gold/black/red conic ring (with hover
- * scale). Discord overrides the badge className and only inline style reaches its <img>,
- * so the profile ring is targeted via the badge's aria-label (the bilingual tooltip
- * contains the English name, covering both languages). Keyframes are namespaced
- * (esharq-ring-*) so they can't collide.
+ * Esharq badge rings. Discord overrides the badge className and only inline style reaches
+ * its <img>, so profile rings are targeted via the badge's aria-label (the bilingual
+ * tooltip contains the English name, covering both languages). Keyframes are namespaced
+ * (esharq-*) so they can't collide.
  *
- * Also below: the RGB (rainbow) ring design for Esharq Custom badges — specific members
- * (outside the donor/contributor/developer tiers) each get their own circular image with a
- * spinning rainbow ring. Mapped per user id in Esharq-Bored/badges/custom/custom.json.
+ * Designs (owner-picked from the live gallery):
+ * - Developer  = «القلم الذهبي»: a gold arc draws itself around the badge, holds, then
+ *   erases and redraws — done with @property-registered angle vars driving a conic
+ *   gradient (Chromium in Discord supports @property; if it ever doesn't, the static
+ *   faint gold outline below still shows — graceful degradation, never broken).
+ * - Contributor = «ومضات الطيف»: the ring color hard-jumps through 6 spectrum colors
+ *   (steps, no blending) with a matching glow.
+ * - Custom      = unchanged spinning RGB ring (per-member images from
+ *   Esharq-Bored/badges/custom/custom.json).
  */
 
-/* Developer badge shown inline next to the name in chat (message decoration). Same gold
- * spinning glow ring, sized to sit beside the username. */
+/* زاويتا «القلم»: رأس القوس (h) وذيله (t) — تسجيلهما يجعلهما قابلتين للتحريك */
+@property --esharq-pen-h {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 0deg;
+}
+
+@property --esharq-pen-t {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 0deg;
+}
+
+/* Developer badge shown inline next to the name in chat (message decoration). Same
+ * self-drawing gold pen ring, sized to sit beside the username. */
 .esharq-dev-chat-badge {
     position: relative;
     display: inline-flex;
@@ -20,18 +38,23 @@
     margin: 0 2px;
     vertical-align: middle;
     border-radius: 50%;
+
+    /* حدّ ذهبي خافت ثابت — يظهر لو تعطّل تحريك @property لأي سبب (تدهور رشيق) */
+    box-shadow: 0 0 0 1px rgb(251 191 36 / 30%);
 }
 
 .esharq-dev-chat-badge::before {
     content: "";
     position: absolute;
-    inset: -2px;
+    inset: -2.5px;
     border-radius: 50%;
-    background: conic-gradient(from 0deg, #fbbf24, #000, #dc2626, #fbbf24);
-    animation:
-        esharq-ring-spin 2s linear infinite,
-        esharq-ring-glow 1s ease-in-out infinite alternate;
-    filter: blur(1px);
+    background: conic-gradient(from -90deg,
+        transparent 0 var(--esharq-pen-t),
+        #fbbf24 var(--esharq-pen-t) var(--esharq-pen-h),
+        transparent var(--esharq-pen-h));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 1.5px));
+    filter: drop-shadow(0 0 2px #fbbf24);
+    animation: esharq-pen 2.4s ease-in-out infinite;
     z-index: 0;
     pointer-events: none;
 }
@@ -53,7 +76,7 @@
     display: inline-flex;
     width: 18px;
     height: 18px;
-    margin: 0 2px;
+    margin: 0 3px;
     vertical-align: middle;
     border-radius: 50%;
 }
@@ -88,32 +111,56 @@
 a[aria-label*="Esharq Developer"],
 a[aria-label*="Esharq Contributor"] {
     position: relative;
+
+    /* تباعد أفقي يمنع تشابك الحلقات مع الشارة المجاورة (الحلقة تمتدّ ~3px لكل جهة) */
+    margin: 0 4px;
 }
 
+/* Developer (profile) — «القلم الذهبي»: قوس ذهبي يرسم نفسه ثم يُمحى ويُعاد */
 a[aria-label*="Esharq Developer"]::before {
     content: "";
     position: absolute;
-    inset: -3px;
+    inset: -3.5px;
     border-radius: 50%;
-    background: conic-gradient(from 0deg, #fbbf24, #000, #dc2626, #fbbf24);
-    animation:
-        esharq-ring-spin 2s linear infinite,
-        esharq-ring-glow 1s ease-in-out infinite alternate;
-    filter: blur(1px);
+    background: conic-gradient(from -90deg,
+        transparent 0 var(--esharq-pen-t),
+        #fbbf24 var(--esharq-pen-t) var(--esharq-pen-h),
+        transparent var(--esharq-pen-h));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+    filter: drop-shadow(0 0 3px #fbbf24);
+    animation: esharq-pen 2.4s ease-in-out infinite;
     z-index: 0;
     pointer-events: none;
 }
 
+/* Contributor (profile) — «القصاصات»: حلقة أساس هادئة (::before) + قصاصات ملوّنة تنفجر
+ * خارجاً وتتلاشى دورياً (::after). كلاهما خلف صورة الشارة (img أعلى بـ z-index). */
 a[aria-label*="Esharq Contributor"]::before {
     content: "";
     position: absolute;
-    inset: -3px;
+    inset: -3.5px;
     border-radius: 50%;
-    background: conic-gradient(from 0deg, #ff0040, #ff8c00, #ffe600, #00e676, #00e5ff, #2979ff, #d500f9, #ff0040);
-    animation:
-        esharq-ring-spin 2s linear infinite,
-        esharq-ring-glow 1s ease-in-out infinite alternate;
-    filter: blur(1px);
+    border: 1.5px solid rgb(255 255 255 / 45%);
+    box-shadow: 0 0 6px rgb(232 121 249 / 40%);
+    z-index: 0;
+    pointer-events: none;
+}
+
+a[aria-label*="Esharq Contributor"]::after {
+    content: "";
+    position: absolute;
+    inset: -3.5px;
+    border-radius: 50%;
+
+    /* النقاط الستّ على حافة الدائرة تماماً (نصف قطر 50%) — فتنطلق من الحافة لا من الوجه */
+    background:
+        radial-gradient(circle 2px at 50% 0%, #f472b6 94%, transparent 96%),
+        radial-gradient(circle 2px at 93% 25%, #60a5fa 94%, transparent 96%),
+        radial-gradient(circle 2px at 93% 75%, #34d399 94%, transparent 96%),
+        radial-gradient(circle 2px at 50% 100%, #fbbf24 94%, transparent 96%),
+        radial-gradient(circle 2px at 7% 75%, #c4b5fd 94%, transparent 96%),
+        radial-gradient(circle 2px at 7% 25%, #fda4af 94%, transparent 96%);
+    animation: esharq-confetti 2.2s ease-out infinite;
     z-index: 0;
     pointer-events: none;
 }
@@ -131,6 +178,7 @@ a[aria-label*="Esharq Contributor"]:hover img {
     transform: scale(1.12);
 }
 
+/* لا تزال مستخدمة لشارات المخصّصين (حلقة RGB الدوّارة) */
 @keyframes esharq-ring-spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
@@ -139,4 +187,44 @@ a[aria-label*="Esharq Contributor"]:hover img {
 @keyframes esharq-ring-glow {
     from { filter: blur(1px); }
     to { filter: blur(3px); }
+}
+
+/* «القلم الذهبي»: الرأس يرسم القوس كاملاً، وقفة قصيرة، ثم الذيل يلحقه فيمحوه */
+@keyframes esharq-pen {
+    0% {
+        --esharq-pen-h: 0deg;
+        --esharq-pen-t: 0deg;
+    }
+
+    45% {
+        --esharq-pen-h: 360deg;
+        --esharq-pen-t: 0deg;
+    }
+
+    55% {
+        --esharq-pen-h: 360deg;
+        --esharq-pen-t: 0deg;
+    }
+
+    100% {
+        --esharq-pen-h: 360deg;
+        --esharq-pen-t: 360deg;
+    }
+}
+
+/* «القصاصات»: تبدأ على حافة الشارة، تنفجر قليلاً وتتلاشى تماماً قبل بلوغ الشارة المجاورة */
+@keyframes esharq-confetti {
+    0% {
+        transform: scale(1);
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    80%, 100% {
+        transform: scale(1.55);
+        opacity: 0;
+    }
 }

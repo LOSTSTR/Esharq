@@ -8,7 +8,6 @@ import { t } from "@utils/esharqI18n";
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import * as DataStore from "@api/DataStore";
 import { definePluginSettings } from "@api/Settings";
-import { EquicordDevs } from "@utils/constants";
 import { ModalSize } from "@utils/modal";
 import { ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalProps, ModalRoot, openModal } from "@utils/esharqModals";
 import definePlugin, { OptionType } from "@utils/types";
@@ -191,7 +190,7 @@ export default definePlugin({
     name: "AutoNickname",
     description: "Keeps selected server nicknames set to the value you choose.",
     tags: ["Utility", "Customisation"],
-    authors: [EquicordDevs.LOSTSTR, { name: "x2b", id: 996137713432530976n }],
+    authors: [{ name: "x2b", id: 996137713432530976n }],
     settings,
 
     contextMenus: {

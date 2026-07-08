@@ -4434,4 +4434,45 @@ export const translations: Record<string, string> = {
     "Unlock post": "فتح المنشور",
     "Upload to post": "رفع إلى المنشور",
     "You can add comments before uploading.": "يمكنك إضافة تعليقات قبل الرفع.",
+
+    // ── إعدادات رابط دعوة الخادم (مودال Server invite link settings) ──
+    "Server invite link settings": "إعدادات رابط دعوة الخادم",
+    "Expire After": "تنتهي بعد",
+    "Max Number of Uses": "الحدّ الأقصى لعدد الاستخدامات",
+    "No limit": "بلا حدّ",
+    "Grant temporary membership": "منح عضوية مؤقتة",
+    // النصّ يحمل سطراً جديداً (\n) في منتصفه — المفتاح يطابقه حرفياً كما تُرجعه intl.
+    "Temporary members are automatically kicked when they disconnect unless a role\nhas been assigned": "يُطرَد الأعضاء المؤقتون تلقائياً عند قطع اتصالهم ما لم يُسنَد إليهم دور",
+    "Generate a New Link": "إنشاء رابط جديد",
+    // «7 days» مضافة سلفاً؛ نضيف «30 days» التي ظهرت غير مترجمة (بقية المدد تُضاف عند ظهورها).
+    "Your invite link expires in 30 days.": "ينتهي رابط دعوتك خلال 30 يوماً.",
+
+    // ── الخصوصية والبيانات + مشاركة النشاط + رؤية الملف الشخصي ──
+    // (نُطابق الصيغة الجديدة «Discord» — القديمة «us/we» موجودة سلفاً كنصوص مختلفة)
+    ", and 1 other": "، وواحد آخر",
+    ". Restrict sharing on a game-by-game basis.": ". قيّد المشاركة لكل لعبة على حدة.",
+    "{0}, {1}, and 1 other": "{0}، {1}، وواحد آخر",
+    "about how getting a copy of your data works.": "حول كيفية عمل الحصول على نسخة من بياناتك.",
+    "Allow Discord to use and process my information to understand and improve Discord's services.": "اسمح لديسكورد باستخدام معلوماتي ومعالجتها لفهم خدماته وتحسينها.",
+    "Allow Discord to use and process my information to understand and improve Discord's services. {0}": "اسمح لديسكورد باستخدام معلوماتي ومعالجتها لفهم خدماته وتحسينها. {0}",
+    "Allows Discord to personalize Sponsored Content, like Quests, using data Discord receives from advertisers and third-party data providers. If you opt out, you may still see Quests, but they won't be personalized using data from third parties.": "يسمح ديسكورد بتخصيص المحتوى المموَّل كالمهام، باستخدام بياناتٍ يتلقّاها من المُعلِنين ومزوّدي بيانات الطرف الثالث. إن انسحبتَ فقد ترى المهام، لكنها لن تُخصَّص باستخدام بيانات الأطراف الثالثة.",
+    "Allows Discord to personalize Sponsored Content, like Quests, using data Discord receives from advertisers and third-party data providers. If you opt out, you may still see Quests, but they won't be personalized using data from third parties. {0}": "يسمح ديسكورد بتخصيص المحتوى المموَّل كالمهام، باستخدام بياناتٍ يتلقّاها من المُعلِنين ومزوّدي بيانات الطرف الثالث. إن انسحبتَ فقد ترى المهام، لكنها لن تُخصَّص باستخدام بيانات الأطراف الثالثة. {0}",
+    "Allows Discord to personalize Sponsored Content, like Quests, using your Discord activity, such as the games you play. If you opt out you may still see Quests, but they won't be personalized.": "يسمح ديسكورد بتخصيص المحتوى المموَّل كالمهام باستخدام نشاطك في ديسكورد كالألعاب التي تلعبها. إن انسحبتَ فقد ترى المهام لكن دون تخصيص.",
+    "Allows Discord to use information, such as who you talk to and what games you play, to personalize Discord for you.": "يسمح ديسكورد باستخدام معلومات كمن تتحدّث إليهم والألعاب التي تلعبها لتخصيص ديسكورد لك.",
+    "Allows Discord to use information, such as who you talk to and what games you play, to personalize Discord for you. {0}": "يسمح ديسكورد باستخدام معلومات كمن تتحدّث إليهم والألعاب التي تلعبها لتخصيص ديسكورد لك. {0}",
+    "Allows your voice to be included when someone in the same voice channel uses Clips.": "يُسمح بتضمين صوتك عندما يستخدم أحدٌ في نفس القناة الصوتية Clips.",
+    "Automatically share my activity with": "شارك نشاطي تلقائياً مع",
+    "Control how your game and app activity is shared—what's visible and who sees it. You're sharing activity with": "تحكّم في كيفية مشاركة نشاط ألعابك وتطبيقاتك — ما الظاهر ومن يراه. أنت تشارك نشاطك مع",
+    "Control how your game and app activity is shared—what's visible and who sees it. You're sharing activity with {0}.": "تحكّم في كيفية مشاركة نشاط ألعابك وتطبيقاتك — ما الظاهر ومن يراه. أنت تشارك نشاطك مع {0}.",
+    "Default Sharing": "المشاركة الافتراضية",
+    "Discord needs to store and process some data in order to provide you the basic Discord service, such as your messages, what servers you're in and your Direct Messages. By using Discord, you allow Discord to provide this basic service. You can stop this by": "يحتاج ديسكورد لتخزين بعض البيانات ومعالجتها لتزويدك بخدمة ديسكورد الأساسية، كرسائلك والخوادم التي أنت فيها ورسائلك المباشرة. باستخدامك ديسكورد، تسمح لديسكورد بتقديم هذه الخدمة الأساسية. يمكنك إيقاف ذلك عبر",
+    "Friends & All Servers": "الأصدقاء وكل الخوادم",
+    "Friends & Small Servers Only": "الأصدقاء والخوادم الصغيرة فقط",
+    "Friends Only": "الأصدقاء فقط",
+    "If you need a copy of your personal data from your account's entire history, you can get it here.": "إن احتجت نسخة من بياناتك الشخصية من كامل تاريخ حسابك، يمكنك الحصول عليها هنا.",
+    "If you need a copy of your personal data from your account's entire history, you can get it here. {0} about how getting a copy of your data works.": "إن احتجت نسخة من بياناتك الشخصية من كامل تاريخ حسابك، يمكنك الحصول عليها هنا. {0} حول كيفية عمل الحصول على نسخة من بياناتك.",
+    "Open conversation with {name}": "فتح محادثة مع {name}",
+    "your account.": "حسابك.",
+    "Your full profile is visible to friends and any server you join.": "ملفك الشخصي الكامل ظاهر لأصدقائك ولأي خادم تنضمّ إليه.",
+    "Your full profile is visible to friends. Everyone else sees a limited version.": "ملفك الشخصي الكامل ظاهر لأصدقائك. أما البقية فيرون نسخة محدودة.",
 };

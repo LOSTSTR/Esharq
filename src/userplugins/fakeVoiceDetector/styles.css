@@ -1,0 +1,163 @@
+/*
+ * FakeVoiceDetector — العلامة الحمراء الدائمة (لوحة عائمة).
+ * تظهر فقط عند رصد مزيّف، وتختفي تلقائياً حين لا أحد. لا تعترض النقر (informational).
+ */
+
+.fvd-panel {
+    position: fixed;
+    bottom: 14px;
+    inset-inline-start: 14px;
+    z-index: 3000;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 190px;
+    max-width: 280px;
+    padding: 10px 12px;
+    border: 1px solid rgb(237 66 69 / 55%);
+    border-radius: 12px;
+    background: var(--background-floating, #111214);
+    box-shadow: 0 8px 24px -6px rgb(0 0 0 / 55%), 0 0 0 1px rgb(237 66 69 / 20%);
+    font-family: var(--font-primary, "gg sans", sans-serif);
+    pointer-events: none;
+    animation: fvd-in 0.22s ease;
+}
+
+.fvd-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: #ed4245;
+    letter-spacing: 0.2px;
+}
+
+.fvd-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.fvd-dot {
+    flex: none;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #ed4245;
+    box-shadow: 0 0 7px #ed4245;
+    animation: fvd-pulse 1.1s ease-in-out infinite;
+}
+
+.fvd-name {
+    flex: 1;
+    overflow: hidden;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-normal, #dbdee1);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fvd-tag {
+    flex: none;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: rgb(237 66 69 / 16%);
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #ed4245;
+}
+
+@keyframes fvd-pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.45;
+        transform: scale(0.82);
+    }
+}
+
+@keyframes fvd-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ── سجلّ الإعدادات الدائم ── */
+.fvd-log {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+    padding: 12px;
+    border: 1px solid var(--background-modifier-accent);
+    border-radius: 10px;
+    background: var(--background-secondary);
+}
+
+.fvd-log-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.fvd-log-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--header-primary);
+}
+
+.fvd-log-empty {
+    font-size: 12.5px;
+    color: var(--text-muted);
+}
+
+.fvd-log-list {
+    display: flex;
+    flex-direction: column;
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+.fvd-log-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 4px;
+    border-top: 1px solid var(--background-modifier-accent);
+}
+
+.fvd-log-name {
+    flex: 1;
+    overflow: hidden;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-normal);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fvd-log-reason {
+    flex: none;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: rgb(237 66 69 / 14%);
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #ed4245;
+}
+
+.fvd-log-time {
+    flex: none;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+}

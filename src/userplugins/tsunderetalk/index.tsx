@@ -7,7 +7,6 @@
 import { HeaderBarButton } from "@api/HeaderBar";
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
-import { EquicordDevs } from "@utils/constants";
 import { esharqChat, GROQ_MODEL_OPTIONS } from "@utils/esharqAI";
 import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
@@ -121,7 +120,7 @@ const TsundereTalkButton = ErrorBoundary.wrap(function TsundereTalkButton() {
 export default definePlugin({
     name: "TsundereTalk",
     description: "Rewrites your outgoing messages into a cute tsundere style using AI (Groq, with your own free API key).",
-    authors: [EquicordDevs.LOSTSTR, { name: "x2b", id: 996137713432530976n }],
+    authors: [{ name: "x2b", id: 996137713432530976n }],
     tags: ["Chat"],
     dependencies: ["MessageEventsAPI", "HeaderBarAPI"],
     settings,

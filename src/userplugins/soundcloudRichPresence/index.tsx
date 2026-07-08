@@ -10,7 +10,6 @@ import { Heading } from "@components/Heading";
 import { Margins } from "@components/margins";
 import { Paragraph } from "@components/Paragraph";
 import { Logger } from "@utils/Logger";
-import { EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Activity, ActivityButton } from "@vencord/discord-types";
 import { ActivityFlags, ActivityType } from "@vencord/discord-types/enums";
@@ -188,7 +187,7 @@ export default definePlugin({
     name: "SoundCloudRichPresence",
     description: "Show your currently playing SoundCloud track as Discord rich presence.",
     tags: ["Activity", "Media"],
-    authors: [EquicordDevs.LOSTSTR, { name: "Sharp", id: 0n }],
+    authors: [{ name: "Sharp", id: 0n }],
     settings,
 
     settingsAboutComponent() {

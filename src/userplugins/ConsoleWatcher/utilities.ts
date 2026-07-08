@@ -7,7 +7,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type { ConsoleSource } from "./types";
+import type { ConsoleEvent, ConsoleEventType, ConsoleSource, ErrorGroup } from "./types";
 
 // مُسلسِل آمن: يحوّل أي وسيطة كونسول إلى نصّ دون أن يرمي استثناءً.
 // يكشف المراجع الدائرية، ويحدّ العمق/الطول/العدد، ويعالج الأنواع الخاصّة.
@@ -82,16 +82,35 @@ function toSafe(value: unknown, depth: number, seen: WeakSet<object>): unknown {
     }
 }
 
-/** يحوّل وسيطة كونسول واحدة إلى نصّ آمن للعرض/النسخ. */
+// ── حجب الأسرار ──────────────────────────────────────────────────────────────
+// السجلّ يُنسَخ ويُرسَل للتشخيص — فنحجب أي شيء يشبه سرّاً قبل تخزينه أصلاً
+// (لا يُحفَظ السرّ في الذاكرة حتى). أنماط توكن ديسكورد وBearer والبريد فقط —
+// أنماط ضيّقة عمداً كي لا تشوّه نصوص السجلّ العادية.
+const SECRET_PATTERNS: [RegExp, string][] = [
+    // توكن ديسكورد: ثلاث فقرات base64url يفصلها نقطتان (شكله المعروف)
+    [/[\w-]{23,28}\.[\w-]{6,7}\.[\w-]{25,110}/g, "[REDACTED:token]"],
+    [/mfa\.[\w-]{20,}/g, "[REDACTED:mfa-token]"],
+    [/Bearer\s+[\w.~+/-]{15,}/g, "Bearer [REDACTED]"],
+    [/[\w.+-]+@[\w-]+\.[a-zA-Z]{2,}/g, "[REDACTED:email]"],
+];
+
+/** يحجب التوكنات/البريد من نصّ قبل حفظه — يُطبَّق على كل وسيطة وكل stack. */
+export function redactSecrets(s: string): string {
+    let out = s;
+    for (const [re, sub] of SECRET_PATTERNS) out = out.replace(re, sub);
+    return out;
+}
+
+/** يحوّل وسيطة كونسول واحدة إلى نصّ آمن للعرض/النسخ (مع حجب الأسرار). */
 export function safeSerializeArg(value: unknown): string {
     // النص الخام يمرّ كما هو (أوضح في العرض)
     if (typeof value === "string")
-        return value.length > MAX_STRING_LEN ? value.slice(0, MAX_STRING_LEN) + "…(truncated)" : value;
+        return redactSecrets(value.length > MAX_STRING_LEN ? value.slice(0, MAX_STRING_LEN) + "…(truncated)" : value);
     try {
         const safe = toSafe(value, 0, new WeakSet<object>());
-        if (typeof safe === "string") return safe;
+        if (typeof safe === "string") return redactSecrets(safe);
         const json = JSON.stringify(safe);
-        return json.length > MAX_STRING_LEN ? json.slice(0, MAX_STRING_LEN) + "…(truncated)" : json;
+        return redactSecrets(json.length > MAX_STRING_LEN ? json.slice(0, MAX_STRING_LEN) + "…(truncated)" : json);
     } catch {
         return "[Unserializable]";
     }
@@ -132,4 +151,84 @@ export function detectSource(args: string[]): { source: ConsoleSource; pluginNam
     if (/^\[[^\]]+\]/.test(head)) return { source: "discord" };
 
     return { source: "unknown" };
+}
+
+// ── نسبة استدلالية للأخطاء غير الموسومة ──────────────────────────────────────
+// حين لا يحمل الخطأ وسم Logger، نبحث عن أسماء الإضافات المُفعّلة داخل نصّه/الـstack.
+// أسماء قصيرة/عامة (≤4 أحرف) تُستبعد لتفادي المطابقات الكاذبة. النتيجة «احتمال»
+// تُعرَض بعلامة استفهام — لا نزعم يقيناً ليس عندنا (بلا وهم).
+
+let attributionNames: { name: string; re: RegExp; }[] = [];
+
+function escapeRe(s: string): string {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** تُبنى مرة واحدة عند بدء التسجيل من قائمة الإضافات المُفعّلة (الأطول أولاً). */
+export function buildAttributionIndex(enabledNames: string[]): void {
+    attributionNames = enabledNames
+        .filter(n => n.length >= 5)
+        .sort((a, b) => b.length - a.length)
+        .map(name => ({ name, re: new RegExp(`(?:^|[^A-Za-z0-9])${escapeRe(name)}(?:[^A-Za-z0-9]|$)`, "i") }));
+}
+
+export function clearAttributionIndex(): void {
+    attributionNames = [];
+}
+
+/** يبحث عن اسم إضافة مُفعّلة داخل نصّ الخطأ + الـstack — أول مطابقة (الأطول أولاً). */
+export function attributeProbablePlugin(text: string, stack?: string): string | undefined {
+    if (attributionNames.length === 0) return undefined;
+    const hay = stack ? `${text}\n${stack}` : text;
+    for (const { name, re } of attributionNames)
+        if (re.test(hay)) return name;
+    return undefined;
+}
+
+// ── تجميع الأخطاء + كشف العواصف (يُحسَب وقت التقرير فقط — صفر كلفة أثناء التسجيل) ──
+
+/** يطبّع نصّ خطأ إلى مفتاح مجموعة: أرقام/معرّفات/روابط → رموز ثابتة. */
+export function normalizeGroupKey(text: string): string {
+    return text
+        .replace(/https?:\/\/\S+/g, "<url>")
+        .replace(/[a-f0-9]{16,}/gi, "<id>")   // hex/snowflake-ish طويلة
+        .replace(/\d{5,}/g, "<id>")           // معرّفات رقمية
+        .replace(/\d+/g, "#")                 // بقية الأرقام (أسطر/أحجام)
+        .slice(0, 140);
+}
+
+const STORM_COUNT = 20;
+const STORM_WINDOW_MS = 60_000;
+
+/** يبني مجموعات الأخطاء من لقطة الأحداث — للملخّص وعرض «المجمّع». */
+export function groupErrors(list: ConsoleEvent[], errorTypes: ReadonlySet<ConsoleEventType>, isNoise: (e: ConsoleEvent) => boolean): ErrorGroup[] {
+    const groups = new Map<string, ErrorGroup>();
+    for (const e of list) {
+        if (!errorTypes.has(e.type) || isNoise(e)) continue;
+        const text = e.args.join(" ");
+        const key = `${e.type}|${normalizeGroupKey(text)}`;
+        const g = groups.get(key);
+        if (g) {
+            g.count++;
+            if (e.timestamp < g.firstAt) g.firstAt = e.timestamp;
+            if (e.timestamp > g.lastAt) g.lastAt = e.timestamp;
+            if (!g.pluginName && (e.pluginName ?? e.probablePlugin)) g.pluginName = e.pluginName ?? e.probablePlugin;
+        } else {
+            groups.set(key, {
+                key,
+                sample: text.slice(0, 200),
+                type: e.type,
+                source: e.source,
+                pluginName: e.pluginName ?? e.probablePlugin,
+                count: 1,
+                firstAt: e.timestamp,
+                lastAt: e.timestamp,
+                storm: false,
+            });
+        }
+    }
+    const out = [...groups.values()];
+    for (const g of out)
+        g.storm = g.count >= STORM_COUNT && (g.lastAt - g.firstAt) <= STORM_WINDOW_MS;
+    return out.sort((a, b) => b.count - a.count);
 }

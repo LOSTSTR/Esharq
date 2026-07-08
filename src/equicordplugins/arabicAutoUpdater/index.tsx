@@ -39,11 +39,15 @@ async function checkForUpdate() {
 
         if (!remoteHash || remoteHash === gitHash) return;
 
-        // Migrate old localStorage value to DataStore on first run
-        const legacyValue = localStorage.getItem(SEEN_KEY);
-        if (legacyValue) {
-            await DataStore.set(SEEN_KEY, legacyValue);
-            localStorage.removeItem(SEEN_KEY);
+        // Migrate any old localStorage value to DataStore on first run. Discord removes
+        // window.localStorage in the renderer (anti-token-theft), so a bare reference throws
+        // ReferenceError — guard with typeof so the update check never fails because of it.
+        if (typeof localStorage !== "undefined") {
+            const legacyValue = localStorage.getItem(SEEN_KEY);
+            if (legacyValue) {
+                await DataStore.set(SEEN_KEY, legacyValue);
+                localStorage.removeItem(SEEN_KEY);
+            }
         }
 
         const lastSeen = await DataStore.get<string>(SEEN_KEY);

@@ -5,7 +5,6 @@
  */
 
 import { disableStyle, enableStyle } from "@api/Styles";
-import { EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
 
 import style from "./style.css?managed";
@@ -13,7 +12,7 @@ import style from "./style.css?managed";
 export default definePlugin({
     name: "GlassPanels",
     description: "Frosted-glass blur on the sidebar and member list.",
-    authors: [EquicordDevs.LOSTSTR, { name: "Sharp", id: 0n }],
+    authors: [{ name: "Sharp", id: 0n }],
     start: () => enableStyle(style),
     stop: () => disableStyle(style),
 });

@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 
@@ -24,7 +23,7 @@ const VIBES = [
 export default definePlugin({
     name: "VibeCheck",
     description: "Adds /vibe to drop a random vaporwave mood into chat.",
-    authors: [EquicordDevs.LOSTSTR, { name: "Sharp", id: 0n }],
+    authors: [{ name: "Sharp", id: 0n }],
     dependencies: ["CommandsAPI"],
     commands: [
         {

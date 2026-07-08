@@ -5,7 +5,6 @@
  */
 
 import { ApplicationCommandOptionType, findOption, sendBotMessage } from "@api/Commands";
-import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { IconUtils, UserStore } from "@webpack/common";
@@ -13,7 +12,7 @@ import { IconUtils, UserStore } from "@webpack/common";
 export default definePlugin({
     name: "AvatarGrabber",
     description: "/avatar grabs the full-resolution avatar of any user (or yourself).",
-    authors: [EquicordDevs.LOSTSTR, { name: "Sharp", id: 0n }],
+    authors: [{ name: "Sharp", id: 0n }],
     dependencies: ["CommandsAPI"],
     commands: [
         {

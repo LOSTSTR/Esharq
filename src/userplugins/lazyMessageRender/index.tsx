@@ -15,7 +15,7 @@ const classes = findCssClassesLazy("messageListItem");
 
 export default definePlugin({
     name: "LazyMessageRender",
-    description: "Skips layout and paint for offscreen messages using CSS content-visibility, reducing lag in large servers.",
+    description: "Keeps the message action toolbar from clipping under the message above by lifting the hovered/focused row. (content-visibility was removed — Discord's virtualized scroller mis-measures contained rows after recent updates, causing scroll jumping.)",
     authors: [EquicordDevs.LOSTSTR, { name: "x2b", id: 996137713432530976n }],
 
     start() {

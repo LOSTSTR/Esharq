@@ -5,7 +5,6 @@
  */
 
 import { findOption, RequiredMessageOption } from "@api/Commands";
-import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 
@@ -19,7 +18,7 @@ function toFullwidth(text: string): string {
 export default definePlugin({
     name: "VaporwaveText",
     description: "Adds /vaporwave to turn your message into ａｅｓｔｈｅｔｉｃ fullwidth text.",
-    authors: [EquicordDevs.LOSTSTR, { name: "Sharp", id: 0n }],
+    authors: [{ name: "Sharp", id: 0n }],
     dependencies: ["CommandsAPI"],
     commands: [
         {

@@ -5,7 +5,6 @@
  */
 
 import { definePluginSettings } from "@api/Settings";
-import { EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
 
 const settings = definePluginSettings({
@@ -33,7 +32,7 @@ export default definePlugin({
     name: "NoTelemetry",
     description: "Blocks additional Discord telemetry beyond the built-in NoTrack plugin: experiment exposure reporting, call diagnostics, and remote debug logging.",
     tags: ["Privacy"],
-    authors: [EquicordDevs.LOSTSTR, { name: "Sharp", id: 0n }],
+    authors: [{ name: "Sharp", id: 0n }],
     settings,
 
     patches: [

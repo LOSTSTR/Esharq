@@ -296,10 +296,6 @@ function renderOverlay() {
     const shell = document.createElement("div");
     shell.style.cssText = "width:min(720px,calc(100vw - 48px));max-height:min(500px,calc(100vh - 48px));padding:16px;border-radius:12px;background:var(--background-floating,#111214);box-shadow:var(--elevation-high,0 8px 24px rgba(0,0,0,.35));border:1px solid var(--background-modifier-accent,rgba(255,255,255,.08));font-family:var(--font-primary,Arial,sans-serif);color:var(--text-normal,#dbdee1);";
     shell.onmousedown = event => event.stopPropagation();
-    shell.onwheel = event => {
-        event.preventDefault();
-        cycleSwitcher(event.deltaY >= 0 ? 1 : -1);
-    };
 
     const title = createTextElement("div", "Switch Channel");
     title.style.cssText = "font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted,#949ba4);margin:0 0 12px 2px;";
@@ -341,7 +337,19 @@ function renderOverlay() {
     }
 
     const list = document.createElement("div");
-    list.style.cssText = "display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;overflow:auto;max-height:300px;padding:1px;";
+    list.style.cssText = "display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;overflow:auto;max-height:300px;padding:1px;scrollbar-width:thin;";
+    // العجلة: إن كانت القائمة قابلة للتمرير ولم نبلغ حافتها فدَعها تُمرّر؛ وإلا بدّل التحديد.
+    // (بدون هذا كانت العجلة تبدّل التحديد دائماً فيتعذّر تمرير قائمة طويلة.)
+    shell.onwheel = event => {
+        const wantsDown = event.deltaY >= 0;
+        if (list.contains(event.target as Node)) {
+            const canScrollDown = list.scrollTop + list.clientHeight < list.scrollHeight - 1;
+            const canScrollUp = list.scrollTop > 0;
+            if ((wantsDown && canScrollDown) || (!wantsDown && canScrollUp)) return;
+        }
+        event.preventDefault();
+        cycleSwitcher(wantsDown ? 1 : -1);
+    };
     const cards: HTMLDivElement[] = [];
     let lastSection = "";
 
@@ -460,6 +468,10 @@ function renderOverlay() {
     shell.appendChild(hint);
 
     overlay.appendChild(shell);
+
+    // أبقِ البطاقة المحدَّدة داخل الرؤية عند التنقّل في قائمة أطول من الإطار.
+    const selectedCard = cards[selectedIndex];
+    if (selectedCard) requestAnimationFrame(() => selectedCard.scrollIntoView({ block: "nearest", inline: "nearest" }));
 }
 
 function removeOverlay() {

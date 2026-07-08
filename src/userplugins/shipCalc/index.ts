@@ -5,7 +5,6 @@
  */
 
 import { ApplicationCommandOptionType, findOption } from "@api/Commands";
-import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 
@@ -27,7 +26,7 @@ const opt = (name: string) => ({
 export default definePlugin({
     name: "ShipCalc",
     description: "/ship rates the love between two people.",
-    authors: [EquicordDevs.LOSTSTR, { name: "Sharp", id: 0n }],
+    authors: [{ name: "Sharp", id: 0n }],
     dependencies: ["CommandsAPI"],
     commands: [
         {

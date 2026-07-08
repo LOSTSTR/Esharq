@@ -8,7 +8,6 @@ import "./styles.css";
 
 import { ChannelToolbarButton } from "@api/HeaderBar";
 import { definePluginSettings } from "@api/Settings";
-import { EquicordDevs } from "@utils/constants";
 import { openModal } from "@utils/esharqModals";
 import definePlugin, { OptionType } from "@utils/types";
 import { useState } from "@webpack/common";
@@ -69,7 +68,7 @@ export { settings };
 export default definePlugin({
     name: "DeepSearch",
     description: "Advanced message search with filters for links, authors, channels, dates, and more",
-    authors: [EquicordDevs.LOSTSTR, { name: "x2b", id: 996137713432530976n }],
+    authors: [{ name: "x2b", id: 996137713432530976n }],
     tags: ["Chat", "Utility"],
     settings,
     dependencies: ["HeaderBarAPI"],

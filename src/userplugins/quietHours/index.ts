@@ -6,7 +6,6 @@
 
 import { definePluginSettings } from "@api/Settings";
 import { Logger } from "@utils/Logger";
-import { EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
 import { findByProps } from "@webpack";
 
@@ -38,7 +37,7 @@ let originalPlaySound: any = null;
 export default definePlugin({
     name: "QuietHours",
     description: "Silences notification sounds during a time window you set (e.g. 23:00–08:00). Visual notifications still show.",
-    authors: [EquicordDevs.LOSTSTR, { name: "Sharp", id: 0n }],
+    authors: [{ name: "Sharp", id: 0n }],
     settings,
 
     start() {

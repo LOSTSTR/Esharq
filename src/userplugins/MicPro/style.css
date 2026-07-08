@@ -431,3 +431,78 @@
     color: var(--text-normal, #dbdee1);
     unicode-bidi: plaintext;
 }
+
+/* ── شريط ملفات الإعدادات (profiles) ── */
+.micpro-profrow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.micpro-profsel,
+.micpro-profname {
+    flex: 1;
+    min-width: 0;
+}
+
+.micpro-pbtn {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid var(--background-modifier-accent);
+    border-radius: 9px;
+    background: var(--background-tertiary);
+    font-size: 15px;
+    line-height: 1;
+    color: var(--text-normal, #dbdee1);
+    cursor: pointer;
+    transition: background .13s, border-color .13s, opacity .13s;
+}
+
+.micpro-pbtn:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+}
+
+.micpro-pbtn:hover:not(:disabled) {
+    background: var(--background-secondary-alt, #232428);
+    border-color: var(--brand-experiment, #5865f2);
+}
+
+.micpro-pbtn-save {
+    border-color: rgb(35 165 90 / 45%);
+    color: var(--green-360, #23a55a);
+}
+
+.micpro-pbtn-del {
+    border-color: rgb(242 63 67 / 40%);
+    color: var(--red-400, #f23f43);
+}
+
+/* زرّ التطبيق: يدفع الملف/الإعدادات الحالية إلى المكالمة الجارية */
+.micpro-apply {
+    grid-column: 1 / -1;
+    appearance: none;
+    border: 0;
+    padding: 12px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #2dc770, var(--green-360, #23a55a));
+    box-shadow: 0 8px 22px -8px var(--green-360, #23a55a);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    color: #fff;
+    cursor: pointer;
+    transition: filter .15s, transform .1s;
+}
+
+.micpro-apply:hover {
+    filter: brightness(1.06);
+}
+
+.micpro-apply:active {
+    transform: translateY(1px);
+}

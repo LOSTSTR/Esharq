@@ -5,7 +5,6 @@
  */
 
 import { findOption, RequiredMessageOption } from "@api/Commands";
-import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 
@@ -14,7 +13,7 @@ const swaps: Record<string, string> = { a: "4", e: "3", i: "1", o: "0", s: "5", 
 export default definePlugin({
     name: "LeetText",
     description: "/leet rewrites your message in 1337 5p34k.",
-    authors: [EquicordDevs.LOSTSTR, { name: "Sharp", id: 0n }],
+    authors: [{ name: "Sharp", id: 0n }],
     dependencies: ["CommandsAPI"],
     commands: [
         {

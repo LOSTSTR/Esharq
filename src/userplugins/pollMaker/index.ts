@@ -5,7 +5,6 @@
  */
 
 import { ApplicationCommandOptionType, findOption, sendBotMessage } from "@api/Commands";
-import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 
@@ -14,7 +13,7 @@ const NUMBERS = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣
 export default definePlugin({
     name: "PollMaker",
     description: "/poll formats a quick poll. Use: question | option | option ...",
-    authors: [EquicordDevs.LOSTSTR, { name: "Dann", id: 0n }],
+    authors: [{ name: "Dann", id: 0n }],
     dependencies: ["CommandsAPI"],
     commands: [
         {

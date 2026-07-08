@@ -110,9 +110,13 @@ function applyRuntimeOpts() {
             return orig.call(this, type, listener, options);
         } as typeof EventTarget.prototype.addEventListener;
     }
-    // صور كسولة + فكّ ترميز غير متزامن (لمرة واحدة، غير مؤذٍ)
+    // صور كسولة + فكّ ترميز غير متزامن (لمرة واحدة، غير مؤذٍ). نتخطّى صور الدردشة:
+    // loading=lazy/decoding=async عليها يكسران التمرير التلقائي لأسفل المحادثة.
     if (settings.store.lazyImages) {
+        const isChatImage = (img: HTMLImageElement) =>
+            img.closest('[class*="scrollerInner_"], [class*="messageListItem_"]') !== null;
         document.querySelectorAll<HTMLImageElement>("img").forEach(img => {
+            if (isChatImage(img)) return;
             if (!img.loading) img.loading = "lazy";
             if (!img.decoding) img.decoding = "async";
         });

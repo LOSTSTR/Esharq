@@ -102,7 +102,7 @@ const settings = definePluginSettings({
 
 export default definePlugin({
     name: "EsharqDiagnostics",
-    description: "On-demand, one-shot snapshot of each enabled plugin's footprint (patches, listeners, UI injects, load). Zero cost when idle.",
+    description: "On-demand diagnostics suite: plugin footprint snapshots, live profiling (CPU/RAM/FPS/event-loop/Flux dispatch), unapplied-patch audit, a real causal impact test that measures a plugin ON vs OFF, baseline comparison and measurement-backed recommendations. Zero cost when idle.",
     tags: ["Utility"],
     authors: [EquicordDevs.LOSTSTR],
     dependencies: ["HeaderBarAPI"],

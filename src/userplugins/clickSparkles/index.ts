@@ -5,7 +5,6 @@
  */
 
 import { disableStyle, enableStyle } from "@api/Styles";
-import { EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
 
 import style from "./style.css?managed";
@@ -30,7 +29,7 @@ function burst(e: MouseEvent) {
 export default definePlugin({
     name: "ClickSparkles",
     description: "Sprinkles little neon sparkles wherever you click.",
-    authors: [EquicordDevs.LOSTSTR, { name: "Sharp", id: 0n }],
+    authors: [{ name: "Sharp", id: 0n }],
     start() {
         enableStyle(style);
         document.addEventListener("click", burst);

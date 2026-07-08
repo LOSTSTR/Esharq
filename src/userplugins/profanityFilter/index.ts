@@ -5,7 +5,6 @@
  */
 
 import { definePluginSettings } from "@api/Settings";
-import { EquicordDevs } from "@utils/constants";
 import { escapeRegExp } from "@utils/text";
 import definePlugin, { OptionType } from "@utils/types";
 import { Toasts } from "@webpack/common";
@@ -69,7 +68,6 @@ export default definePlugin({
     name: "ProfanityFilter",
     description: "Strictly removes user-defined words from outgoing messages (whole-word only). Sends :duck: if filtering empties the message.",
     authors: [
-        EquicordDevs.LOSTSTR,
         { name: "SirPhantom89", id: 1464279455844274188n },
         { name: "Nepotaku", id: 765468887852515370n }
     ],

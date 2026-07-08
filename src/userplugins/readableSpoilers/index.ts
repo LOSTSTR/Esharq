@@ -5,7 +5,6 @@
  */
 
 import { disableStyle, enableStyle } from "@api/Styles";
-import { EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
 
 import style from "./style.css?managed";
@@ -13,7 +12,7 @@ import style from "./style.css?managed";
 export default definePlugin({
     name: "ReadableSpoilers",
     description: "Gives unrevealed spoilers a subtle neon outline so you can spot them at a glance.",
-    authors: [EquicordDevs.LOSTSTR, { name: "Sharp", id: 0n }],
+    authors: [{ name: "Sharp", id: 0n }],
     start: () => enableStyle(style),
     stop: () => disableStyle(style),
 });

@@ -6,7 +6,6 @@
 
 import { t } from "@utils/esharqI18n";
 import { HeaderBarButton } from "@api/HeaderBar";
-import { EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
 import { openModal, React } from "@webpack/common";
 
@@ -34,7 +33,7 @@ export default definePlugin({
     name: "TempMail",
     description: "Disposable email addresses powered by mail.tm — create, receive and save emails inside Discord",
     tags: ["Utility", "Privacy"],
-    authors: [EquicordDevs.LOSTSTR, { name: "lastclipped", id: 0n }],
+    authors: [{ name: "lastclipped", id: 0n }],
     dependencies: ["HeaderBarAPI"],
 
     headerBarButton: {

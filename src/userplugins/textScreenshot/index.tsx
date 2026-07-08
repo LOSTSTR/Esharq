@@ -6,7 +6,6 @@
 
 import { t } from "@utils/esharqI18n";
 import { ApplicationCommandInputType, ApplicationCommandOptionType, findOption, sendBotMessage } from "@api/Commands";
-import { EquicordDevs } from "@utils/constants";
 import { getCurrentChannel } from "@utils/discord";
 import definePlugin from "@utils/types";
 import { DraftType, UploadHandler, UserStore } from "@webpack/common";
@@ -17,7 +16,7 @@ export default definePlugin({
     name: "TextScreenshot",
     description: "Send text as a screenshot of a Discord message with your profile",
     tags: ["Commands", "Fun"],
-    authors: [EquicordDevs.LOSTSTR, { name: "x2b", id: 996137713432530976n }],
+    authors: [{ name: "x2b", id: 996137713432530976n }],
     dependencies: ["CommandsAPI"],
 
     commands: [

@@ -197,3 +197,122 @@
     color: var(--header-secondary);
     margin-top: 2px;
 }
+
+/* ── إضافات v2: مخطط شراري، معلّقة، Δ الأساس، اختبار الأثر، التوصيات ───────── */
+
+.esharq-diag-sparkrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.esharq-diag-spark {
+    color: var(--brand-experiment, #5865f2);
+}
+
+.esharq-diag-sparkminmax {
+    font-family: monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.esharq-diag-pending {
+    display: inline-block;
+    min-width: 18px;
+    padding: 1px 6px;
+    border-radius: 8px;
+    background: rgb(250 168 26 / 18%);
+    font-weight: 700;
+    color: #faa81a;
+}
+
+.esharq-diag-delta {
+    margin-inline-start: 5px;
+    font-family: monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.esharq-diag-impact {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid var(--background-modifier-accent);
+    border-radius: 10px;
+    background: var(--background-secondary);
+}
+
+.esharq-diag-impact-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.esharq-diag-select {
+    flex: 1;
+    appearance: none;
+    padding: 8px 10px;
+    border: 1px solid var(--background-modifier-accent);
+    border-radius: 8px;
+    background: var(--background-tertiary);
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--text-normal);
+    cursor: pointer;
+}
+
+.esharq-diag-impact-note {
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--text-muted);
+    unicode-bidi: plaintext;
+}
+
+.esharq-diag-impact-result {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.esharq-diag-verdict {
+    padding: 7px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--background-tertiary);
+    color: var(--text-normal);
+}
+
+.esharq-diag-verdict.v-high {
+    background: rgb(237 66 69 / 14%);
+    color: #ed4245;
+}
+
+.esharq-diag-verdict.v-moderate {
+    background: rgb(250 168 26 / 14%);
+    color: #faa81a;
+}
+
+.esharq-diag-verdict.v-negligible {
+    background: rgb(59 165 92 / 14%);
+    color: #3ba55c;
+}
+
+.esharq-diag-recs {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px;
+    border: 1px solid var(--background-modifier-accent);
+    border-radius: 10px;
+    background: var(--background-secondary);
+}
+
+.esharq-diag-rec {
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--text-normal);
+    unicode-bidi: plaintext;
+}

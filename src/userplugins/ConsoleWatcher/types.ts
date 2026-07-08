@@ -35,4 +35,27 @@ export interface ConsoleEvent {
     source: ConsoleSource;
     /** اسم الإضافة إن أمكن استخراجه من الوسم */
     pluginName?: string;
+    /**
+     * نسبة استدلالية (ليست وسماً صريحاً): ظهر اسم إضافة مُفعّلة داخل نصّ
+     * الخطأ أو الـstack. تُعرَض بعلامة «؟» — احتمال لا يقين.
+     */
+    probablePlugin?: string;
+    /** فُتات Flux: أنواع آخر الأحداث المُوزَّعة قبل هذا الخطأ مباشرة (سياق تشخيصي) */
+    crumbs?: string[];
+}
+
+/** مجموعة أخطاء متطابقة (بعد تطبيع الأرقام/المعرّفات) — تُحسَب وقت التقرير فقط. */
+export interface ErrorGroup {
+    /** المفتاح المُطبَّع (أرقام/معرّفات/روابط → رموز ثابتة) */
+    key: string;
+    /** نصّ أول حدوث (كما ظهر) */
+    sample: string;
+    type: ConsoleEventType;
+    source: ConsoleSource;
+    pluginName?: string;
+    count: number;
+    firstAt: number;
+    lastAt: number;
+    /** عاصفة: تكرار كثيف (≥20 حدثاً خلال ≤60 ثانية) — مؤشر حلقة/تسريب معالجات */
+    storm: boolean;
 }

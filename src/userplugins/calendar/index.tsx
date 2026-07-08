@@ -13,7 +13,6 @@ import { classNameFactory } from "@utils/css";
 import { copyWithToast } from "@utils/discord";
 import { ModalSize } from "@utils/modal";
 import { closeModal, ModalCloseButton, ModalContent, ModalHeader, ModalRoot, openModal } from "@utils/esharqModals";
-import { EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
 import { moment, React, useEffect, useRef, useState } from "@webpack/common";
 
@@ -416,7 +415,7 @@ export default definePlugin({
     name: "Calendar",
     description: "Calendar with notes and Discord timestamp management",
     tags: ["Utility"],
-    authors: [EquicordDevs.LOSTSTR, { name: "x2b", id: 996137713432530976n }],
+    authors: [{ name: "x2b", id: 996137713432530976n }],
     dependencies: ["HeaderBarAPI"],
 
     headerBarButton: {

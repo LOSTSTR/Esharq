@@ -7,7 +7,6 @@
 import { definePluginSettings } from "@api/Settings";
 import { getUserSettingLazy } from "@api/UserSettings";
 import { Logger } from "@utils/Logger";
-import { EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
 import { FluxDispatcher } from "@webpack/common";
 
@@ -183,7 +182,7 @@ export default definePlugin({
     name: "LyricsStatus",
     description: "Shows the current Spotify lyric line in your Discord custom status in real time. Lyrics fetched from LrcLib.",
     tags: ["Activity", "Utility"],
-    authors: [EquicordDevs.LOSTSTR, { name: "Sharp", id: 0n }],
+    authors: [{ name: "Sharp", id: 0n }],
     settings,
 
     start() {

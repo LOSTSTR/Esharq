@@ -8,7 +8,6 @@ import { t } from "@utils/esharqI18n";
 import { findGroupChildrenByChildId } from "@api/ContextMenu";
 import { definePluginSettings } from "@api/Settings";
 import { SafetyIcon } from "@components/Icons";
-import { EquicordDevs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import { openModal } from "@utils/esharqModals";
 import definePlugin, { OptionType } from "@utils/types";
@@ -444,7 +443,7 @@ export default definePlugin({
     name: "MetadataScanner",
     description: "Scan attachments and images for EXIF, PNG chunks, and location metadata.",
     tags: ["Utility", "Media"],
-    authors: [EquicordDevs.LOSTSTR, { name: "SirPhantom89", id: 1464279455844274188n }],
+    authors: [{ name: "SirPhantom89", id: 1464279455844274188n }],
     settings,
 
     start() {
