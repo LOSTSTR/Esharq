@@ -131,8 +131,13 @@ const isUpdate = isFix || isSync || isChore || (isFeat && newPluginFiles.length 
 function extractPluginInfo(filePath) {
     if (!existsSync(filePath)) return null;
     const src = readFileSync(filePath, "utf8");
-    const name = sanitise((src.match(/\bname:\s*["']([^"']+)["']/) ?? [])[1] ?? "", 80);
-    const descEn = sanitise((src.match(/\bdescription:\s*["']([^"']+)["']/) ?? [])[1] ?? "", 300);
+    // Extract name/description from the definePlugin({...}) block SPECIFICALLY — anchoring on
+    // definePlugin( avoids grabbing the first name:/description: in the file, which is often a
+    // settings option's (that leaked "RTCPeerConnection" + English setting text into the embed).
+    const defIdx = src.search(/definePlugin\s*\(/);
+    const defSrc = defIdx >= 0 ? src.slice(defIdx) : src;
+    const name = sanitise((defSrc.match(/\bname:\s*["']([^"']+)["']/) ?? [])[1] ?? "", 80);
+    const descEn = sanitise((defSrc.match(/\bdescription:\s*["']([^"']+)["']/) ?? [])[1] ?? "", 300);
     const dirName = (filePath.match(/\/(equicordplugins|userplugins)\/([^/]+)\//) ?? [])[2] ?? filePath;
     const resolvedName = name || sanitise(dirName, 80);
 

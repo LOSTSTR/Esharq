@@ -1,0 +1,345 @@
+/*
+ * BetterScreenshare — لوحة إشراق. هوية بنفسجية (سينما) تميّزها عن MicPro، بمتغيّرات ديسكورد.
+ */
+
+.bss-root {
+    border-radius: 16px;
+}
+
+.bss-head {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.bss-glyph {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(150deg, #a855f7, #7c3aed);
+    box-shadow: 0 4px 14px -4px #7c3aed;
+}
+
+.bss-glyph svg {
+    width: 19px;
+    height: 19px;
+}
+
+.bss-title {
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--header-primary);
+}
+
+.bss-subtitle {
+    margin-top: 1px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.bss-body {
+    display: grid;
+    gap: 12px;
+    padding-top: 14px;
+}
+
+.bss-grid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.bss-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 13px 14px;
+    border: 1px solid transparent;
+    border-radius: 14px;
+    background: var(--background-secondary, #2b2d31);
+    transition: border-color .15s, background .15s;
+}
+
+.bss-span {
+    grid-column: 1 / -1;
+}
+
+.bss-tap {
+    cursor: pointer;
+}
+
+.bss-tap:hover {
+    border-color: rgb(168 85 247 / 45%);
+    background: var(--background-secondary-alt, #232428);
+}
+
+.bss-cap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.bss-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-normal, #dbdee1);
+}
+
+.bss-val {
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: var(--background-tertiary);
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: #d8b4fe;
+}
+
+.bss-note {
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--text-muted);
+    unicode-bidi: plaintext;
+}
+
+.bss-seg {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 11px;
+    background: var(--background-tertiary);
+}
+
+.bss-seg-btn {
+    appearance: none;
+    border: 0;
+    padding: 8px 4px;
+    border-radius: 8px;
+    background: transparent;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background .13s, color .13s;
+}
+
+.bss-seg-btn:hover:not(.bss-seg-on) {
+    color: var(--text-normal);
+}
+
+.bss-seg-on {
+    background: linear-gradient(180deg, #a855f7, #7c3aed);
+    color: #fff;
+}
+
+.bss-range {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 16px;
+}
+
+.bss-range::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    height: 6px;
+    border-radius: 6px;
+    background: var(--background-tertiary);
+}
+
+.bss-range-fill {
+    position: absolute;
+    inset-inline-start: 0;
+    height: 6px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #7c3aed, #a855f7);
+    pointer-events: none;
+}
+
+.bss-range > input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.bss-range > input::-webkit-slider-thumb {
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 0 3px #a855f7, 0 1px 4px rgb(0 0 0 / 45%);
+    cursor: pointer;
+}
+
+.bss-sw {
+    position: relative;
+    flex: 0 0 auto;
+    width: 42px;
+    height: 25px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: var(--background-tertiary);
+    cursor: pointer;
+    transition: background .18s;
+}
+
+.bss-sw > i {
+    position: absolute;
+    top: 3px;
+    inset-inline-start: 3px;
+    width: 19px;
+    height: 19px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 4px rgb(0 0 0 / 35%);
+    transition: inset-inline-start .18s;
+}
+
+.bss-sw-on {
+    background: #7c3aed;
+}
+
+.bss-sw-on > i {
+    inset-inline-start: 20px;
+}
+
+.bss-numwrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.bss-num {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--background-modifier-accent);
+    border-radius: 9px;
+    background: var(--background-tertiary);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    color: var(--white-500, #fff);
+}
+
+.bss-unit {
+    position: absolute;
+    inset-inline-end: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.bss-select {
+    flex: 1;
+    min-width: 0;
+}
+
+.bss-profrow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.bss-profname {
+    flex: 1;
+    min-width: 0;
+}
+
+.bss-pbtn {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid var(--background-modifier-accent);
+    border-radius: 9px;
+    background: var(--background-tertiary);
+    font-size: 15px;
+    line-height: 1;
+    color: var(--text-normal, #dbdee1);
+    cursor: pointer;
+    transition: background .13s, border-color .13s, opacity .13s;
+}
+
+.bss-pbtn:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+}
+
+.bss-pbtn:hover:not(:disabled) {
+    border-color: #a855f7;
+    background: var(--background-secondary-alt, #232428);
+}
+
+.bss-pbtn-save {
+    border-color: rgb(35 165 90 / 45%);
+    color: var(--green-360, #23a55a);
+}
+
+.bss-pbtn-del {
+    border-color: rgb(242 63 67 / 40%);
+    color: var(--red-400, #f23f43);
+}
+
+.bss-apply {
+    grid-column: 1 / -1;
+    appearance: none;
+    border: 0;
+    padding: 13px;
+    border-radius: 13px;
+    background: linear-gradient(180deg, #a855f7, #7c3aed);
+    box-shadow: 0 8px 22px -8px #7c3aed;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    color: #fff;
+    cursor: pointer;
+    transition: filter .15s, transform .1s;
+}
+
+.bss-apply:hover {
+    filter: brightness(1.07);
+}
+
+.bss-apply:active {
+    transform: translateY(1px);
+}
+
+.bss-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--text-muted);
+    unicode-bidi: plaintext;
+}
+
+.bss-dot {
+    flex: 0 0 auto;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #a855f7;
+    box-shadow: 0 0 8px #a855f7;
+}

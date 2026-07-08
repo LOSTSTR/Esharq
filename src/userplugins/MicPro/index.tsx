@@ -22,7 +22,7 @@ import { isArabicMode, t } from "@utils/esharqI18n";
 import { ModalContent, ModalHeader, ModalRoot, openModal, type RenderModalProps } from "@utils/esharqModals";
 import { ModalSize } from "@utils/modal";
 import definePlugin, { PluginNative } from "@utils/types";
-import { FluxDispatcher, MediaEngineStore, React, useEffect, useRef, useState, VoiceActions } from "@webpack/common";
+import { FluxDispatcher, MediaEngineStore, React, Select, useEffect, useRef, useState, VoiceActions } from "@webpack/common";
 
 import { settings } from "./settings";
 
@@ -329,10 +329,18 @@ function ProfileBar({ st, flush }: { st: any; flush: () => void; }) {
                         value={nameInput} onChange={e => setNameInput(e.currentTarget.value)}
                         onKeyDown={e => { if (e.key === "Enter") save(); if (e.key === "Escape") setSaving(false); }} />
                 ) : (
-                    <select className="micpro-select micpro-profsel" value={name} onChange={e => pick(e.currentTarget.value)}>
-                        {name === "" && <option value="">{t("(غير محفوظ)", "(unsaved)")}</option>}
-                        {profiles.map(pr => <option key={pr.name} value={pr.name}>{pr.name}</option>)}
-                    </select>
+                    <div className="micpro-profsel">
+                        <Select
+                            isSelected={v => v === name}
+                            options={[
+                                ...(name === "" ? [{ label: t("(غير محفوظ)", "(unsaved)"), value: "" }] : []),
+                                ...profiles.map(pr => ({ label: pr.name, value: pr.name }))
+                            ]}
+                            select={pick}
+                            serialize={String}
+                            closeOnSelect
+                        />
+                    </div>
                 )}
                 <button type="button" className="micpro-pbtn micpro-pbtn-save" title={t("حفظ", "Save")} onClick={save}>{saving ? "✓" : "💾"}</button>
                 <button type="button" className="micpro-pbtn" title={t("جديد", "New")} disabled={saving} onClick={newProfile}>＋</button>
