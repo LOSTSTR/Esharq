@@ -29,16 +29,26 @@ export function isArabicMode(): boolean {
     return value;
 }
 
+// عزل ثنائي الاتجاه: نغلّف كل نصّ عربي بعازل RTL (RLI U+2067 … PDI U+2069) فيُعرَض من
+// اليمين لليسار مهما كان اتجاه حاوية ديسكورد (LTR افتراضاً)، مع بقاء الكلمات اللاتينية
+// المضمّنة (Esharq / QuickCSS / Ctrl+Q …) LTR في مكانها — يحلّ تشوّه العربية المختلطة في
+// كامل واجهة إشراق. نفس التحسين المطبَّق على القاموس والـoverlay، لكن هنا يشمل كل نصوص t().
+const HAS_ARABIC = /[؀-ۿ]/;
+const RLI = String.fromCharCode(0x2067);
+const PDI = String.fromCharCode(0x2069);
+
 /**
- * Returns `ar` when Arabic mode is on, `en` otherwise. The result reflects the
- * language chosen at the last restart (see {@link isArabicMode}); changing the
- * setting applies after a restart. Because the language is frozen per session,
- * `t()` is safe to use anywhere — module-load object literals, render bodies,
- * settings descriptions, SELECT choices — without worrying about evaluation time.
+ * Returns `ar` (bidi-isolated) when Arabic mode is on, `en` otherwise. The result
+ * reflects the language chosen at the last restart (see {@link isArabicMode}); changing
+ * the setting applies after a restart. Because the language is frozen per session, `t()`
+ * is safe to use anywhere — module-load object literals, render bodies, settings
+ * descriptions, SELECT choices — without worrying about evaluation time.
  *
  * @example
  *   description: t("وصف عربي", "English description")
  */
 export function t(ar: string, en: string): string {
-    return isArabicMode() ? ar : en;
+    if (!isArabicMode()) return en;
+    // RLI…PDI يفرض اتجاه RTL ويعزل ما بداخله عن اتجاه الحاوية (يعالج النص المختلط عربي/لاتيني).
+    return HAS_ARABIC.test(ar) ? RLI + ar + PDI : ar;
 }

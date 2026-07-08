@@ -8,7 +8,9 @@ import * as DataStore from "@api/DataStore";
 import { Devs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
+import { relaunch } from "@utils/native";
 import definePlugin from "@utils/types";
+import { checkForUpdates, update } from "@utils/updater";
 import { Alerts } from "@webpack/common";
 
 import gitHash from "~git-hash";
@@ -67,12 +69,43 @@ async function checkForUpdate() {
             ),
             confirmText: t("تحديث الآن", "Update now"),
             cancelText: t("لاحقاً", "Later"),
-            onConfirm() {
-                VencordNative.native.openExternal(RELEASES_PAGE);
-            }
+            onConfirm: applyUpdateInClient
         });
     } catch (e) {
         logger.error("فشل فحص التحديثات:", e);
+    }
+}
+
+// الخيار A: يُطبّق التحديث داخل التطبيق مباشرةً عبر المحدّث المدمج (ينزّل + يبني الإصدار الجديد)
+// ثم يعرض إعادة التشغيل — بدل فتح المتصفّح للتنزيل اليدوي. عند أي تعذّر (محدّث معطّل / فشل
+// البناء / غير مرصود) يرجع بأمان إلى فتح صفحة الإصدارات.
+async function applyUpdateInClient() {
+    if (IS_WEB || IS_UPDATER_DISABLED) {
+        VencordNative.native.openExternal(RELEASES_PAGE);
+        return;
+    }
+    try {
+        const outdated = await checkForUpdates();
+        if (!outdated) {
+            VencordNative.native.openExternal(RELEASES_PAGE);
+            return;
+        }
+        await update();
+        Alerts.show({
+            title: t("اكتمل التحديث ✅", "Update complete ✅"),
+            body: <p>{t("طُبِّق التحديث بنجاح. أعد تشغيل ديسكورد لتفعيله.", "The update was applied. Restart Discord to activate it.")}</p>,
+            confirmText: t("إعادة التشغيل الآن", "Restart now"),
+            cancelText: t("لاحقاً", "Later"),
+            onConfirm: () => relaunch()
+        });
+    } catch (e) {
+        logger.error("in-client update failed:", e);
+        Alerts.show({
+            title: t("تعذّر التحديث التلقائي", "Auto-update failed"),
+            body: <p>{t("سنفتح صفحة الإصدارات لتنزيله يدوياً.", "Opening the releases page for a manual download instead.")}</p>,
+            confirmText: t("فتح صفحة الإصدارات", "Open releases page"),
+            onConfirm: () => VencordNative.native.openExternal(RELEASES_PAGE)
+        });
     }
 }
 
