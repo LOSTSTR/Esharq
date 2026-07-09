@@ -9,16 +9,24 @@ import "./styles.css";
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { HeaderBarButton } from "@api/HeaderBar";
 import { addMessagePopoverButton, removeMessagePopoverButton } from "@api/MessagePopover";
-import { useSettings } from "@api/Settings";
+import { definePluginSettings, useSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
-import definePlugin from "@utils/types";
+import definePlugin, { OptionType } from "@utils/types";
 import { ChannelStore, Menu, openModal, React, showToast, Toasts } from "@webpack/common";
 
 import { BookmarksModal } from "./BookmarksModal";
 import { bookmarksCache, clearCache, getBookmarks, saveBookmarks } from "./store";
 import type { Bookmark } from "./types";
+
+export const settings = definePluginSettings({
+    blurContent: {
+        type: OptionType.BOOLEAN,
+        description: "Blur saved messages (author, avatar and text) until you hover over them — keeps your bookmarks private from shoulder-surfers and screenshots.",
+        default: true,
+    },
+});
 
 function BookmarkIcon({ width = 20, height = 20, ...props }: React.SVGProps<SVGSVGElement>) {
     return (
@@ -137,6 +145,7 @@ export default definePlugin({
     description: "Save messages as private bookmarks and organize them in a beautiful panel with search",
     tags: ["Chat", "Utility"],
     authors: [EquicordDevs.LOSTSTR, EquicordDevs.NRaymond],
+    settings,
     dependencies: ["MessagePopoverAPI", "HeaderBarAPI"],
     headerBarButton: {
         icon: BookmarkIcon,

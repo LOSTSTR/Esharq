@@ -10,6 +10,7 @@ import { RenderModalProps } from "@vencord/discord-types";
 import { ChannelStore, GuildStore, Modal, NavigationRouter, React, showToast, Toasts, useEffect, useState } from "@webpack/common";
 
 import { exportBookmarks, pickBookmarksFile } from "./backup";
+import { settings } from "./index";
 import { getBookmarks, saveBookmarks } from "./store";
 import type { Bookmark, BookmarkCategory } from "./types";
 
@@ -48,6 +49,7 @@ export function BookmarksModal({ modalProps }: { modalProps: RenderModalProps; }
     const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
     const [search, setSearch] = useState("");
     const [activeTab, setActiveTab] = useState<BookmarkCategory | "all">("all");
+    const { blurContent } = settings.use(["blurContent"]);
 
     useEffect(() => {
         getBookmarks().then(setBookmarks);
@@ -216,7 +218,7 @@ export function BookmarksModal({ modalProps }: { modalProps: RenderModalProps; }
                                 : `#${channelName}`;
 
                             return (
-                                <div key={bookmark.id} className={`mb-item mb-item-${bookmark.category}`}>
+                                <div key={bookmark.id} className={`mb-item mb-item-${bookmark.category}${blurContent ? " mb-blur" : ""}`}>
                                     <div className="mb-item-header">
                                         {bookmark.authorId && (
                                             <img

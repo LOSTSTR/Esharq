@@ -206,6 +206,26 @@
     margin-bottom: 8px;
 }
 
+/* Privacy blur: hide the saved message (author, avatar, location and text)
+   until the row is hovered — protects bookmarks from shoulder-surfers and
+   screenshots. Actions (copy/jump/delete) stay sharp and usable. */
+.mb-blur .mb-author,
+.mb-blur .mb-location,
+.mb-blur .mb-content,
+.mb-blur .mb-avatar {
+    filter: blur(5px);
+    transition: filter 0.18s ease;
+    user-select: none;
+}
+
+.mb-blur:hover .mb-author,
+.mb-blur:hover .mb-location,
+.mb-blur:hover .mb-content,
+.mb-blur:hover .mb-avatar {
+    filter: none;
+    user-select: auto;
+}
+
 .mb-item-actions {
     display: flex;
     align-items: center;
