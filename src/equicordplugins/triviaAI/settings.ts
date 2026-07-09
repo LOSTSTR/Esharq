@@ -70,5 +70,10 @@ export const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         description: t("تمرير الصور للذكاء الاصطناعي كسياق (إن وجدت). لا يدعم هذا كل النماذج.", "Pass images to the AI as context (if any). Not all models support this."),
         default: true
+    },
+    sendImagesAsBase64: {
+        type: OptionType.BOOLEAN,
+        description: "Send images to the AI as base64.",
+        default: false
     }
 });

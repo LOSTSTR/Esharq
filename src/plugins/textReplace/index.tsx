@@ -27,7 +27,6 @@ import { Paragraph } from "@components/Paragraph";
 import { Span } from "@components/Span";
 import { TooltipContainer } from "@components/TooltipContainer";
 import { Devs, EquicordDevs, SUPPORT_CHANNEL_IDS } from "@utils/constants";
-import { t } from "@utils/esharqI18n";
 import { classNameFactory } from "@utils/index";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
@@ -78,12 +77,12 @@ const settings = definePluginSettings({
                 <>
                     <TextReplaceTesting />
                     <TextReplace
-                        title={t("استبدالات بسيطة", "Simple Replacements")}
+                        title="Simple Replacements"
                         description="Simple find and replace rules. For example, find 'brb' and replace it with 'be right back'"
                         rulesArray={stringRules}
                     />
                     <TextReplace
-                        title={t("استبدالات Regex", "Regex Replacements")}
+                        title="Regex Replacements"
                         description="More powerful replacements using Regular Expressions. This section is for advanced users. If you don't understand it, just ignore it"
                         rulesArray={regexRules}
                         isRegex
@@ -95,12 +94,12 @@ const settings = definePluginSettings({
     stringRules: {
         type: OptionType.CUSTOM,
         default: makeEmptyRuleArray(),
-        description: "Text replacement rules using simple text matching."
+        description: "Rules for replacing text using string matching."
     },
     regexRules: {
         type: OptionType.CUSTOM,
         default: makeEmptyRuleArray(),
-        description: "Text replacement rules using regular expressions."
+        description: "Rules for replacing text using regular expressions."
     }
 });
 
@@ -181,6 +180,7 @@ function normalizeRule(rule: Rule) {
 
 function TextReplace({ title, description, rulesArray, isRegex = false }: TextReplaceProps) {
     const [searchQuery, setSearchQuery] = useState("");
+    const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
     function onClickRemove(index: number) {
         rulesArray.splice(index, 1);
@@ -196,9 +196,9 @@ function TextReplace({ title, description, rulesArray, isRegex = false }: TextRe
     }
 
     const scopeOptions = [
-        { label: t("تطبيق على رسائلك (مرئي للجميع)", "Apply to your messages (visible to everyone)"), value: "myMessages" },
-        { label: t("تطبيق على رسائل الآخرين (مرئي لك فقط)", "Apply to others' messages (only visible to you)"), value: "othersMessages" },
-        { label: t("تطبيق على كل الرسائل", "Apply to all messages"), value: "allMessages" }
+        { label: "Apply to your messages (visible to everyone)", value: "myMessages" },
+        { label: "Apply to others' messages (only visible to you)", value: "othersMessages" },
+        { label: "Apply to all messages", value: "allMessages" }
     ];
 
     const filteredRules = rulesArray.reduce((acc: RuleWithIndex[], rule, index) => {
@@ -209,78 +209,104 @@ function TextReplace({ title, description, rulesArray, isRegex = false }: TextRe
         return acc;
     }, []);
 
+    const handleDrop = (index: number) => (e: React.DragEvent) => {
+        e.preventDefault();
+        if (draggedIndex === null || draggedIndex === index || searchQuery) return;
+        const draggedRule = rulesArray.splice(draggedIndex, 1)[0];
+        rulesArray.splice(index, 0, draggedRule);
+        setDraggedIndex(null);
+    };
+
     return (
         <>
             <div>
                 <HeadingSecondary>{title}</HeadingSecondary>
                 <Paragraph>{description}</Paragraph>
                 <TextInput
-                    placeholder={t("بحث عن قاعدة...", "Search for a rule...")}
+                    placeholder="Search for a rule..."
                     value={searchQuery}
                     onChange={setSearchQuery}
                 />
             </div>
             <Flex flexDirection="column" style={{ gap: "0.5em", paddingBottom: "1.25em" }}>
                 {!filteredRules.length && searchQuery && (
-                    <Paragraph>{t("لا توجد قواعد تطابق معايير بحثك.", "No rules match your search criteria.")}</Paragraph>
+                    <Paragraph>No rules match your search criteria.</Paragraph>
                 )}
                 {filteredRules.map(({ rule, index }) =>
-                    <ExpandableSection
+                    <div
                         key={rule.id}
-                        renderContent={() => (
-                            <>
-                                <div className={cl("input-grid")}>
-                                    <TextRow
-                                        label={t("الاسم", "Name")}
-                                        description="An optional name to help you identify this rule."
-                                        value={rule.name ?? ""}
-                                        onChange={e => onChange(e, index, "name")}
-                                    />
-                                    <TextRow
-                                        label={t("بحث", "Find")}
-                                        description={isRegex ? "The regex pattern" : t("النصّ المراد استبداله", "The text to replace")}
-                                        value={rule.find}
-                                        onChange={e => onChange(e, index, "find")}
-                                    />
-                                    <TextRow
-                                        label={t("استبدال", "Replace")}
-                                        description="The text to replace the found text with"
-                                        value={rule.replace}
-                                        onChange={e => onChange(e, index, "replace")}
-                                    />
-                                    <TextRow
-                                        label={t("فقط إذا تضمّن", "Only if includes")}
-                                        description="Optionally, only apply this rule if the message includes this text."
-                                        value={rule.onlyIfIncludes}
-                                        onChange={e => onChange(e, index, "onlyIfIncludes")}
-                                    />
-                                </div>
-                                <div style={{ marginTop: "0.25em" }}>
-                                    <Select
-                                        options={scopeOptions}
-                                        isSelected={e => e === rule.scope}
-                                        select={e => onChange(e, index, "scope")}
-                                        serialize={e => e}
-                                    />
-                                </div>
-                                {isRegex && renderFindError(rule.find)}
-                                <Button
-                                    className={cl("delete-button")}
-                                    variant="dangerPrimary"
-                                    onClick={() => onClickRemove(index)}
-                                >{t("حذف القاعدة", "Delete Rule")}</Button>
-                            </>
-                        )}
+                        onDragOver={e => e.preventDefault()}
+                        onDrop={handleDrop(index)}
+                        style={{ opacity: draggedIndex === index ? 0.5 : 1 }}
                     >
-                        <Paragraph weight="medium" size="md">
-                            {rule.name
-                                ? rule.name
-                                : isEmptyRule(rule)
-                                    ? `Empty Rule ${index + 1}`
-                                    : `Rule ${index + 1} - ${rule.find}`
-                            }
-                        </Paragraph>
-                    </ExpandableSection>
+                        <ExpandableSection
+                            renderContent={() => (
+                                <>
+                                    <div className={cl("input-grid")}>
+                                        <TextRow
+                                            label="Name"
+                                            description="An optional name to help you identify this rule."
+                                            value={rule.name ?? ""}
+                                            onChange={e => onChange(e, index, "name")}
+                                        />
+                                        <TextRow
+                                            label="Find"
+                                            description={isRegex ? "The regex pattern" : "The text to replace"}
+                                            value={rule.find}
+                                            onChange={e => onChange(e, index, "find")}
+                                        />
+                                        <TextRow
+                                            label="Replace"
+                                            description="The text to replace the found text with"
+                                            value={rule.replace}
+                                            onChange={e => onChange(e, index, "replace")}
+                                        />
+                                        <TextRow
+                                            label="Only if includes"
+                                            description="Optionally, only apply this rule if the message includes this text."
+                                            value={rule.onlyIfIncludes}
+                                            onChange={e => onChange(e, index, "onlyIfIncludes")}
+                                        />
+                                    </div>
+                                    <div style={{ marginTop: "0.25em" }}>
+                                        <Select
+                                            options={scopeOptions}
+                                            isSelected={e => e === rule.scope}
+                                            select={e => onChange(e, index, "scope")}
+                                            serialize={e => e}
+                                        />
+                                    </div>
+                                    {isRegex && renderFindError(rule.find)}
+                                    <Button
+                                        className={cl("delete-button")}
+                                        variant="dangerPrimary"
+                                        onClick={() => onClickRemove(index)}
+                                    >
+                                        Delete Rule
+                                    </Button>
+                                </>
+                            )}
+                        >
+                            <div
+                                draggable={!searchQuery}
+                                onDragStart={e => {
+                                    setDraggedIndex(index);
+                                    e.dataTransfer.setData("text/plain", index.toString());
+                                }}
+                                onDragEnd={() => setDraggedIndex(null)}
+                                style={{ cursor: searchQuery ? "default" : "grab", flex: 1 }}
+                            >
+                                <Paragraph weight="medium" size="md">
+                                    {rule.name
+                                        ? rule.name
+                                        : isEmptyRule(rule)
+                                            ? `Empty Rule ${index + 1}`
+                                            : `Rule ${index + 1} - ${rule.find}`
+                                    }
+                                </Paragraph>
+                            </div>
+                        </ExpandableSection>
+                    </div>
                 )}
                 <Button
                     onClick={() => {
@@ -288,7 +314,9 @@ function TextReplace({ title, description, rulesArray, isRegex = false }: TextRe
                         rulesArray.push(makeEmptyRule());
                     }}
                     disabled={rulesArray.length > 0 && isEmptyRule(rulesArray[rulesArray.length - 1])}
-                >{t("إضافة قاعدة", "Add Rule")}</Button>
+                >
+                    Add Rule
+                </Button>
             </Flex>
         </>
     );
@@ -299,10 +327,10 @@ function TextReplaceTesting() {
 
     return (
         <div>
-            <HeadingSecondary>{t("مُختبِر القواعد", "Rule Tester")}</HeadingSecondary>
+            <HeadingSecondary>Rule Tester</HeadingSecondary>
             <Flex flexDirection="column" gap={6}>
-                <TextInput placeholder={t("اكتب رسالة لاختبار القواعد عليها", "Type a message to test rules on")} onChange={setValue} />
-                <TextInput placeholder={t("الرسالة بعد تطبيق القواعد", "Message with rules applied")} editable={false} value={applyRules(value, "allMessages")} style={{ opacity: 0.7 }} />
+                <TextInput placeholder="Type a message to test rules on" onChange={setValue} />
+                <TextInput placeholder="Message with rules applied" editable={false} value={applyRules(value, "allMessages")} style={{ opacity: 0.7 }} />
             </Flex>
         </div>
     );
@@ -357,7 +385,7 @@ const TEXT_REPLACE_RULES_EXEMPT_CHANNEL_IDS = [
 
 export default definePlugin({
     name: "TextReplace",
-    description: "Automatically replaces text while typing using custom rules",
+    description: "Replace text in your messages. You can find pre-made rules in the #textreplace-rules channel in Vencord's Server",
     dependencies: ["MessagePopoverAPI"],
     tags: ["Chat", "Customisation", "Utility"],
     authors: [Devs.AutumnVN, Devs.TheKodeToad, EquicordDevs.Etorix, EquicordDevs.Ape],

@@ -1,7 +1,7 @@
 {
     "name": "equicord",
     "private": "true",
-    "version": "1.14.15.0",
+    "version": "1.14.15.1",
     "description": "Esharq — The Arabic Discord client mod",
     "homepage": "https://github.com/LOSTSTR/Esharq#readme",
     "bugs": {
@@ -102,7 +102,7 @@
         "jszip": "^3.10.1",
         "zip-local": "^0.3.5"
     },
-    "packageManager": "pnpm@11.9.0",
+    "packageManager": "pnpm@11.10.0",
     "engines": {
         "node": ">=22"
     }

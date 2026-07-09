@@ -28,7 +28,6 @@ import { HeadingSecondary } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import { Devs } from "@utils/constants";
 import { copyWithToast, fetchUserProfile } from "@utils/discord";
-import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
 import { useAwaiter } from "@utils/react";
@@ -79,11 +78,11 @@ function decode(bio: string): Array<number> | null {
 
 const settings = definePluginSettings({
     nitroFirst: {
-        description: "The default color source when both are available",
+        description: "Default color source if both are present",
         type: OptionType.SELECT,
         options: [
-            { label: t("ألوان Nitro", "Nitro colors"), value: true, default: true },
-            { label: t("ألوان وهمية", "Fake colors"), value: false },
+            { label: "Nitro colors", value: true, default: true },
+            { label: "Fake colors", value: false },
         ]
     }
 });
@@ -120,21 +119,22 @@ function SettingsAboutComponent() {
 
     return (
         <section>
-            <HeadingSecondary>{t("الاستخدام", "Usage")}</HeadingSecondary>
+            <HeadingSecondary>Usage</HeadingSecondary>
             <Paragraph>
-                {t("بعد تفعيل هذه الإضافة، سترى ألواناً مخصّصة في ملفات الأشخاص الآخرين الذين يستخدمون إضافات متوافقة.", "After enabling this plugin, you will see custom colors in the profiles of other people using compatible plugins.")}{" "}
+                After enabling this plugin, you will see custom colors in
+                the profiles of other people using compatible plugins.{" "}
             </Paragraph>
             <Paragraph className={Margins.top8}>
-                <strong>{t("لتعيين ألوان قالب ملفك الشخصي:", "To set your own profile theme colors:")}</strong>
+                <strong>To set your own profile theme colors:</strong>
                 <ul>
-                    <li>&mdash; {t("استخدم منتقيات الألوان أدناه لاختيار ألوانك", "use the color pickers below to choose your colors")}</li>
-                    <li>&mdash; {t("اضغط زرّ «Copy 3y3»", "click the \"Copy 3y3\" button")}</li>
-                    <li>&mdash; {t("الصق النص المخفي في أي مكان في سيرتك الذاتية", "paste the invisible text anywhere in your bio")}</li>
+                    <li>&mdash; use the color pickers below to choose your colors</li>
+                    <li>&mdash; click the "Copy 3y3" button</li>
+                    <li>&mdash; paste the invisible text anywhere in your bio</li>
                 </ul>
                 <Divider
                     className={classes(Margins.top8, Margins.bottom8)}
                 />
-                <Forms.FormTitle tag="h3">{t("منتقيات الألوان", "Color pickers")}</Forms.FormTitle>
+                <Forms.FormTitle tag="h3">Color pickers</Forms.FormTitle>
                 <Flex gap="1em">
                     <ColorPicker
                         color={color1}
@@ -143,7 +143,7 @@ function SettingsAboutComponent() {
                                 size="xs"
                                 style={{ marginTop: "4px" }}
                             >
-                                {t("أساسي", "Primary")}
+                                Primary
                             </BaseText>
                         }
                         onChange={(color: number) => {
@@ -157,7 +157,7 @@ function SettingsAboutComponent() {
                                 size="xs"
                                 style={{ marginTop: "4px" }}
                             >
-                                {t("مميّز", "Accent")}
+                                Accent
                             </BaseText>
                         }
                         onChange={(color: number) => {
@@ -172,12 +172,14 @@ function SettingsAboutComponent() {
                         color={Button.Colors.PRIMARY}
                         size={Button.Sizes.XLARGE}
                         style={{ marginBottom: "auto" }}
-                    >{t("نسخ 3y3", "Copy 3y3")}</Button>
+                    >
+                        Copy 3y3
+                    </Button>
                 </Flex>
                 <Divider
                     className={classes(Margins.top8, Margins.bottom8)}
                 />
-                <HeadingSecondary>{t("معاينة", "Preview")}</HeadingSecondary>
+                <HeadingSecondary>Preview</HeadingSecondary>
                 <div className="vc-fpt-preview">
                     <ProfileModal
                         user={UserStore.getCurrentUser()}
@@ -197,7 +199,7 @@ function SettingsAboutComponent() {
 
 export default definePlugin({
     name: "FakeProfileThemes",
-    description: "Customizes profile colors using invisible 3y3 encoding",
+    description: "Allows profile theming by hiding the colors in your bio thanks to invisible 3y3 encoding",
     tags: ["Appearance", "Customisation"],
     authors: [Devs.Alyxia, Devs.Remty],
     patches: [
@@ -214,6 +216,16 @@ export default definePlugin({
                 match: /#{intl::USER_SETTINGS_RESET_PROFILE_THEME}\).+?}\)(?=\])(?<=color:(\i),.{0,500}?color:(\i),.{0,500}?)/,
                 replace: "$&,$self.addCopy3y3Button({primary:$1,accent:$2})"
             }
+        },
+        // 2026-03-wysiwyg-user-profile-editing
+        {
+            find: '("UserProfileModalV2EditingPanel")',
+            replacement: [
+                {
+                    match: /\(0,\i\.jsxs?\)\(\i,\{heading:.{0,40}#{intl::USER_SETTINGS_PROFILE_EFFECT}/,
+                    replace: "$self.addCopy3y3Button(),$&"
+                }
+            ]
         }
     ],
 
@@ -242,7 +254,8 @@ export default definePlugin({
             }}
             color={Button.Colors.PRIMARY}
             size={Button.Sizes.XLARGE}
-            className={Margins.left16}
-        >{t("نسخ 3y3", "Copy 3y3")}</Button >;
+        >
+            Copy 3y3
+        </Button>;
     }, { noop: true }),
 });
