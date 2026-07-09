@@ -4475,4 +4475,17 @@ export const translations: Record<string, string> = {
     "your account.": "حسابك.",
     "Your full profile is visible to friends and any server you join.": "ملفك الشخصي الكامل ظاهر لأصدقائك ولأي خادم تنضمّ إليه.",
     "Your full profile is visible to friends. Everyone else sees a limited version.": "ملفك الشخصي الكامل ظاهر لأصدقائك. أما البقية فيرون نسخة محدودة.",
+
+    // ── خصوصية النشاط + مشاركة تجربة Nitro + متفرّقات ──
+    "Control who can see your game and app activity when you join a new server.": "تحكّم بمن يرى نشاط ألعابك وتطبيقاتك عند انضمامك إلى خادم جديد.",
+    "Your activity is shared with friends and any server you join.": "يُشارَك نشاطك مع أصدقائك ومع أي خادم تنضمّ إليه.",
+    "Search friends": "بحث في الأصدقاء",
+    "Select Friends": "اختر الأصدقاء",
+    "Select up to 2 friends to share a Nitro trial with. The trial will be sent in a direct message.": "اختر حتى صديقين لمشاركة تجربة Nitro معهما. ستُرسَل التجربة في رسالة خاصة.",
+    "Send three friends a 2-week Nitro trial and become the MVP of the group chat.": "أرسِل لثلاثة أصدقاء تجربة Nitro لأسبوعين وكن نجم المحادثة الجماعية.",
+    "Send three friends a 2-week Nitro trial and become the MVP of the group chat. {0}.": "أرسِل لثلاثة أصدقاء تجربة Nitro لأسبوعين وكن نجم المحادثة الجماعية. {0}.",
+    "Share Nitro with Friends": "شارك Nitro مع الأصدقاء",
+    "Share Trial": "مشاركة التجربة",
+    "Either you have more trials to send or this trial offer has expired. You can resend or share with another friend.": "إمّا أنّ لديك تجارب أخرى لإرسالها أو أنّ عرض التجربة هذا قد انتهى. يمكنك إعادة الإرسال أو المشاركة مع صديق آخر.",
+    "Storage Location, {storageLocation}": "موقع التخزين، {storageLocation}",
 };

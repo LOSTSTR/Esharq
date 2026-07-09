@@ -28,6 +28,7 @@ import { HeadingSecondary } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import { Devs } from "@utils/constants";
 import { copyWithToast, fetchUserProfile } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
 import { useAwaiter } from "@utils/react";
@@ -173,7 +174,7 @@ function SettingsAboutComponent() {
                         size={Button.Sizes.XLARGE}
                         style={{ marginBottom: "auto" }}
                     >
-                        Copy 3y3
+                        {t("نسخ 3y3", "Copy 3y3")}
                     </Button>
                 </Flex>
                 <Divider
@@ -255,7 +256,7 @@ export default definePlugin({
             color={Button.Colors.PRIMARY}
             size={Button.Sizes.XLARGE}
         >
-            Copy 3y3
+            {t("نسخ 3y3", "Copy 3y3")}
         </Button>;
     }, { noop: true }),
 });

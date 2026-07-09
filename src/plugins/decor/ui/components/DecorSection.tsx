@@ -10,6 +10,7 @@ import { useAuthorizationStore } from "@plugins/decor/lib/stores/AuthorizationSt
 import { useCurrentUserDecorationsStore } from "@plugins/decor/lib/stores/CurrentUserDecorationsStore";
 import { cl } from "@plugins/decor/ui";
 import { openChangeDecorationModal } from "@plugins/decor/ui/modals/ChangeDecorationModal";
+import { t } from "@utils/esharqI18n";
 import { findComponentByCodeLazy } from "@webpack";
 import { NewCustomizationSection, useEffect } from "@webpack/common";
 
@@ -44,8 +45,8 @@ export default function DecorSection({ hideTitle = false, hideDivider = false, n
             className: noMargin ? cl("section-remove-margin") : undefined
         };
 
-    const changeLabel = useNewSection ? "Change" : "Change Decoration";
-    const removeLabel = useNewSection ? "Remove" : "Remove Decoration";
+    const changeLabel = useNewSection ? t("تغيير", "Change") : t("تغيير الزينة", "Change Decoration");
+    const removeLabel = useNewSection ? t("إزالة", "Remove") : t("إزالة الزينة", "Remove Decoration");
 
     return (
         <Section {...sectionProps}>
