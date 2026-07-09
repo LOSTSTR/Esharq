@@ -158,7 +158,7 @@ function extractPluginInfo(filePath) {
     };
 }
 
-// ─── Message builders (plain Discord markdown, VencordAR style; NO embed) ──────
+// ─── Message builders (plain Discord markdown; NO embed) ──────────────────────
 // A plain message (not an embed) → no colored border, no author, no footer timestamp, and
 // with no links it never triggers Discord's auto GitHub card. Discord still shows the EA
 // webhook avatar on its own. The cloud is the only icon; the plugin name is colored via an
