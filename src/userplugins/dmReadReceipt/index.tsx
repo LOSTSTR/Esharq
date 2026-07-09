@@ -4,48 +4,65 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { MessageStore, React, TypingStore, UserStore, useStateFromStores } from "@webpack/common";
 
 import { MessageDecorationProps } from "../../api/MessageDecorations";
 
-function SeenIndicator({ message, channel }: MessageDecorationProps) {
+/**
+ * Honest DM activity indicator.
+ *
+ * Discord does NOT broadcast when the other person *reads* a DM — no gateway
+ * event, store, or API exposes another user's read-state, so a true "seen"
+ * receipt is impossible. The only REAL signal about the recipient is whether
+ * they are actively typing (TypingStore) — which means they have the chat open
+ * right now. So we show:
+ *   • "typing…"  → recipient is typing (real, live).
+ *   • "sent"     → your latest DM left your client (baseline).
+ * We never claim a silent read, because that cannot be detected.
+ *
+ * Shown only under your MOST RECENT message in the channel; once they reply,
+ * their message becomes the last one and the indicator naturally disappears.
+ */
+function ActivityIndicator({ message, channel }: MessageDecorationProps) {
     const recipientId = channel.recipients?.[0];
 
-    const status = useStateFromStores(
+    const state = useStateFromStores(
         [MessageStore, TypingStore],
         () => {
             if (!recipientId) return null;
-            const isTyping = (TypingStore as any).isTyping(channel.id, recipientId);
-            if (isTyping) return "typing" as const;
-
             const msgs = MessageStore.getMessages(channel.id);
-            if (!msgs) return null;
-            const msgTs = new Date(message.timestamp).getTime();
-            const lastMsg = msgs.last();
-            const hasSeen = lastMsg && lastMsg.author?.id === recipientId && new Date(lastMsg.timestamp).getTime() > msgTs;
-            return hasSeen ? "seen" as const : null;
+            const last = msgs?.last();
+            // Only decorate the last message in the channel (which, given the
+            // author filter below, is your latest sent message).
+            if (!last || last.id !== message.id) return null;
+            return (TypingStore as any).isTyping(channel.id, recipientId) ? "typing" as const : "sent" as const;
         }
     );
 
-    if (!status || !recipientId) return null;
+    if (!state || !recipientId) return null;
+    const isTyping = state === "typing";
     return (
-        <span style={{ fontSize: "10px", color: "var(--text-muted)", marginLeft: "4px" }}>
-            {status === "typing" ? "Seen · typing..." : "Seen ✓"}
+        <span style={{ fontSize: "10px", color: isTyping ? "var(--text-positive, #3ba55c)" : "var(--text-muted)", marginLeft: "4px" }}>
+            {isTyping ? t("✍️ يكتب الآن…", "✍️ typing…") : t("✓ أُرسلت", "✓ Sent")}
         </span>
     );
 }
 
 export default definePlugin({
     name: "DmReadReceipt",
-    description: "Shows a Seen indicator on your messages in DMs when the other person has read them.",
+    // Honest: Discord exposes no real read-state for the other user, so this is a
+    // live typing/sent indicator, NOT a silent-read receipt.
+    description: "Shows a live typing / sent indicator under your latest DM. Discord provides no real read receipts, so silent reads can't be detected.",
     tags: ["Chat", "Utility"],
-    authors: [{ name: "Sharp", id: 0n }],
+    authors: [EquicordDevs.LOSTSTR],
     dependencies: ["MessageDecorationsAPI"],
 
     renderMessageDecoration: props => {
         const me = UserStore.getCurrentUser()?.id;
         if (!me || props.message.author.id !== me || !props.channel.isDM()) return null;
-        return <SeenIndicator {...props} />;
+        return <ActivityIndicator {...props} />;
     },
 });

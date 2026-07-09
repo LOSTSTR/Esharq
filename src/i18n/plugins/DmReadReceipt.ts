@@ -7,5 +7,5 @@
 import { definePluginI18n } from "@utils/i18n/types";
 
 export default definePluginI18n({
-    "description": { "ar": "يعرض مؤشّر «تمت القراءة» على رسائلك في الخاص عندما يقرؤها الطرف الآخر.", "en": "Shows a Seen indicator on your messages in DMs when the other person has read them." }
+    "description": { "ar": "مؤشّر حيّ «يكتب الآن / أُرسلت» تحت آخر رسالة لك في الخاص. ديسكورد لا يوفّر إشعارات قراءة حقيقية، فالقراءة الصامتة لا يمكن كشفها.", "en": "Shows a live typing / sent indicator under your latest DM. Discord provides no real read receipts, so silent reads can't be detected." }
 });
