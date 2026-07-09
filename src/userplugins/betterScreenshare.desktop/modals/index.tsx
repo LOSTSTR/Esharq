@@ -16,8 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { EsharqScreenshareAudioModal } from "@plugins/betterScreenshare.desktop/EsharqScreenshareAudioModal";
 import { EsharqScreenshareModal } from "@plugins/betterScreenshare.desktop/EsharqScreenshareModal";
-import { screenshareStore } from "@plugins/betterScreenshare.desktop/stores";
+import { screenshareAudioStore, screenshareStore } from "@plugins/betterScreenshare.desktop/stores";
 import { openModalLazy } from "@utils/modal";
 
 import Plugin from "..";
@@ -34,11 +35,28 @@ const onScreenshareModalDone = () => {
         screenshareAudioPatcher.forceUpdateTransportationOptions();
 };
 
+// يُطبّق إعدادات ترميز الصوت على البثّ الجاري (إعادة دفع خيارات نقل الصوت فقط).
+const onScreenshareAudioModalDone = () => {
+    const { screenshareAudioPatcher } = Plugin;
+    if (screenshareAudioPatcher)
+        screenshareAudioPatcher.forceUpdateTransportationOptions();
+};
+
+export const openScreenshareAudioModal =
+    () => openModalLazy(async () => {
+        return props =>
+            <EsharqScreenshareAudioModal
+                rootProps={props}
+                screenshareAudioStore={screenshareAudioStore}
+                onDone={onScreenshareAudioModalDone} />;
+    });
+
 export const openScreenshareModal =
     () => openModalLazy(async () => {
         return props =>
             <EsharqScreenshareModal
                 rootProps={props}
                 screenshareStore={screenshareStore}
-                onDone={onScreenshareModalDone} />;
+                onDone={onScreenshareModalDone}
+                onOpenAudio={openScreenshareAudioModal} />;
     });

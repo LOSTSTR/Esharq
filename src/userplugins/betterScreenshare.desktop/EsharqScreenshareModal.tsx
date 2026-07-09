@@ -15,6 +15,11 @@ import { ModalContent, ModalHeader, ModalRoot, type RenderModalProps } from "@ut
 import { ModalSize } from "@utils/modal";
 import { React, Select, useState } from "@webpack/common";
 
+// أكواد الفيديو التي يدعمها بثّ ديسكورد؛ "" = تلقائي (اترك ديسكورد يقرّر = تعطيل التجاوُز).
+const CODECS: [string, string][] = [
+    [t("تلقائي", "Auto"), ""], ["H264", "H264"], ["VP8", "VP8"], ["VP9", "VP9"], ["AV1", "AV1"]
+];
+
 const RESOLUTIONS: [string, number, number][] = [
     ["480p", 720, 480], ["720p", 1280, 720], ["1080p", 1920, 1080],
     ["1440p", 2560, 1440], ["2160p", 3840, 2160]
@@ -26,10 +31,10 @@ const QUALITIES: [string, number][] = [
 const FPS: number[] = [15, 30, 60];
 
 // ── لبنات الواجهة ────────────────────────────────────────────────────────────
-function Tile({ span, children }: { span?: boolean; children: React.ReactNode; }) {
+export function Tile({ span, children }: { span?: boolean; children: React.ReactNode; }) {
     return <div className={"bss-tile" + (span ? " bss-span" : "")}>{children}</div>;
 }
-function Cap({ label, value, children }: { label: string; value?: string; children?: React.ReactNode; }) {
+export function Cap({ label, value, children }: { label: string; value?: string; children?: React.ReactNode; }) {
     return (
         <div className="bss-cap">
             <span className="bss-label">{label}</span>
@@ -38,14 +43,14 @@ function Cap({ label, value, children }: { label: string; value?: string; childr
         </div>
     );
 }
-function Switch({ on, onChange }: { on: boolean; onChange: (v: boolean) => void; }) {
+export function Switch({ on, onChange }: { on: boolean; onChange: (v: boolean) => void; }) {
     return (
         <button type="button" role="switch" aria-checked={on}
             className={"bss-sw" + (on ? " bss-sw-on" : "")}
             onClick={e => { e.stopPropagation(); onChange(!on); }}><i /></button>
     );
 }
-function Seg<T>({ options, current, fmt, onPick }: { options: [string, T][]; current: T; fmt?: (v: T) => boolean; onPick: (v: T) => void; }) {
+export function Seg<T>({ options, current, fmt, onPick }: { options: [string, T][]; current: T; fmt?: (v: T) => boolean; onPick: (v: T) => void; }) {
     return (
         <div className="bss-seg">
             {options.map(([label, v], i) => (
@@ -56,7 +61,7 @@ function Seg<T>({ options, current, fmt, onPick }: { options: [string, T][]; cur
         </div>
     );
 }
-function RangeBar({ value, min, max, step, onInput }: { value: number; min: number; max: number; step?: number; onInput: (v: number) => void; }) {
+export function RangeBar({ value, min, max, step, onInput }: { value: number; min: number; max: number; step?: number; onInput: (v: number) => void; }) {
     const pct = max > min ? Math.max(0, Math.min(100, ((value - min) / (max - min)) * 100)) : 0;
     return (
         <div className="bss-range">
@@ -66,10 +71,10 @@ function RangeBar({ value, min, max, step, onInput }: { value: number; min: numb
         </div>
     );
 }
-function NumTile({ label, unit, value, def, onValue }: { label: string; unit?: string; value?: number; def: number; onValue: (v: number) => void; }) {
+export function NumTile({ label, unit, value, def, onValue, enabled, onToggle }: { label: string; unit?: string; value?: number; def: number; onValue: (v: number) => void; enabled?: boolean; onToggle?: (v: boolean) => void; }) {
     return (
         <Tile>
-            <Cap label={label} />
+            <Cap label={label}>{onToggle && <Switch on={enabled ?? false} onChange={onToggle} />}</Cap>
             <div className="bss-numwrap">
                 <input className="bss-num" type="number" value={value ?? ""} placeholder={String(def)}
                     onChange={e => { const n = parseInt(e.currentTarget.value, 10); if (Number.isFinite(n)) onValue(n); }} />
@@ -80,7 +85,7 @@ function NumTile({ label, unit, value, def, onValue }: { label: string; unit?: s
 }
 
 // ── شريط ملفات الإعدادات ─────────────────────────────────────────────────────
-function ProfileBar({ st, apply }: { st: any; apply: () => void; }) {
+export function ProfileBar({ st, apply }: { st: any; apply: () => void; }) {
     const [saving, setSaving] = useState(false);
     const [nameInput, setNameInput] = useState("");
     const name: string = st.currentProfile?.name ?? "";
@@ -127,7 +132,7 @@ function ProfileBar({ st, apply }: { st: any; apply: () => void; }) {
     );
 }
 
-function Body({ st, apply }: { st: any; apply: () => void; }) {
+function Body({ st, apply, onOpenAudio }: { st: any; apply: () => void; onOpenAudio?: () => void; }) {
     const p = st.currentProfile;
     const simple = st.simpleMode ?? true;
     const setRes = (w: number, h: number) => { st.setWidth(w); st.setHeight(h); st.setResolutionEnabled(true); apply(); };
@@ -160,16 +165,55 @@ function Body({ st, apply }: { st: any; apply: () => void; }) {
                 </>
             ) : (
                 <>
+                    <Tile span>
+                        <Cap label={t("الدقة", "Resolution")} value={`${p.width ?? 1920}×${p.height ?? 1080}`}>
+                            <Switch on={p.resolutionEnabled ?? false} onChange={v => { st.setResolutionEnabled(v); apply(); }} />
+                        </Cap>
+                        <div className="bss-grid2">
+                            <div className="bss-numwrap">
+                                <input className="bss-num" type="number" value={p.width ?? ""} placeholder="1920"
+                                    onChange={e => { const n = parseInt(e.currentTarget.value, 10); if (Number.isFinite(n)) { st.setWidth(n); st.setResolutionEnabled(true); apply(); } }} />
+                                <span className="bss-unit">{t("العرض", "W")}</span>
+                            </div>
+                            <div className="bss-numwrap">
+                                <input className="bss-num" type="number" value={p.height ?? ""} placeholder="1080"
+                                    onChange={e => { const n = parseInt(e.currentTarget.value, 10); if (Number.isFinite(n)) { st.setHeight(n); st.setResolutionEnabled(true); apply(); } }} />
+                                <span className="bss-unit">{t("الارتفاع", "H")}</span>
+                            </div>
+                        </div>
+                    </Tile>
                     <div className="bss-grid2">
-                        <NumTile label={t("العرض", "Width")} unit="px" value={p.width} def={1920} onValue={v => { st.setWidth(v); st.setResolutionEnabled(true); apply(); }} />
-                        <NumTile label={t("الارتفاع", "Height")} unit="px" value={p.height} def={1080} onValue={v => { st.setHeight(v); st.setResolutionEnabled(true); apply(); }} />
-                        <NumTile label={t("معدّل الإطارات", "Framerate")} unit="FPS" value={p.framerate} def={60} onValue={setFps} />
-                        <NumTile label={t("فاصل الإطار المفتاحي", "Keyframe interval")} unit="ms" value={p.keyframeInterval} def={0} onValue={v => { st.setKeyframeInterval(v); st.setKeyframeIntervalEnabled(true); apply(); }} />
+                        <NumTile label={t("معدّل الإطارات", "Framerate")} unit="FPS" value={p.framerate} def={60} onValue={setFps}
+                            enabled={p.framerateEnabled} onToggle={v => { st.setFramerateEnabled(v); apply(); }} />
+                        <NumTile label={t("فاصل الإطار المفتاحي", "Keyframe interval")} unit="ms" value={p.keyframeInterval} def={0}
+                            onValue={v => { st.setKeyframeInterval(v); st.setKeyframeIntervalEnabled(true); apply(); }}
+                            enabled={p.keyframeIntervalEnabled} onToggle={v => { st.setKeyframeIntervalEnabled(v); apply(); }} />
                     </div>
                     <Tile span>
-                        <Cap label={t("معدّل البت", "Bitrate")} value={`${p.videoBitrate ?? 5000} kb/s`} />
+                        <Cap label={t("معدّل البت", "Bitrate")} value={`${p.videoBitrate ?? 5000} kb/s`}>
+                            <Switch on={p.videoBitrateEnabled ?? false} onChange={v => { st.setVideoBitrateEnabled(v); apply(); }} />
+                        </Cap>
                         <RangeBar value={p.videoBitrate ?? 5000} min={500} max={20000} step={100} onInput={setBitrate} />
                     </Tile>
+                    <Tile span>
+                        <Cap label={t("كوديك الفيديو", "Video codec")} value={p.videoCodecEnabled && p.videoCodec ? p.videoCodec : t("تلقائي", "Auto")} />
+                        <Seg
+                            options={CODECS}
+                            current={p.videoCodecEnabled ? (p.videoCodec ?? "") : ""}
+                            onPick={v => {
+                                if (v === "") st.setVideoCodecEnabled(false);
+                                else { st.setVideoCodec(v); st.setVideoCodecEnabled(true); }
+                                apply();
+                            }}
+                        />
+                        <span className="bss-note">{t("H264 الأوسع توافقاً. «تلقائي» يترك ديسكورد يختار.", "H264 is the most compatible. \"Auto\" lets Discord choose.")}</span>
+                    </Tile>
+                    <div className="bss-tile bss-tap bss-span" onClick={() => onOpenAudio?.()}>
+                        <Cap label={t("إعدادات الصوت", "Audio settings")}>
+                            <span className="bss-open">{t("فتح", "Open")} ↗</span>
+                        </Cap>
+                        <span className="bss-note">{t("ترميز صوت المشاركة: القنوات، تردّد ومعدّل العيّنة، حجم الحزمة، ومعدّل البِت.", "Shared-audio encoding: channels, sample frequency/rate, packet size and bitrate.")}</span>
+                    </div>
                 </>
             )}
 
@@ -190,7 +234,7 @@ function Body({ st, apply }: { st: any; apply: () => void; }) {
     );
 }
 
-export function EsharqScreenshareModal({ rootProps, screenshareStore, onDone }: { rootProps: RenderModalProps; screenshareStore: any; onDone: () => void; }) {
+export function EsharqScreenshareModal({ rootProps, screenshareStore, onDone, onOpenAudio }: { rootProps: RenderModalProps; screenshareStore: any; onDone: () => void; onOpenAudio?: () => void; }) {
     const st = screenshareStore.use();
     const apply = () => { try { onDone(); } catch { /* آمن */ } };
     const dir = isArabicMode() ? "rtl" : "ltr";
@@ -210,7 +254,7 @@ export function EsharqScreenshareModal({ rootProps, screenshareStore, onDone }: 
             </ModalHeader>
             <ModalContent>
                 <div className="bss-body" dir={dir}>
-                    <ErrorBoundary noop><Body st={st} apply={apply} /></ErrorBoundary>
+                    <ErrorBoundary noop><Body st={st} apply={apply} onOpenAudio={onOpenAudio} /></ErrorBoundary>
                 </div>
             </ModalContent>
         </ModalRoot>

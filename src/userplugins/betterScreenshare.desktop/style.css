@@ -253,6 +253,20 @@
     min-width: 0;
 }
 
+/* زرّ «فتح» لإعدادات الصوت — حبّة صغيرة بلون الهوية */
+.bss-open {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(180deg, rgb(139 92 246 / 95%), rgb(124 58 237 / 95%));
+    box-shadow: 0 2px 8px rgb(124 58 237 / 35%);
+}
+
 .bss-profrow {
     display: flex;
     align-items: center;
