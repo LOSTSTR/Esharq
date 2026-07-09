@@ -11,6 +11,8 @@
  *   faint gold outline below still shows — graceful degradation, never broken).
  * - Contributor = «ومضات الطيف»: the ring color hard-jumps through 6 spectrum colors
  *   (steps, no blending) with a matching glow.
+ * - Donor       = «بريق العملة»: a steady gold rim plus a diagonal shine that sweeps
+ *   across the badge face like a coin/metal gleam (owner-picked D4).
  * - Custom      = unchanged spinning RGB ring (per-member images from
  *   Esharq-Bored/badges/custom/custom.json).
  */
@@ -109,7 +111,8 @@
  * only the ::before ring gradient differs (gold for Developer, RGB rainbow for Contributor).
  * Selectors are grouped by specificity to satisfy stylelint no-descending-specificity. */
 a[aria-label*="Esharq Developer"],
-a[aria-label*="Esharq Contributor"] {
+a[aria-label*="Esharq Contributor"],
+a[aria-label*="Esharq Donor"] {
     position: relative;
 
     /* تباعد أفقي يمنع تشابك الحلقات مع الشارة المجاورة (الحلقة تمتدّ ~3px لكل جهة) */
@@ -165,8 +168,33 @@ a[aria-label*="Esharq Contributor"]::after {
     pointer-events: none;
 }
 
+/* Donor (profile) — «بريق العملة»: حافة ذهبية ثابتة (::before) + ومضة لمعان
+ * تمرّ قطريّاً فوق وجه الشارة دوريّاً (::after فوق الصورة) — كلمعة معدن/عملة. */
+a[aria-label*="Esharq Donor"]::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1.5px rgb(227 194 90 / 55%), 0 0 9px rgb(227 194 90 / 40%);
+    z-index: 0;
+    pointer-events: none;
+}
+
+a[aria-label*="Esharq Donor"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: linear-gradient(115deg, transparent 42%, rgb(255 246 216 / 80%) 50%, transparent 58%);
+    background-size: 260% 260%;
+    animation: esharq-coin-gleam 3.2s ease-in-out infinite;
+    z-index: 2;
+    pointer-events: none;
+}
+
 a[aria-label*="Esharq Developer"] img,
-a[aria-label*="Esharq Contributor"] img {
+a[aria-label*="Esharq Contributor"] img,
+a[aria-label*="Esharq Donor"] img {
     position: relative;
     z-index: 1;
     border-radius: 50%;
@@ -226,5 +254,16 @@ a[aria-label*="Esharq Contributor"]:hover img {
     80%, 100% {
         transform: scale(1.55);
         opacity: 0;
+    }
+}
+
+/* «بريق العملة»: شريط اللمعان يعبر وجه الشارة قطريّاً ذهاباً وإياباً */
+@keyframes esharq-coin-gleam {
+    0%, 100% {
+        background-position: 130% 130%;
+    }
+
+    50% {
+        background-position: -30% -30%;
     }
 }
