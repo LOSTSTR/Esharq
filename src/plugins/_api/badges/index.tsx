@@ -61,6 +61,18 @@ const EsharqDevChatBadge = () => (
     </span>
 );
 
+// The Donor badge also shows inline in chat — the member's OWN donor image (per-user,
+// from Esharq-Bored/badges.json) with the same Coin-Gleam gold glow as their profile badge.
+const EsharqDonorChatBadge = ({ userId }: { userId: string; }) => {
+    const badge = EsharqDonorBadges[userId]?.[0]?.badge;
+    if (!badge) return null;
+    return (
+        <span className="esharq-donor-chat-badge" role="img" aria-label="متبرّع إشراق · Esharq Donor">
+            <img src={badge} alt="" />
+        </span>
+    );
+};
+
 // Esharq Custom badges — a per-member custom round image with a spinning RGB ring, for
 // specific members who don't fit the donor/contributor/developer tiers. Profile only.
 // Each member's image is mapped by Discord user id in
@@ -271,11 +283,16 @@ export default definePlugin({
         addMessageDecoration("esharq-dev", ({ message }) =>
             isEsharqDev(message?.author?.id ?? "") ? <EsharqDevChatBadge /> : null
         );
+        addMessageDecoration("esharq-donor", ({ message }) => {
+            const id = message?.author?.id ?? "";
+            return EsharqDonorBadges[id]?.length ? <EsharqDonorChatBadge userId={id} /> : null;
+        });
     },
 
     async stop() {
         clearInterval(intervalId);
         removeMessageDecoration("esharq-dev");
+        removeMessageDecoration("esharq-donor");
     },
 
     getBadges(profile: { userId: string; guildId: string; }) {

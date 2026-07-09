@@ -106,6 +106,53 @@
     object-fit: cover;
 }
 
+/* ── Donor badge shown inline in chat (message decoration) — the member's own image
+ * with the «بريق العملة / Coin Gleam» gold glow: steady rim (::before) + a diagonal
+ * shine sweeping across the face (::after), same keyframe as the profile donor badge. ── */
+.esharq-donor-chat-badge {
+    position: relative;
+    display: inline-flex;
+    width: 18px;
+    height: 18px;
+    margin: 0 2px;
+    vertical-align: middle;
+    border-radius: 50%;
+
+    /* حدّ ذهبي خافت ثابت — تدهور رشيق لو تعطّل أي تأثير */
+    box-shadow: 0 0 0 1px rgb(227 194 90 / 30%);
+}
+
+.esharq-donor-chat-badge::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1.5px rgb(227 194 90 / 55%), 0 0 8px rgb(227 194 90 / 40%);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.esharq-donor-chat-badge::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: linear-gradient(115deg, transparent 42%, rgb(255 246 216 / 80%) 50%, transparent 58%);
+    background-size: 260% 260%;
+    animation: esharq-coin-gleam 3.2s ease-in-out infinite;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.esharq-donor-chat-badge img {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
 /* Both profile badges (Developer + Contributor) are iconSrc badges targeted via their
  * aria-label (the description tooltip). They share the same round image + hover styling;
  * only the ::before ring gradient differs (gold for Developer, RGB rainbow for Contributor).
