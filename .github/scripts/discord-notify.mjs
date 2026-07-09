@@ -96,8 +96,6 @@ function run(cmd) {
 const ICON_URL  =
     "https://raw.githubusercontent.com/LOSTSTR/Esharq/main/.github/assets/notify-icon.png";
 
-const commitTime   = run("git log -1 --pretty=%aI");
-
 // Sanitise all user-controlled fields
 const commitMsg    = sanitise(run("git log -1 --pretty=%B"), 2000);
 
@@ -166,12 +164,6 @@ function extractPluginInfo(filePath) {
 
 const CLOUD = "<:esharqcloud:1521840260831641681>";
 
-// Date as a small grey inline-code "pill" (fits the date, no wide box). No ANSI/colors —
-// Discord can't do a fit-content colored highlight (ANSI needs a full-width code block).
-const datePill = () => `\`${commitTime.slice(0, 10)}\``;
-
-const followCTA = phrase => `-# اضغط زر **Follow** إذا كنت مهتمّاً ${phrase}`;
-
 // One plugin's block: bold name + Arabic then English description as blockquotes.
 function pluginEntry(info) {
     const lines = [`**\`${info.name}\`**`, `> ${info.descriptionAr || info.descriptionEn}`];
@@ -180,11 +172,10 @@ function pluginEntry(info) {
 }
 
 // Pack ALL new plugins into as few messages as possible (one when it fits): a single header +
-// date at the top, every plugin listed under it, and the Follow CTA at the very end. Splits into
-// extra messages only when the content would exceed Discord's 2000-char limit.
+// every plugin listed under it. Splits into extra messages only when the content would exceed
+// Discord's 2000-char limit.
 function buildPluginMessages(infos) {
-    const header = `## ${CLOUD} إضافة جديدة · New Plugin\n${datePill()}`;
-    const cta = followCTA("بالإضافات الجديدة");
+    const header = `## ${CLOUD} إضافة جديدة · New Plugin`;
     const LIMIT = 1900;
 
     const messages = [];
@@ -199,12 +190,7 @@ function buildPluginMessages(infos) {
             current = candidate;
         }
     }
-    if (`${current}\n\n${cta}`.length > LIMIT) {
-        messages.push(current);
-        messages.push(cta);
-    } else {
-        messages.push(`${current}\n\n${cta}`);
-    }
+    messages.push(current);
     return messages;
 }
 
@@ -223,10 +209,8 @@ function updateMessage() {
     const u = classifyUpdate();
     const lines = [
         `## ${CLOUD} ${u.label}`,
-        datePill(),
         `> ${u.clean}`,
     ];
-    lines.push(followCTA("بتحديثات إشراق"));
     return lines.join("\n");
 }
 
