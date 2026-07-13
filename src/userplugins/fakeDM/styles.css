@@ -1,0 +1,22 @@
+.esharq-fakedm-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 12px;
+}
+
+.esharq-fakedm-note {
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.esharq-fakedm-label {
+    margin-top: 6px;
+    color: var(--header-secondary);
+}
+
+.esharq-fakedm-footer {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
