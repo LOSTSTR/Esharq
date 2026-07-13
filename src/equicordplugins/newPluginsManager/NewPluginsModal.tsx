@@ -9,6 +9,8 @@ import "./styles.css";
 import { Settings, useSettings } from "@api/Settings";
 import { BaseText } from "@components/BaseText";
 import ErrorBoundary from "@components/ErrorBoundary";
+import { Link } from "@components/Link";
+import { Notice } from "@components/Notice";
 import { PluginDependencyList } from "@components/settings/tabs/plugins";
 import { PluginCard } from "@components/settings/tabs/plugins/PluginCard";
 import { ChangeList } from "@utils/ChangeList";
@@ -128,9 +130,16 @@ function NewPluginsModal({ modalProps, newPlugins, newSettings }: ModalComponent
                 </div>
             }
             subtitle={
-                <BaseText size="sm" className={cl("description")}>
-                    {t("أُضيفت إضافات جديدة منذ زيارتك الأخيرة. فعّل ما تريد أو تابِع للتجاهل.", "New plugins have been added since your last visit. Enable any you'd like or continue to dismiss.")}
-                </BaseText>
+                <>
+                    <BaseText size="sm" className={cl("description")}>
+                        {t("أُضيفت إضافات جديدة منذ زيارتك الأخيرة. فعّل ما تريد أو تابِع للتجاهل.", "New plugins have been added since your last visit. Enable any you'd like or continue to dismiss.")}
+                    </BaseText>
+                    <br />
+                    <Notice.Info className={cl("notice")}>
+                        {t("إشراق برنامج حرّ ومفتوح المصدر. إن أعجبك استخدامه، ففكّر في دعمنا ", "Esharq is free and open-source software. If you enjoy using it, consider supporting us ")}
+                        <Link href="https://ko-fi.com/loststr" target="_blank" rel="noopener noreferrer">{t("هنا", "here")}</Link>.
+                    </Notice.Info>
+                </>
             }
             actions={[
                 {
