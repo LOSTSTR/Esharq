@@ -8,7 +8,7 @@ import { definePluginI18n } from "@utils/i18n/types";
 
 export default definePluginI18n({
     "description": {
-        "ar": "مركز Rich Presence موحّد لـ AudioBookShelf وosu! وstats.fm وJellyfin وListenBrainz وGensokyo Radio.",
-        "en": "Unified Rich Presence hub for AudioBookShelf, osu!, stats.fm, Jellyfin, ListenBrainz, and Gensokyo Radio."
+        "ar": "مركز Rich Presence موحّد لـ AudioBookShelf وosu! وstats.fm وJellyfin وListenBrainz وNavidrome وGensokyo Radio.",
+        "en": "Unified rich presence hub for AudioBookShelf, osu!, stats.fm, Jellyfin, ListenBrainz, Navidrome, and Gensokyo Radio."
     }
 });

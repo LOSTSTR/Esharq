@@ -71,6 +71,13 @@ export const settings = definePluginSettings({
         hidden: true,
         onChange: () => onServiceChange?.(),
     },
+    nd_enabled: {
+        description: t("تفعيل حضور Navidrome.", "Enable Navidrome presence."),
+        type: OptionType.BOOLEAN,
+        default: false,
+        hidden: true,
+        onChange: () => onServiceChange?.(),
+    },
 
     // AudioBookShelf
     abs_serverUrl: {
@@ -345,6 +352,122 @@ export const settings = definePluginSettings({
         type: OptionType.SLIDER,
         markers: [1, 2, 2.5, 3, 5, 10, 15],
         default: 15,
+        hidden: true,
+    },
+
+    // Navidrome
+    nd_serverUrl: {
+        description: t("رابط خادم Navidrome (مثال: https://navidrome.example.com)", "Navidrome Server URL (e.g. https://navidrome.example.com)"),
+        type: OptionType.STRING,
+        default: "",
+        hidden: true,
+    },
+
+    nd_username: {
+        description: t("اسم مستخدم Navidrome", "Navidrome Username"),
+        type: OptionType.STRING,
+        default: "",
+        hidden: true,
+    },
+    nd_password: {
+        description: t("كلمة مرور Navidrome", "Navidrome Password"),
+        type: OptionType.STRING,
+        default: "",
+        hidden: true,
+    },
+    nd_clientId: {
+        description: t("معرّف تطبيق ديسكورد (اختياري)", "Optional Discord Application Client ID"),
+        type: OptionType.STRING,
+        default: "",
+        hidden: true,
+    },
+    nd_showSmallImage: {
+        description: t("إظهار شعار Navidrome أسفل يمين غلاف الألبوم.", "Show Navidrome logo in bottom right of album art."),
+        type: OptionType.BOOLEAN,
+        default: false,
+        hidden: true,
+    },
+    nd_showAlbum: {
+        description: t("إظهار اسم الألبوم في الحضور.", "Show album name in presence."),
+        type: OptionType.BOOLEAN,
+        default: true,
+        hidden: true,
+    },
+    nd_albumArtMode: {
+        description: t("كيفية جلب غلاف الألبوم.", "How to fetch album art."),
+        type: OptionType.SELECT,
+        options: [
+            { label: t("بلا", "None"), value: "none", default: true },
+            { label: t("خادم Navidrome (يكشف رابط الخادم لديسكورد، دون إرسال بيانات دخول)", "Navidrome Instance (Exposes Server URL to Discord, no auth sent)"), value: "instance" },
+            { label: t("واجهة Last.fm (تُرسل بيانات المقطع إلى Last.fm)", "Last.fm API (Sends track metadata to Last.fm)"), value: "lastfm" },
+        ],
+        hidden: true,
+    },
+    nd_lastfmApiKey: {
+        description: t("مفتاح API لـ Last.fm (اختياري)", "Optional Last.fm API Key"),
+        type: OptionType.STRING,
+        default: "",
+        hidden: true,
+    },
+    nd_refreshInterval: {
+        description: t("فترة التحديث بالثواني.", "Refresh interval in seconds."),
+        type: OptionType.SLIDER,
+        markers: [1, 2, 5, 10, 15],
+        default: 10,
+        hidden: true,
+    },
+    nd_activityType: {
+        type: OptionType.SELECT,
+        description: t("نوع النشاط", "Which type of activity"),
+        options: [
+            { label: t("استماع", "Listening"), value: 2, default: true },
+            { label: t("لعب (يُصلح الأسطر المخفية)", "Playing (Fixes hidden lines)"), value: 0 },
+            { label: t("مشاهدة", "Watching"), value: 3 }
+        ],
+        hidden: true,
+    },
+    nd_nameString: {
+        type: OptionType.STRING,
+        description: t("صيغة اسم النشاط", "Activity name format string"),
+        default: "Navidrome",
+        hidden: true,
+    },
+    nd_detailsString: {
+        type: OptionType.STRING,
+        description: t("صيغة تفاصيل النشاط", "Activity details format string"),
+        default: "{song}",
+        hidden: true,
+    },
+    nd_stateString: {
+        type: OptionType.STRING,
+        description: t("صيغة حالة النشاط", "Activity state format string"),
+        default: "{artist}",
+        hidden: true,
+    },
+    nd_largeTextString: {
+        type: OptionType.STRING,
+        description: t("صيغة النص الكبير للنشاط", "Activity large text format string"),
+        default: "{album}",
+        hidden: true,
+    },
+    nd_statusDisplayType: {
+        description: t("إظهار اسم المقطع/الفنان في قائمة الأعضاء", "Show the track / artist name in the member list"),
+        type: OptionType.SELECT,
+        options: [
+            {
+                label: t("عدم الإظهار (يعرض رسالة استماع عامة)", "Don't show (shows generic listening message)"),
+                value: "off"
+            },
+            {
+                label: t("إظهار اسم الفنان", "Show artist name"),
+                value: "artist",
+                default: true
+            },
+            {
+                label: t("إظهار اسم المقطع", "Show track name"),
+                value: "track"
+            }
+        ],
         hidden: true,
     },
 });
