@@ -7,19 +7,50 @@
 import { addContextMenuPatch, NavContextMenuPatchCallback, removeContextMenuPatch } from "@api/ContextMenu";
 import { HeaderBarButton } from "@api/HeaderBar";
 import { DataStore } from "@api/index";
+import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
-import definePlugin from "@utils/types";
+import definePlugin, { OptionType } from "@utils/types";
 import { findByPropsLazy, findStoreLazy } from "@webpack";
 import { Menu, React, Toasts, useEffect,useState } from "@webpack/common";
 
 const VoiceStateStore = findStoreLazy("VoiceStateStore");
 const ChannelStore = findStoreLazy("ChannelStore");
 const UserStore = findStoreLazy("UserStore");
+const RelationshipStore = findStoreLazy("RelationshipStore");
 const FluxDispatcher = findByPropsLazy("dispatch", "subscribe");
 
 const DS_KEY = "followuser-v2";
 const INACTIVITY_MS = 30 * 60 * 1000; // 30 minutes
+
+const settings = definePluginSettings({
+    onlyWhenInVoice: {
+        type: OptionType.BOOLEAN,
+        default: false,
+        description: "Only auto-join when you are already in a voice channel",
+    },
+    leaveWhenUserLeaves: {
+        type: OptionType.BOOLEAN,
+        default: false,
+        description: "Leave the voice channel when the followed user leaves",
+    },
+    friendsOnly: {
+        type: OptionType.BOOLEAN,
+        default: false,
+        description: "Only allow following friends",
+    },
+});
+
+function amIInVoice(): boolean {
+    try {
+        const myId = UserStore?.getCurrentUser?.()?.id;
+        return !!(myId && VoiceStateStore?.getVoiceStateForUser?.(myId)?.channelId);
+    } catch { return false; }
+}
+
+function isFriend(userId: string): boolean {
+    try { return RelationshipStore?.getFriendIDs?.()?.includes(userId) ?? false; } catch { return false; }
+}
 
 // ── Etat global ───────────────────────────────────────────────────────────────
 let followedId: string | null = null;
@@ -88,6 +119,14 @@ function clearInactivityTimer() {
 }
 
 // ── Listener voix ─────────────────────────────────────────────────────────────
+function leaveChannel() {
+    try {
+        setTimeout(() => {
+            FluxDispatcher?.dispatch?.({ type: "VOICE_CHANNEL_SELECT", channelId: null, guildId: null });
+        }, 100);
+    } catch { }
+}
+
 function onVoiceStateUpdates(data: any) {
     if (!followedId) return;
     const states: any[] = Array.isArray(data?.voiceStates) ? data.voiceStates
@@ -96,10 +135,16 @@ function onVoiceStateUpdates(data: any) {
         if (s.userId !== followedId) continue;
         const newCh: string | null = s.channelId ?? null;
         if (newCh !== followedChannel) {
+            const prevCh = followedChannel;
             followedChannel = newCh;
             if (newCh) {
+                // onlyWhenInVoice: don't auto-join unless we're already connected to voice
+                if (settings.store.onlyWhenInVoice && !amIInVoice()) continue;
                 resetInactivityTimer(); // activite detectee, on repart pour 30min
                 joinChannel(newCh);
+            } else if (settings.store.leaveWhenUserLeaves && prevCh) {
+                // followed user left voice → leave too
+                leaveChannel();
             }
         }
     }
@@ -200,6 +245,8 @@ function FollowHeaderButton() {
 const ctxPatch: NavContextMenuPatchCallback = (children, props) => {
     const userId: string | undefined = props?.user?.id;
     if (!userId) return;
+    if (userId === UserStore?.getCurrentUser?.()?.id) return;
+    if (settings.store.friendsOnly && !isFriend(userId)) return;
     const isFollowed = followedId === userId;
     children.push(
         <Menu.MenuCheckboxItem
@@ -216,7 +263,8 @@ export default definePlugin({
     name: "FollowUser",
     dependencies: ["HeaderBarAPI"],
     description: "Follow a user across voice channels. Right-click a user → Follow User (you join their channel). Auto-unfollows after 30 minutes of inactivity.",
-    authors: [EquicordDevs.LOSTSTR],
+    authors: [EquicordDevs.LOSTSTR, EquicordDevs.TheArmagan],
+    settings,
 
     headerBarButton: {
         icon: HeartIcon,
