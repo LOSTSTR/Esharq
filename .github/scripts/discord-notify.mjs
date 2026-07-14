@@ -107,12 +107,22 @@ const msgTitle = sanitise(msgLines[0] ?? "", 256);
 const NEW_PLUGIN_RE =
     /^src\/(equicordplugins|userplugins)\/(?!_core\/)([^/]+)\/index\.(tsx?|jsx?)$/;
 
+// Scan the WHOLE pushed range, not just the last commit — otherwise a push that bundles
+// several commits (e.g. many plugins + a trailing lint fix) only ever inspects the final
+// commit and misses every plugin added earlier in the push. RANGE_BASE is github.event.before
+// on push, or a manual since_sha on workflow_dispatch (catch-up). Falls back to HEAD~1.
+const rangeBaseRaw = (process.env.RANGE_BASE ?? "").trim();
+const rangeBase = rangeBaseRaw && !/^0+$/.test(rangeBaseRaw) ? rangeBaseRaw : "HEAD~1";
+
 let addedFiles = [];
-try {
-    addedFiles = run("git diff --name-only --diff-filter=A HEAD~1 HEAD")
-        .split("\n")
-        .filter(Boolean);
-} catch { /* first commit or shallow clone */ }
+for (const base of [rangeBase, "HEAD~1"]) {
+    try {
+        addedFiles = run(`git diff --name-only --diff-filter=A ${base} HEAD`)
+            .split("\n")
+            .filter(Boolean);
+        break; // succeeded — stop (don't fall back)
+    } catch { /* base not in clone (shallow) or first commit — try the fallback */ }
+}
 
 const newPluginFiles = addedFiles.filter(f => NEW_PLUGIN_RE.test(f));
 
@@ -251,8 +261,9 @@ async function main() {
         sent = true;
     }
 
-    // 2. Fix / update commit
-    if (isUpdate) {
+    // 2. Fix / update commit. Skipped on manual catch-up runs (SKIP_UPDATE=1) so a
+    // back-fill of past plugins doesn't also re-post an unrelated "update" for HEAD.
+    if (isUpdate && process.env.SKIP_UPDATE !== "1") {
         console.log(`🔧 Update commit: ${msgTitle}`);
         try {
             await postWebhook(WEBHOOK_UPDATES, {
