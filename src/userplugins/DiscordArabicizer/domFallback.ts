@@ -41,6 +41,10 @@ const BYPASS_KEYS = [
     "This is a dangerous permission to grant.",
     // عنوان بطاقة ميزة التعزيز «رفع ملفات أكبر» (بطاقات المزايا تتجاوز intl).
     "Larger File Uploads",
+    // بطاقات/صفحات خوادم الألعاب والتعزيز (جُمل كاملة تتجاوز intl).
+    "Visit the Game Servers tab to jump in and start playing together!",
+    "Get the party started by uploading a sound",
+    "Boosting will unlock new perks for you and everyone in this server!",
 ];
 
 // أنماط متجاوِزة تحمل رقماً مدموجاً (عدّادات الإعداد التمهيدي) — لا تُطابَق حرفياً. عربيّتها
@@ -66,6 +70,10 @@ const PREFIX_BYPASS_KEYS = [
     // مقدّمة «رؤى الخادم» (فقرتان تتجاوزان intl).
     "We've put together a bunch of helpful data to help you better run your community. Learn how active your community is, where new members are coming from, and much more. Use what you learn to make informed decisions to improve your server's engagement!",
     "Analytics about Announcement Channels, Server Discovery, and Welcome Screen also live here.",
+    // نصوص طويلة تتجاوز intl رغم وجودها في القاموس (صفحات الملصقات/الودجت/دعوات Nitro Squad).
+    "Send more Nitro Squad invites or manage your members anytime in Subscription Settings.",
+    "Stickers can be static (JPG, PNG) or animated (APNG, GIF). Stickers must be exactly 320 x 320 pixels and no larger than 512KB. We will automatically resize static JPG, PNG and animated GIF stickers for you.",
+    "Embed this HTML on your website to use Discord's beautiful pre-made widget.\n\nIf you have access to your site's users then you can dynamically add &username= to the querystring.",
 ];
 const PREFIX_BYPASS: { prefix: string; ar: string; max: number; }[] = [];
 for (const key of PREFIX_BYPASS_KEYS) {
