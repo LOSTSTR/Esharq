@@ -16,6 +16,7 @@
 [![GitHub Release](https://img.shields.io/github/v/release/LOSTSTR/Esharq?style=flat&color=5865F2&label=إصدار)](https://github.com/LOSTSTR/Esharq/releases/latest)
 [![Tests](https://github.com/LOSTSTR/Esharq/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/LOSTSTR/Esharq/actions/workflows/test.yml)
 [![Discord](https://img.shields.io/badge/Discord-5865F2?style=flat&logo=discord&logoColor=white)](https://discord.gg/QamdqDNEDa)
+[![Website](https://img.shields.io/badge/الموقع_الرسمي-esharq--website.vercel.app-000000?style=flat&logo=vercel&logoColor=white)](https://esharq-website.vercel.app/)
 [![License](https://img.shields.io/github/license/LOSTSTR/Esharq?color=green&label=رخصة)](LICENSE)
 [![Security Verified](https://img.shields.io/badge/security-verified-brightgreen?style=flat&logo=shield&logoColor=white)](https://github.com/LOSTSTR/Esharq)
 
