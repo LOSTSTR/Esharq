@@ -29,6 +29,19 @@ const SPAN_TTL_MS = 5000; // long tasks surface within the same tick — a short
 class RuntimeProfiler {
     recording = false;
     private startedAt = 0;
+    /**
+     * وقت الإيقاف — 0 أثناء التسجيل. بدونه كانت المدّة تُحسب (الآن − البداية) فتستمرّ
+     * بالعدّ بعد ضغط "إيقاف": توقُّف عند الدقيقة 10 وتصدير عند الدقيقة 35 كان يقسم
+     * بيانات 10 دقائق على 35، فتظهر كلّ المعدّلات (callsPerSec والنِسَب) أقلّ من
+     * حقيقتها. أمّا growthMBPerMin فيقيس على مدى العيّنات لا على الساعة، فلم يتأثّر.
+     */
+    private stoppedAt = 0;
+
+    /** المدّة المُقاسة فعلاً: تتجمّد عند الإيقاف، وتساوي صفراً قبل أوّل تسجيل. */
+    private elapsedMs() {
+        if (this.startedAt === 0) return 0;
+        return (this.stoppedAt || Date.now()) - this.startedAt;
+    }
 
     // A recording outlives the modal, so the header-bar icon has to learn when it
     // starts/stops without polling. Subscribers are notified on state change only.
@@ -44,6 +57,7 @@ class RuntimeProfiler {
     private fnStats = new Map<string, FnStat>();
     private heap: number[] = [];          // عيّنات usedJSHeapSize بالميغابايت
     private heapMin = Infinity;           // أدنى قيمة (خطّ أساس ما بعد GC) — لكشف التسريب الصادق
+    private heapMax = -Infinity;          // أعلى قيمة على مدى الجلسة — نفس نافذة heapMin
     private lagSamples: number[] = [];     // تأخّر حلقة الأحداث (ms)
     private longtaskCount = 0;
     private longtaskTotalMs = 0;
@@ -79,6 +93,7 @@ class RuntimeProfiler {
         this.reset();
         this.recording = true;
         this.startedAt = Date.now();
+        this.stoppedAt = 0;
         this.notifyState();
 
         // الخطّاف العام — الإضافات المُجهَّزة تدفع إليه أثناء التسجيل فقط.
@@ -174,6 +189,9 @@ class RuntimeProfiler {
     }
 
     stop() {
+        // الوقت يُجمَّد عند الإيقاف الأول فقط؛ أمّا التفكيك أدناه فيبقى غير مشروط
+        // ليظلّ stop() صالحاً كشبكة أمان تُستدعى مرّتين (زر الإيقاف + تعطيل الإضافة).
+        if (this.recording) this.stoppedAt = Date.now();
         this.recording = false;
         if ((globalThis as any).__esharqProf === this) (globalThis as any).__esharqProf = null;
         if (this.heapTimer) { clearInterval(this.heapTimer); this.heapTimer = null; }
@@ -188,6 +206,7 @@ class RuntimeProfiler {
         this.fnStats.clear();
         this.heap = [];
         this.heapMin = Infinity;
+        this.heapMax = -Infinity;
         this.lagSamples = [];
         this.longtaskCount = 0; this.longtaskTotalMs = 0; this.longtaskMaxMs = 0;
         this.metrics = []; this.peakCpu = 0;
@@ -219,7 +238,11 @@ class RuntimeProfiler {
             const mb = used / 1048576;
             this.heap.push(mb);
             if (this.heap.length > HEAP_CAP) this.heap.shift();
+            // القاع والذروة يُتابَعان هنا لا في getReport: المصفوفة مقصوصة عند HEAP_CAP،
+            // فـ Math.max عليها كان يقرأ آخر 5 دقائق فقط بينما heapMin يمتدّ للجلسة كلها
+            // — فيُقارَن قاعُ 35 دقيقة بذروةِ 5، وتضيع الذروة الحقيقية بلا أثر.
             if (mb < this.heapMin) this.heapMin = mb;
+            if (mb > this.heapMax) this.heapMax = mb;
         } catch { /* تجاهل */ }
     }
 
@@ -260,9 +283,9 @@ class RuntimeProfiler {
     }
 
     getReport() {
-        const elapsedMin = Math.max((Date.now() - this.startedAt) / 60000, 1 / 60);
+        const elapsedMin = Math.max(this.elapsedMs() / 60000, 1 / 60);
         const heapCur = this.heap.length ? this.heap[this.heap.length - 1] : null;
-        const heapMax = this.heap.length ? Math.max(...this.heap) : null;
+        const heapMax = this.heapMax === -Infinity ? null : this.heapMax;
         const heapMin = this.heapMin === Infinity ? null : this.heapMin;
 
         // A leak raises the FLOOR: GC returns a healthy heap to the same baseline,
@@ -327,7 +350,7 @@ class RuntimeProfiler {
 
         return {
             recording: this.recording,
-            durationSec: Math.round((Date.now() - this.startedAt) / 1000),
+            durationSec: Math.round(this.elapsedMs() / 1000),
             cpu: {
                 perProcess: this.metrics,
                 totalNow: Math.round(this.metrics.reduce((a, b) => a + (b.cpu ?? 0), 0) * 10) / 10,

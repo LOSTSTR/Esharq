@@ -18,6 +18,7 @@ import type { ImpactPhase, ImpactResult } from "./impactTest";
 import { isImpactTestRunning, listImpactCandidates, runImpactTest } from "./impactTest";
 import type { RuntimeReport } from "./runtimeProfiler";
 import { runtimeProfiler } from "./runtimeProfiler";
+import { sampleHeapMB } from "./scanner";
 import type { ScoredPlugin, SnapshotSummary } from "./scoring";
 import { summarize } from "./scoring";
 
@@ -39,17 +40,24 @@ function makeBaseline(rows: ScoredPlugin[]): Baseline {
 // The file is meant to be read later, away from this UI, so it carries its own
 // context: what the numbers mean and whether a profile was actually recorded.
 // A bare list of scores is not reviewable six weeks from now.
-function exportJson(rows: ScoredPlugin[], heapMB: number | null, runtime: RuntimeReport | null, summary: SnapshotSummary) {
+function exportJson(rows: ScoredPlugin[], runtime: RuntimeReport | null, summary: SnapshotSummary) {
+    // Sampled HERE, not taken from the modal's open-time prop: the readme promises
+    // "at export time", and a stale prop made that a lie — one export read 413 MB
+    // beside runtime.heap.currentMB of 322 with no way to tell why (the heap sawtooths
+    // ±100 MB within a second, so both were true, minutes apart).
+    const heapMB = sampleHeapMB();
     const payload = {
         _esharq: "diagnostics",
-        version: 3,
+        version: 4,
         takenAt: new Date().toISOString(),
         readme: {
             risk: "Static load score per plugin (higher = heavier). Derived from hooks/listeners/patches/uiInjects — it is NOT measured CPU.",
             runtime: runtime
                 ? "Live measurements from a profiling recording: heap samples, event-loop lag (avg/max/p95) and the heaviest Flux dispatch types."
                 : "null — no profiling recording was running when this was exported. Press 'Record Profile', use Discord normally for a minute, then export again for live CPU/RAM numbers.",
-            heapMB: "Renderer JS heap at export time, in MB.",
+            heapMB: "Renderer JS heap sampled at export time, in MB. Expect it to differ from runtime.heap.currentMB (the last sample of the recording) — GC makes the heap sawtooth by ~100 MB within a second, so both are true at different instants.",
+            cpu: "Percent per process, derived from deltas of Electron's cumulativeCPUUsage counter. 100% = one core fully busy, so a process may exceed 100% across cores. null = unreadable (never a fabricated 0); the first sample of a recording is always null as there is no previous one to subtract.",
+            durationSec: "Measured span of the recording. Freezes when you press Stop, so exporting later does not inflate it.",
         },
         summary,
         heapMB,
@@ -446,6 +454,10 @@ export function DiagnosticsModal({ modalProps, initial, heapMB, rescan, interval
 
     // ── Live monitoring ──
     const [live, setLive] = useState(false);
+    // The prop is only a seed. It was sampled once when the modal opened, yet the
+    // badge below calls itself "Current JS heap" — frozen minutes later it was simply
+    // wrong. Refreshed on every re-scan and on each second of a recording.
+    const [heapNow, setHeapNow] = useState<number | null>(heapMB);
     const [countdown, setCountdown] = useState(interval);
     const [resetNonce, setResetNonce] = useState(0); // bump → restart the timer (manual re-scan)
 
@@ -475,7 +487,10 @@ export function DiagnosticsModal({ modalProps, initial, heapMB, rescan, interval
         if (!recording) return;
         runtimeProfiler.start(); // no-op if already running
         setRuntime(runtimeProfiler.getReport());
-        const id = setInterval(() => setRuntime(runtimeProfiler.getReport()), 1000);
+        const id = setInterval(() => {
+            setRuntime(runtimeProfiler.getReport());
+            setHeapNow(sampleHeapMB());
+        }, 1000);
         return () => clearInterval(id);
     }, [recording]);
 
@@ -489,6 +504,7 @@ export function DiagnosticsModal({ modalProps, initial, heapMB, rescan, interval
     // the previous rows are released for GC once setRows replaces them).
     function doRescan() {
         setRows(rescan());
+        setHeapNow(sampleHeapMB());
         setResetNonce(n => n + 1);
     }
 
@@ -513,6 +529,7 @@ export function DiagnosticsModal({ modalProps, initial, heapMB, rescan, interval
             remaining -= 1;
             if (remaining <= 0) {
                 setRows(rescan());
+                setHeapNow(sampleHeapMB());
                 remaining = interval;
             }
             setCountdown(remaining);
@@ -577,9 +594,9 @@ export function DiagnosticsModal({ modalProps, initial, heapMB, rescan, interval
                         />
                     </div>
                     <div className="esharq-diag-actions">
-                        {heapMB != null && (
+                        {heapNow != null && (
                             <span className="esharq-diag-heap" title={t("ذاكرة JS الحالية", "Current JS heap")}>
-                                Heap: {heapMB} MB
+                                Heap: {heapNow} MB
                             </span>
                         )}
                         {live && (
@@ -653,7 +670,7 @@ export function DiagnosticsModal({ modalProps, initial, heapMB, rescan, interval
                         <HintButton
                             size={Button.Sizes.SMALL}
                             color={Button.Colors.PRIMARY}
-                            onClick={() => exportJson(rows, heapMB, runtime, summary)}
+                            onClick={() => exportJson(rows, runtime, summary)}
                             hint={t(
                                 "يحفظ ملفاً فيه كل الإضافات وأرقامها، مع قياسات التسجيل إن كان يعمل — لمراجعته لاحقاً أو مشاركته. سجّل الأداء أولاً لتحصل على أرقام حيّة.",
                                 "Saves a file with every plugin and its numbers, plus the recorded measurements if a profile was running — to review later or share. Record a profile first to get live numbers in it."
