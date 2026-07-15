@@ -146,7 +146,10 @@ const NUMERIC_PATTERNS: { re: RegExp; ar: (m: RegExpMatchArray) => string }[] = 
     { re: /^(.+), (\d+) members?$/, ar: m => `${m[1]}، ${m[2]} عضو` },
     // ── الملفات الشخصية / المتفرّجون (يبقى الاسم كما هو) ──
     { re: /^(.+?)['’]s profile$/, ar: m => `الملف الشخصي لـ${m[1]}` },
-    { re: /^Spectators - (\d+)$/, ar: m => `المتفرّجون - ${m[1]}` },
+    // «المشاهدون» لا «المتفرّجون»: القاموس يستعمل الأولى في مفاتيح Spectators الثلاثة،
+    // والنمط كان يستعمل الثانية — فما إن يعمل النمط حتى يظهر "المشاهدون - 1" بجوار
+    // "المتفرّجون - 2" في الشاشة نفسها.
+    { re: /^Spectators - (\d+)$/, ar: m => `المشاهدون - ${m[1]}` },
     { re: /^Created on (.+) by (.+)$/, ar: m => `أُنشئ في ${m[1]} بواسطة ${m[2]}` },
     // ── مدد / أوقات نسبية مخبوزة ──
     { re: /^For (\d+) Hours?$/, ar: m => `لمدّة ${m[1]} ساعة` },
@@ -333,6 +336,12 @@ function translatePartsArray(parts: any[]): any {
         if (core.length < 2) return p;
         const t = lookup(core);
         if (t != null) { changed = true; return lead + t + trail; }
+        // احتياطي الأنماط الرقمية — كان مستدعىً في translateString وtranslateFormat وغائباً
+        // عن هذا المسار وحده. فكانت نصوص مثل "Spectators - 2" الواصلة ضمن مصفوفة أجزاء
+        // تُجمَع «مفقودةً» رغم وجود نمطها، فعُولجت بإضافة كل رقم للقاموس يدوياً (0 ثمّ 1…)
+        // — وهي مطاردة لا تنتهي: كل عدد جديد يعود بالإنجليزية حتى يُضاف بيده.
+        const num = numericTemplate(core);
+        if (num != null) { changed = true; return lead + num + trail; }
         collect(core); // اجمع الجملة المفقودة نفسها (أنفع للحصاد من جمع القالب)
         return p;
     });

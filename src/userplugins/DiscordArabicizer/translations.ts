@@ -4520,4 +4520,20 @@ export const translations: Record<string, string> = {
     "{0} added an integration for {1}": "{0} أضاف تكاملاً لـ{1}",
     "{0} deleted AutoMod rule {1}": "{0} حذف قاعدة AutoMod {1}",
     "{0} updated AutoMod rule {1}": "{0} حدّث قاعدة AutoMod {1}",
+
+    // ── الدفعة 51: إجراءات المنشورات، المقاطع، مساعد النظام، جودة البثّ ──
+    // مصطلح «المنشور» و«عرض القائمة» متّسقان مع الدفعة 50 أعلاه.
+    "Add media to the original post?": "إضافة وسائط إلى المنشور الأصلي؟",
+    "Add to Post": "إضافة إلى المنشور",
+    "Don't Add": "عدم الإضافة",
+    "Lock Post": "قفل المنشور",
+    "Unfollow Post": "إلغاء متابعة المنشور",
+    "This will add a thumbnail to your post in the list view.": "سيُضيف هذا صورة مصغّرة لمنشورك في عرض القائمة.",
+    // «المقاطع» — نفس مصطلح "Clipping Keybind": "اختصار المقاطع" و"Clip Length": "طول المقطع".
+    "Clipping": "المقاطع",
+    "System Helper": "مساعد النظام",
+    // إشعار إسناد (Cisco) — نُعرّب الوصف ونُبقي اسم المُرمِّز والشركة كما هما.
+    "OpenH264 Video Codec provided by Cisco Systems, Inc.": "مُرمِّز الفيديو OpenH264 مقدَّم من Cisco Systems, Inc.",
+    // قالب معدّل الإطارات: {fps} نائب يملؤه formatMessage — لذا يبقى حرفياً في القيمة.
+    "{fps}FPS": "{fps} إطار/ث",
 };
