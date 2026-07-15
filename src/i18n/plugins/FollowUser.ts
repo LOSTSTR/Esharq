@@ -8,10 +8,18 @@ import { definePluginI18n } from "@utils/i18n/types";
 
 export default definePluginI18n({
     "description": {
-        "ar": "تابِع مستخدماً عبر القنوات الصوتية. انقر بزر يمين على مستخدم ← متابعة المستخدم (تنضمّ إلى قناته). يتوقّف تلقائياً بعد 30 دقيقة من الخمول.",
-        "en": "Follow a user across voice channels. Right-click a user → Follow User (you join their channel). Auto-unfollows after 30 minutes of inactivity."
+        "ar": "تابِع مستخدماً عبر القنوات الصوتية. انقر بزر يمين على مستخدم ← متابعة المستخدم (تنضمّ إلى قناته). اختر أن تتوقّف تلقائياً بعد 30 دقيقة من الخمول أو أن تستمرّ حتى توقفها بنفسك.",
+        "en": "Follow a user across voice channels. Right-click a user → Follow User (you join their channel). Choose whether it stops itself after 30 minutes of inactivity or keeps following until you stop it."
     },
     "options": {
+        "autoStopMinutes": {
+            "ar": "إيقاف المتابعة تلقائياً بعد هذه المدّة دون أن يُغيّر المستخدم قناته",
+            "en": "Stop following automatically after this long without the user moving channels",
+            "choices": {
+                "30": { "ar": "بعد 30 دقيقة", "en": "After 30 minutes" },
+                "0": { "ar": "أبداً — تستمرّ المتابعة حتى أوقفها بنفسي", "en": "Never — keep following until I stop it myself" }
+            }
+        },
         "onlyWhenInVoice": {
             "ar": "الانضمام التلقائي فقط عندما تكون متّصلاً بقناة صوتية بالفعل",
             "en": "Only auto-join when you are already in a voice channel"

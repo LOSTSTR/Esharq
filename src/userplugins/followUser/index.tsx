@@ -21,9 +21,18 @@ const RelationshipStore = findStoreLazy("RelationshipStore");
 const FluxDispatcher = findByPropsLazy("dispatch", "subscribe");
 
 const DS_KEY = "followuser-v2";
-const INACTIVITY_MS = 30 * 60 * 1000; // 30 minutes
 
 const settings = definePluginSettings({
+    autoStopMinutes: {
+        type: OptionType.SELECT,
+        description: "Stop following automatically after this long without the user moving channels",
+        options: [
+            { label: "After 30 minutes", value: 30, default: true },
+            { label: "Never — keep following until I stop it myself", value: 0 },
+        ],
+        // Re-arm (or cancel) straight away instead of waiting for the next move.
+        onChange: () => { if (followedId) resetInactivityTimer(); },
+    },
     onlyWhenInVoice: {
         type: OptionType.BOOLEAN,
         default: false,
@@ -58,7 +67,6 @@ let followedName: string = "";
 let followedChannel: string | null = null;
 let fluxUnsub: (() => void) | null = null;
 let inactivityTimer: ReturnType<typeof setTimeout> | null = null;
-let lastActivity: number = 0;
 
 const listeners = new Set<() => void>();
 function notifyAll() { listeners.forEach(fn => fn()); }
@@ -102,16 +110,18 @@ function joinChannel(channelId: string) {
     } catch { }
 }
 
-// ── Timer d'inactivite : unfollow auto apres 30min sans utilisation ───────────
+// ── Timer d'inactivite : unfollow auto apres X min sans utilisation ───────────
+// autoStopMinutes = 0 means "never" — no timer is armed at all.
 function resetInactivityTimer() {
-    if (inactivityTimer) clearTimeout(inactivityTimer);
-    lastActivity = Date.now();
+    clearInactivityTimer();
+    const minutes = settings.store.autoStopMinutes;
+    if (!minutes) return;
     inactivityTimer = setTimeout(() => {
         if (followedId) {
-            Toasts.show({ message: t(`خمول 30 دقيقة — إيقاف متابعة ${followedName}`, `Inactive for 30min — stopped following ${followedName}`), type: Toasts.Type.FAILURE, id: Toasts.genId() });
+            Toasts.show({ message: t(`خمول ${minutes} دقيقة — إيقاف متابعة ${followedName}`, `Inactive for ${minutes}min — stopped following ${followedName}`), type: Toasts.Type.FAILURE, id: Toasts.genId() });
             unfollow();
         }
-    }, INACTIVITY_MS);
+    }, minutes * 60 * 1000);
 }
 
 function clearInactivityTimer() {
@@ -262,7 +272,7 @@ const ctxPatch: NavContextMenuPatchCallback = (children, props) => {
 export default definePlugin({
     name: "FollowUser",
     dependencies: ["HeaderBarAPI"],
-    description: "Follow a user across voice channels. Right-click a user → Follow User (you join their channel). Auto-unfollows after 30 minutes of inactivity.",
+    description: "Follow a user across voice channels. Right-click a user → Follow User (you join their channel). Choose whether it stops itself after 30 minutes of inactivity or keeps following until you stop it.",
     authors: [EquicordDevs.LOSTSTR, EquicordDevs.TheArmagan],
     settings,
 
