@@ -226,12 +226,47 @@
     color: #faa81a;
 }
 
+/* The header-bar icon while a profile is recording. The icon strokes with
+   currentColor, so colouring the element is enough. */
+.esharq-diag-recording {
+    color: var(--status-danger, #ed4245);
+    animation: esharq-diag-recpulse 1.6s ease-in-out infinite;
+}
+
+@keyframes esharq-diag-recpulse {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}
+
+/* Keeps the pill + its delta on one line. Without this the delta wraps under
+   the number, because the badge's padding eats the narrow cell's width. */
+.esharq-diag-weight {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    white-space: nowrap;
+}
+
 .esharq-diag-delta {
-    margin-inline-start: 5px;
     font-family: monospace;
     font-size: 11px;
     font-weight: 700;
-    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Load is a cost, so down is the good direction — the sign alone didn't say that. */
+.esharq-diag-delta.better {
+    color: #3ba55c;
+}
+
+.esharq-diag-delta.worse {
+    color: #faa81a;
 }
 
 .esharq-diag-impact {

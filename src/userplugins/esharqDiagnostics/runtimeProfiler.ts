@@ -17,15 +17,29 @@ const Native = IS_DISCORD_DESKTOP
     : null;
 
 interface FnStat { calls: number; samples: number; totalMs: number; maxMs: number; }
-interface ProcMetric { type: string; pid: number; cpu: number; memMB: number; }
+interface ProcMetric { type: string; pid: number; cpu: number | null; memMB: number; }
 interface DispatchStat { count: number; totalMs: number; maxMs: number; }
+// A dispatch that ran in a known window — used to blame long tasks on what caused them.
+interface DispatchSpan { type: string; start: number; end: number; }
 
 const HEAP_CAP = 300; // ~5 دقائق عند عيّنة/ثانية
 const LAG_CAP = 600;  // ~60 ثانية عند عيّنة/100ms
+const SPAN_TTL_MS = 5000; // long tasks surface within the same tick — a short trail suffices
 
 class RuntimeProfiler {
     recording = false;
     private startedAt = 0;
+
+    // A recording outlives the modal, so the header-bar icon has to learn when it
+    // starts/stops without polling. Subscribers are notified on state change only.
+    private stateListeners = new Set<() => void>();
+    subscribeState(fn: () => void) {
+        this.stateListeners.add(fn);
+        return () => { this.stateListeners.delete(fn); };
+    }
+    private notifyState() {
+        for (const fn of this.stateListeners) { try { fn(); } catch { /* a bad subscriber must not break the profiler */ } }
+    }
 
     private fnStats = new Map<string, FnStat>();
     private heap: number[] = [];          // عيّنات usedJSHeapSize بالميغابايت
@@ -53,11 +67,19 @@ class RuntimeProfiler {
     private dispatchStats = new Map<string, DispatchStat>();
     private dispatchUnwrap: (() => void) | null = null;
 
+    // Long-task attribution: knowing 2.9s of blocking happened is useless without
+    // knowing WHO blocked. We keep a 5s trail of dispatch spans and blame each long
+    // task on the dispatch it overlaps most. Anything else stays "(unattributed)" —
+    // React renders, GC and layout are not Flux, and pretending otherwise would lie.
+    private dispatchSpans: DispatchSpan[] = [];
+    private longtaskBlame = new Map<string, { count: number; totalMs: number; }>();
+
     start() {
         if (this.recording) return;
         this.reset();
         this.recording = true;
         this.startedAt = Date.now();
+        this.notifyState();
 
         // الخطّاف العام — الإضافات المُجهَّزة تدفع إليه أثناء التسجيل فقط.
         (globalThis as any).__esharqProf = this;
@@ -82,6 +104,9 @@ class RuntimeProfiler {
                     this.longtaskCount++;
                     this.longtaskTotalMs += e.duration;
                     if (e.duration > this.longtaskMaxMs) this.longtaskMaxMs = e.duration;
+                    // The dispatch's finally-block runs inside the task, so its span is
+                    // already recorded by the time this observer callback fires.
+                    this.blameLongtask(e.startTime, e.startTime + e.duration, e.duration);
                 }
             });
             this.obs.observe({ entryTypes: ["longtask"] });
@@ -113,6 +138,7 @@ class RuntimeProfiler {
             const fd = FluxDispatcher as any;
             const orig = fd.dispatch as (...a: any[]) => any;
             const stats = this.dispatchStats;
+            const spans = this.dispatchSpans;
             const state = { dead: false };
             const wrapper = function (this: any, ...args: any[]) {
                 if (state.dead) return orig.apply(this, args);
@@ -121,12 +147,20 @@ class RuntimeProfiler {
                 try {
                     return orig.apply(this, args);
                 } finally {
-                    const dt = performance.now() - t0;
+                    const t1 = performance.now();
+                    const dt = t1 - t0;
                     let s = stats.get(type);
                     if (s == null) { s = { count: 0, totalMs: 0, maxMs: 0 }; stats.set(type, s); }
                     s.count++;
                     s.totalMs += dt;
                     if (dt > s.maxMs) s.maxMs = dt;
+                    // Trail for long-task blame, pruned by age so it stays bounded
+                    // regardless of dispatch rate.
+                    spans.push({ type, start: t0, end: t1 });
+                    const cutoff = t1 - SPAN_TTL_MS;
+                    let drop = 0;
+                    while (drop < spans.length && spans[drop].end < cutoff) drop++;
+                    if (drop > 0) spans.splice(0, drop);
                 }
             };
             fd.dispatch = wrapper;
@@ -147,6 +181,7 @@ class RuntimeProfiler {
         if (this.obs) { try { this.obs.disconnect(); } catch { /* تجاهل */ } this.obs = null; }
         if (this.rafId != null) { cancelAnimationFrame(this.rafId); this.rafId = null; }
         if (this.dispatchUnwrap) { this.dispatchUnwrap(); this.dispatchUnwrap = null; }
+        this.notifyState();
     }
 
     private reset() {
@@ -158,6 +193,11 @@ class RuntimeProfiler {
         this.metrics = []; this.peakCpu = 0;
         this.fpsNow = 0; this.fpsMin = Infinity; this.frameCount = 0;
         this.dispatchStats.clear();
+        // Without these two, a second recording would inherit the first run's blame.
+        // Cleared in place, not reassigned: the dispatch wrapper closes over this
+        // exact array, so swapping it would leave the wrapper writing to an orphan.
+        this.dispatchSpans.length = 0;
+        this.longtaskBlame.clear();
     }
 
     // تحديث عدّاد O(1) — يستدعيه المُجهَّزون عبر globalThis.__esharqProf.hit(...)
@@ -189,9 +229,11 @@ class RuntimeProfiler {
             const m = await Native.getAppMetrics();
             if (!Array.isArray(m)) return;
             this.metrics = m;
+            // Unreadable CPU contributes nothing rather than poisoning the peak with 0.
             let total = 0;
-            for (const p of m) total += p.cpu;
-            if (total > this.peakCpu) this.peakCpu = total;
+            let readable = false;
+            for (const p of m) if (p.cpu != null) { total += p.cpu; readable = true; }
+            if (readable && total > this.peakCpu) this.peakCpu = total;
         } catch { /* تجاهل */ }
     }
 
@@ -200,13 +242,46 @@ class RuntimeProfiler {
         if (this.lagSamples.length > LAG_CAP) this.lagSamples.shift();
     }
 
+    // Blame a long task on the dispatch it overlaps most. A long task is one
+    // contiguous block of main-thread work, so the biggest overlap is the best
+    // honest single culprit; no overlap at all means it was not Flux.
+    private blameLongtask(start: number, end: number, duration: number) {
+        let bestType: string | null = null;
+        let bestOverlap = 0;
+        for (const s of this.dispatchSpans) {
+            const overlap = Math.min(end, s.end) - Math.max(start, s.start);
+            if (overlap > bestOverlap) { bestOverlap = overlap; bestType = s.type; }
+        }
+        const key = bestType ?? "(unattributed)";
+        let b = this.longtaskBlame.get(key);
+        if (b == null) { b = { count: 0, totalMs: 0 }; this.longtaskBlame.set(key, b); }
+        b.count++;
+        b.totalMs += duration;
+    }
+
     getReport() {
         const elapsedMin = Math.max((Date.now() - this.startedAt) / 60000, 1 / 60);
         const heapCur = this.heap.length ? this.heap[this.heap.length - 1] : null;
         const heapMax = this.heap.length ? Math.max(...this.heap) : null;
         const heapMin = this.heapMin === Infinity ? null : this.heapMin;
-        // إشارة تسريب صادقة: ارتفاع خطّ الأساس (أدنى heap) لكل دقيقة — لا فروق العيّنات.
-        const growthMBPerMin = (heapCur != null && heapMin != null) ? (heapCur - heapMin) / elapsedMin : 0;
+
+        // A leak raises the FLOOR: GC returns a healthy heap to the same baseline,
+        // while a leak lifts it. So compare the floor of each half of the recording.
+        //
+        // This previously computed (current − lowest-ever) / elapsed, which can never
+        // be negative — any dip-and-recover reported "growth" on a perfectly flat heap
+        // (a real export read 5.3 MB/min while both halves' floors sat at 229 MB).
+        // Samples are one per second, so the array length IS the span: using elapsedMin
+        // would also drift once HEAP_CAP starts dropping the oldest samples.
+        let growthMBPerMin = 0;
+        if (this.heap.length >= 20) {
+            const mid = this.heap.length >> 1;
+            let minFirst = Infinity, minSecond = Infinity;
+            for (let i = 0; i < mid; i++) if (this.heap[i] < minFirst) minFirst = this.heap[i];
+            for (let i = mid; i < this.heap.length; i++) if (this.heap[i] < minSecond) minSecond = this.heap[i];
+            const gapMin = (this.heap.length / 2) / 60; // centre-to-centre distance of the halves
+            growthMBPerMin = (minSecond - minFirst) / gapMin;
+        }
 
         const lagAvg = this.lagSamples.length ? this.lagSamples.reduce((a, b) => a + b, 0) / this.lagSamples.length : 0;
         const lagMax = this.lagSamples.length ? Math.max(...this.lagSamples) : 0;
@@ -255,9 +330,12 @@ class RuntimeProfiler {
             durationSec: Math.round((Date.now() - this.startedAt) / 1000),
             cpu: {
                 perProcess: this.metrics,
-                totalNow: Math.round(this.metrics.reduce((a, b) => a + b.cpu, 0) * 10) / 10,
+                totalNow: Math.round(this.metrics.reduce((a, b) => a + (b.cpu ?? 0), 0) * 10) / 10,
                 peakTotal: Math.round(this.peakCpu * 10) / 10,
-                available: Native != null,
+                // Honest: the native module merely EXISTING told us nothing — it reported
+                // available:true while every reading was a hardcoded 0 from a misread
+                // field. Available means we actually got a number back.
+                available: Native != null && this.metrics.some(m => m.cpu != null),
             },
             heap: {
                 currentMB: heapCur != null ? Math.round(heapCur) : null,
@@ -281,6 +359,12 @@ class RuntimeProfiler {
                 count: this.longtaskCount,
                 totalBlockingMs: Math.round(this.longtaskTotalMs),
                 maxMs: Math.round(this.longtaskMaxMs),
+                // Who actually blocked the thread. "(unattributed)" is a real answer:
+                // the block was not a Flux dispatch (React render, GC, layout).
+                blame: [...this.longtaskBlame.entries()]
+                    .map(([type, b]) => ({ type, count: b.count, totalMs: Math.round(b.totalMs) }))
+                    .sort((a, b) => b.totalMs - a.totalMs)
+                    .slice(0, 6),
             },
             topFunctions,
             topDispatch,

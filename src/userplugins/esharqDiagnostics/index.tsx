@@ -15,6 +15,7 @@ import { Button, openModal, React } from "@webpack/common";
 
 import { DiagnosticsModal } from "./DiagnosticsModal";
 import { startMemoryGuard, stopMemoryGuard } from "./memoryGuard";
+import { runtimeProfiler } from "./runtimeProfiler";
 import { sampleHeapMB, scanPlugins } from "./scanner";
 import { processSnapshot } from "./scoring";
 
@@ -44,12 +45,23 @@ function DiagnosticsIcon({ width = 20, height = 20, ...props }: React.SVGProps<S
     );
 }
 
+// A recording keeps running after the modal closes, so the icon is the only thing
+// that can tell you it is still going — without it you would leave it recording forever.
+function useIsRecording() {
+    const [rec, setRec] = React.useState(runtimeProfiler.recording);
+    React.useEffect(() => runtimeProfiler.subscribeState(() => setRec(runtimeProfiler.recording)), []);
+    return rec;
+}
+
 function HeaderBarDiagnosticsButton() {
     useSettings(["plugins.Settings.arabicMode"]);
+    const recording = useIsRecording();
     return (
         <HeaderBarButton
-            icon={DiagnosticsIcon}
-            tooltip={t("تشخيص إِشراق", "Esharq Diagnostics")}
+            icon={() => <DiagnosticsIcon className={recording ? "esharq-diag-recording" : undefined} />}
+            tooltip={recording
+                ? t("⏺ جارٍ تسجيل الأداء — انقر للعرض أو الإيقاف", "⏺ Recording profile — click to view or stop")
+                : t("تشخيص إِشراق", "Esharq Diagnostics")}
             onClick={openDiagnostics}
         />
     );
@@ -121,5 +133,9 @@ export default definePlugin({
 
     stop() {
         stopMemoryGuard();
+        // A recording no longer dies with the modal, so disabling the plugin is the
+        // only remaining backstop — otherwise its timers and the __esharqProf global
+        // would outlive the plugin itself.
+        runtimeProfiler.stop();
     },
 });

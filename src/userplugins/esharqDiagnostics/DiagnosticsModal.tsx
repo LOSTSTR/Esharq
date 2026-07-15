@@ -12,13 +12,13 @@ import { get as dsGet, set as dsSet } from "@api/DataStore";
 import type { RenderModalProps } from "@vencord/discord-types";
 import { t } from "@utils/esharqI18n";
 import { saveFile } from "@utils/web";
-import { Button, Modal, React, TextInput, useEffect, useState } from "@webpack/common";
+import { Button, Modal, React, TextInput, Tooltip, useEffect, useState } from "@webpack/common";
 
 import type { ImpactPhase, ImpactResult } from "./impactTest";
 import { isImpactTestRunning, listImpactCandidates, runImpactTest } from "./impactTest";
 import type { RuntimeReport } from "./runtimeProfiler";
 import { runtimeProfiler } from "./runtimeProfiler";
-import type { ScoredPlugin } from "./scoring";
+import type { ScoredPlugin, SnapshotSummary } from "./scoring";
 import { summarize } from "./scoring";
 
 type SortKey = "name" | "type" | "hooks" | "listeners" | "patches" | "pendingPatches" | "uiInjects" | "risk";
@@ -36,17 +36,38 @@ function makeBaseline(rows: ScoredPlugin[]): Baseline {
     return { takenAt: new Date().toISOString(), risks };
 }
 
-function exportJson(rows: ScoredPlugin[], heapMB: number | null, runtime: RuntimeReport | null) {
+// The file is meant to be read later, away from this UI, so it carries its own
+// context: what the numbers mean and whether a profile was actually recorded.
+// A bare list of scores is not reviewable six weeks from now.
+function exportJson(rows: ScoredPlugin[], heapMB: number | null, runtime: RuntimeReport | null, summary: SnapshotSummary) {
     const payload = {
         _esharq: "diagnostics",
-        version: 2,
+        version: 3,
         takenAt: new Date().toISOString(),
+        readme: {
+            risk: "Static load score per plugin (higher = heavier). Derived from hooks/listeners/patches/uiInjects — it is NOT measured CPU.",
+            runtime: runtime
+                ? "Live measurements from a profiling recording: heap samples, event-loop lag (avg/max/p95) and the heaviest Flux dispatch types."
+                : "null — no profiling recording was running when this was exported. Press 'Record Profile', use Discord normally for a minute, then export again for live CPU/RAM numbers.",
+            heapMB: "Renderer JS heap at export time, in MB.",
+        },
+        summary,
         heapMB,
         runtime,
         plugins: rows,
     };
     const date = new Date().toISOString().slice(0, 10);
     saveFile(new File([JSON.stringify(payload, null, 2)], `esharq-diagnostics-${date}.json`, { type: "application/json" }));
+}
+
+// A control whose label cannot carry its own meaning ("Save baseline" tells you
+// nothing about what it buys you) gets a native tooltip saying what it does and why.
+function HintButton({ hint, children, ...props }: React.ComponentProps<typeof Button> & { hint: string; }) {
+    return (
+        <Tooltip text={hint}>
+            {tooltipProps => <Button {...tooltipProps} {...props}>{children}</Button>}
+        </Tooltip>
+    );
 }
 
 // مخطط شراري صغير من عيّنات heap حقيقية — SVG polyline بلا مكتبات
@@ -110,7 +131,36 @@ function RuntimePanel({ report }: { report: RuntimeReport; }) {
             {report.heap.leakSuspected && (
                 <div className="esharq-diag-leak">{t("⚠️ اشتباه تسريب: خطّ أساس الذاكرة يرتفع باطّراد", "⚠️ Leak suspected: heap baseline is rising steadily")}</div>
             )}
-            {report.cpu.available && report.cpu.perProcess.length > 0 && (
+            {/* Blocking is what a user actually feels. Knowing it happened is useless
+                without knowing who did it, so name the culprits. */}
+            {report.longtasks.blame.length > 0 && (
+                <>
+                    <div className="esharq-diag-fn-title">
+                        {t("مَن حجب الخيط الرئيسي (منسوبة للحدث المتزامن معها)", "What blocked the main thread (blamed on the dispatch it overlapped)")}
+                    </div>
+                    <table className="esharq-diag-table">
+                        <thead>
+                            <tr>
+                                <th>{t("الحدث", "Event")}</th>
+                                <th className="num">{t("مرّات", "Tasks")}</th>
+                                <th className="num">{t("حجب (مللي)", "Blocked (ms)")}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {report.longtasks.blame.map(b => (
+                                <tr key={b.type} className="esharq-diag-row">
+                                    <td>{b.type === "(unattributed)"
+                                        ? t("(غير منسوبة — ليست حدث Flux: رسم React أو جامع مهملات)", "(unattributed — not a Flux dispatch: React render or GC)")
+                                        : b.type}</td>
+                                    <td className="num">{b.count}</td>
+                                    <td className="num">{b.totalMs}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </>
+            )}
+            {report.cpu.perProcess.length > 0 && (
                 <>
                     <div className="esharq-diag-fn-title">{t("عمليات ديسكورد (حقيقية من النظام)", "Discord processes (real system metrics)")}</div>
                     <table className="esharq-diag-table">
@@ -123,11 +173,13 @@ function RuntimePanel({ report }: { report: RuntimeReport; }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {[...report.cpu.perProcess].sort((a, b) => b.cpu - a.cpu).map(p => (
+                            {/* RAM is readable even when CPU is not, so sort by memory and
+                                print "؟" for an unreadable CPU rather than a fake 0. */}
+                            {[...report.cpu.perProcess].sort((a, b) => b.memMB - a.memMB).map(p => (
                                 <tr key={p.pid} className="esharq-diag-row">
                                     <td>{procLabel(p.type)}</td>
                                     <td className="num">{p.pid}</td>
-                                    <td className="num">{p.cpu}</td>
+                                    <td className="num">{p.cpu != null ? p.cpu : t("؟", "?")}</td>
                                     <td className="num">{p.memMB}</td>
                                 </tr>
                             ))}
@@ -248,9 +300,17 @@ function ImpactPanel() {
                     <option value="">{t("اختر إضافة…", "Pick a plugin…")}</option>
                     {eligible.map(n => <option key={n} value={n}>{n}</option>)}
                 </select>
-                <Button size={Button.Sizes.SMALL} disabled={!target || phase != null} onClick={run}>
+                <HintButton
+                    size={Button.Sizes.SMALL}
+                    disabled={!target || phase != null}
+                    onClick={run}
+                    hint={t(
+                        `يقيس الإضافة وهي تعمل ثم يوقفها مؤقتاً ويقيس مرة أخرى، فيخبرك بالفرق الذي تسبّبه هي وحدها — لا تخميناً. تُعاد الإضافة تلقائياً بعد ${PHASE_SEC * 2 + 1} ثانية. لا تلمس ديسكورد أثناء القياس حتى لا تُلوّث النتيجة.`,
+                        `Measures the plugin running, then temporarily stops it and measures again, so you get the difference it alone causes — not a guess. It is switched back on automatically after ${PHASE_SEC * 2 + 1}s. Leave Discord alone while it runs, or you contaminate the result.`
+                    )}
+                >
                     {phase != null ? phaseLabel(phase) : t(`قياس (${PHASE_SEC * 2 + 1} ثانية)`, `Measure (${PHASE_SEC * 2 + 1}s)`)}
-                </Button>
+                </HintButton>
             </div>
             <div className="esharq-diag-impact-note">
                 {t(
@@ -329,11 +389,17 @@ function buildRecommendations(rows: ScoredPlugin[], runtime: RuntimeReport | nul
                 `🟠 p95 لتأخّر الحلقة ${runtime.eventLoop.p95LagMs}ms (>50) — الخيط الرئيسي مضغوط.`,
                 `🟠 Event-loop p95 is ${runtime.eventLoop.p95LagMs}ms (>50) — the main thread is strained.`
             ));
-        if (runtime.longtasks.count > 0 && runtime.longtasks.maxMs > 200)
+        if (runtime.longtasks.count > 0 && runtime.longtasks.maxMs > 200) {
+            // Point at the culprit now that we can attribute the blocking.
+            const top = runtime.longtasks.blame.find(b => b.type !== "(unattributed)");
+            const who = top
+                ? t(` أكثرها تزامناً مع ${top.type} (${top.totalMs}ms).`, ` Mostly overlapping ${top.type} (${top.totalMs}ms).`)
+                : t(" ولا واحدة منها حدث Flux — الأرجح رسم React أو جامع المهملات.", " None of them were Flux dispatches — most likely React rendering or GC.");
             out.push(t(
-                `🟠 ${runtime.longtasks.count} مهمة طويلة (أقصاها ${runtime.longtasks.maxMs}ms) — توقّفات محسوسة في الواجهة.`,
-                `🟠 ${runtime.longtasks.count} long tasks (max ${runtime.longtasks.maxMs}ms) — perceptible UI stalls.`
+                `🟠 ${runtime.longtasks.count} مهمة طويلة (أقصاها ${runtime.longtasks.maxMs}ms) — توقّفات محسوسة في الواجهة.${who}`,
+                `🟠 ${runtime.longtasks.count} long tasks (max ${runtime.longtasks.maxMs}ms) — perceptible UI stalls.${who}`
             ));
+        }
         const d0 = runtime.topDispatch[0];
         if (d0 && d0.totalMs > 500)
             out.push(t(
@@ -346,11 +412,19 @@ function buildRecommendations(rows: ScoredPlugin[], runtime: RuntimeReport | nul
                 `🟠 Minimum recorded FPS is ${runtime.fps.min} — a perceptible smoothness drop while recording.`
             ));
     }
-    if (pendingTotal > 0)
+    if (pendingTotal > 0) {
+        // Naming the plugins makes this actionable: an unapplied patch means that
+        // plugin is silently doing part of its job, and a bare total hides who.
+        const worst = rows
+            .filter(r => r.pendingPatches > 0)
+            .sort((a, b) => b.pendingPatches - a.pendingPatches)
+            .slice(0, 3)
+            .map(r => `${r.name} (${r.pendingPatches})`);
         out.push(t(
-            `🟡 ${pendingTotal} ترقيع لم يُطبَّق (عمود «معلّقة») — قد تكون وحدات كسولة لم تُحمَّل، أو ترقيعات كسرها تحديث ديسكورد.`,
-            `🟡 ${pendingTotal} patches never applied ("Pending" column) — could be lazy modules not loaded yet, or patches broken by a Discord update.`
+            `🟡 ${pendingTotal} ترقيع لم يُطبَّق — أكثرها: ${worst.join("، ")}. الإضافة بترقيع معلّق تعمل جزئياً بصمت. السبب غالباً وحدة كسولة لم تُحمَّل بعد (يزول عند استخدام الميزة)، أو ترقيع كسره تحديث ديسكورد (يحتاج إصلاحاً).`,
+            `🟡 ${pendingTotal} patches never applied — worst: ${worst.join(", ")}. A plugin with a pending patch is silently doing only part of its job. Usually a lazy module not loaded yet (clears once you use the feature), or a patch broken by a Discord update (needs fixing).`
         ));
+    }
     if (out.length === 0)
         out.push(runtime
             ? t("✅ لا ملاحظات — كل المؤشرات المقيسة ضمن الطبيعي.", "✅ Nothing to flag — every measured indicator is within normal range.")
@@ -376,8 +450,10 @@ export function DiagnosticsModal({ modalProps, initial, heapMB, rescan, interval
     const [resetNonce, setResetNonce] = useState(0); // bump → restart the timer (manual re-scan)
 
     // ── Runtime profiling (opt-in) — real CPU/RAM/function timing while recording ──
-    const [recording, setRecording] = useState(false);
-    const [runtime, setRuntime] = useState<RuntimeReport | null>(null);
+    // Seeded from the profiler, not from `false`: a recording outlives this modal,
+    // so re-opening must show the run that is still going rather than claim idle.
+    const [recording, setRecording] = useState(() => runtimeProfiler.recording);
+    const [runtime, setRuntime] = useState<RuntimeReport | null>(() => runtimeProfiler.recording ? runtimeProfiler.getReport() : null);
 
     // ── الأساس المرجعي: يُحمَّل مرة عند الفتح؛ الحفظ يستبدل المحفوظ ──
     const [baseline, setBaseline] = useState<Baseline | null>(null);
@@ -391,15 +467,23 @@ export function DiagnosticsModal({ modalProps, initial, heapMB, rescan, interval
         try { await dsSet(BASELINE_KEY, b); setBaseline(b); } catch { /* تخزين غير متاح */ }
     }
 
-    // Start/stop the profiler with the toggle; refresh the report every 1s while on.
-    // Cleanup stops the profiler on toggle-off / modal close → no global hook left behind.
+    // The recording deliberately OUTLIVES this modal. You have to close the modal to
+    // use Discord, and profiling an idle modal measures nothing — so unmount must not
+    // stop it. Only the Stop button does (or the plugin being disabled, see index.tsx).
+    // Cleanup therefore tears down the 1s UI poll and nothing else.
     useEffect(() => {
         if (!recording) return;
-        runtimeProfiler.start();
+        runtimeProfiler.start(); // no-op if already running
         setRuntime(runtimeProfiler.getReport());
         const id = setInterval(() => setRuntime(runtimeProfiler.getReport()), 1000);
-        return () => { clearInterval(id); runtimeProfiler.stop(); };
+        return () => clearInterval(id);
     }, [recording]);
+
+    function stopRecording() {
+        runtimeProfiler.stop();
+        setRecording(false);
+        setRuntime(runtimeProfiler.getReport()); // keep the finished run on screen to read/export
+    }
 
     // Manual re-scan: refresh now AND reset the live countdown (no double allocation,
     // the previous rows are released for GC once setRows replaces them).
@@ -445,7 +529,16 @@ export function DiagnosticsModal({ modalProps, initial, heapMB, rescan, interval
         { key: "patches", label: t("ترقيعات", "Patches"), tip: t("ترقيعات كود webpack", "Webpack code patches"), num: true },
         { key: "pendingPatches", label: t("معلّقة", "Pending"), tip: t("ترقيعات لم تُطبَّق بعد (وحدتها لم تُطابَق) — قد تكون وحدة كسولة لم تُحمَّل، أو ترقيعاً كسره تحديث ديسكورد", "Patches not applied yet (module never matched) — may be a lazy module not loaded yet, or a patch broken by a Discord update"), num: true },
         { key: "uiInjects", label: t("حقن واجهة", "UI Injects"), tip: t("قوائم سياق + عناصر واجهة", "Context menus + UI render surfaces"), num: true },
-        { key: "risk", label: t("الثِقل", "Load"), tip: "(patches×2)+(listeners×3)+(uiInjects×1.5)", num: true },
+        // Says what it is AND what it is not. This score is blind to a plugin that
+        // hooks intl instead of patching (DiscordArabicizer scores 0 while being the
+        // busiest thing measured), so calling it "cost" would be a lie.
+        {
+            key: "risk", label: t("الثِقل", "Load"), num: true,
+            tip: t(
+                "مساحة تماسّ بنيوية، وليست استهلاكاً مقيساً للمعالج: (ترقيعات×2)+(مستمعون×3)+(حقن×1.5). رقم مرتفع = سطح أوسع للتأثير، لا بطء مؤكَّد. للتكلفة الحقيقية استخدم «تسجيل الأداء» أو «قياس أثر إضافة».",
+                "Structural surface area, NOT measured CPU: (patches×2)+(listeners×3)+(uiInjects×1.5). A high number means a wider surface to affect things, not confirmed slowness. For real cost use Record Profile or the plugin impact test."
+            ),
+        },
     ];
 
     function sortBy(key: SortKey) {
@@ -498,37 +591,92 @@ export function DiagnosticsModal({ modalProps, initial, heapMB, rescan, interval
                                 ⟳ {t("تحديث خلال", "Refresh in")} {countdown}{t("ث", "s")}
                             </span>
                         )}
-                        <Button size={Button.Sizes.SMALL} onClick={doRescan}>
+                        <HintButton
+                            size={Button.Sizes.SMALL}
+                            onClick={doRescan}
+                            hint={t(
+                                "يُعيد قياس بصمة كل إضافة الآن. لقطة لحظية واحدة — لا تترك شيئاً يعمل في الخلفية.",
+                                "Re-measures every plugin's footprint right now. A single instant snapshot — it leaves nothing running in the background."
+                            )}
+                        >
                             {t("إعادة الفحص", "Re-scan")}
-                        </Button>
+                        </HintButton>
                         {live ? (
-                            <Button size={Button.Sizes.SMALL} color={Button.Colors.RED} onClick={() => setLive(false)}>
+                            <HintButton
+                                size={Button.Sizes.SMALL}
+                                color={Button.Colors.RED}
+                                onClick={() => setLive(false)}
+                                hint={t("إيقاف إعادة الفحص التلقائي.", "Stop re-scanning automatically.")}
+                            >
                                 {t("إيقاف المراقبة", "Stop Monitoring")}
-                            </Button>
+                            </HintButton>
                         ) : (
-                            <Button size={Button.Sizes.SMALL} color={Button.Colors.GREEN} onClick={startLive}>
+                            <HintButton
+                                size={Button.Sizes.SMALL}
+                                color={Button.Colors.GREEN}
+                                onClick={startLive}
+                                hint={t(
+                                    `يُعيد الفحص تلقائياً كل ${interval} ثانية بينما هذه النافذة مفتوحة، لترى الأرقام تتغيّر لحظياً. يتوقّف بإغلاق النافذة.`,
+                                    `Re-scans automatically every ${interval}s while this window is open, so you watch the numbers move. Stops when the window closes.`
+                                )}
+                            >
                                 {t("بدء المراقبة الحية", "Start Live Monitoring")}
-                            </Button>
+                            </HintButton>
                         )}
                         {recording ? (
-                            <Button size={Button.Sizes.SMALL} color={Button.Colors.RED} onClick={() => setRecording(false)}>
+                            <HintButton
+                                size={Button.Sizes.SMALL}
+                                color={Button.Colors.RED}
+                                onClick={stopRecording}
+                                hint={t(
+                                    "أوقف التسجيل واعرض النتائج. تبقى النتائج على الشاشة لتقرأها أو تُصدّرها.",
+                                    "Stop recording and show the results. They stay on screen for you to read or export."
+                                )}
+                            >
                                 {t("إيقاف التسجيل", "Stop Recording")}
-                            </Button>
+                            </HintButton>
                         ) : (
-                            <Button size={Button.Sizes.SMALL} color={Button.Colors.GREEN} onClick={() => setRecording(true)}>
+                            <HintButton
+                                size={Button.Sizes.SMALL}
+                                color={Button.Colors.GREEN}
+                                onClick={() => setRecording(true)}
+                                hint={t(
+                                    "يقيس المعالج والذاكرة وتأخّر الواجهة فعلياً أثناء استخدامك. الطريقة: اضغط، ثم أغلق هذه النافذة وتصفّح ديسكورد دقيقة أو دقيقتين، ثم عُد وأوقفه. التسجيل يستمرّ بعد إغلاق النافذة — الأيقونة في الأعلى تصير حمراء طوال التسجيل.",
+                                    "Measures real CPU, memory and UI lag while you use Discord. How: press it, close this window, use Discord normally for a minute or two, then come back and stop it. Recording continues after the window closes — the icon up top stays red the whole time."
+                                )}
+                            >
                                 {t("⏺ تسجيل الأداء", "⏺ Record Profile")}
-                            </Button>
+                            </HintButton>
                         )}
-                        <Button size={Button.Sizes.SMALL} color={Button.Colors.PRIMARY} onClick={() => exportJson(view, heapMB, runtime)}>
+                        {/* `rows`, not `view`: exporting the search-filtered list silently
+                            produced a partial report that still looked complete. */}
+                        <HintButton
+                            size={Button.Sizes.SMALL}
+                            color={Button.Colors.PRIMARY}
+                            onClick={() => exportJson(rows, heapMB, runtime, summary)}
+                            hint={t(
+                                "يحفظ ملفاً فيه كل الإضافات وأرقامها، مع قياسات التسجيل إن كان يعمل — لمراجعته لاحقاً أو مشاركته. سجّل الأداء أولاً لتحصل على أرقام حيّة.",
+                                "Saves a file with every plugin and its numbers, plus the recorded measurements if a profile was running — to review later or share. Record a profile first to get live numbers in it."
+                            )}
+                        >
                             {t("تصدير JSON", "Export JSON")}
-                        </Button>
-                        <Button
+                        </HintButton>
+                        <HintButton
                             size={Button.Sizes.SMALL}
                             color={Button.Colors.PRIMARY}
                             onClick={saveBaseline}
+                            hint={baseline
+                                ? t(
+                                    `يستبدل الأساس المحفوظ (${new Date(baseline.takenAt).toLocaleDateString()}) بأرقام اليوم، فتصير المقارنات من الآن.`,
+                                    `Replaces the saved baseline (${new Date(baseline.takenAt).toLocaleDateString()}) with today's numbers, so comparisons start from now.`
+                                )
+                                : t(
+                                    "يحفظ أرقام اليوم كنقطة مرجعية. بعدها يظهر بجانب كل إضافة كم ثقُلت ▲ أو خفّت ▼ مقارنةً بها — احفظه وأنت راضٍ عن الأداء، لتعرف لاحقاً ما الذي أبطأ ديسكورد بالضبط.",
+                                    "Saves today's numbers as a reference point. From then on each plugin shows how much heavier ▲ or lighter ▼ it got against it — save one while performance feels good, so later you know exactly what slowed Discord down."
+                                )}
                         >
                             {t("حفظ كأساس", "Save baseline")}
-                        </Button>
+                        </HintButton>
                     </div>
                 </div>
 
@@ -595,15 +743,27 @@ export function DiagnosticsModal({ modalProps, initial, heapMB, rescan, interval
                                     </td>
                                     <td className="num">{r.uiInjects}</td>
                                     <td className="num">
-                                        <span className={`esharq-diag-badge ${r.level}`}>{r.risk}</span>
-                                        {baseline?.risks[r.name] != null && Math.abs(r.risk - baseline.risks[r.name]) >= 1 && (
-                                            <span
-                                                className="esharq-diag-delta"
-                                                title={t(`مقارنة بالأساس المحفوظ (${new Date(baseline.takenAt).toLocaleDateString()})`, `vs saved baseline (${new Date(baseline.takenAt).toLocaleDateString()})`)}
-                                            >
-                                                {r.risk > baseline.risks[r.name] ? `+${Math.round((r.risk - baseline.risks[r.name]) * 10) / 10}` : Math.round((r.risk - baseline.risks[r.name]) * 10) / 10}
-                                            </span>
-                                        )}
+                                        {(() => {
+                                            const base = baseline?.risks[r.name];
+                                            const d = base != null ? Math.round((r.risk - base) * 10) / 10 : null;
+                                            const show = d != null && Math.abs(d) >= 1;
+                                            return (
+                                                // One nowrap row: the badge is a padded pill, so letting the
+                                                // delta be a loose sibling made it wrap under the number.
+                                                <div className="esharq-diag-weight">
+                                                    <span className={`esharq-diag-badge ${r.level}`}>{r.risk}</span>
+                                                    {show && (
+                                                        <span
+                                                            // Lower load is better, so a drop is the good direction.
+                                                            className={`esharq-diag-delta ${d < 0 ? "better" : "worse"}`}
+                                                            title={t(`مقارنة بالأساس المحفوظ (${new Date(baseline!.takenAt).toLocaleDateString()})`, `vs saved baseline (${new Date(baseline!.takenAt).toLocaleDateString()})`)}
+                                                        >
+                                                            {d < 0 ? `▼${Math.abs(d)}` : `▲${d}`}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            );
+                                        })()}
                                     </td>
                                 </tr>
                             ))}
