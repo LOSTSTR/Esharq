@@ -1,8 +1,22 @@
 /* FakeDM composer.
-   Colours come from Discord's own variables, never hardcoded — the panel has to
-   follow the user's theme (they run a custom one). */
+ *
+ * Surfaces and borders are mixed from --text-normal, NOT from Discord's
+ * background variables. Those are what a custom theme rewrites, and it can
+ * legitimately collapse them into each other: CrimsonNight renders the modal at
+ * #1c1c25 while --background-secondary is #111116 and --background-modifier-accent
+ * is white at 6% — cards and inputs became invisible rectangles. --text-normal is
+ * the one variable guaranteed to contrast with the surface behind it (that is what
+ * makes text readable), so a low-percentage mix of it is always faintly visible,
+ * in any theme, light or dark. Text colours still come from the theme.
+ */
 
 .esharq-fakedm {
+    --fdm-surface: color-mix(in oklab, var(--text-normal) 7%, transparent);
+    --fdm-surface-hover: color-mix(in oklab, var(--text-normal) 12%, transparent);
+    --fdm-border: color-mix(in oklab, var(--text-normal) 18%, transparent);
+    --fdm-well: color-mix(in oklab, var(--text-normal) 4%, transparent);
+    --fdm-accent: var(--brand-experiment, var(--brand-500, #5865f2));
+
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -13,8 +27,8 @@
     color: var(--text-muted);
     padding: 6px 10px;
     border-radius: 6px;
-    background: var(--background-secondary-alt, var(--background-secondary));
-    border-inline-start: 3px solid var(--brand-experiment, var(--brand-500));
+    background: var(--fdm-well);
+    border-inline-start: 3px solid var(--fdm-accent);
 }
 
 .esharq-fakedm-label {
@@ -31,7 +45,7 @@
     gap: 6px;
     padding: 4px;
     border-radius: 10px;
-    background: var(--background-tertiary);
+    background: var(--fdm-well);
 }
 
 .esharq-fakedm-tab {
@@ -48,13 +62,13 @@
 
 .esharq-fakedm-tab:hover {
     color: var(--interactive-hover);
-    background: var(--background-modifier-hover);
+    background: var(--fdm-surface-hover);
 }
 
 .esharq-fakedm-tab-on,
 .esharq-fakedm-tab-on:hover {
     color: #fff;
-    background: var(--brand-experiment, var(--brand-500));
+    background: var(--fdm-accent);
 }
 
 /* ── Sender picker ────────────────────────────────────────────────────────── */
@@ -77,21 +91,21 @@
     gap: 8px;
     min-width: 0;
     padding: 8px 10px;
-    border: 1px solid var(--background-modifier-accent);
+    border: 1px solid var(--fdm-border);
     border-radius: 8px;
-    background: var(--background-secondary);
+    background: var(--fdm-surface);
     color: var(--text-normal);
     cursor: pointer;
     transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
 .esharq-fakedm-person:hover {
-    background: var(--background-modifier-hover);
+    background: var(--fdm-surface-hover);
 }
 
 .esharq-fakedm-person-on {
-    border-color: var(--brand-experiment, var(--brand-500));
-    background: var(--background-modifier-selected);
+    border-color: var(--fdm-accent);
+    background: var(--fdm-surface-hover);
 }
 
 .esharq-fakedm-avatar {
@@ -125,9 +139,9 @@
 
 .esharq-fakedm-chip {
     padding: 5px 10px;
-    border: 1px solid var(--background-modifier-accent);
+    border: 1px solid var(--fdm-border);
     border-radius: 999px;
-    background: var(--background-secondary);
+    background: var(--fdm-surface);
     color: var(--text-muted);
     font-size: 12px;
     font-weight: 500;
@@ -138,16 +152,16 @@
 
 .esharq-fakedm-chip:hover {
     color: var(--text-normal);
-    border-color: var(--brand-experiment, var(--brand-500));
+    border-color: var(--fdm-accent);
 }
 
 .esharq-fakedm-date,
 .esharq-fakedm-num,
 .esharq-fakedm-textarea {
     padding: 8px 10px;
-    border: 1px solid var(--background-modifier-accent);
+    border: 1px solid var(--fdm-border);
     border-radius: 8px;
-    background: var(--input-background, var(--background-tertiary));
+    background: var(--fdm-well);
     color: var(--text-normal);
     font-size: 14px;
     font-family: inherit;
@@ -188,16 +202,16 @@
 .esharq-fakedm-num:focus,
 .esharq-fakedm-textarea:focus {
     outline: none;
-    border-color: var(--brand-experiment, var(--brand-500));
+    border-color: var(--fdm-accent);
 }
 
 /* ── Answered / Missed ────────────────────────────────────────────────────── */
 .esharq-fakedm-seg {
     flex: 1;
     padding: 9px;
-    border: 1px solid var(--background-modifier-accent);
+    border: 1px solid var(--fdm-border);
     border-radius: 8px;
-    background: var(--background-secondary);
+    background: var(--fdm-surface);
     color: var(--text-muted);
     font-size: 14px;
     font-weight: 600;
@@ -206,7 +220,7 @@
 }
 
 .esharq-fakedm-seg:hover {
-    background: var(--background-modifier-hover);
+    background: var(--fdm-surface-hover);
 }
 
 .esharq-fakedm-seg-ok {
@@ -233,7 +247,7 @@
     padding: 11px;
     border: none;
     border-radius: 8px;
-    background: var(--brand-experiment, var(--brand-500));
+    background: var(--fdm-accent);
     color: #fff;
     font-size: 15px;
     font-weight: 600;
@@ -281,7 +295,7 @@
     gap: 8px;
     padding: 6px 8px;
     border-radius: 6px;
-    background: var(--background-secondary);
+    background: var(--fdm-surface);
 }
 
 .esharq-fakedm-item-icon {
@@ -321,6 +335,6 @@
 }
 
 .esharq-fakedm-item-del:hover {
-    background: var(--background-modifier-hover);
+    background: var(--fdm-surface-hover);
     color: var(--status-danger, var(--red-400));
 }

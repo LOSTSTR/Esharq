@@ -9,6 +9,12 @@ import "./styles.css";
 import { addChatBarButton, ChatBarButton, ChatBarButtonFactory, removeChatBarButton } from "@api/ChatButtons";
 import { EquicordDevs } from "@utils/constants";
 import { isArabicMode, t } from "@utils/esharqI18n";
+import { Logger } from "@utils/Logger";
+// NOT the global: Discord strips window.localStorage from the renderer, so
+// `localStorage.getItem` here threw on every call and the catch swallowed it —
+// persistence had silently never worked. @utils/localStorage captures the real
+// object at module load, before Discord removes it.
+import { localStorage } from "@utils/localStorage";
 import { ModalContent, ModalHeader, ModalRoot, openModal, RenderModalProps } from "@utils/esharqModals";
 import { ModalSize } from "@utils/modal";
 import definePlugin from "@utils/types";
@@ -29,11 +35,34 @@ interface PersistedMessage { type: "message"; channelId: string; authorId: strin
 interface PersistedCall { type: "call"; channelId: string; callerId: string; missed: boolean; durationSec: number; timestamp: string; endedTimestamp: string; id: string; }
 type PersistedFake = PersistedMessage | PersistedCall;
 
+const logger = new Logger("FakeDM");
+
+// In-memory mirror, lazily seeded from storage on first use. Reads go through
+// here so the session keeps working even if storage is unavailable; storage is
+// only what carries fakes across a reload.
+let store: PersistedFake[] | null = null;
+
 function loadPersisted(): PersistedFake[] {
-    try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : []; } catch { return []; }
+    if (store != null) return store;
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        store = raw ? JSON.parse(raw) : [];
+    } catch (e) {
+        // Logged, not swallowed: an empty catch here is exactly what hid the
+        // broken global-localStorage read until the Clear button went dead.
+        logger.error("Could not read saved fakes; continuing with an empty list.", e);
+        store = [];
+    }
+    return store!;
 }
+
 function savePersisted(fakes: PersistedFake[]) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(fakes)); } catch { }
+    store = fakes;
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(fakes));
+    } catch (e) {
+        logger.error("Could not save fakes — they will be lost on reload.", e);
+    }
 }
 
 // Per-channel set of the fake message ids we injected, so we can delete them cleanly.
@@ -238,6 +267,13 @@ function FakeDMModal({ rootProps }: { rootProps: RenderModalProps; }) {
         [channel?.id, rev]
     );
 
+    // Gate the Clear button on what clearFakes actually iterates (the in-memory
+    // registry), not on the persisted list. Keying it to storage meant that when
+    // the storage read came back empty the button sat permanently disabled even
+    // though there were injected fakes on screen it could have removed — the
+    // button must never disagree with what pressing it would do.
+    const clearableCount = channel ? (fakeIds.get(channel.id)?.size ?? 0) : 0;
+
     const shiftBy = useCallback((ms: number) => setWhen(toLocalInput(new Date(Date.now() - ms))), []);
 
     function submit() {
@@ -388,7 +424,7 @@ function FakeDMModal({ rootProps }: { rootProps: RenderModalProps; }) {
                         </button>
                         <button
                             className="esharq-fakedm-clear"
-                            disabled={fakes.length === 0}
+                            disabled={clearableCount === 0}
                             onClick={() => {
                                 if (!channel) return;
                                 const n = clearFakes(channel.id);
