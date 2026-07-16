@@ -8,14 +8,14 @@ import "./styles.css";
 
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import * as DataStore from "@api/DataStore";
-import { definePluginSettings } from "@api/Settings";
+import { definePluginSettings, migratePluginSetting } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { Message, User } from "@vencord/discord-types";
 import { findByPropsLazy, findCssClassesLazy } from "@webpack";
-import { Button, Menu, openModal,showToast, Toasts, Tooltip, useEffect, UserStore, useState } from "@webpack/common";
+import { Button, ChannelStore, Menu, openModal, showToast, Toasts, Tooltip, useEffect, UserStore, useState } from "@webpack/common";
 
 import { deleteTimezone, getTimezone, loadDatabaseTimezones, setUserDatabaseTimezone } from "./database";
 import { SetTimezoneModal } from "./TimezoneModal";
@@ -43,15 +43,16 @@ const classes = findCssClassesLazy("timestamp", "compact", "contentOnly");
 const locale = findByPropsLazy("getLocale");
 
 export const settings = definePluginSettings({
-    "Show Own Timezone": {
+    showOwnTimezone: {
         type: OptionType.BOOLEAN,
         description: "Shows your timezone in your profile and message headers",
         default: true
     },
 
-    "24h Time": {
+    twentyFourHourFormat: {
         type: OptionType.BOOLEAN,
-        description: "Show time in 24-hour format",
+        displayName: "24h Time",
+        description: "Show time in 24h format",
         default: false
     },
 
@@ -65,6 +66,12 @@ export const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         description: "Show time in message headers",
         default: true
+    },
+
+    recipientTimezoneInDms: {
+        type: OptionType.BOOLEAN,
+        description: "In DMs, show the recipient's timezone on your messages",
+        default: false
     },
 
     showProfileTime: {
@@ -83,6 +90,12 @@ export const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         description: "Prefer the database over local storage for timezones",
         default: true
+    },
+
+    showLocalTimezone: {
+        type: OptionType.BOOLEAN,
+        description: "Show Local Timezone instead of just local",
+        default: false,
     },
 
     databaseUrl: {
@@ -131,7 +144,7 @@ export const settings = definePluginSettings({
 function getTime(timezone: string, timestamp: string | number, props: Intl.DateTimeFormatOptions = {}) {
     const date = new Date(timestamp);
     const formatter = new Intl.DateTimeFormat(locale.getLocale() ?? "en-US", {
-        hour12: !settings.store["24h Time"],
+        hour12: !settings.store.twentyFourHourFormat,
         timeZone: timezone,
         ...props
     });
@@ -192,12 +205,14 @@ const TimestampComponent = ErrorBoundary.wrap(({ userId, timestamp, type }: Prop
 
     if (settings.store.showTimezoneInfo) {
         const userTimezone = getSystemTimezone();
-        if (timezone === userTimezone) {
+        isLocal = timezone === userTimezone && !settings.store.showLocalTimezone;
+        if (isLocal) {
             displayTime = "local";
-            isLocal = true;
         } else {
             const timezoneInfo = getTimezoneAbbreviation(timezone, currentTime);
-            displayTime = `${shortTime} ${timezoneInfo || timezone}`;
+            const tz = timezoneInfo || timezone;
+            const hideLocalTime = isLocal && type === "message";
+            displayTime = hideLocalTime ? tz : `${shortTime} ${tz}`;
         }
     }
 
@@ -215,7 +230,6 @@ const TimestampComponent = ErrorBoundary.wrap(({ userId, timestamp, type }: Prop
     return (
         <Tooltip
             position="top"
-            // @ts-ignore
             delay={750}
             allowOverflow={false}
             spacing={8}
@@ -249,6 +263,8 @@ const userContextMenuPatch: NavContextMenuPatchCallback = (children, { user }: {
     children.push(<Menu.MenuSeparator />, setTimezoneItem);
 };
 
+migratePluginSetting("Timezones", "showOwnTimezone", "Show Own Timezone");
+migratePluginSetting("Timezones", "twentyFourHourFormat", "24h Time");
 export default definePlugin({
     name: "Timezones",
     authors: [Devs.Aria, EquicordDevs.creations],
@@ -331,15 +347,28 @@ export default definePlugin({
 
     renderProfileTimezone: (props?: { user?: User; }) => {
         if (!settings.store.showProfileTime || !props?.user?.id) return null;
-        if (props.user.id === UserStore.getCurrentUser().id && !settings.store["Show Own Timezone"]) return null;
+        if (props.user.id === UserStore.getCurrentUser().id && !settings.store.showOwnTimezone) return null;
 
         return <TimestampComponent userId={props.user.id} type="profile" />;
     },
 
     renderMessageTimezone: (props?: { message?: Message; }) => {
-        if (!settings.store.showMessageHeaderTime || !props?.message) return null;
-        if (props.message.author.id === UserStore.getCurrentUser().id && !settings.store["Show Own Timezone"]) return null;
+        const { showMessageHeaderTime, recipientTimezoneInDms, showOwnTimezone } = settings.store;
+        if (!showMessageHeaderTime || !props?.message) return null;
 
-        return <TimestampComponent userId={props.message.author.id} timestamp={props.message.timestamp.toISOString()} type="message" />;
+        let userId = props.message.author.id;
+
+        if (userId === UserStore.getCurrentUser().id) {
+            const channel = ChannelStore.getChannel(props.message.channel_id);
+            const recipientId = channel?.isDM() ? channel.getRecipientId() : null;
+
+            if (recipientTimezoneInDms && recipientId) {
+                userId = recipientId;
+            } else if (!showOwnTimezone) {
+                return null;
+            }
+        }
+
+        return <TimestampComponent userId={userId} timestamp={props.message.timestamp.toISOString()} type="message" />;
     }
 });

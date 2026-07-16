@@ -126,6 +126,7 @@ export default definePlugin({
     name: "Settings",
     description: "Adds the settings UI and debug info",
     authors: [Devs.Ven, Devs.Megu],
+    tags: ["Utility"],
     required: true,
 
     settings,

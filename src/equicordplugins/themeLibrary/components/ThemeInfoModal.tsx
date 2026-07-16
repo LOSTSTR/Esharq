@@ -62,11 +62,7 @@ export const ThemeInfoModal: React.FC<ThemeInfoModalProps> = ({ author, theme, .
                     variant: "primary",
                     disabled: !theme.content || theme.id === "preview",
                     onClick: async () => {
-                        const validThemesDir = await VencordNative.themes.getThemesDir() + `/${theme?.name}.theme.css`;
-                        if (!validThemesDir) {
-                            showToast(`Failed to download ${theme.name}!`, Toasts.Type.FAILURE);
-                            return;
-                        }
+                        const fileName = `${theme?.name}.theme.css`;
 
                         const exists = await Native.themeExists(theme);
                         if (exists) {
@@ -96,7 +92,7 @@ export const ThemeInfoModal: React.FC<ThemeInfoModalProps> = ({ author, theme, .
                                             <p>A theme with the same name <b>already exists</b> in your themes directory! Do you want to overwrite it?</p>
                                             <div className="vce-overwrite-modal">
                                                 <code style={{ wordWrap: "break-word" }}>
-                                                    {validThemesDir}
+                                                    {fileName}
                                                 </code>
                                             </div>
                                         </div>

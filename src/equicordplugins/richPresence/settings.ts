@@ -57,13 +57,6 @@ export const settings = definePluginSettings({
         hidden: true,
         onChange: () => onServiceChange?.(),
     },
-    lb_enabled: {
-        description: t("تفعيل حضور ListenBrainz.", "Enable ListenBrainz presence."),
-        type: OptionType.BOOLEAN,
-        default: false,
-        hidden: true,
-        onChange: () => onServiceChange?.(),
-    },
     gr_enabled: {
         description: t("تفعيل حضور Gensokyo Radio.", "Enable Gensokyo Radio presence."),
         type: OptionType.BOOLEAN,
@@ -262,90 +255,6 @@ export const settings = definePluginSettings({
         hidden: true,
     },
 
-    // ListenBrainz
-    lb_username: {
-        description: t("اسم مستخدم ListenBrainz.", "ListenBrainz username."),
-        type: OptionType.STRING,
-        default: "",
-        hidden: true,
-    },
-    lb_mbContact: {
-        description: t("معلومات الاتصال بـ MusicBrainz لوكيل المستخدم.", "MusicBrainz contact info for the user agent."),
-        type: OptionType.STRING,
-        default: "",
-        hidden: true,
-    },
-    lb_shareUsername: {
-        description: t("إظهار رابط الملف الشخصي في ListenBrainz.", "Show profile link on ListenBrainz."),
-        type: OptionType.BOOLEAN,
-        default: false,
-        hidden: true,
-    },
-    lb_shareSong: {
-        description: t("إظهار رابط الأغنية في ListenBrainz.", "Show song link on ListenBrainz."),
-        type: OptionType.BOOLEAN,
-        default: true,
-        hidden: true,
-    },
-    lb_hideWithSpotify: {
-        description: t("إخفاء الحضور إذا كان Spotify يعمل.", "Hide presence if Spotify is running."),
-        type: OptionType.BOOLEAN,
-        default: true,
-        hidden: true,
-    },
-    lb_hideWithActivity: {
-        description: t("إخفاء الحضور إذا كان أي حضور آخر موجوداً.", "Hide presence if any other presence is active."),
-        type: OptionType.BOOLEAN,
-        default: false,
-        hidden: true,
-    },
-    lb_useTimeBar: {
-        description: t("استخدام مدة المقطع لعرض شريط الوقت.", "Use track duration to display a time bar."),
-        type: OptionType.BOOLEAN,
-        default: true,
-        hidden: true,
-    },
-    lb_statusName: {
-        description: t("نص الحالة المخصص.", "Custom status text."),
-        type: OptionType.STRING,
-        default: "some music",
-        hidden: true,
-    },
-    lb_nameFormat: {
-        description: t("تنسيق الاسم.", "Name format."),
-        type: OptionType.SELECT,
-        options: [
-            { label: t("استخدام اسم حالة مخصّص", "Use custom status name"), value: NameFormat.StatusName, default: true },
-            { label: t("استخدام صيغة 'الفنان - الأغنية'", "Use format 'artist - song'"), value: NameFormat.ArtistFirst },
-            { label: t("استخدام صيغة 'الأغنية - الفنان'", "Use format 'song - artist'"), value: NameFormat.SongFirst },
-            { label: t("استخدام اسم الفنان فقط", "Use artist name only"), value: NameFormat.ArtistOnly },
-            { label: t("استخدام اسم الأغنية فقط", "Use song name only"), value: NameFormat.SongOnly },
-            { label: t("استخدام اسم الألبوم", "Use album name"), value: NameFormat.AlbumName },
-        ],
-        hidden: true,
-    },
-    lb_useListeningStatus: {
-        description: t("إظهار حالة الاستماع.", "Show listening status."),
-        type: OptionType.BOOLEAN,
-        default: true,
-        hidden: true,
-    },
-    lb_missingArt: {
-        description: t("بديل عند غياب الصورة الفنية.", "Fallback when artwork is missing."),
-        type: OptionType.SELECT,
-        options: [
-            { label: "Use large ListenBrainz logo", value: "listenbrainzLogo", default: true },
-            { label: t("استخدام عنصر نائب عامّ", "Use generic placeholder"), value: "placeholder" },
-        ],
-        hidden: true,
-    },
-    lb_useLogo: {
-        description: t("إظهار شعار ListenBrainz على صورة الألبوم.", "Show ListenBrainz logo on album art."),
-        type: OptionType.BOOLEAN,
-        default: true,
-        hidden: true,
-    },
-
     // Gensokyo Radio
     gr_refreshInterval: {
         description: t("فترة التحديث بالثواني.", "Refresh interval in seconds."),
@@ -470,6 +379,12 @@ export const settings = definePluginSettings({
         ],
         hidden: true,
     },
+    nd_hideOnPause: {
+        description: "Hide Rich Presence when music is paused",
+        type: OptionType.BOOLEAN,
+        default: true,
+        hidden: true,
+    }
 });
 
 export type SettingsStore = typeof settings["store"];

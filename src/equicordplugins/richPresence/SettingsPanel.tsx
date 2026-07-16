@@ -109,9 +109,9 @@ function StatsFmSettings() {
 function JellyfinSettings() {
     return (
         <>
-            <SettingsSection id="jellyfin-settings" name="" description="Show what you're playing on Jellyfin. To get your API key: open your Jellyfin web UI, press F12 to open Developer Tools, go to the Network tab, look for requests to your server, and find the X-MediaBrowser-Token header (Ctrl+F to search). Your user ID can be found in your profile page URL." />
+            <SettingsSection id="jellyfin-settings" name="" description="Show what you're playing on Jellyfin. To get your API key: open your Jellyfin web UI, press F12 to open Developer Tools, go to the Network tab, look for requests to your server, find the Authorization header (Ctrl+F to search), and You need the part from Token='this'. Your user ID can be found in your profile page URL." />
             <TextSetting name="Server URL" description="Jellyfin server URL." settingsKey="jf_serverUrl" placeholder="https://jellyfin.example.com" />
-            <TextSetting name="API Key" description="Jellyfin API key." settingsKey="jf_apiKey" placeholder="X-MediaBrowser-Token" />
+            <TextSetting name="API Key" description="Jellyfin API key." settingsKey="jf_apiKey" placeholder="Authorization" />
             <TextSetting name="User ID" description="Jellyfin user ID." settingsKey="jf_userId" placeholder={t("معرّف المستخدم من رابط الملف الشخصي", "User ID from profile URL")} />
             <SelectSetting name="Name Display" description="Name display format." settingsKey="jf_nameDisplay" options={[
                 { label: t("اسم المسلسل/الفيلم", "Series/Movie Name"), value: "default" },
@@ -138,29 +138,6 @@ function JellyfinSettings() {
             <SwitchSetting name="Show Episode Name" description="Show episode name after season/episode info." settingsKey="jf_showEpisodeName" />
             <SwitchSetting name="Show When Paused" description="Show presence when media is paused." settingsKey="jf_showPausedState" />
             <SwitchSetting name="Privacy Mode" description="Hide media details." settingsKey="jf_privacyMode" />
-        </>
-    );
-}
-
-function ListenBrainzSettings() {
-    return (
-        <>
-            <SettingsSection id="listenbrainz-settings" name="" description="Show what you're currently listening to via ListenBrainz. The MusicBrainz API requires a meaningful user agent string (an email usually works)." />
-            <TextSetting name="Username" description="ListenBrainz username." settingsKey="lb_username" placeholder={t("اسم مستخدم ListenBrainz", "ListenBrainz username")} />
-            <TextSetting name="MusicBrainz Contact" description="MusicBrainz contact for user agent." settingsKey="lb_mbContact" placeholder="your@email.com" />
-            <TextSetting name="Custom Status Text" description="Custom status text." settingsKey="lb_statusName" placeholder="some music" />
-            <SelectSetting name="Name Format" description="Name format." settingsKey="lb_nameFormat" options={nameFormatOptions} />
-            <SelectSetting name="Missing Art Fallback" description="Fallback when art is missing." settingsKey="lb_missingArt" options={[
-                { label: "Use large ListenBrainz logo", value: "listenbrainzLogo" },
-                { label: t("استخدام عنصر نائب عامّ", "Use generic placeholder"), value: "placeholder" },
-            ]} />
-            <SwitchSetting name="Show Listening Status" description="Show listening status." settingsKey="lb_useListeningStatus" />
-            <SwitchSetting name="Show Time Bar" description="Use track duration to display a time bar." settingsKey="lb_useTimeBar" />
-            <SwitchSetting name="Show ListenBrainz Logo" description="Show ListenBrainz logo on album art." settingsKey="lb_useLogo" />
-            <SwitchSetting name="Show Profile Link" description="Show link to ListenBrainz profile." settingsKey="lb_shareUsername" />
-            <SwitchSetting name="Show Song Link" description="Show link to song on ListenBrainz." settingsKey="lb_shareSong" />
-            <SwitchSetting name="Hide With Spotify" description="Hide presence if Spotify is running." settingsKey="lb_hideWithSpotify" />
-            <SwitchSetting name="Hide With Any Activity" description="Hide presence if any other presence exists." settingsKey="lb_hideWithActivity" />
         </>
     );
 }
@@ -215,6 +192,7 @@ function NavidromeSettings() {
                 { label: t("إظهار محتوى سطر الحالة", "Show state line content"), value: "artist" },
                 { label: t("إظهار محتوى سطر التفاصيل", "Show details line content"), value: "track" }
             ]} />
+            <SwitchSetting name="Hide On Pause" description="Hide Rich Presence when music is paused (instead of showing a stopwatch)" settingsKey="nd_hideOnPause" />
             {Number(nd_activityType ?? 2) !== 0 && (
                 <TextSetting name="Activity Name Format" description="The 'Listening to' text (e.g. {artist})" settingsKey="nd_nameString" placeholder="Navidrome" />
             )}
@@ -239,7 +217,6 @@ const TAB_COMPONENTS: Record<ServiceTab, React.ComponentType> = {
     [ServiceTab.Tosu]: TosuSettings,
     [ServiceTab.StatsFm]: StatsFmSettings,
     [ServiceTab.Jellyfin]: JellyfinSettings,
-    [ServiceTab.ListenBrainz]: ListenBrainzSettings,
     [ServiceTab.GensokyoRadio]: GensokyoRadioSettings,
     [ServiceTab.Navidrome]: NavidromeSettings,
 };
@@ -249,7 +226,6 @@ const TAB_LABELS: Record<ServiceTab, string> = {
     [ServiceTab.Tosu]: "osu!",
     [ServiceTab.StatsFm]: "stats.fm",
     [ServiceTab.Jellyfin]: "Jellyfin",
-    [ServiceTab.ListenBrainz]: "ListenBrainz",
     [ServiceTab.GensokyoRadio]: "Gensokyo Radio",
     [ServiceTab.Navidrome]: "Navidrome",
 };
@@ -259,7 +235,6 @@ const ENABLE_KEYS: Record<ServiceTab, SettingsKey> = {
     [ServiceTab.Tosu]: "tosu_enabled",
     [ServiceTab.StatsFm]: "sfm_enabled",
     [ServiceTab.Jellyfin]: "jf_enabled",
-    [ServiceTab.ListenBrainz]: "lb_enabled",
     [ServiceTab.GensokyoRadio]: "gr_enabled",
     [ServiceTab.Navidrome]: "nd_enabled",
 };

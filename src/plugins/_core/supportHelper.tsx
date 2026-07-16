@@ -320,6 +320,7 @@ export default definePlugin({
     description: "Helps us help you",
     authors: [Devs.Ven],
     dependencies: ["UserSettingsAPI", "CommandsAPI", "MessageAccessoriesAPI"],
+    tags: ["Utility"],
 
     settings,
 

@@ -63,6 +63,7 @@ export default definePlugin({
     name: "SilenceUsers",
     description: "Silences @mention notifications and server badge counts from specific users. Regular messages and DMs are unaffected.",
     authors: [EquicordDevs.dka],
+    tags: ["Notifications"],
     settings,
     start() {
         FluxDispatcher.addInterceptor(interceptor);
