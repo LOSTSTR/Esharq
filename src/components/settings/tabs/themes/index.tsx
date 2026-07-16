@@ -15,6 +15,7 @@ import { SettingsTab, wrapTab } from "@components/settings/tabs/BaseTab";
 import { getThemeInfo, UserThemeHeader } from "@main/themes";
 import { classNameFactory } from "@utils/css";
 import { copyWithToast } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
 import { getStylusWebStoreUrl } from "@utils/web";
@@ -34,12 +35,14 @@ enum ThemeFilter {
     Disabled = "disabled"
 }
 
-const filterOptions = [
-    { label: "Show All", value: ThemeFilter.All },
-    { label: "Online Themes", value: ThemeFilter.Online },
-    { label: "Local Themes", value: ThemeFilter.Local },
-    { label: "Enabled", value: ThemeFilter.Enabled },
-    { label: "Disabled", value: ThemeFilter.Disabled }
+// دالة لا ثابت: تُقيَّم عند كل رسم، فتتبع تبديل اللغة. لو بقيت ثابتاً على مستوى الوحدة
+// لتجمّدت تسمياتها على لغة أول تحميل ولما تغيّرت إلا بإعادة تشغيل ديسكورد.
+const getFilterOptions = () => [
+    { label: t("عرض الكل", "Show All"), value: ThemeFilter.All },
+    { label: t("القوالب عبر الإنترنت", "Online Themes"), value: ThemeFilter.Online },
+    { label: t("القوالب المحليّة", "Local Themes"), value: ThemeFilter.Local },
+    { label: t("المُفعَّلة", "Enabled"), value: ThemeFilter.Enabled },
+    { label: t("المُعطَّلة", "Disabled"), value: ThemeFilter.Disabled }
 ];
 
 function inferThemeActivationMode(css: string) {
@@ -329,14 +332,20 @@ function ThemesTab() {
 
     return (
         <SettingsTab>
-            <Heading className={Margins.top16}>Theme Management</Heading>
+            <Heading className={Margins.top16}>{t("إدارة القوالب", "Theme Management")}</Heading>
             <Paragraph className={Margins.bottom16}>
-                Customize Discord's appearance with themes. Add local .css files or load themes directly from URLs. Themes with a cog wheel icon have customizable settings you can modify.
+                {t(
+                    "خصّص مظهر ديسكورد بالقوالب. أضِف ملفات ‎.css محليّة أو حمّل القوالب مباشرةً من روابط. القوالب التي تحمل أيقونة تِرس لها إعدادات يمكنك تعديلها.",
+                    "Customize Discord's appearance with themes. Add local .css files or load themes directly from URLs. Themes with a cog wheel icon have customizable settings you can modify."
+                )}
             </Paragraph>
 
-            <Heading>Quick Actions</Heading>
+            <Heading>{t("إجراءات سريعة", "Quick Actions")}</Heading>
             <Paragraph className={Margins.bottom16}>
-                Shortcuts for managing your themes. Open your themes folder to add new themes, use QuickCSS for quick style tweaks, or reload themes after making changes.
+                {t(
+                    "اختصارات لإدارة قوالبك. افتح مجلد القوالب لإضافة قوالب جديدة، أو استخدم QuickCSS لتعديلات سريعة على التنسيق، أو أعِد تحميل القوالب بعد إجراء تغييرات.",
+                    "Shortcuts for managing your themes. Open your themes folder to add new themes, use QuickCSS for quick style tweaks, or reload themes after making changes."
+                )}
             </Paragraph>
 
             <QuickActionsSection
@@ -364,23 +373,30 @@ function ThemesTab() {
 
             <Divider className={Margins.top20} />
 
-            <Heading className={Margins.top20}>Installed Themes</Heading>
+            <Heading className={Margins.top20}>{t("القوالب المثبَّتة", "Installed Themes")}</Heading>
             <Paragraph className={Margins.bottom8}>
-                Manage your themes here. Local themes load from your themes folder, online themes from URLs. Themes with a cog wheel icon have customizable settings.
+                {t(
+                    "أدِر قوالبك من هنا. القوالب المحليّة تُحمَّل من مجلد القوالب، وقوالب الإنترنت من الروابط. القوالب التي تحمل أيقونة تِرس لها إعدادات قابلة للتخصيص.",
+                    "Manage your themes here. Local themes load from your themes folder, online themes from URLs. Themes with a cog wheel icon have customizable settings."
+                )}
             </Paragraph>
             <Paragraph color="text-subtle" className={Margins.bottom16}>
-                {allThemes.length} theme{allThemes.length !== 1 ? "s" : ""} installed ({localCount} local, {onlineCount} online) · {enabledCount} enabled
+                {/* الإنجليزية تجمع بلاحقة s؛ العربية لا. نبني كل لغة جملةً كاملة بدل ترجمة الأجزاء. */}
+                {t(
+                    `${allThemes.length} قالب مثبَّت (${localCount} محلي، ${onlineCount} عبر الإنترنت) · ${enabledCount} مُفعَّل`,
+                    `${allThemes.length} theme${allThemes.length !== 1 ? "s" : ""} installed (${localCount} local, ${onlineCount} online) · ${enabledCount} enabled`
+                )}
             </Paragraph>
 
             <div className={cl("filter-row")}>
                 <TextInput
-                    placeholder="Search for a theme..."
+                    placeholder={t("ابحث عن قالب...", "Search for a theme...")}
                     value={searchQuery}
                     onChange={setSearchQuery}
                 />
                 <div>
                     <Select
-                        options={filterOptions}
+                        options={getFilterOptions()}
                         select={setFilter}
                         isSelected={v => v === filter}
                         serialize={v => v}
@@ -468,12 +484,14 @@ function ThemesTab() {
 function UserscriptThemesTab() {
     return (
         <SettingsTab>
-            <Heading className={Margins.top16}>Themes Not Supported</Heading>
+            <Heading className={Margins.top16}>{t("القوالب غير مدعومة", "Themes Not Supported")}</Heading>
             <Paragraph className={Margins.bottom8}>
-                Themes are not available on the Userscript version.
+                {t("القوالب غير متاحة في نسخة Userscript.", "Themes are not available on the Userscript version.")}
             </Paragraph>
             <Paragraph color="text-subtle">
-                You can install themes using the <Link href={getStylusWebStoreUrl()}>Stylus extension</Link> instead.
+                {t("يمكنك تثبيت القوالب باستخدام ", "You can install themes using the ")}
+                <Link href={getStylusWebStoreUrl()}>{t("إضافة Stylus", "Stylus extension")}</Link>
+                {t(" بدلاً من ذلك.", " instead.")}
             </Paragraph>
         </SettingsTab>
     );

@@ -12,6 +12,7 @@ import { OnlineThemeCard } from "@components/settings/OnlineThemeCard";
 import { UserThemeHeader } from "@main/themes";
 import { classNameFactory } from "@utils/css";
 import { openInviteModal } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { findComponentByCodeLazy } from "@webpack";
 import { Menu, React, showToast, Tooltip, useState } from "@webpack/common";
 import { ContextMenuApi } from "@webpack/common/menu";
@@ -25,14 +26,15 @@ const DownloadIcon = findComponentByCodeLazy("1.42l3.3 3.3V3a1");
 
 const cl = classNameFactory("vc-settings-theme-");
 
-const themeActivationModeOptions: { value: ThemeActivationMode; label: string; }[] = [
-    { value: "always", label: "Always on" },
-    { value: "light", label: "Light only" },
-    { value: "dark", label: "Dark only" }
+// دالة لا ثابت — تُقيَّم عند كل رسم فتتبع تبديل اللغة (ثابت الوحدة يتجمّد على لغة أول تحميل).
+const getThemeActivationModeOptions = (): { value: ThemeActivationMode; label: string; }[] => [
+    { value: "always", label: t("مُفعَّل دائماً", "Always on") },
+    { value: "light", label: t("في الوضع الفاتح فقط", "Light only") },
+    { value: "dark", label: t("في الوضع الداكن فقط", "Dark only") }
 ];
 
 export function getThemeActivationModeLabel(mode: ThemeActivationMode) {
-    return themeActivationModeOptions.find(option => option.value === mode)?.label ?? "Always on";
+    return getThemeActivationModeOptions().find(option => option.value === mode)?.label ?? t("مُفعَّل دائماً", "Always on");
 }
 
 export function ThemeActivationMenu({ themeId, activationMode, onActivationModeChange, children }: {
@@ -46,8 +48,8 @@ export function ThemeActivationMenu({ themeId, activationMode, onActivationModeC
     return (
         <Menu.Menu navId={`theme-card-menu-${themeId}`} onClose={ContextMenuApi.closeContextMenu}>
             {onActivationModeChange && (
-                <Menu.MenuItem id={`theme-activation-${themeId}`} label="Theme activation">
-                    {themeActivationModeOptions.map(option => (
+                <Menu.MenuItem id={`theme-activation-${themeId}`} label={t("تفعيل القالب", "Theme activation")}>
+                    {getThemeActivationModeOptions().map(option => (
                         <Menu.MenuRadioItem
                             key={option.value}
                             id={`theme-activation-${themeId}-${option.value}`}
@@ -116,7 +118,7 @@ export function ThemeCard({ theme, enabled, onChange, onDelete, showDeleteButton
                 {onPin && (
                     <Menu.MenuItem
                         id="pin-theme"
-                        label={isPinned ? "Unpin" : "Pin"}
+                        label={isPinned ? t("إلغاء التثبيت", "Unpin") : t("تثبيت", "Pin")}
                         icon={PinIcon}
                         action={onPin}
                     />
@@ -124,7 +126,7 @@ export function ThemeCard({ theme, enabled, onChange, onDelete, showDeleteButton
                 {theme.website && (
                     <Menu.MenuItem
                         id="open-website"
-                        label="Open Website"
+                        label={t("فتح الموقع", "Open Website")}
                         icon={HomeIcon}
                         action={() => window.open(theme.website, "_blank")}
                     />
@@ -132,11 +134,11 @@ export function ThemeCard({ theme, enabled, onChange, onDelete, showDeleteButton
                 {theme.invite && (
                     <Menu.MenuItem
                         id="join-discord"
-                        label="Join Discord"
+                        label={t("الانضمام إلى ديسكورد", "Join Discord")}
                         icon={DiscordIcon}
                         action={() => {
                             openInviteModal(theme.invite!).catch(() =>
-                                showToast("Invalid or expired invite")
+                                showToast(t("الدعوة غير صالحة أو منتهية", "Invalid or expired invite"))
                             );
                         }}
                     />
@@ -144,7 +146,7 @@ export function ThemeCard({ theme, enabled, onChange, onDelete, showDeleteButton
                 {onCopyUrl && themeLink && (
                     <Menu.MenuItem
                         id="copy-url"
-                        label="Copy URL"
+                        label={t("نسخ الرابط", "Copy URL")}
                         icon={LinkIcon}
                         action={onCopyUrl}
                     />
@@ -152,7 +154,7 @@ export function ThemeCard({ theme, enabled, onChange, onDelete, showDeleteButton
                 {onDownload && (
                     <Menu.MenuItem
                         id="download-theme"
-                        label="Download"
+                        label={t("تنزيل", "Download")}
                         icon={DownloadIcon}
                         action={onDownload}
                     />
@@ -160,7 +162,7 @@ export function ThemeCard({ theme, enabled, onChange, onDelete, showDeleteButton
                 {onOpenFolder && (
                     <Menu.MenuItem
                         id="open-folder"
-                        label="Open in Folder"
+                        label={t("فتح في المجلد", "Open in Folder")}
                         icon={FolderIcon}
                         action={onOpenFolder}
                     />
@@ -168,7 +170,7 @@ export function ThemeCard({ theme, enabled, onChange, onDelete, showDeleteButton
                 {onRefresh && (
                     <Menu.MenuItem
                         id="refresh-theme"
-                        label="Refresh"
+                        label={t("تحديث", "Refresh")}
                         icon={RefreshIcon}
                         action={onRefresh}
                     />
@@ -178,7 +180,7 @@ export function ThemeCard({ theme, enabled, onChange, onDelete, showDeleteButton
                         <Menu.MenuSeparator />
                         <Menu.MenuItem
                             id="delete-theme"
-                            label="Delete"
+                            label={t("حذف", "Delete")}
                             color="danger"
                             icon={DeleteIcon}
                             action={() => onDelete()}
@@ -192,9 +194,9 @@ export function ThemeCard({ theme, enabled, onChange, onDelete, showDeleteButton
     return (
         <OnlineThemeCard
             customName={theme.customName}
-            name={theme.name || theme.fileName || "Unknown Theme"}
-            description={theme.description || "No description provided."}
-            author={theme.author || "Unknown"}
+            name={theme.name || theme.fileName || t("قالب غير معروف", "Unknown Theme")}
+            description={theme.description || t("لا يوجد وصف.", "No description provided.")}
+            author={theme.author || t("غير معروف", "Unknown")}
             enabled={enabled}
             setEnabled={onChange}
             disabled={disabled}
@@ -210,7 +212,7 @@ export function ThemeCard({ theme, enabled, onChange, onDelete, showDeleteButton
             }
             footer={
                 <Flex flexDirection="row" gap="0.4em" alignItems="center">
-                    <Tooltip text={isLocal ? "Local Theme" : "Online Theme"}>
+                    <Tooltip text={isLocal ? t("قالب محلي", "Local Theme") : t("قالب عبر الإنترنت", "Online Theme")}>
                         {({ onMouseLeave, onMouseEnter }) => (
                             <div
                                 onMouseEnter={onMouseEnter}
@@ -222,7 +224,7 @@ export function ThemeCard({ theme, enabled, onChange, onDelete, showDeleteButton
                         )}
                     </Tooltip>
                     {isPinned && (
-                        <Tooltip text="Pinned">
+                        <Tooltip text={t("مُثبَّت", "Pinned")}>
                             {({ onMouseLeave, onMouseEnter }) => (
                                 <div
                                     onMouseEnter={onMouseEnter}
@@ -234,7 +236,7 @@ export function ThemeCard({ theme, enabled, onChange, onDelete, showDeleteButton
                             )}
                         </Tooltip>
                     )}
-                    {!!theme.website && <Link href={theme.website}>Website</Link>}
+                    {!!theme.website && <Link href={theme.website}>{t("الموقع", "Website")}</Link>}
                     {!!(theme.website && theme.invite) && (
                         <span style={{ color: "var(--text-muted)" }}>•</span>
                     )}
@@ -245,11 +247,11 @@ export function ThemeCard({ theme, enabled, onChange, onDelete, showDeleteButton
                                 e.preventDefault();
                                 theme.invite != null &&
                                     openInviteModal(theme.invite).catch(() =>
-                                        showToast("Invalid or expired invite")
+                                        showToast(t("الدعوة غير صالحة أو منتهية", "Invalid or expired invite"))
                                     );
                             }}
                         >
-                            Discord Server
+                            {t("خادم ديسكورد", "Discord Server")}
                         </Link>
                     )}
                     {activationMode !== "always" && (

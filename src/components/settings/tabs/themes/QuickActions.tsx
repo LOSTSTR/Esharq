@@ -8,6 +8,7 @@ import { Settings } from "@api/Settings";
 import { FolderIcon, PaintbrushIcon, PencilIcon, PlusIcon, RestartIcon } from "@components/Icons";
 import { QuickAction, QuickActionCard } from "@components/settings";
 import { openPluginModal } from "@components/settings/tabs/plugins/PluginModal";
+import { t } from "@utils/esharqI18n";
 import { findLazy } from "@webpack";
 import { React } from "@webpack/common";
 import type { ComponentType, Ref, SyntheticEvent } from "react";
@@ -36,7 +37,7 @@ export function QuickActionsSection({ fileInputRef, onFileUpload, refreshLocalTh
                 <QuickAction
                     text={
                         <span style={{ position: "relative" }}>
-                            Upload Theme
+                            {t("رفع قالب", "Upload Theme")}
                             <FileInput
                                 ref={fileInputRef}
                                 onChange={onFileUpload}
@@ -49,24 +50,25 @@ export function QuickActionsSection({ fileInputRef, onFileUpload, refreshLocalTh
                 />
             ) : (
                 <QuickAction
-                    text="Open Themes Folder"
+                    text={t("فتح مجلد القوالب", "Open Themes Folder")}
                     action={() => VencordNative.themes.openFolder()}
                     Icon={FolderIcon}
                 />
             )}
             <QuickAction
-                text="Load missing Themes"
+                text={t("تحميل القوالب الناقصة", "Load missing Themes")}
                 action={refreshLocalThemes}
                 Icon={RestartIcon}
             />
+            {/* QuickCSS و ClientTheme اسمان عَلَمان (ميزتان في المُحرِّك) — يبقيان بالإنجليزية. */}
             <QuickAction
-                text="Edit QuickCSS"
+                text={t("تعديل QuickCSS", "Edit QuickCSS")}
                 action={() => VencordNative.quickCss.openEditor()}
                 Icon={PaintbrushIcon}
             />
             {Settings.plugins.ClientTheme.enabled && (
                 <QuickAction
-                    text="Edit ClientTheme"
+                    text={t("تعديل ClientTheme", "Edit ClientTheme")}
                     action={() => openPluginModal(Plugins.ClientTheme)}
                     Icon={PencilIcon}
                 />
