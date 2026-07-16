@@ -465,7 +465,11 @@ export function DiagnosticsModal({ modalProps, initial, heapMB, rescan, interval
     // Seeded from the profiler, not from `false`: a recording outlives this modal,
     // so re-opening must show the run that is still going rather than claim idle.
     const [recording, setRecording] = useState(() => runtimeProfiler.recording);
-    const [runtime, setRuntime] = useState<RuntimeReport | null>(() => runtimeProfiler.recording ? runtimeProfiler.getReport() : null);
+    // Seeded from hasData, not from `recording`: the profiler keeps a finished run's
+    // report, but this used to reseed to null unless a recording was live RIGHT NOW.
+    // So record → Stop → close the modal → reopen → the numbers were gone and Export
+    // wrote `runtime: null`, while getReport() still held the whole run.
+    const [runtime, setRuntime] = useState<RuntimeReport | null>(() => runtimeProfiler.hasData ? runtimeProfiler.getReport() : null);
 
     // ── الأساس المرجعي: يُحمَّل مرة عند الفتح؛ الحفظ يستبدل المحفوظ ──
     const [baseline, setBaseline] = useState<Baseline | null>(null);

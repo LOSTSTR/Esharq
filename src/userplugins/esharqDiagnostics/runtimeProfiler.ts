@@ -43,6 +43,16 @@ class RuntimeProfiler {
         return (this.stoppedAt || Date.now()) - this.startedAt;
     }
 
+    /**
+     * Is there a recording's worth of data in this session — running OR finished?
+     * `stop()` tears down the timers but clears nothing; `reset()` runs from
+     * `start()` alone, so a finished run's report stays readable and exportable.
+     * The modal reseeds from this, so closing it cannot lose a completed recording.
+     */
+    get hasData() {
+        return this.startedAt !== 0;
+    }
+
     // A recording outlives the modal, so the header-bar icon has to learn when it
     // starts/stops without polling. Subscribers are notified on state change only.
     private stateListeners = new Set<() => void>();
