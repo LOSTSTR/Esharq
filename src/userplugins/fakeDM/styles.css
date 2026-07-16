@@ -1,30 +1,52 @@
-/* FakeDM composer.
+/* FakeDM composer — a self-contained panel.
  *
- * Surfaces and borders are mixed from --text-normal, NOT from Discord's
- * background variables. Those are what a custom theme rewrites, and it can
- * legitimately collapse them into each other: CrimsonNight renders the modal at
- * #1c1c25 while --background-secondary is #111116 and --background-modifier-accent
- * is white at 6% — cards and inputs became invisible rectangles. --text-normal is
- * the one variable guaranteed to contrast with the surface behind it (that is what
- * makes text readable), so a low-percentage mix of it is always faintly visible,
- * in any theme, light or dark. Text colours still come from the theme.
+ * Every colour below is fixed and owned by this plugin. It deliberately inherits
+ * NOTHING from Discord's variables, because a theme is free to redefine them into
+ * each other: CrimsonNight draws the modal at #1c1c25 while --background-secondary
+ * is #111116 — a 1.11:1 ratio, so cards and inputs rendered as invisible
+ * rectangles. Deriving surfaces from --text-normal instead did not save it either;
+ * that was readable in isolation but far too faint in place. Owning the palette is
+ * the only way the panel looks the same for everyone.
+ *
+ * Verified, not eyeballed (WCAG, computed against these exact hexes):
+ *   text on panel 16.09:1 · dim text 7.71:1 · text on card 11.63:1 · gold 9.15:1
+ *   card vs panel 1.38:1 · border vs panel 2.36:1  (the broken pair was 1.11:1)
+ * The well is near-black on near-black by design — its 2.36:1 border is what draws
+ * it, the same way Discord's own inputs work.
+ *
+ * Gold #d4af37 is Esharq's brand colour, shared with the site.
  */
 
 .esharq-fakedm {
-    --fdm-surface: color-mix(in oklab, var(--text-normal) 7%, transparent);
-    --fdm-surface-hover: color-mix(in oklab, var(--text-normal) 12%, transparent);
-    --fdm-border: color-mix(in oklab, var(--text-normal) 18%, transparent);
-    --fdm-well: color-mix(in oklab, var(--text-normal) 4%, transparent);
-    --fdm-accent: var(--brand-experiment, var(--brand-500, #5865f2));
+    --fdm-bg: #0e0e13;
+    --fdm-well: #050508;
+    --fdm-card: #2b2b3a;
+    --fdm-card-hover: #3a3a4e;
+    --fdm-border: #4d4d68;
+    --fdm-text: #eaeaf2;
+    --fdm-dim: #a2a2ba;
+    --fdm-accent: #d4af37;
+    --fdm-green: #2f9e5c;
+    --fdm-red: #e0384b;
 
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding-bottom: 16px;
+    gap: 10px;
+
+    /* Explicit, not inherited: measured content-box in a bare page, so the 32px
+       padding + 2px border would be added on top of the width instead of fitting
+       inside it. */
+    box-sizing: border-box;
+    margin: -4px -4px 4px;
+    padding: 16px;
+    border: 1px solid var(--fdm-border);
+    border-radius: 12px;
+    background: var(--fdm-bg);
+    color: var(--fdm-text);
 }
 
 .esharq-fakedm-note {
-    color: var(--text-muted);
+    color: var(--fdm-dim);
     padding: 6px 10px;
     border-radius: 6px;
     background: var(--fdm-well);
@@ -33,7 +55,7 @@
 
 .esharq-fakedm-label {
     margin-top: 6px;
-    color: var(--header-secondary);
+    color: var(--fdm-dim);
     text-transform: uppercase;
     letter-spacing: 0.02em;
 }
@@ -53,7 +75,7 @@
     border: none;
     border-radius: 7px;
     background: transparent;
-    color: var(--text-muted);
+    color: var(--fdm-dim);
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -61,13 +83,14 @@
 }
 
 .esharq-fakedm-tab:hover {
-    color: var(--interactive-hover);
-    background: var(--fdm-surface-hover);
+    color: var(--fdm-text);
+    background: var(--fdm-card-hover);
 }
 
 .esharq-fakedm-tab-on,
 .esharq-fakedm-tab-on:hover {
-    color: #fff;
+    /* Panel-dark on gold is 9.15:1; white on gold is 2.10:1 and fails AA. */
+    color: var(--fdm-bg);
     background: var(--fdm-accent);
 }
 
@@ -93,19 +116,19 @@
     padding: 8px 10px;
     border: 1px solid var(--fdm-border);
     border-radius: 8px;
-    background: var(--fdm-surface);
-    color: var(--text-normal);
+    background: var(--fdm-card);
+    color: var(--fdm-text);
     cursor: pointer;
     transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
 .esharq-fakedm-person:hover {
-    background: var(--fdm-surface-hover);
+    background: var(--fdm-card-hover);
 }
 
 .esharq-fakedm-person-on {
     border-color: var(--fdm-accent);
-    background: var(--fdm-surface-hover);
+    background: var(--fdm-card-hover);
 }
 
 .esharq-fakedm-avatar {
@@ -141,8 +164,8 @@
     padding: 5px 10px;
     border: 1px solid var(--fdm-border);
     border-radius: 999px;
-    background: var(--fdm-surface);
-    color: var(--text-muted);
+    background: var(--fdm-card);
+    color: var(--fdm-dim);
     font-size: 12px;
     font-weight: 500;
     white-space: nowrap;
@@ -151,7 +174,7 @@
 }
 
 .esharq-fakedm-chip:hover {
-    color: var(--text-normal);
+    color: var(--fdm-text);
     border-color: var(--fdm-accent);
 }
 
@@ -162,7 +185,7 @@
     border: 1px solid var(--fdm-border);
     border-radius: 8px;
     background: var(--fdm-well);
-    color: var(--text-normal);
+    color: var(--fdm-text);
     font-size: 14px;
     font-family: inherit;
 }
@@ -186,7 +209,7 @@
 }
 
 .esharq-fakedm-unit {
-    color: var(--text-muted);
+    color: var(--fdm-dim);
     font-size: 13px;
 }
 
@@ -211,8 +234,8 @@
     padding: 9px;
     border: 1px solid var(--fdm-border);
     border-radius: 8px;
-    background: var(--fdm-surface);
-    color: var(--text-muted);
+    background: var(--fdm-card);
+    color: var(--fdm-dim);
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -220,17 +243,17 @@
 }
 
 .esharq-fakedm-seg:hover {
-    background: var(--fdm-surface-hover);
+    background: var(--fdm-card-hover);
 }
 
 .esharq-fakedm-seg-ok {
-    background: var(--status-positive, var(--green-360));
+    background: var(--fdm-green);
     border-color: transparent;
     color: #fff;
 }
 
 .esharq-fakedm-seg-miss {
-    background: var(--status-danger, var(--red-400));
+    background: var(--fdm-red);
     border-color: transparent;
     color: #fff;
 }
@@ -248,7 +271,7 @@
     border: none;
     border-radius: 8px;
     background: var(--fdm-accent);
-    color: #fff;
+    color: var(--fdm-bg);
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
@@ -261,10 +284,10 @@
 
 .esharq-fakedm-clear {
     padding: 11px 14px;
-    border: 1px solid var(--status-danger, var(--red-400));
+    border: 1px solid var(--fdm-red);
     border-radius: 8px;
     background: transparent;
-    color: var(--status-danger, var(--red-400));
+    color: var(--fdm-red);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -277,7 +300,7 @@
 }
 
 .esharq-fakedm-clear:hover:not(:disabled) {
-    background: color-mix(in oklab, var(--status-danger, red) 15%, transparent);
+    background: rgb(224 56 75 / 15%);
 }
 
 /* ── Injected list ────────────────────────────────────────────────────────── */
@@ -295,7 +318,7 @@
     gap: 8px;
     padding: 6px 8px;
     border-radius: 6px;
-    background: var(--fdm-surface);
+    background: var(--fdm-card);
 }
 
 .esharq-fakedm-item-icon {
@@ -309,13 +332,13 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: var(--text-normal);
+    color: var(--fdm-text);
     font-size: 13px;
 }
 
 .esharq-fakedm-item-time {
     flex-shrink: 0;
-    color: var(--text-muted);
+    color: var(--fdm-dim);
     font-size: 11px;
     font-variant-numeric: tabular-nums;
 }
@@ -328,13 +351,13 @@
     border: none;
     border-radius: 4px;
     background: transparent;
-    color: var(--text-muted);
+    color: var(--fdm-dim);
     font-size: 12px;
     line-height: 1;
     cursor: pointer;
 }
 
 .esharq-fakedm-item-del:hover {
-    background: var(--fdm-surface-hover);
-    color: var(--status-danger, var(--red-400));
+    background: var(--fdm-card-hover);
+    color: var(--fdm-red);
 }
