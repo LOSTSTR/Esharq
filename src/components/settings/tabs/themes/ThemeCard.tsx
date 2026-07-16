@@ -26,7 +26,8 @@ const DownloadIcon = findComponentByCodeLazy("1.42l3.3 3.3V3a1");
 
 const cl = classNameFactory("vc-settings-theme-");
 
-// دالة لا ثابت — تُقيَّم عند كل رسم فتتبع تبديل اللغة (ثابت الوحدة يتجمّد على لغة أول تحميل).
+// دالة لا ثابت — تُقيَّم وقت الرسم فيكون مخزن الإعدادات جاهزاً بيقين. اللغة نفسها لقطة
+// مجمّدة لكل جلسة (تُطبَّق بإعادة التشغيل)، فهذا ليس متابعةً حيّة للتبديل. راجع getFilterOptions.
 const getThemeActivationModeOptions = (): { value: ThemeActivationMode; label: string; }[] => [
     { value: "always", label: t("مُفعَّل دائماً", "Always on") },
     { value: "light", label: t("في الوضع الفاتح فقط", "Light only") },
