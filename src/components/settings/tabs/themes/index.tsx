@@ -35,11 +35,7 @@ enum ThemeFilter {
     Disabled = "disabled"
 }
 
-// دالة لا ثابت. لا علاقة لهذا بمتابعة تبديل اللغة — فاللغة لقطة مجمّدة لكل جلسة وتتغيّر
-// بإعادة التشغيل وحدها (arabicMode تحمل restartNeeded). السبب أن isArabicMode ترجع false
-// دون تجميد إن قُرئت قبل جاهزية مخزن الإعدادات؛ فثابتٌ يُقيَّم وقت الاستيراد قد يخبز
-// الإنجليزية للجلسة كلها ولو كان الوضع عربياً. التأجيل إلى وقت الرسم يضمن جاهزية المخزن.
-const getFilterOptions = () => [
+const filterOptions = [
     { label: t("عرض الكل", "Show All"), value: ThemeFilter.All },
     { label: t("القوالب عبر الإنترنت", "Online Themes"), value: ThemeFilter.Online },
     { label: t("القوالب المحليّة", "Local Themes"), value: ThemeFilter.Local },
@@ -398,7 +394,7 @@ function ThemesTab() {
                 />
                 <div>
                     <Select
-                        options={getFilterOptions()}
+                        options={filterOptions}
                         select={setFilter}
                         isSelected={v => v === filter}
                         serialize={v => v}

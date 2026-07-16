@@ -26,16 +26,14 @@ const DownloadIcon = findComponentByCodeLazy("1.42l3.3 3.3V3a1");
 
 const cl = classNameFactory("vc-settings-theme-");
 
-// دالة لا ثابت — تُقيَّم وقت الرسم فيكون مخزن الإعدادات جاهزاً بيقين. اللغة نفسها لقطة
-// مجمّدة لكل جلسة (تُطبَّق بإعادة التشغيل)، فهذا ليس متابعةً حيّة للتبديل. راجع getFilterOptions.
-const getThemeActivationModeOptions = (): { value: ThemeActivationMode; label: string; }[] => [
+const themeActivationModeOptions: { value: ThemeActivationMode; label: string; }[] = [
     { value: "always", label: t("مُفعَّل دائماً", "Always on") },
     { value: "light", label: t("في الوضع الفاتح فقط", "Light only") },
     { value: "dark", label: t("في الوضع الداكن فقط", "Dark only") }
 ];
 
 export function getThemeActivationModeLabel(mode: ThemeActivationMode) {
-    return getThemeActivationModeOptions().find(option => option.value === mode)?.label ?? t("مُفعَّل دائماً", "Always on");
+    return themeActivationModeOptions.find(option => option.value === mode)?.label ?? t("مُفعَّل دائماً", "Always on");
 }
 
 export function ThemeActivationMenu({ themeId, activationMode, onActivationModeChange, children }: {
@@ -50,7 +48,7 @@ export function ThemeActivationMenu({ themeId, activationMode, onActivationModeC
         <Menu.Menu navId={`theme-card-menu-${themeId}`} onClose={ContextMenuApi.closeContextMenu}>
             {onActivationModeChange && (
                 <Menu.MenuItem id={`theme-activation-${themeId}`} label={t("تفعيل القالب", "Theme activation")}>
-                    {getThemeActivationModeOptions().map(option => (
+                    {themeActivationModeOptions.map(option => (
                         <Menu.MenuRadioItem
                             key={option.value}
                             id={`theme-activation-${themeId}-${option.value}`}
