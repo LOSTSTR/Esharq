@@ -1,22 +1,326 @@
-.esharq-fakedm-content {
+/* FakeDM composer.
+   Colours come from Discord's own variables, never hardcoded — the panel has to
+   follow the user's theme (they run a custom one). */
+
+.esharq-fakedm {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding-bottom: 12px;
+    padding-bottom: 16px;
 }
 
 .esharq-fakedm-note {
     color: var(--text-muted);
-    margin-bottom: 4px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: var(--background-secondary-alt, var(--background-secondary));
+    border-inline-start: 3px solid var(--brand-experiment, var(--brand-500));
 }
 
 .esharq-fakedm-label {
     margin-top: 6px;
     color: var(--header-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
 }
 
-.esharq-fakedm-footer {
+/* ── Tabs ─────────────────────────────────────────────────────────────────── */
+.esharq-fakedm-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    padding: 4px;
+    border-radius: 10px;
+    background: var(--background-tertiary);
+}
+
+.esharq-fakedm-tab {
+    padding: 8px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.esharq-fakedm-tab:hover {
+    color: var(--interactive-hover);
+    background: var(--background-modifier-hover);
+}
+
+.esharq-fakedm-tab-on,
+.esharq-fakedm-tab-on:hover {
+    color: #fff;
+    background: var(--brand-experiment, var(--brand-500));
+}
+
+/* ── Sender picker ────────────────────────────────────────────────────────── */
+.esharq-fakedm-people {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+/* Group DMs can hold more than two people; let the cards flow instead. */
+.esharq-fakedm-people-wrap {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    max-height: 148px;
+    overflow-y: auto;
+}
+
+.esharq-fakedm-person {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding: 8px 10px;
+    border: 1px solid var(--background-modifier-accent);
+    border-radius: 8px;
+    background: var(--background-secondary);
+    color: var(--text-normal);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.esharq-fakedm-person:hover {
+    background: var(--background-modifier-hover);
+}
+
+.esharq-fakedm-person-on {
+    border-color: var(--brand-experiment, var(--brand-500));
+    background: var(--background-modifier-selected);
+}
+
+.esharq-fakedm-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    object-fit: cover;
+}
+
+/* min-width:0 + truncation: a long display name must not widen the grid column. */
+.esharq-fakedm-person-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* ── Rows, chips, inputs ──────────────────────────────────────────────────── */
+.esharq-fakedm-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.esharq-fakedm-row-wrap {
+    flex-wrap: wrap;
+}
+
+.esharq-fakedm-chip {
+    padding: 5px 10px;
+    border: 1px solid var(--background-modifier-accent);
+    border-radius: 999px;
+    background: var(--background-secondary);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.esharq-fakedm-chip:hover {
+    color: var(--text-normal);
+    border-color: var(--brand-experiment, var(--brand-500));
+}
+
+.esharq-fakedm-date,
+.esharq-fakedm-num,
+.esharq-fakedm-textarea {
+    padding: 8px 10px;
+    border: 1px solid var(--background-modifier-accent);
+    border-radius: 8px;
+    background: var(--input-background, var(--background-tertiary));
+    color: var(--text-normal);
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.esharq-fakedm-date {
+    flex: 1;
+    min-width: 0;
+    font-variant-numeric: tabular-nums;
+}
+
+/* The native picker indicator is black-on-black in a dark theme. */
+.esharq-fakedm-date::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(0.7);
+}
+
+.esharq-fakedm-num {
+    width: 84px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.esharq-fakedm-unit {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.esharq-fakedm-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+    line-height: 1.4;
+}
+
+/* After the three base rules above, so specificity ascends (stylelint enforces it). */
+.esharq-fakedm-date:focus,
+.esharq-fakedm-num:focus,
+.esharq-fakedm-textarea:focus {
+    outline: none;
+    border-color: var(--brand-experiment, var(--brand-500));
+}
+
+/* ── Answered / Missed ────────────────────────────────────────────────────── */
+.esharq-fakedm-seg {
+    flex: 1;
+    padding: 9px;
+    border: 1px solid var(--background-modifier-accent);
+    border-radius: 8px;
+    background: var(--background-secondary);
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.esharq-fakedm-seg:hover {
+    background: var(--background-modifier-hover);
+}
+
+.esharq-fakedm-seg-ok {
+    background: var(--status-positive, var(--green-360));
+    border-color: transparent;
+    color: #fff;
+}
+
+.esharq-fakedm-seg-miss {
+    background: var(--status-danger, var(--red-400));
+    border-color: transparent;
+    color: #fff;
+}
+
+/* ── Actions ──────────────────────────────────────────────────────────────── */
+.esharq-fakedm-actions {
     display: flex;
     gap: 8px;
-    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.esharq-fakedm-submit {
+    flex: 1;
+    padding: 11px;
+    border: none;
+    border-radius: 8px;
+    background: var(--brand-experiment, var(--brand-500));
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter 0.15s ease;
+}
+
+.esharq-fakedm-submit:hover {
+    filter: brightness(1.1);
+}
+
+.esharq-fakedm-clear {
+    padding: 11px 14px;
+    border: 1px solid var(--status-danger, var(--red-400));
+    border-radius: 8px;
+    background: transparent;
+    color: var(--status-danger, var(--red-400));
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.esharq-fakedm-clear:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.esharq-fakedm-clear:hover:not(:disabled) {
+    background: color-mix(in oklab, var(--status-danger, red) 15%, transparent);
+}
+
+/* ── Injected list ────────────────────────────────────────────────────────── */
+.esharq-fakedm-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 160px;
+    overflow-y: auto;
+}
+
+.esharq-fakedm-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    background: var(--background-secondary);
+}
+
+.esharq-fakedm-item-icon {
+    flex-shrink: 0;
+    font-size: 12px;
+}
+
+.esharq-fakedm-item-text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text-normal);
+    font-size: 13px;
+}
+
+.esharq-fakedm-item-time {
+    flex-shrink: 0;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+}
+
+.esharq-fakedm-item-del {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.esharq-fakedm-item-del:hover {
+    background: var(--background-modifier-hover);
+    color: var(--status-danger, var(--red-400));
 }
