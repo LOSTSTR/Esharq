@@ -1,6 +1,6 @@
 <div align="center">
 
-<kbd>[العربية](README.md)</kbd> &nbsp;|&nbsp; <kbd>**English**</kbd>
+<kbd>[العربية](README.md)</kbd> &nbsp;|&nbsp; <kbd>**English**</kbd> &nbsp;|&nbsp; <kbd>[Русский](README.ru.md)</kbd>
 
 ---
 
@@ -9,31 +9,28 @@
 ### The Arabic-Enhanced Discord Client Mod
 
 **A high-performance Discord experience with exclusive customizations by**  
-**LOSTSTR · krym511 · 𝚁𝙰𝚈𝙼𝙾𝙽𝙳♞ · Abo Ahmed · S99 · iosiph · Bspeed**
+**LOSTSTR · krym511 · 𝚁𝙰𝚈𝙼𝙾𝙽𝙳♞ · Abo Ahmed · S99 · iosiph · .fmo · Bspeed**
 
 ---
 
 [![GitHub Release](https://img.shields.io/github/v/release/LOSTSTR/Esharq?style=flat&color=5865F2&label=Release)](https://github.com/LOSTSTR/Esharq/releases/latest)
 [![Tests](https://github.com/LOSTSTR/Esharq/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/LOSTSTR/Esharq/actions/workflows/test.yml)
 [![Discord](https://img.shields.io/badge/Discord-5865F2?style=flat&logo=discord&logoColor=white)](https://discord.gg/QamdqDNEDa)
+[![Website](https://img.shields.io/badge/Official_Site-esharq.org-D4AF37?style=flat&logo=vercel&logoColor=white)](https://esharq.org/)
 [![License](https://img.shields.io/github/license/LOSTSTR/Esharq?color=green&label=License)](LICENSE)
 [![Security Verified](https://img.shields.io/badge/security-verified-brightgreen?style=flat&logo=shield&logoColor=white)](https://github.com/LOSTSTR/Esharq)
 
 </div>
 
-> **A Note of Thanks & Respect**
+> **A Note of Thanks & Appreciation**
 >
-> I'm a beginner, still learning and experimenting. If you find any issue, please let me know.
+> I'm a beginner and still learning, and I welcome any feedback or reports of mistakes.
 >
-> This project is a fork of the original [Equicord](https://github.com/Equicord/Equicord). I deeply thank **thororen1234** and the entire Equicord team for their incredible work and for building such a solid foundation.
+> This project is built on [Equicord](https://github.com/Equicord/Equicord). My sincere thanks to **thororen1234** and the Equicord team for their valuable work and for providing such a strong foundation. Thanks also to **justjxke** for his support and advice, and to the **TestCord** team for their excellent plugins and their work on them.
 >
-> **justjxke**, thank you from the heart for your advice and respect.
+> This project aims to make things easier for Arabic speakers, while keeping English as the primary language to ensure accessibility and room to grow.
 >
-> I also want to thank the teams behind **x2b1** and **TestCord** for their amazing plugins and for continuously improving and maintaining them.
->
-> My main goal is to make this project easier for Arabic speakers who may not be comfortable with English, so they can understand the plugins and options. However, I have kept English as the primary language for expansion and accessibility, and no English was removed. This is for everyone.
->
-> Thank you all, and thank you to every contributor who helped make open-source what it is today. ❤️
+> Thank you to everyone who contributes to supporting and developing open source. ❤️
 
 ---
 
@@ -74,7 +71,7 @@
 
 Browse **all** the bundled and custom plugins — each with a detailed description — on the official website:
 
-### 🔗 [esharq-website.vercel.app](https://esharq-website.vercel.app/)
+### 🔗 [esharq.org](https://esharq.org/)
 
 ---
 
@@ -85,7 +82,7 @@ Browse **all** the bundled and custom plugins — each with a detailed descripti
 ### What sets Esharq apart
 
 - ⚡ **Superior performance** — custom optimizations for a faster, lighter experience
-- 🌐 **Full Arabic + English localization** — all 300+ plugin descriptions translated; switch languages instantly in settings
+- 🌐 **Full Arabic + English localization** — all 300+ plugin descriptions translated; switch language from settings (applies on restart)
 - 🔧 **Exclusive customizations** — plugins and tweaks from our team you won't find anywhere else
 - 🧩 **300+ plugins** — all original Equicord plugins plus exclusive Arabic additions
 - 🔒 **Security verified** — comprehensive security audit with zero dependency vulnerabilities
@@ -105,6 +102,7 @@ Join our community: **[discord.gg/QamdqDNEDa](https://discord.gg/QamdqDNEDa)**
 | **𝚁𝙰𝚈𝙼𝙾𝙽𝙳♞** | Contributor |
 | **Abo Ahmed** | Contributor |
 | **S99** | Contributor |
+| **.fmo** | Contributor |
 | **Bspeed** | Contributor |
 
 ---
@@ -151,8 +149,10 @@ Esharq ships with a built-in **Arabic / English language switch**.
 
 1. Open Discord **Settings → Esharq**
 2. Toggle **"Arabic Mode"** on or off
-3. Plugin names and descriptions in the plugin list update instantly — no restart needed
+3. **Restart Discord** — the setting is marked `restartNeeded` and Discord will prompt you
 
+> The language is fixed for the session on purpose: some strings resolve when a module first loads and others when it renders, so applying a switch live would leave the UI half-Arabic and half-English. A restart makes every translation re-render in the chosen language.
+>
 > When Arabic Mode is **off**, all plugin descriptions revert to English.  
 > Plugin option labels inside individual plugin modals follow the same setting.
 
