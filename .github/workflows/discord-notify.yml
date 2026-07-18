@@ -12,9 +12,14 @@ on:
   workflow_dispatch:
     inputs:
       since_sha:
-        description: "Announce new plugins added AFTER this commit SHA (catch-up)"
+        description: "Announce everything added AFTER this commit SHA (catch-up)"
         required: true
         type: string
+      include_updates:
+        description: "Also post the update/fix announcements for that range"
+        required: false
+        default: false
+        type: boolean
 
 # Least-privilege token — this job only reads repo contents.
 # No write access, no package access, no secret access beyond explicit env vars.
@@ -47,8 +52,9 @@ jobs:
           WEBHOOK_UPDATES: ${{ secrets.WEBHOOK_UPDATES }}
           # Full push range on push; manual since_sha on catch-up. mjs falls back to HEAD~1.
           RANGE_BASE: ${{ github.event.inputs.since_sha || github.event.before }}
-          # On manual catch-up, only announce plugins — don't also re-post an update for HEAD.
-          SKIP_UPDATE: ${{ github.event_name == 'workflow_dispatch' && '1' || '0' }}
+          # On manual catch-up, announce plugins only — unless include_updates is ticked,
+          # which is how a missed batch of fixes/updates gets back-filled.
+          SKIP_UPDATE: ${{ (github.event_name == 'workflow_dispatch' && inputs.include_updates != true) && '1' || '0' }}
         run: |
           if [ -z "$WEBHOOK_PLUGINS" ] || [ -z "$WEBHOOK_UPDATES" ]; then
             echo "Webhook secrets not configured — skipping"

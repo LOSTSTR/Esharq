@@ -11,10 +11,19 @@
  *   - HTTP requests have a hard 10-second timeout.
  *   - Script exits 0 on missing/unconfigured secrets (graceful skip).
  *
- * Triggers:
- *   - New plugin index file added  → WEBHOOK_PLUGINS  (green embed)
- *   - fix / sync / chore commit   → WEBHOOK_UPDATES  (orange embed)
- *   - feat without new plugin      → WEBHOOK_UPDATES  (blue embed)
+ * What it announces (per PUSH, scanning the WHOLE pushed range):
+ *   - New plugin index files added      → WEBHOOK_PLUGINS
+ *   - Plugin index files deleted        → WEBHOOK_UPDATES  (حذف · Removed)
+ *   - feat / fix / perf / sync commits  → WEBHOOK_UPDATES  (grouped per category)
+ *   - docs / test commits are ignored (not user-facing)
+ *
+ * Bilingual detail: put these trailers in the commit body and they are used
+ * verbatim as the Arabic / English lines of the announcement —
+ *   notify-ar: شرح عربي مفصّل لما تغيّر ولماذا
+ *   notify-en: detailed English explanation of what changed and why
+ * Without them the commit subject is used (English only).
+ *
+ * DRY_RUN=1 prints the messages instead of posting (local preview).
  */
 
 import { execSync } from "child_process";
@@ -93,55 +102,109 @@ function run(cmd) {
 }
 
 // Shared by BOTH webhooks (plugins + updates) — the EA webhook avatar.
-const ICON_URL  =
+const ICON_URL =
     "https://raw.githubusercontent.com/LOSTSTR/Esharq/main/.github/assets/notify-icon.png";
 
-// Sanitise all user-controlled fields
-const commitMsg    = sanitise(run("git log -1 --pretty=%B"), 2000);
+// The Esharq emoji that heads every announcement. Keep this ID stable.
+const ICON = "<:esharqcloud:1521840260831641681>";
 
-const msgLines = commitMsg.split("\n").filter(Boolean);
-const msgTitle = sanitise(msgLines[0] ?? "", 256);
-
-// ─── Detect new plugin files ──────────────────────────────────────────────────
-
-const NEW_PLUGIN_RE =
-    /^src\/(equicordplugins|userplugins)\/(?!_core\/)([^/]+)\/index\.(tsx?|jsx?)$/;
-
+// ─── Pushed range ─────────────────────────────────────────────────────────────
 // Scan the WHOLE pushed range, not just the last commit — otherwise a push that bundles
-// several commits (e.g. many plugins + a trailing lint fix) only ever inspects the final
-// commit and misses every plugin added earlier in the push. RANGE_BASE is github.event.before
-// on push, or a manual since_sha on workflow_dispatch (catch-up). Falls back to HEAD~1.
+// several commits only ever inspects the final one (which is how a whole batch of fixes
+// went unannounced when the last commit happened to be a docs change).
 const rangeBaseRaw = (process.env.RANGE_BASE ?? "").trim();
 const rangeBase = rangeBaseRaw && !/^0+$/.test(rangeBaseRaw) ? rangeBaseRaw : "HEAD~1";
 
-let addedFiles = [];
-for (const base of [rangeBase, "HEAD~1"]) {
-    try {
-        addedFiles = run(`git diff --name-only --diff-filter=A ${base} HEAD`)
-            .split("\n")
-            .filter(Boolean);
-        break; // succeeded — stop (don't fall back)
-    } catch { /* base not in clone (shallow) or first commit — try the fallback */ }
+function gitInRange(buildCmd) {
+    for (const base of [rangeBase, "HEAD~1"]) {
+        try {
+            return run(buildCmd(base));
+        } catch { /* base missing from a shallow clone, or first commit — try fallback */ }
+    }
+    return "";
 }
 
-const newPluginFiles = addedFiles.filter(f => NEW_PLUGIN_RE.test(f));
+const addedFiles = gitInRange(b => `git diff --name-only --diff-filter=A ${b} HEAD`)
+    .split("\n").filter(Boolean);
+const deletedFiles = gitInRange(b => `git diff --name-only --diff-filter=D ${b} HEAD`)
+    .split("\n").filter(Boolean);
 
-// ─── Detect commit type ───────────────────────────────────────────────────────
+const PLUGIN_INDEX_RE =
+    /^src\/(equicordplugins|userplugins)\/(?!_core\/)([^/]+)\/index\.(tsx?|jsx?)$/;
 
-const isFix    = /^fix(\(|:)/i.test(msgTitle);
-const isSync   = /^sync(\(|:)/i.test(msgTitle) || /merge upstream/i.test(msgTitle);
-const isChore  = /^(chore|perf|refactor|style|ci|build)(\(|:)/i.test(msgTitle);
-const isFeat   = /^feat(\(|:)/i.test(msgTitle);
-const isUpdate = isFix || isSync || isChore || (isFeat && newPluginFiles.length === 0);
+const newPluginFiles = addedFiles.filter(f => PLUGIN_INDEX_RE.test(f));
+const deletedPluginFiles = deletedFiles.filter(f => PLUGIN_INDEX_RE.test(f));
 
-// ─── Extract plugin metadata from source ─────────────────────────────────────
+// ─── Commit parsing ───────────────────────────────────────────────────────────
+
+const FS = ""; // field separator
+const RS = ""; // record separator
+
+function getCommits() {
+    const raw = gitInRange(b => `git log --no-merges --pretty=format:%H${FS}%s${FS}%b${RS} ${b}..HEAD`);
+    return raw
+        .split(RS)
+        .map(r => r.trim())
+        .filter(Boolean)
+        .map(rec => {
+            const [sha, subject, body] = rec.split(FS);
+            return {
+                sha: (sha ?? "").trim(),
+                subject: sanitise(subject, 256),
+                body: sanitise(body ?? "", 2000),
+            };
+        })
+        .reverse(); // oldest first, so announcements read chronologically
+}
+
+// Categories, in the order they appear in the announcement.
+const CATEGORIES = [
+    ["update", "تحديث جديد · Update"],
+    ["fix", "إصلاح · Fix"],
+    ["improve", "تحسين · Improvement"],
+    ["sync", "مزامنة · Sync"],
+    ["removed", "حذف · Removed"],
+];
+
+const TYPE_CATEGORY = {
+    feat: "update",
+    fix: "fix",
+    perf: "improve",
+    refactor: "improve",
+    chore: "improve",
+    style: "improve",
+    ci: "improve",
+    build: "improve",
+};
+
+// Not user-facing — never announced.
+const IGNORED_TYPES = new Set(["docs", "test"]);
+
+function parseCommit(c) {
+    const m = c.subject.match(/^(\w+)(?:\(([^)]*)\))?!?:\s*([\s\S]+)$/);
+    const type = (m?.[1] ?? "").toLowerCase();
+    const scope = sanitise(m?.[2] ?? "", 60);
+    const title = sanitise(m?.[3] ?? c.subject, 300);
+
+    if (IGNORED_TYPES.has(type)) return null;
+
+    const isSync = type === "sync" || /merge upstream/i.test(c.subject);
+    const category = isSync ? "sync" : TYPE_CATEGORY[type];
+    if (!category) return null; // unrecognised prefix — don't guess
+
+    // Bilingual detail from commit trailers (preferred), else fall back to the subject.
+    const ar = sanitise((c.body.match(/^notify-ar:\s*(.+)$/mi) ?? [])[1] ?? "", 400);
+    const en = sanitise((c.body.match(/^notify-en:\s*(.+)$/mi) ?? [])[1] ?? "", 400);
+
+    return { category, scope, ar, en: en || title };
+}
+
+// ─── Plugin metadata (for new-plugin announcements) ──────────────────────────
 
 function extractPluginInfo(filePath) {
     if (!existsSync(filePath)) return null;
     const src = readFileSync(filePath, "utf8");
-    // Extract name/description from the definePlugin({...}) block SPECIFICALLY — anchoring on
-    // definePlugin( avoids grabbing the first name:/description: in the file, which is often a
-    // settings option's (that leaked "RTCPeerConnection" + English setting text into the embed).
+    // Anchor on definePlugin( so we don't grab a settings option's name/description.
     const defIdx = src.search(/definePlugin\s*\(/);
     const defSrc = defIdx >= 0 ? src.slice(defIdx) : src;
     const name = sanitise((defSrc.match(/\bname:\s*["']([^"']+)["']/) ?? [])[1] ?? "", 80);
@@ -149,8 +212,7 @@ function extractPluginInfo(filePath) {
     const dirName = (filePath.match(/\/(equicordplugins|userplugins)\/([^/]+)\//) ?? [])[2] ?? filePath;
     const resolvedName = name || sanitise(dirName, 80);
 
-    // Arabic description from the i18n overlay (src/i18n/plugins/<PluginName>.ts),
-    // so every new-plugin notification carries both languages.
+    // Arabic description from the i18n overlay, so every announcement carries both languages.
     let descAr = "";
     const overlayPath = `src/i18n/plugins/${resolvedName}.ts`;
     if (existsSync(overlayPath)) {
@@ -159,90 +221,98 @@ function extractPluginInfo(filePath) {
         if (m) descAr = sanitise(m[1], 300);
     }
 
-    return {
-        name: resolvedName,
-        descriptionEn: descEn || "No description yet.",
-        descriptionAr: descAr,
-    };
+    return { name: resolvedName, descriptionEn: descEn || "No description yet.", descriptionAr: descAr };
 }
 
-// ─── Message builders (plain Discord markdown; NO embed) ──────────────────────
-// A plain message (not an embed) → no colored border, no author, no footer timestamp, and
-// with no links it never triggers Discord's auto GitHub card. Discord still shows the EA
-// webhook avatar on its own. The cloud is the only icon; the plugin name is colored via an
-// ANSI code block (rebane2001 generator style).
+// ─── Message building ─────────────────────────────────────────────────────────
+// Plain Discord markdown (no embed) → no coloured border and no auto GitHub card.
+// Layout per entry: bold name, then the Arabic line, then the English line.
 
-const CLOUD = "<:esharqcloud:1521840260831641681>";
+const LIMIT = 1900;
 
-// One plugin's block: bold name + Arabic then English description as blockquotes.
-function pluginEntry(info) {
-    const lines = [`**\`${info.name}\`**`, `> ${info.descriptionAr || info.descriptionEn}`];
-    if (info.descriptionAr && info.descriptionEn) lines.push(`> ${info.descriptionEn}`);
+function entryBlock(name, ar, en) {
+    const lines = [];
+    if (name) lines.push(`**\`${name}\`**`);
+    if (ar) lines.push(`> ${ar}`);
+    if (en) lines.push(`> ${en}`);
     return lines.join("\n");
 }
 
-// Pack ALL new plugins into as few messages as possible (one when it fits): a single header +
-// every plugin listed under it. Splits into extra messages only when the content would exceed
-// Discord's 2000-char limit.
-function buildPluginMessages(infos) {
-    const header = `## ${CLOUD} إضافة جديدة · New Plugin`;
-    const LIMIT = 1900;
-
+// Pack entries under a header into as few messages as possible.
+function pack(header, entries) {
     const messages = [];
     let current = header;
-    for (const info of infos) {
-        const entry = pluginEntry(info);
+    for (const entry of entries) {
         const candidate = `${current}\n\n${entry}`;
         if (candidate.length > LIMIT) {
             messages.push(current);
-            current = entry;
+            current = `${header}\n\n${entry}`;
         } else {
             current = candidate;
         }
     }
-    messages.push(current);
+    if (current !== header) messages.push(current);
     return messages;
 }
 
-// Friendly bilingual update heading + clean message (conventional-commit prefix stripped).
-function classifyUpdate() {
-    const m = msgTitle.match(/^(\w+)(?:\([^)]*\))?!?:\s*([\s\S]+)$/);
-    const type = (m?.[1] ?? "").toLowerCase();
-    const clean = (m?.[2] ?? msgTitle).trim();
-    if (isSync)          return { label: "مزامنة · Sync", clean };
-    if (type === "fix")  return { label: "إصلاح · Fix", clean };
-    if (type === "feat") return { label: "تحديث جديد · Update", clean };
-    return { label: "تحديث · Update", clean };
+function buildPluginMessages(infos) {
+    const entries = infos.map(i => entryBlock(i.name, i.descriptionAr, i.descriptionEn));
+    return pack(`## ${ICON} إضافة جديدة · New Plugin`, entries);
 }
 
-function updateMessage() {
-    const u = classifyUpdate();
-    const lines = [
-        `## ${CLOUD} ${u.label}`,
-        `> ${u.clean}`,
-    ];
-    return lines.join("\n");
+function buildUpdateMessages(parsed, removedNames) {
+    const messages = [];
+
+    for (const [key, label] of CATEGORIES) {
+        let entries = [];
+
+        if (key === "removed") {
+            entries = removedNames.map(r => entryBlock(r.name, r.ar, r.en));
+        } else {
+            entries = parsed
+                .filter(p => p.category === key)
+                .map(p => entryBlock(p.scope, p.ar, p.en));
+        }
+
+        if (entries.length) messages.push(...pack(`## ${ICON} ${label}`, entries));
+    }
+
+    return messages;
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
+const DRY_RUN = process.env.DRY_RUN === "1";
 const WEBHOOK_PLUGINS = process.env.WEBHOOK_PLUGINS ?? "";
 const WEBHOOK_UPDATES = process.env.WEBHOOK_UPDATES ?? "";
 
-// Graceful skip — secrets not yet configured
-if (!WEBHOOK_PLUGINS || !WEBHOOK_UPDATES) {
-    console.log("[discord-notify] Secrets not configured — skipping.");
-    process.exit(0);
+if (!DRY_RUN) {
+    // Graceful skip — secrets not yet configured
+    if (!WEBHOOK_PLUGINS || !WEBHOOK_UPDATES) {
+        console.log("[discord-notify] Secrets not configured — skipping.");
+        process.exit(0);
+    }
+    // Validate URLs before ANY use
+    assertWebhookUrl(WEBHOOK_PLUGINS, "WEBHOOK_PLUGINS");
+    assertWebhookUrl(WEBHOOK_UPDATES, "WEBHOOK_UPDATES");
 }
 
-// Validate URLs before ANY use (stops wrong values from reaching discord.com)
-assertWebhookUrl(WEBHOOK_PLUGINS, "WEBHOOK_PLUGINS");
-assertWebhookUrl(WEBHOOK_UPDATES, "WEBHOOK_UPDATES");
+async function send(url, content, kind) {
+    if (DRY_RUN) {
+        console.log(`\n───────── ${kind} ─────────\n${content}`);
+        return;
+    }
+    try {
+        await postWebhook(url, { username: "Esharq", avatar_url: ICON_URL, content });
+    } catch (e) {
+        console.error(`  ${kind} webhook failed: ${e.message}`);
+    }
+}
 
 async function main() {
     let sent = false;
 
-    // 1. New plugin(s) detected — collect all, then send as ONE message (chunked only if needed).
+    // 1. New plugins — one message listing them all (chunked only if needed).
     const infos = [];
     for (const file of newPluginFiles) {
         console.log(`🆕 New plugin: ${file}`);
@@ -251,35 +321,41 @@ async function main() {
         infos.push(info);
     }
     if (infos.length) {
-        for (const content of buildPluginMessages(infos)) {
-            try {
-                await postWebhook(WEBHOOK_PLUGINS, { username: "Esharq", avatar_url: ICON_URL, content });
-            } catch (e) {
-                console.error(`  Plugin webhook failed: ${e.message}`);
-            }
-        }
+        for (const content of buildPluginMessages(infos)) await send(WEBHOOK_PLUGINS, content, "PLUGINS");
         sent = true;
     }
 
-    // 2. Fix / update commit. Skipped on manual catch-up runs (SKIP_UPDATE=1) so a
-    // back-fill of past plugins doesn't also re-post an unrelated "update" for HEAD.
-    if (isUpdate && process.env.SKIP_UPDATE !== "1") {
-        console.log(`🔧 Update commit: ${msgTitle}`);
+    // 2. Removed plugins — name them and carry the reason from the deleting commit.
+    const commits = getCommits();
+    const parsed = commits.map(parseCommit).filter(Boolean);
+
+    const removedNames = deletedPluginFiles.map(f => {
+        const name = (f.match(/\/(equicordplugins|userplugins)\/([^/]+)\//) ?? [])[2] ?? f;
+        // Reason: the in-range commit that deleted this file, if it carries trailers.
+        let ar = "", en = "";
         try {
-            await postWebhook(WEBHOOK_UPDATES, {
-                username: "Esharq",
-                avatar_url: ICON_URL,
-                content: updateMessage(),
-            });
-        } catch (e) {
-            console.error(`  Updates webhook failed: ${e.message}`);
+            const sha = run(`git log --diff-filter=D --format=%H -1 HEAD -- "${f}"`).trim();
+            if (sha) {
+                const body = sanitise(run(`git log -1 --pretty=%b ${sha}`), 2000);
+                ar = sanitise((body.match(/^notify-ar:\s*(.+)$/mi) ?? [])[1] ?? "", 400);
+                en = sanitise((body.match(/^notify-en:\s*(.+)$/mi) ?? [])[1] ?? "", 400);
+                if (!en) en = sanitise(run(`git log -1 --pretty=%s ${sha}`), 300);
+            }
+        } catch { /* ignore — fall back to the bare name */ }
+        return { name: sanitise(name, 80), ar, en };
+    });
+
+    // 3. Updates — grouped by category across the WHOLE push.
+    if (process.env.SKIP_UPDATE !== "1") {
+        const messages = buildUpdateMessages(parsed, removedNames);
+        for (const content of messages) {
+            console.log(`🔧 Update message (${content.length} chars)`);
+            await send(WEBHOOK_UPDATES, content, "UPDATES");
         }
-        sent = true;
+        if (messages.length) sent = true;
     }
 
-    if (!sent) {
-        console.log("ℹ No notification triggered for this commit type.");
-    }
+    if (!sent) console.log("ℹ No notification triggered for this push.");
 }
 
 main().catch(err => {
