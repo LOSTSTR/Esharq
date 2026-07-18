@@ -1,6 +1,9 @@
-[class*="sidebar_"],
-[class*="membersWrap_"],
-[class*="members_"] {
+/* [--sidebar] etc. are placeholders filled by setStyleClassNames in index.ts with
+   Discord's resolved class names. If a name can't resolve, the placeholder stays
+   and simply matches nothing — the blur is absent for that surface, never broken. */
+[--sidebar],
+[--membersWrap],
+[--members] {
     background-color: rgb(25 0 51 / 45%) !important;
     backdrop-filter: blur(10px) saturate(1.3);
 }
