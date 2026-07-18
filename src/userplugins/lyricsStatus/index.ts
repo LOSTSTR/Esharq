@@ -188,7 +188,10 @@ export default definePlugin({
     start() {
         active = true;
         FluxDispatcher.subscribe("SPOTIFY_PLAYER_STATE", onSpotifyPlayerState as any);
-        intervalId = setInterval(tick, 500);
+        // 2000ms, not 500: tick() only re-picks the current lyric line and sets the
+        // status, and a status line does not need sub-second precision — lyric lines
+        // change every few seconds. This cuts setStatus calls (a gateway write) 4x.
+        intervalId = setInterval(tick, 2000);
     },
 
     stop() {
