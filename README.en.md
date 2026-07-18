@@ -6,7 +6,7 @@
 
 # [<img src="./browser/icon.png" width="45" align="center" alt="Esharq">](https://github.com/LOSTSTR/Esharq) Esharq
 
-### The Arabic-Enhanced Discord Client Mod
+### The Arabic Discord Client Mod
 
 **A high-performance Discord experience with exclusive customizations by**  
 **LOSTSTR · krym511 · 𝚁𝙰𝚈𝙼𝙾𝙽𝙳♞ · Abo Ahmed · S99 · iosiph · .fmo · Bspeed**
@@ -26,9 +26,9 @@
 >
 > I'm a beginner and still learning, and I welcome any feedback or reports of mistakes.
 >
-> This project is built on [Equicord](https://github.com/Equicord/Equicord). My sincere thanks to **thororen1234** and the Equicord team for their valuable work and for providing such a strong foundation. Thanks also to **justjxke** for his support and advice, and to the **TestCord** team for their excellent plugins and their work on them.
+> Esharq is built on [Equicord](https://github.com/Equicord/Equicord). My sincere thanks to **thororen1234** and the Equicord team for their valuable work and for providing such a strong foundation. Thanks also to **justjxke** for his support and advice, and to the **TestCord** team for their excellent plugins and their work on them.
 >
-> This project aims to make things easier for Arabic speakers, while keeping English as the primary language to ensure accessibility and room to grow.
+> Esharq aims to make things easier for Arabic speakers, while keeping English as the primary language to ensure accessibility and room to grow.
 >
 > Thank you to everyone who contributes to supporting and developing open source. ❤️
 
@@ -42,7 +42,7 @@
 
 <br>
 
-### ☕ Like the project? Support its development
+### ☕ Like Esharq? Support its development
 
 <br>
 
@@ -55,7 +55,7 @@
 
 <br>
 
-> 💡 Your support is the fuel that keeps this project alive and drives continuous improvement
+> 💡 Your support is the fuel that keeps Esharq alive and drives continuous improvement
 
 <br>
 
@@ -69,7 +69,7 @@
 
 ## ✨ Featured Plugins
 
-Browse **all** the bundled and custom plugins — each with a detailed description — on the official website:
+Browse **all** the bundled and enhanced plugins — each with a detailed description — on the official website:
 
 ### 🔗 [esharq.org](https://esharq.org/)
 
@@ -77,15 +77,15 @@ Browse **all** the bundled and custom plugins — each with a detailed descripti
 
 ## 📖 About
 
-**Esharq** is the Arabic-enhanced distribution of [Equicord](https://github.com/Equicord/Equicord), which is itself a fork of [Vencord](https://github.com/Vendicated/Vencord).
+**Esharq** is the Arabic distribution of [Equicord](https://github.com/Equicord/Equicord), which is itself a fork of [Vencord](https://github.com/Vendicated/Vencord).
 
 ### What sets Esharq apart
 
-- ⚡ **Superior performance** — custom optimizations for a faster, lighter experience
+- ⚡ **Custom improvements** — for a freer, more flexible experience
 - 🌐 **Full Arabic + English localization** — all 300+ plugin descriptions translated; switch language from settings (applies on restart)
 - 🔧 **Exclusive customizations** — plugins and tweaks from our team you won't find anywhere else
 - 🧩 **300+ plugins** — all original Equicord plugins plus exclusive Arabic additions
-- 🔒 **Security verified** — comprehensive security audit with zero dependency vulnerabilities
+- 🔒 **Security verified** — comprehensive security audit
 - 🔄 **Continuously updated** — daily upstream sync with Equicord, always staying current
 
 Join our community: **[discord.gg/QamdqDNEDa](https://discord.gg/QamdqDNEDa)**
@@ -96,7 +96,7 @@ Join our community: **[discord.gg/QamdqDNEDa](https://discord.gg/QamdqDNEDa)**
 
 | Member | Role |
 |--------|------|
-| **LOSTSTR** | Lead developer — architecture, infrastructure, and project management |
+| **LOSTSTR** | Lead developer — architecture, infrastructure, and repository management |
 | **krym511** | Core supporter — sustained support and development contributions |
 | **iosiph** | Contributor |
 | **𝚁𝙰𝚈𝙼𝙾𝙽𝙳♞** | Contributor |
@@ -220,15 +220,13 @@ After building, find the ZIP file in the `dist` folder and load it as an extensi
 
 ### A special thanks to krym511
 
-A heartfelt thank you to **krym511** for their unwavering support since day one.  
-Their belief in this project has been instrumental in its growth.  
-This project would not be where it is today without you. 🙌
+A heartfelt thank you to **krym511** for their unwavering support since day one.
 
 </div>
 
 ---
 
-## ❤️ Support the Project
+## ❤️ Support Esharq
 
 <div align="center">
 
@@ -240,11 +238,11 @@ If Esharq has been useful to you, you can support us by:
 
 - ☕ **Donating** via [Ko-fi](https://ko-fi.com/loststr) — helps fund continued development
 - ⭐ **Starring** the repository on GitHub
-- 📢 **Sharing** the project with friends
+- 📢 **Sharing** Esharq with friends
 - 💬 **Joining** the Discord server and contributing: **[discord.gg/QamdqDNEDa](https://discord.gg/QamdqDNEDa)**
 - 🐛 **Reporting** bugs or suggestions via [Issues](https://github.com/LOSTSTR/Esharq/issues)
 
-Your support is what keeps this project alive and improving! 💪
+Your support is what keeps Esharq alive and improving! 💪
 
 ---
 
@@ -270,7 +268,7 @@ Your support is what keeps this project alive and improving! 💪
 
 ## ⚠️ Disclaimer
 
-Discord is a registered trademark of Discord Inc. This project is not affiliated with or endorsed by Discord Inc.
+Discord is a registered trademark of Discord Inc. Esharq is not affiliated with or endorsed by Discord Inc.
 
 <details>
 <summary>Using Esharq violates Discord's Terms of Service</summary>
@@ -288,7 +286,7 @@ If your account is critically important to you, it's safest to avoid all client 
 ## 📜 Credits & License
 
 > [!IMPORTANT]
-> This project is a fork of the original [Equicord](https://github.com/Equicord/Equicord) project. All credits for the core engine and framework belong to the original creators. This version is a specialized Arabic distribution managed by LOSTSTR under the name **Esharq**, with contributions from **krym511**, **𝚁𝙰𝚈𝙼𝙾𝙽𝙳♞**, **Abo Ahmed**, **S99**, **iosiph**, and **Bspeed**.
+> Esharq is a fork of [Equicord](https://github.com/Equicord/Equicord). All credit for the core engine and framework belongs to its original authors. Esharq is an Arabic distribution maintained by LOSTSTR.
 
 ### Key enhancements in this version
 
@@ -298,7 +296,7 @@ If your account is critically important to you, it's safest to avoid all client 
 - 🤝 **Dedicated Arabic support** — community-focused technical support
 
 **Maintained by:** [LOSTSTR](https://github.com/LOSTSTR)  
-**Original project:** [Equicord](https://github.com/Equicord/Equicord)
+**Upstream:** [Equicord](https://github.com/Equicord/Equicord)
 
 ---
 

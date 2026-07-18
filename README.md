@@ -6,7 +6,7 @@
 
 # [<img src="./browser/icon.png" width="45" align="center" alt="Esharq">](https://github.com/LOSTSTR/Esharq) Esharq
 
-### النسخة العربية المطورة من Equicord
+### النسخة العربية من Equicord
 
 **تجربة ديسكورد فائقة الأداء، بتخصيصات حصرية من تطوير**
 **LOSTSTR و krym511 و 𝚁𝙰𝚈𝙼𝙾𝙽𝙳♞ و Abo Ahmed و S99 و iosiph و .fmo و Bspeed**
@@ -26,9 +26,9 @@
 >
 > أنا مبتدئ وما زلت في مرحلة التعلّم، وأرحّب بأي ملاحظات أو تنبيهات على الأخطاء.
 >
-> هذا المشروع مبني على [Equicord](https://github.com/Equicord/Equicord)، وأتقدّم بجزيل الشكر إلى **thororen1234** وفريق Equicord على عملهم القيّم وتوفيرهم أساساً قوياً. كما أشكر **justjxke** على دعمه ونصائحه، وأشكر فريق **TestCord** على إضافاتهم المميزة وتطويرها.
+> هذا المستودع مبني على [Equicord](https://github.com/Equicord/Equicord)، وأتقدّم بجزيل الشكر إلى **thororen1234** وفريق Equicord على عملهم القيّم وتوفيرهم أساساً قوياً. كما أشكر **justjxke** على دعمه ونصائحه، وأشكر فريق **TestCord** على إضافاتهم المميزة وتطويرها.
 >
-> يهدف هذا المشروع إلى جعله أكثر سهولة للناطقين بالعربية، مع الحفاظ على اللغة الإنجليزية كلغة أساسية لضمان سهولة الوصول والتوسّع.
+> يهدف هذا المستودع إلى جعله أكثر سهولة للناطقين بالعربية، مع الحفاظ على اللغة الإنجليزية كلغة أساسية لضمان سهولة الوصول والتوسّع.
 >
 > شكراً لكل من يساهم في دعم وتطوير المصدر المفتوح. ❤️
 
@@ -42,7 +42,7 @@
 
 <br>
 
-### ☕ هل أعجبك المشروع؟ ادعمني للاستمرار
+### ☕ هل أعجبك المستودع؟ ادعمني للاستمرار
 
 <br>
 
@@ -55,7 +55,7 @@
 
 <br>
 
-> 💡 دعمكم هو الوقود الذي يُبقي هذا المشروع حياً ويدفعني نحو التحسين المستمر
+> 💡 دعمكم هو الوقود الذي يُبقي هذا المستودع حياً ويدفعني نحو التحسين المستمر
 
 <br>
 
@@ -67,36 +67,36 @@
 
 ---
 
-### 🌟 الإضافات المدمجة والمطوّرة (Featured Plugins)
+### 🌟 الإضافات المدمجة والمحسّنة (Featured Plugins)
 
-تصفّح **جميع** الإضافات المدمجة والمطوّرة في إشراق — مع شرحٍ مفصّل لكلٍّ منها — على الموقع الرسمي:
+تصفّح **جميع** الإضافات المدمجة والمحسّنة في إشراق — مع شرحٍ مفصّل لكلٍّ منها — على الموقع الرسمي:
 
 ### 🔗 [esharq.org](https://esharq.org/)
 
 ---
 
-## 📖 عن المشروع
+## 📖 عن المستودع
 
-**Esharq** هي النسخة العربية المطورة من [Equicord](https://github.com/Equicord/Equicord)، وهو بدوره مشتق من [Vencord](https://github.com/Vendicated/Vencord).
+**Esharq** هي النسخة العربية من [Equicord](https://github.com/Equicord/Equicord)، وهو بدوره مشتق من [Vencord](https://github.com/Vendicated/Vencord).
 
 تتميز هذه النسخة بـ:
 
-- ⚡ **أداء فائق وسلاسة تامة** — تحسينات مخصصة لتجربة أسرع وأخف
+- ⚡ **تحسينات مخصّصة** — لتجربة أكثر حرّية ومرونة
 - 🌐 **تعريب شامل** — جميع أوصاف الإضافات (300+) مترجمة للعربية
 - 🔧 **تخصيصات حصرية** — إضافات وتعديلات من تطوير الفريق لا تجدها في غيرها
 - 🧩 **أكثر من 300 إضافة** — جميع إضافات Equicord الأصلية مع إضافات عربية حصرية
-- 🔒 **أمان مُحقَّق** — فحص أمني شامل وصفر ثغرات في التبعيات
+- 🔒 **أمان مُحقَّق** — فحص أمني شامل
 - 🔄 **تحديثات مستمرة** — مزامنة دورية مع المصدر الأصلي مع تطبيق التحسينات
 
 للتواصل والدعم، انضم إلى سيرفر الديسكورد: **[discord.gg/QamdqDNEDa](https://discord.gg/QamdqDNEDa)**
 
 ---
 
-## 👥 فريق المشروع
+## 👥 فريق المستودع
 
 | العضو | الدور |
 |-------|-------|
-| **LOSTSTR** | مطور رئيسي — بناء المشروع وإدارته |
+| **LOSTSTR** | مطور رئيسي — بناء المستودع وإدارته |
 | **krym511** | داعم رئيسي — دعم ومساهمة في التطوير |
 | **iosiph** | مساهم في التطوير |
 | **𝚁𝙰𝚈𝙼𝙾𝙽𝙳♞** | مساهم في التطوير |
@@ -173,7 +173,7 @@ cd Esharq
 pnpm install --frozen-lockfile
 ```
 
-**4. بناء المشروع**
+**4. بناء المستودع**
 
 ```shell
 pnpm build
@@ -203,15 +203,13 @@ pnpm buildWeb
 
 ### شكر خاص لـ krym511
 
-شكراً جزيلاً لـ **krym511** على دعمه المتواصل لهذا المشروع منذ البداية.
-دعمه وإيمانه بهذا المشروع كان له دور كبير في استمراره وتطوره.
-هذا المشروع لم يكن ليصل لما وصل إليه بدونك، شكراً يا صديق. 🙌
+شكراً جزيلاً لـ **krym511** على دعمه المتواصل لهذا المستودع منذ البداية.
 
 </div>
 
 ---
 
-## ❤️ دعم المشروع
+## ❤️ دعم المستودع
 
 <div align="center">
 
@@ -219,15 +217,15 @@ pnpm buildWeb
 
 </div>
 
-إذا أعجبك المشروع وأفادك، يمكنك دعمنا بـ:
+إذا أعجبك المستودع وأفادك، يمكنك دعمنا بـ:
 
 - ☕ **التبرع بأي مبلغ** عبر [Ko-fi](https://ko-fi.com/loststr) — يساعدني على الاستمرار في التطوير
 - ⭐ **Star** للمستودع على GitHub
-- 📢 مشاركة المشروع مع أصدقائك
+- 📢 مشاركة المستودع مع أصدقائك
 - 💬 الانضمام لسيرفر الديسكورد والمساهمة في التطوير: **[discord.gg/QamdqDNEDa](https://discord.gg/QamdqDNEDa)**
 - 🐛 الإبلاغ عن أي مشكلة أو اقتراح عبر [Issues](https://github.com/LOSTSTR/Esharq/issues)
 
-دعمكم هو ما يجعلنا نستمر في تطوير وتحسين هذا المشروع! 💪
+دعمكم هو ما يجعلنا نستمر في تطوير وتحسين هذا المستودع! 💪
 
 ---
 
@@ -253,7 +251,7 @@ pnpm buildWeb
 
 ## ⚠️ إخلاء المسؤولية
 
-Discord هي علامة تجارية مسجلة لشركة Discord Inc.، ولا يُعدّ هذا المشروع تابعاً لها أو معتمداً منها.
+Discord هي علامة تجارية مسجلة لشركة Discord Inc.، ولا يُعدّ هذا المستودع تابعاً لها أو معتمداً منها.
 
 <details>
 <summary>استخدام Esharq ينتهك شروط خدمة Discord</summary>
@@ -271,9 +269,9 @@ Discord هي علامة تجارية مسجلة لشركة Discord Inc.، ولا
 ## 📜 Credits & License | الحقوق والترخيص
 
 > [!IMPORTANT]
-> **English:** This project is a fork of the original [Equicord](https://github.com/Equicord/Equicord) project. All credits for the core engine and framework belong to the original creators. This version is a specialized Arabic distribution managed by LOSTSTR under the name **Esharq**.
+> **English:** Esharq is a fork of [Equicord](https://github.com/Equicord/Equicord). All credit for the core engine and framework belongs to its original authors. Esharq is an Arabic distribution maintained by LOSTSTR.
 >
-> **العربية:** هذا المشروع هو اشتقاق (Fork) من مشروع [Equicord](https://github.com/Equicord/Equicord) الأصلي. كل الحقوق والتقدير للمحرك الأساسي تعود للمطورين الأصليين. هذه النسخة هي توزيعة عربية مخصصة تحت إدارة LOSTSTR بمشاركة الفريق: **krym511** و **𝚁𝙰𝚈𝙼𝙾𝙽𝙳♞** و **Abo Ahmed** و **S99** و **iosiph** و **Bspeed**.
+> **العربية:** إشراق اشتقاق (Fork) من [Equicord](https://github.com/Equicord/Equicord). جميع الحقوق والتقدير للمحرّك الأساسي تعود لمطوّريه الأصليين. إشراق توزيعة عربية بإدارة LOSTSTR.
 
 ### Key Enhancements in this Version | التحسينات في هذه النسخة
 
@@ -283,7 +281,7 @@ Discord هي علامة تجارية مسجلة لشركة Discord Inc.، ولا
 - 🤝 **Dedicated Arabic Support** | دعم فني مخصص للمجتمع العربي
 
 **Maintained by:** [LOSTSTR](https://github.com/LOSTSTR)  
-**Original Project:** [Equicord](https://github.com/Equicord/Equicord)
+**Upstream:** [Equicord](https://github.com/Equicord/Equicord)
 
 ---
 
