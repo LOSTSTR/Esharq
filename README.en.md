@@ -8,7 +8,7 @@
 
 ### The Arabic Discord Client Mod
 
-**A high-performance Discord experience with exclusive customizations by**  
+**A Discord experience with exclusive customizations by**  
 **LOSTSTR · krym511 · 𝚁𝙰𝚈𝙼𝙾𝙽𝙳♞ · Abo Ahmed · S99 · iosiph · .fmo · Bspeed**
 
 ---
