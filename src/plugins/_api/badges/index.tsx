@@ -27,7 +27,7 @@ import { Devs } from "@utils/constants";
 import { copyWithToast } from "@utils/discord";
 import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
-import { isEsharqDev, shouldShowContributorBadge, shouldShowEquicordContributorBadge, shouldShowEsharqContributorBadge, shouldShowEsharqDeveloperBadge } from "@utils/misc";
+import { isEsharqDev, setEsharqTeam, shouldShowContributorBadge, shouldShowEquicordContributorBadge, shouldShowEsharqContributorBadge, shouldShowEsharqDeveloperBadge } from "@utils/misc";
 import definePlugin from "@utils/types";
 import { ContextMenuApi, Menu, Toasts, UserStore } from "@webpack/common";
 
@@ -173,11 +173,17 @@ async function loadAllBadges(noCache = false) {
     const esharqBadges = await loadBadges("https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges.json", noCache);
     // Per-member Esharq Custom badge images (user id → image url).
     const esharqCustom = await loadBadges("https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges/custom/custom.json", noCache);
+    // Esharq team ids (developers + extra contributors). Lets the Developer/Contributor
+    // tiers be granted or revoked by editing team.json — no rebuild — same idea as the
+    // donor/custom JSONs. Isolated with catch so a missing/malformed file leaves the
+    // compiled seed in place (setEsharqTeam falls back) without breaking the other loads.
+    const esharqTeam = await loadBadges("https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/team.json", noCache).catch(() => null);
 
     DonorBadges = vencordBadges;
     EquicordDonorBadges = esharqBadges;
     EsharqDonorBadges = esharqBadges;
     EsharqCustomBadges = esharqCustom;
+    setEsharqTeam(esharqTeam);
 }
 
 let intervalId: any;

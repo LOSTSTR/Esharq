@@ -84,10 +84,30 @@ export const shouldShowContributorBadge = (id: string) => isPluginDev(id) && Ven
 export const isEquicordPluginDev = (id: string) => Object.hasOwn(EquicordDevsById, id);
 export const shouldShowEquicordContributorBadge = (id: string) => isEquicordPluginDev(id) && EquicordDevsById[id].badge !== false;
 
-export const isEsharqDev = (id: string) => EsharqDevs.has(id);
+// Live Esharq team sets — seeded from the compiled constants (offline fallback and
+// no startup flash) and overridden at runtime from Esharq-Bored/team.json by the
+// BadgeAPI, so team tiers can be granted/revoked without rebuilding the client —
+// same idea as the donor/custom badge JSONs.
+let liveEsharqDevs = new Set<string>(EsharqDevs);
+let liveEsharqContributors = new Set<string>(EsharqContributors);
+
+// Called by the BadgeAPI after it fetches team.json. A missing, empty or malformed
+// file falls back to the compiled seed, so a bad or unreachable file never wipes
+// the team's badges.
+export function setEsharqTeam(team: { developers?: unknown; contributors?: unknown; } | null | undefined) {
+    const devsRaw = team && Array.isArray(team.developers) ? team.developers : [];
+    const extraRaw = team && Array.isArray(team.contributors) ? team.contributors : [];
+    const devs = devsRaw.filter((x): x is string => typeof x === "string");
+    const extra = extraRaw.filter((x): x is string => typeof x === "string");
+    const finalDevs = devs.length ? devs : [...EsharqDevs];
+    liveEsharqDevs = new Set(finalDevs);
+    liveEsharqContributors = new Set([...finalDevs, ...extra]);
+}
+
+export const isEsharqDev = (id: string) => liveEsharqDevs.has(id);
 export const shouldShowEsharqDeveloperBadge = (id: string) => isEsharqDev(id);
 
-export const isEsharqContributor = (id: string) => EsharqContributors.has(id);
+export const isEsharqContributor = (id: string) => liveEsharqContributors.has(id);
 export const shouldShowEsharqContributorBadge = (id: string) => isEsharqContributor(id);
 
 export const isAnyPluginDev = (id: string) => Object.hasOwn(VencordDevsById, id) || Object.hasOwn(EquicordDevsById, id);
