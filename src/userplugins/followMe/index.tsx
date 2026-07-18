@@ -38,21 +38,54 @@ function persist() {
     DataStore.set(DS_KEY, targetId ? { id: targetId, name: targetName } : null).catch(() => { });
 }
 
+// A failed move repeats on every voice-state update, so remember which channel we
+// already warned about and only speak up when that changes — otherwise a missing
+// permission would spam a toast several times a second.
+let lastFailedChannel: string | null = null;
+
+function notify(message: string, failure = false) {
+    if (!settings.store.showNotifications) return;
+    Toasts.show({
+        message,
+        type: failure ? Toasts.Type.FAILURE : Toasts.Type.MESSAGE,
+        id: Toasts.genId()
+    });
+}
+
 async function moveTargetTo(guildId: string, channelId: string) {
     if (!targetId || !guildId || !channelId) return;
     const targetState = VoiceStateStore.getVoiceStateForUser(targetId);
     if (!targetState || targetState.channelId === channelId) return;
 
     const channel = ChannelStore.getChannel(channelId);
-    if (!channel || !PermissionStore.can(PermissionsBits.MOVE_MEMBERS, channel)) return;
+    if (!channel) return;
+
+    // Previously this returned silently, so a user without the permission saw the
+    // plugin simply do nothing with no explanation.
+    if (!PermissionStore.can(PermissionsBits.MOVE_MEMBERS, channel)) {
+        if (lastFailedChannel !== channelId) {
+            lastFailedChannel = channelId;
+            notify(t(
+                `تعذّر نقل ${targetName}: لا تملك صلاحية «نقل الأعضاء» في هذه القناة`,
+                `Can't move ${targetName}: you don't have the Move Members permission in this channel`
+            ), true);
+        }
+        return;
+    }
 
     try {
         await RestAPI.patch({
             url: Constants.Endpoints.GUILD_MEMBER(guildId, targetId),
             body: { channel_id: channelId }
         });
+        lastFailedChannel = null;
+        notify(t(`نُقل ${targetName} إلى قناتك`, `Moved ${targetName} to your channel`));
     } catch (e) {
         console.error("[FollowMe] Failed to move user:", e);
+        if (lastFailedChannel !== channelId) {
+            lastFailedChannel = channelId;
+            notify(t(`تعذّر نقل ${targetName}`, `Failed to move ${targetName}`), true);
+        }
     }
 }
 
@@ -61,6 +94,7 @@ function follow(userId: string) {
     const user = UserStore.getUser(userId) as any;
     targetId = userId;
     targetName = user?.globalName ?? user?.username ?? userId;
+    lastFailedChannel = null;
 
     const myId = UserStore.getCurrentUser()?.id;
     const myState = VoiceStateStore.getVoiceStateForUser(myId);
@@ -75,6 +109,7 @@ function unfollow() {
     const name = targetName;
     targetId = null;
     targetName = "";
+    lastFailedChannel = null;
     notifyAll();
     persist();
     Toasts.show({ message: t(`تمّ إيقاف إجبار ${name} على المتابعة`, `Stopped forcing ${name} to follow`), type: Toasts.Type.MESSAGE, id: Toasts.genId() });
@@ -123,6 +158,11 @@ const settings = definePluginSettings({
             en="Warning: moving users without their consent may violate Discord's Terms of Service and could get your account banned. Requires the Move Members permission. Use responsibly."
         />,
     },
+    showNotifications: {
+        type: OptionType.BOOLEAN,
+        default: true,
+        description: "Show a notification when the user is moved, and when a move fails (e.g. you lack the Move Members permission here)",
+    },
 });
 
 export default definePlugin({
@@ -168,6 +208,7 @@ export default definePlugin({
     stop() {
         targetId = null;
         targetName = "";
+        lastFailedChannel = null;
         removeContextMenuPatch("user-context", ctxPatch);
         removeContextMenuPatch("user-profile-actions", ctxPatch);
     },

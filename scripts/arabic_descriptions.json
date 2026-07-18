@@ -421,7 +421,6 @@
   "src/userplugins/betterMicrophone.desktop/index.tsx": "يتيح لك تخصيص إعدادات الميكروفون بشكل أعمق.",
   "src/userplugins/BigFileUploadEnhanced/index.tsx": "خدمة الرفع",
   "src/userplugins/guildCopier/index.tsx": "نسخ الأدوار من السيرفر الأصلي",
-  "src/userplugins/laisse/index.tsx": "تفعيل إضافة Leash",
   "src/userplugins/NitroSniper/index.tsx": "عرض إشعار عند استبدال كود نيترو بنجاح.",
   "src/userplugins/philsPluginLibrary/index.tsx": "مكتبة لإضافات phil",
   "src/userplugins/VencordCustomScreenSharePreview-main/index.ts": "يضيف إمكانية اختيار صورتك الخاصة كمعاينة لمشاركة الشاشة."

@@ -197,10 +197,10 @@ function parseCommit(c) {
     if (!category) return null; // unrecognised prefix — don't guess
 
     // Bilingual detail from commit trailers (preferred), else fall back to the subject.
-    const ar = sanitise((c.body.match(/^notify-ar:\s*(.+)$/mi) ?? [])[1] ?? "", 400);
-    const en = sanitise((c.body.match(/^notify-en:\s*(.+)$/mi) ?? [])[1] ?? "", 400);
+    const ar = sanitise((c.body.match(/^notify-ar:\s*(.+)$/mi) ?? [])[1] ?? "", 600);
+    const en = sanitise((c.body.match(/^notify-en:\s*(.+)$/mi) ?? [])[1] ?? "", 600);
 
-    return { category, scope, ar, en: en || title };
+    return { sha: c.sha, category, scope, ar, en: en || title };
 }
 
 // ─── Plugin metadata (for new-plugin announcements) ──────────────────────────
@@ -342,17 +342,34 @@ async function main() {
     const commits = getCommits();
     const parsed = commits.map(parseCommit).filter(Boolean);
 
+    // A commit that removes a plugin is announced under "حذف · Removed"; remember its sha
+    // so the very same text isn't repeated under its conventional-commit category too.
+    const removedShas = new Set();
+
     const removedNames = deletedPluginFiles.map(f => {
-        const name = (f.match(/\/(equicordplugins|userplugins)\/([^/]+)\//) ?? [])[2] ?? f;
+        // Folder name is the fallback, but announce the real plugin name when we can get
+        // it — the folder often differs (e.g. folder "laisse" held the plugin "Leash").
+        let name = (f.match(/\/(equicordplugins|userplugins)\/([^/]+)\//) ?? [])[2] ?? f;
         // Reason: the in-range commit that deleted this file, if it carries trailers.
         let ar = "", en = "";
         try {
             const sha = run(`git log --diff-filter=D --format=%H -1 HEAD -- "${f}"`).trim();
             if (sha) {
+                removedShas.add(sha);
+                try {
+                    // The file still exists in that commit's PARENT — read its real name.
+                    // Use ~1, not ^: on Windows shells ^ is an escape character and gets
+                    // swallowed, so the lookup would hit the deleting commit itself.
+                    const before = run(`git show ${sha}~1:"${f}"`);
+                    const defIdx = before.search(/definePlugin\s*\(/);
+                    const defSrc = defIdx >= 0 ? before.slice(defIdx) : before;
+                    const real = (defSrc.match(/\bname:\s*["']([^"']+)["']/) ?? [])[1];
+                    if (real) name = real;
+                } catch { /* first commit, or file unreadable — keep the folder name */ }
                 // Newlines preserved here too, for the same trailer-matching reason.
                 const body = String(run(`git log -1 --pretty=%b ${sha}`)).replace(/\r/g, "").slice(0, 4000);
-                ar = sanitise((body.match(/^notify-ar:\s*(.+)$/mi) ?? [])[1] ?? "", 400);
-                en = sanitise((body.match(/^notify-en:\s*(.+)$/mi) ?? [])[1] ?? "", 400);
+                ar = sanitise((body.match(/^notify-ar:\s*(.+)$/mi) ?? [])[1] ?? "", 600);
+                en = sanitise((body.match(/^notify-en:\s*(.+)$/mi) ?? [])[1] ?? "", 600);
                 if (!en) en = sanitise(run(`git log -1 --pretty=%s ${sha}`), 300);
             }
         } catch { /* ignore — fall back to the bare name */ }
@@ -361,7 +378,7 @@ async function main() {
 
     // 3. Updates — grouped by category across the WHOLE push.
     if (process.env.SKIP_UPDATE !== "1") {
-        const messages = buildUpdateMessages(parsed, removedNames);
+        const messages = buildUpdateMessages(parsed.filter(p => !removedShas.has(p.sha)), removedNames);
         for (const content of messages) {
             console.log(`🔧 Update message (${content.length} chars)`);
             await send(WEBHOOK_UPDATES, content, "UPDATES");

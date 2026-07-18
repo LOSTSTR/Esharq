@@ -10,5 +10,11 @@ export default definePluginI18n({
     "description": {
         "ar": "يُجبر مستخدماً على متابعتك بين القنوات الصوتية عندما تملك صلاحية «نقل الأعضاء». انقر بزر يمين على مستخدم ← اجعله يتبعني.",
         "en": "Forces a user to follow you between voice channels when you have the Move Members permission. Right-click a user → Follow Me."
+    },
+    "options": {
+        "showNotifications": {
+            "ar": "إظهار تنبيه عند نقل المستخدم، وعند فشل النقل (مثلاً إن لم تملك صلاحية «نقل الأعضاء» في تلك القناة)",
+            "en": "Show a notification when the user is moved, and when a move fails (e.g. you lack the Move Members permission there)"
+        }
     }
 });
