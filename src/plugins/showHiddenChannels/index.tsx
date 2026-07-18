@@ -84,7 +84,7 @@ export default definePlugin({
     name: "ShowHiddenChannels",
     description: "Shows hidden channels while indicating they are inaccessible",
     tags: ["Servers", "Utility"],
-    authors: [Devs.BigDuck, Devs.AverageReactEnjoyer, Devs.D3SOX, Devs.Ven, Devs.Nuckyz, Devs.Nickyux, Devs.dzshn, EquicordDevs.Oggetto],
+    authors: [Devs.BigDuck, Devs.AverageReactEnjoyer, Devs.D3SOX, Devs.Ven, Devs.Nuckyz, Devs.Nickyux, Devs.Rini, EquicordDevs.Oggetto],
     isModified: true,
     settings,
 

@@ -143,7 +143,7 @@ export default definePlugin({
     name: "ServerListIndicators",
     description: "Adds visual indicators in the server list",
     tags: ["Servers", "Appearance"],
-    authors: [Devs.dzshn, EquicordDevs.Panniku],
+    authors: [Devs.Rini, EquicordDevs.Panniku],
     dependencies: ["ServerListAPI"],
     settings,
 

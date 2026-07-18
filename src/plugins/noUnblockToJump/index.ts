@@ -23,7 +23,7 @@ export default definePlugin({
     name: "NoUnblockToJump",
     description: "Allows jumping to messages from blocked and ignored users without needing to unblock them",
     tags: ["Utility"],
-    authors: [Devs.dzshn],
+    authors: [Devs.Rini],
     patches: [
         {
             find: "#{intl::UNIGNORE_TO_JUMP_BODY}",
