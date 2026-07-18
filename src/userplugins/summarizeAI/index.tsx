@@ -8,6 +8,7 @@ import { ApplicationCommandInputType, ApplicationCommandOptionType, findOption, 
 import { definePluginSettings } from "@api/Settings";
 import { AIChatMessage, esharqChat, GROQ_MODEL_OPTIONS } from "@utils/esharqAI";
 import { t } from "@utils/esharqI18n";
+import { sleep } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Message } from "@vencord/discord-types";
 import { ChannelStore, Constants, RestAPI, SnowflakeUtils, UserStore } from "@webpack/common";
@@ -67,7 +68,7 @@ async function fetchMessages(channelId: string, limit: number, timeframeHours?: 
 
         before = batch[batch.length - 1].id;
         if (batch.length < batchSize) break;
-        await new Promise(r => setTimeout(r, 250));
+        await sleep(250); // rate-limit courtesy between fetch batches (shared helper)
     }
 
     return messages;
