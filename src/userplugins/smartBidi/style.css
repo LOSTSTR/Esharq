@@ -1,0 +1,22 @@
+/* [--messageContent] is a placeholder filled by setStyleClassNames in index.ts
+   with Discord's real (mangled) class name. If it can't resolve, the placeholder
+   stays and simply matches nothing — the fix is absent for that build, never
+   broken. .mention / a / code / bdi are stable literal tags/classes. */
+
+/* unicode-bidi: plaintext makes each line's base direction follow its own
+   content (first strong character), overriding Discord's binary markupRtl
+   guess. So an Arabic message that Discord mis-detected as LTR (because it
+   starts with a number, a mention or a Latin word) is ordered correctly. */
+[--messageContent] {
+    unicode-bidi: plaintext;
+}
+
+/* Isolate inline LTR tokens so a mention, link, number-run or code span can't
+   hijack the direction of the Arabic around it, nor reorder at its boundaries.
+   isolate presents each as a single neutral object to the surrounding bidi.
+   Replaced elements (emoji <img>) are already neutral, so they need nothing. */
+[--messageContent] .mention,
+[--messageContent] a,
+[--messageContent] code {
+    unicode-bidi: isolate;
+}
