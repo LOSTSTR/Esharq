@@ -33,17 +33,17 @@ interface StyledCardProps {
     subtitle?: string;
     description: string;
     cardImage?: string;
-    backgroundImage?: string;
     backgroundColor?: string;
     buttonTitle?: string;
     buttonOnClick?: () => void;
 }
 
-export function SpecialCard({ title, subtitle, description, cardImage, backgroundImage, backgroundColor, buttonTitle, buttonOnClick: onClick, children }: PropsWithChildren<StyledCardProps>) {
-    const cardStyle: React.CSSProperties = {
-        backgroundColor: backgroundColor || "#9c85ef",
-        backgroundImage: `url(${backgroundImage || ""})`,
-    };
+export function SpecialCard({ title, subtitle, description, cardImage, backgroundColor, buttonTitle, buttonOnClick: onClick, children }: PropsWithChildren<StyledCardProps>) {
+    // backgroundColor is the card's accent — fed to the Midnight Gold styles in
+    // SpecialCard.css (border + glow + title + buttons) via the --vc-accent var.
+    const cardStyle = {
+        "--vc-accent": backgroundColor || "#9c85ef",
+    } as React.CSSProperties;
 
     return (
         <Card className={cl("card", "card-special")} style={cardStyle}>

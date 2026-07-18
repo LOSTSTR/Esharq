@@ -18,6 +18,7 @@ import { Notice } from "@components/Notice";
 import { Paragraph } from "@components/Paragraph";
 import { openContributorModal, openPluginModal, SettingsTab, wrapTab } from "@components/settings";
 import { QuickAction, QuickActionCard } from "@components/settings/QuickAction";
+import { ESHARQ_LOGO } from "@components/settings/esharqLogo";
 import { SpecialCard } from "@components/settings/SpecialCard";
 import BadgeAPI from "@plugins/_api/badges";
 import { gitRemote } from "@shared/vencordUserAgent";
@@ -27,21 +28,12 @@ import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { isAnyPluginDev, isEsharqContributor } from "@utils/misc";
 import { relaunch } from "@utils/native";
-import { Alerts, GuildMemberStore, React, useMemo, UserStore } from "@webpack/common";
+import { Alerts, GuildMemberStore, React, UserStore } from "@webpack/common";
 
 import { DonateButtonComponent } from "./DonateButton";
 import { MacOSVibrancySettings } from "./MacVibrancySettings";
 import { NotificationSection } from "./NotificationSettings";
 import { WindowsMaterialSettings } from "./WindowsMaterialSettings";
-
-const DEFAULT_DONATE_IMAGE = "https://raw.githubusercontent.com/LOSTSTR/Esharq/main/browser/icon.png";
-const SHIGGY_DONATE_IMAGE = "https://raw.githubusercontent.com/LOSTSTR/Esharq/main/browser/icon.png";
-
-const VENNIE_DONATOR_IMAGE = "https://cdn.discordapp.com/emojis/1238120638020063377.png";
-const COZY_CONTRIB_IMAGE = "https://cdn.discordapp.com/emojis/1026533070955872337.png";
-
-const DONOR_BACKGROUND_IMAGE = "https://media.discordapp.net/stickers/1311070116305436712.png?size=2048";
-const CONTRIB_BACKGROUND_IMAGE = "https://media.discordapp.net/stickers/1311070166481895484.png?size=2048";
 
 const cl = classNameFactory("vc-vencord-tab-");
 
@@ -54,11 +46,6 @@ function EquicordSettings() {
     useSettings(["plugins.Settings.arabicMode"]);
 
     const arabicMode: boolean = (Settings.plugins as any)?.Settings?.arabicMode ?? false;
-
-    const donateImage = useMemo(() =>
-        Math.random() > 0.5 ? DEFAULT_DONATE_IMAGE : SHIGGY_DONATE_IMAGE,
-        []
-    );
 
     const user = UserStore?.getCurrentUser();
 
@@ -196,8 +183,7 @@ function EquicordSettings() {
                                     "All Esharq users can see your badge! You can manage your perks by opening a ticket in the Esharq server."
                                 )
                     }
-                    cardImage={VENNIE_DONATOR_IMAGE}
-                    backgroundImage={DONOR_BACKGROUND_IMAGE}
+                    cardImage={ESHARQ_LOGO}
                     backgroundColor="#ED87A9"
                 >
                     <DonateButtonComponent donated={true} />
@@ -209,8 +195,7 @@ function EquicordSettings() {
                         "يسعدنا دعمك لتطوير Esharq من خلال التبرع!",
                         "Support Esharq development by donating!"
                     )}
-                    cardImage={donateImage}
-                    backgroundImage={DONOR_BACKGROUND_IMAGE}
+                    cardImage={ESHARQ_LOGO}
                     backgroundColor="#c3a3ce"
                 >
                     <DonateButtonComponent />
@@ -224,8 +209,7 @@ function EquicordSettings() {
                         "بفضل مساهمتك في Esharq، حصلت على شارة مميزة!",
                         "As a contributor to Esharq, you earned a special badge!"
                     )}
-                    cardImage={COZY_CONTRIB_IMAGE}
-                    backgroundImage={CONTRIB_BACKGROUND_IMAGE}
+                    cardImage={ESHARQ_LOGO}
                     backgroundColor="#EDCC87"
                 >
                     <Button
@@ -235,7 +219,7 @@ function EquicordSettings() {
                         onClick={() => openContributorModal(user)}
                         className="vc-contrib-button"
                     >
-                        <GithubIcon aria-hidden fill={"#000000"} className={"vc-contrib-github"} />
+                        <GithubIcon aria-hidden fill="currentColor" className={"vc-contrib-github"} />
                         {t("عرض مساهماتك", "View your contributions")}
                     </Button>
                 </SpecialCard>
