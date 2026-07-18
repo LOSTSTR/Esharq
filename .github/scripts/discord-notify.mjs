@@ -151,7 +151,11 @@ function getCommits() {
             return {
                 sha: (sha ?? "").trim(),
                 subject: sanitise(subject, 256),
-                body: sanitise(body ?? "", 2000),
+                // Keep the body's NEWLINES — sanitise() strips \x00-\x1F, which includes
+                // \n, and that would flatten the message into one line so the multiline
+                // `notify-ar:` / `notify-en:` trailers could never match. Each extracted
+                // trailer value is sanitised individually in parseCommit().
+                body: String(body ?? "").replace(/\r/g, "").slice(0, 4000),
             };
         })
         .reverse(); // oldest first, so announcements read chronologically
@@ -336,7 +340,8 @@ async function main() {
         try {
             const sha = run(`git log --diff-filter=D --format=%H -1 HEAD -- "${f}"`).trim();
             if (sha) {
-                const body = sanitise(run(`git log -1 --pretty=%b ${sha}`), 2000);
+                // Newlines preserved here too, for the same trailer-matching reason.
+                const body = String(run(`git log -1 --pretty=%b ${sha}`)).replace(/\r/g, "").slice(0, 4000);
                 ar = sanitise((body.match(/^notify-ar:\s*(.+)$/mi) ?? [])[1] ?? "", 400);
                 en = sanitise((body.match(/^notify-en:\s*(.+)$/mi) ?? [])[1] ?? "", 400);
                 if (!en) en = sanitise(run(`git log -1 --pretty=%s ${sha}`), 300);
