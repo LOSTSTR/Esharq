@@ -234,10 +234,19 @@ function extractPluginInfo(filePath) {
 
 const LIMIT = 1900;
 
+// Arabic lines almost always embed Latin tokens (plugin names, "commit", API names).
+// Without an explicit base direction Discord renders those lines scrambled for EVERY
+// reader. U+2067 (RLI) … U+2069 (PDI) forces an isolated RTL context so each Latin run
+// becomes a correctly-placed LTR island. These are U+20xx, so sanitise() (which only
+// strips \x00-\x1F and \x7F) leaves them intact.
+const RLI = "⁧";
+const PDI = "⁩";
+const rtl = text => `${RLI}${text}${PDI}`;
+
 function entryBlock(name, ar, en) {
     const lines = [];
     if (name) lines.push(`**\`${name}\`**`);
-    if (ar) lines.push(`> ${ar}`);
+    if (ar) lines.push(`> ${rtl(ar)}`);
     if (en) lines.push(`> ${en}`);
     return lines.join("\n");
 }
