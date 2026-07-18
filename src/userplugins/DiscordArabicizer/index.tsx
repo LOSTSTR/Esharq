@@ -200,7 +200,9 @@ const NUMERIC_PATTERNS: { re: RegExp; ar: (m: RegExpMatchArray) => string }[] = 
     { re: /^You may be sharing activity from (\d+) games you play, including$/, ar: m => `قد تشارك نشاط ${m[1]} لعبة تلعبها، منها` },
     { re: /^Your full profile is visible to friends and any server you join with (\d+) or fewer members\. Everyone else sees a limited version\.$/, ar: m => `ملفك الشخصي الكامل ظاهر لأصدقائك ولأي خادم تنضمّ إليه بـ${m[1]} عضواً أو أقل. أما البقية فيرون نسخة محدودة.` },
     { re: /^Your activity is shared with friends and any server you join with (\d+) or fewer members\.$/, ar: m => `يُشارَك نشاطك مع أصدقائك ومع أي خادم تنضمّ إليه بـ${m[1]} عضواً أو أقل.` },
-    { re: /^Show (\d+) more items?$/, ar: m => `عرض ${m[1]} عنصراً إضافياً` }
+    { re: /^Show (\d+) more items?$/, ar: m => `عرض ${m[1]} عنصراً إضافياً` },
+    // بطاقة نشاط البثّ: العدد مخبوز في النصّ فيلزمه نمط لا مدخل قاموس.
+    { re: /^In a party of (\d+)$/, ar: m => `في مجموعة من ${m[1]}` }
 ];
 
 function numericTemplate(text: string): string | null {

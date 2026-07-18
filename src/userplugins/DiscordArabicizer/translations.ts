@@ -4536,4 +4536,10 @@ export const translations: Record<string, string> = {
     "OpenH264 Video Codec provided by Cisco Systems, Inc.": "مُرمِّز الفيديو OpenH264 مقدَّم من Cisco Systems, Inc.",
     // قالب معدّل الإطارات: {fps} نائب يملؤه formatMessage — لذا يبقى حرفياً في القيمة.
     "{fps}FPS": "{fps} إطار/ث",
+
+    // ── دفعة 52: بطاقة البثّ + اشتراك Nitro Squad ──
+    // أسماء الثيمات ومنتجات Nitro (Blurple, Sakura, Cybercity, Krisp, Nitro Squad …)
+    // تبقى إنجليزية عمداً — أسماء منتجات لا تُترجَم.
+    "Streaming Now": "يبثّ الآن",
+    "Watching Stream": "مشاهدة البثّ",
 };
