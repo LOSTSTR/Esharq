@@ -43,6 +43,16 @@ const settings = definePluginSettings({
         default: false,
         description: "Leave the voice channel when the followed user leaves",
     },
+    pauseWhileStreaming: {
+        type: OptionType.BOOLEAN,
+        default: false,
+        description: "Don't auto-join while you're screen-sharing or on camera, so following can't yank you out of your own stream (you can still rejoin manually with the header button)",
+    },
+    notifyOnAutoJoin: {
+        type: OptionType.BOOLEAN,
+        default: true,
+        description: "Show a small toast when you're automatically moved into the followed user's channel",
+    },
     friendsOnly: {
         type: OptionType.BOOLEAN,
         default: false,
@@ -54,6 +64,17 @@ function amIInVoice(): boolean {
     try {
         const myId = UserStore?.getCurrentUser?.()?.id;
         return !!(myId && VoiceStateStore?.getVoiceStateForUser?.(myId)?.channelId);
+    } catch { return false; }
+}
+
+// selfStream = screen-sharing, selfVideo = camera. Field names verified against
+// the same fields used by randomVoice / voiceChannelLog, not guessed.
+function amIStreaming(): boolean {
+    try {
+        const myId = UserStore?.getCurrentUser?.()?.id;
+        if (!myId) return false;
+        const vs = VoiceStateStore?.getVoiceStateForUser?.(myId);
+        return !!(vs?.selfStream || vs?.selfVideo);
     } catch { return false; }
 }
 
@@ -150,8 +171,14 @@ function onVoiceStateUpdates(data: any) {
             if (newCh) {
                 // onlyWhenInVoice: don't auto-join unless we're already connected to voice
                 if (settings.store.onlyWhenInVoice && !amIInVoice()) continue;
+                // pauseWhileStreaming: never yank you out of your own stream/camera.
+                // Checked before resetInactivityTimer so a skipped move doesn't re-arm it.
+                if (settings.store.pauseWhileStreaming && amIStreaming()) continue;
                 resetInactivityTimer(); // activite detectee, on repart pour 30min
                 joinChannel(newCh);
+                if (settings.store.notifyOnAutoJoin) {
+                    Toasts.show({ message: t(`انتقلت مع ${followedName}`, `Moved with ${followedName}`), type: Toasts.Type.MESSAGE, id: Toasts.genId() });
+                }
             } else if (settings.store.leaveWhenUserLeaves && prevCh) {
                 // followed user left voice → leave too
                 leaveChannel();

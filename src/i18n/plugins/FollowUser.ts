@@ -28,6 +28,14 @@ export default definePluginI18n({
             "ar": "مغادرة القناة الصوتية عند مغادرة المستخدم المُتابَع",
             "en": "Leave the voice channel when the followed user leaves"
         },
+        "pauseWhileStreaming": {
+            "ar": "لا تنضمّ تلقائياً أثناء مشاركتك للشاشة أو تشغيل الكاميرا، حتى لا تسحبك المتابعة من بثّك (يمكنك إعادة الانضمام يدوياً بزرّ الشريط العلوي).",
+            "en": "Don't auto-join while you're screen-sharing or on camera, so following can't yank you out of your own stream (you can still rejoin manually with the header button)"
+        },
+        "notifyOnAutoJoin": {
+            "ar": "إظهار تنبيه صغير عند نقلك تلقائياً إلى قناة المستخدم المُتابَع",
+            "en": "Show a small toast when you're automatically moved into the followed user's channel"
+        },
         "friendsOnly": {
             "ar": "السماح بمتابعة الأصدقاء فقط",
             "en": "Only allow following friends"
