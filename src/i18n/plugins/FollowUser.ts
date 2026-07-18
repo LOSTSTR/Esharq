@@ -35,10 +35,6 @@ export default definePluginI18n({
         "notifyOnAutoJoin": {
             "ar": "إظهار تنبيه صغير عند نقلك تلقائياً إلى قناة المستخدم المُتابَع",
             "en": "Show a small toast when you're automatically moved into the followed user's channel"
-        },
-        "friendsOnly": {
-            "ar": "السماح بمتابعة الأصدقاء فقط",
-            "en": "Only allow following friends"
         }
     }
 });

@@ -17,7 +17,6 @@ import { Menu, React, Toasts, useEffect,useState } from "@webpack/common";
 const VoiceStateStore = findStoreLazy("VoiceStateStore");
 const ChannelStore = findStoreLazy("ChannelStore");
 const UserStore = findStoreLazy("UserStore");
-const RelationshipStore = findStoreLazy("RelationshipStore");
 const FluxDispatcher = findByPropsLazy("dispatch", "subscribe");
 
 const DS_KEY = "followuser-v2";
@@ -53,11 +52,6 @@ const settings = definePluginSettings({
         default: true,
         description: "Show a small toast when you're automatically moved into the followed user's channel",
     },
-    friendsOnly: {
-        type: OptionType.BOOLEAN,
-        default: false,
-        description: "Only allow following friends",
-    },
 });
 
 function amIInVoice(): boolean {
@@ -76,10 +70,6 @@ function amIStreaming(): boolean {
         const vs = VoiceStateStore?.getVoiceStateForUser?.(myId);
         return !!(vs?.selfStream || vs?.selfVideo);
     } catch { return false; }
-}
-
-function isFriend(userId: string): boolean {
-    try { return RelationshipStore?.getFriendIDs?.()?.includes(userId) ?? false; } catch { return false; }
 }
 
 // ── Etat global ───────────────────────────────────────────────────────────────
@@ -283,7 +273,6 @@ const ctxPatch: NavContextMenuPatchCallback = (children, props) => {
     const userId: string | undefined = props?.user?.id;
     if (!userId) return;
     if (userId === UserStore?.getCurrentUser?.()?.id) return;
-    if (settings.store.friendsOnly && !isFriend(userId)) return;
     const isFollowed = followedId === userId;
     children.push(
         <Menu.MenuCheckboxItem
