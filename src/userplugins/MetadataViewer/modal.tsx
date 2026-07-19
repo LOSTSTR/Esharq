@@ -60,7 +60,7 @@ const CopyButton = ({ text }: CopyButtonProps) => {
     const handleCopy = () => {
         copyToClipboard(text);
         setCopied(true);
-        showToast("Copied to clipboard!", Toasts.Type.SUCCESS);
+        showToast(t("تم النسخ إلى الحافظة!", "Copied to clipboard!"), Toasts.Type.SUCCESS);
         setTimeout(() => setCopied(false), 2000);
     };
 
@@ -174,7 +174,7 @@ export function MetadataScannerModal({ rootProps, url, name, mimeType, size }: {
 
     const copyImageToClipboard = async () => {
         try {
-            showToast("Copying image...", Toasts.Type.MESSAGE);
+            showToast(t("جارٍ نسخ الصورة…", "Copying image..."), Toasts.Type.MESSAGE);
             const response = await fetch(url);
             const blob = await response.blob();
 
@@ -200,17 +200,17 @@ export function MetadataScannerModal({ rootProps, url, name, mimeType, size }: {
                     "image/png": pngBlob
                 })
             ]);
-            showToast("Image copied to clipboard!", Toasts.Type.SUCCESS);
+            showToast(t("تم نسخ الصورة إلى الحافظة!", "Image copied to clipboard!"), Toasts.Type.SUCCESS);
         } catch (err) {
             logger.error("Failed to copy image to clipboard", err);
-            showToast("Failed to copy image: " + String(err), Toasts.Type.FAILURE);
+            showToast(t("تعذّر نسخ الصورة: ", "Failed to copy image: ") + String(err), Toasts.Type.FAILURE);
         }
     };
 
     const downloadImage = async () => {
         let blobUrl: string | null = null;
         try {
-            showToast("Downloading image...", Toasts.Type.MESSAGE);
+            showToast(t("جارٍ تنزيل الصورة…", "Downloading image..."), Toasts.Type.MESSAGE);
             const response = await fetch(url);
             const blob = await response.blob();
             blobUrl = URL.createObjectURL(blob);
@@ -221,10 +221,10 @@ export function MetadataScannerModal({ rootProps, url, name, mimeType, size }: {
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            showToast("Image download started!", Toasts.Type.SUCCESS);
+            showToast(t("بدأ تنزيل الصورة!", "Image download started!"), Toasts.Type.SUCCESS);
         } catch (err) {
             logger.error("Failed to download image", err);
-            showToast("Failed to download: " + String(err), Toasts.Type.FAILURE);
+            showToast(t("تعذّر التنزيل: ", "Failed to download: ") + String(err), Toasts.Type.FAILURE);
         } finally {
             if (blobUrl) URL.revokeObjectURL(blobUrl);
         }
@@ -772,7 +772,7 @@ export function MetadataScannerModal({ rootProps, url, name, mimeType, size }: {
                             <div style={{ marginTop: "6px", display: "flex", justifyContent: "flex-end" }}>
                                 <Button size={Button.Sizes.MIN} color={Button.Colors.PRIMARY} onClick={() => {
                                     navigator.clipboard.writeText(sdParams.prompt);
-                                    showToast("Copied prompt!", Toasts.Type.SUCCESS);
+                                    showToast(t("تم نسخ الـ prompt!", "Copied prompt!"), Toasts.Type.SUCCESS);
                                 }}>Copy Prompt</Button>
                             </div>
                         </div>
@@ -783,7 +783,7 @@ export function MetadataScannerModal({ rootProps, url, name, mimeType, size }: {
                                 <div style={{ marginTop: "6px", display: "flex", justifyContent: "flex-end" }}>
                                     <Button size={Button.Sizes.MIN} color={Button.Colors.PRIMARY} onClick={() => {
                                         navigator.clipboard.writeText(sdParams.negativePrompt!);
-                                        showToast("Copied negative prompt!", Toasts.Type.SUCCESS);
+                                        showToast(t("تم نسخ الـ negative prompt!", "Copied negative prompt!"), Toasts.Type.SUCCESS);
                                     }}>Copy Negative Prompt</Button>
                                 </div>
                             </div>
@@ -811,7 +811,7 @@ export function MetadataScannerModal({ rootProps, url, name, mimeType, size }: {
                             {sdParams.seed && (
                                 <div className="vc-mds-sd-badge" style={{ cursor: "pointer" }} onClick={() => {
                                     navigator.clipboard.writeText(sdParams.seed!);
-                                    showToast("Copied seed!", Toasts.Type.SUCCESS);
+                                    showToast(t("تم نسخ الـ seed!", "Copied seed!"), Toasts.Type.SUCCESS);
                                 }} title={t("انقر لنسخ Seed", "Click to copy Seed")}>
                                     <span className="vc-mds-sd-badge-label">Seed</span>
                                     <span className="vc-mds-sd-badge-value">{sdParams.seed}</span>
@@ -908,7 +908,7 @@ export function MetadataScannerModal({ rootProps, url, name, mimeType, size }: {
                         <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "8px" }}>
                             <Button size={Button.Sizes.MIN} color={Button.Colors.PRIMARY} onClick={() => {
                                 navigator.clipboard.writeText(jsonText);
-                                showToast("Copied raw JSON!", Toasts.Type.SUCCESS);
+                                showToast(t("تم نسخ JSON الخام!", "Copied raw JSON!"), Toasts.Type.SUCCESS);
                             }}>Copy Raw JSON</Button>
                         </div>
                         <pre className="vc-mds-raw-pre">{jsonText}</pre>
