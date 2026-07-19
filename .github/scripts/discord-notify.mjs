@@ -387,7 +387,7 @@ async function send(url, content, kind) {
         return;
     }
     try {
-        await postWebhook(url, { username: "Esharq", avatar_url: ICON_URL, content });
+        await postWebhook(url, { username: "اشراق", avatar_url: ICON_URL, content });
     } catch (e) {
         console.error(`  ${kind} webhook failed: ${e.message}`);
     }
