@@ -55,7 +55,10 @@ export default definePlugin({
                 },
                 {
                     predicate: () => !settings.store.noQuickReacts,
-                    match: /\i(\?null:\(0,\i\.jsxs\).{0,100}message:\i\}\)),\(0,\i\.jsxs?\)\(\i,\{\}\)/,
+                    // The quick-react element is now a member expression (`ns.$$`) rather
+                    // than a bare identifier, so the trailing component needs an optional
+                    // `<ident>.` prefix or this never matches.
+                    match: /\i(\?null:\(0,\i\.jsxs\).{0,100}message:\i\}\)),\(0,\i\.jsxs?\)\((?:\i\.)?\i,\{\}\)/,
                     replace: "false$1"
                 },
             ]
