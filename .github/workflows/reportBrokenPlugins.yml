@@ -41,7 +41,10 @@ jobs:
             - uses: actions/checkout@v7
               with:
                   repository: ${{ inputs.pr_repo || github.repository }}
-                  ref: ${{ inputs.pr_branch || (github.event_name == 'schedule' && 'dev' || github.ref) }}
+                  # 'main' is this fork's default branch — upstream Equicord schedules this
+                  # against its own 'dev', which does not exist here, so every nightly run
+                  # died at checkout and the patch report never ran.
+                  ref: ${{ inputs.pr_branch || (github.event_name == 'schedule' && 'main' || github.ref) }}
 
             - uses: pnpm/action-setup@v6
 

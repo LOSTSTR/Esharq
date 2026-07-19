@@ -10,11 +10,12 @@ on:
             branch:
                 type: choice
                 description: "Branch to build and upload"
+                # Upstream offers dev/translation here; this fork only ever has main,
+                # so a dispatch left on the inherited default built a branch that
+                # does not exist.
                 options:
                     - main
-                    - dev
-                    - translation
-                default: "dev"
+                default: "main"
 
 env:
     FORCE_COLOR: true
