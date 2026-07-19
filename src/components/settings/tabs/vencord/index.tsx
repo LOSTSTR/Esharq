@@ -17,8 +17,8 @@ import { FolderIcon, GithubIcon, LogIcon, PaintbrushIcon, RestartIcon } from "@c
 import { Notice } from "@components/Notice";
 import { Paragraph } from "@components/Paragraph";
 import { openContributorModal, openPluginModal, SettingsTab, wrapTab } from "@components/settings";
-import { QuickAction, QuickActionCard } from "@components/settings/QuickAction";
 import { ESHARQ_LOGO } from "@components/settings/esharqLogo";
+import { QuickAction, QuickActionCard } from "@components/settings/QuickAction";
 import { SpecialCard } from "@components/settings/SpecialCard";
 import BadgeAPI from "@plugins/_api/badges";
 import { gitRemote } from "@shared/vencordUserAgent";
