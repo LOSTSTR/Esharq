@@ -210,11 +210,16 @@ async function createActivity(): Promise<Activity | undefined> {
 }
 
 export async function setRpc(disable?: boolean) {
-    const activity: Activity | undefined = await createActivity();
+    // Never build the activity when clearing it. createActivity() awaits network
+    // lookups for the image assets, so if one rejected — offline, bad app id, rate
+    // limit — this function threw before dispatching and the activity stayed on the
+    // profile after the plugin was turned off. Clearing now dispatches synchronously
+    // and cannot fail.
+    const activity: Activity | null | undefined = disable ? null : await createActivity();
 
     FluxDispatcher.dispatch({
         type: "LOCAL_ACTIVITY_UPDATE",
-        activity: !disable ? activity : null,
+        activity,
         socketId: "CustomRPC",
     });
 }

@@ -29,3 +29,12 @@
 .vc-customRPC-settings-error {
     color: var(--text-feedback-critical);
 }
+
+.vc-customRPC-settings-preview {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: var(--background-secondary);
+    justify-self: start;
+}

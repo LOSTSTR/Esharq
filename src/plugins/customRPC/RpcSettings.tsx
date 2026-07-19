@@ -28,6 +28,9 @@ interface TextOption<T> {
     disabled?: boolean;
     transform?: (value: string) => T;
     isValid?: (value: T) => true | string;
+    /** Render the value as an image below the field, so a wrong link is obvious here
+     *  instead of only after saving and opening your own profile. */
+    preview?: boolean;
 }
 
 interface SelectOption<T> {
@@ -38,15 +41,15 @@ interface SelectOption<T> {
 }
 
 const makeValidator = (maxLength: number, isRequired = false) => (value: string) => {
-    if (isRequired && !value) return "This field is required.";
-    if (value.length > maxLength) return `Must be not longer than ${maxLength} characters.`;
+    if (isRequired && !value) return t("هذا الحقل مطلوب.", "This field is required.");
+    if (value.length > maxLength) return t(`يجب ألّا يتجاوز ${maxLength} حرفاً.`, `Must be not longer than ${maxLength} characters.`);
     return true;
 };
 
 const maxLength128 = makeValidator(128);
 
 function isAppIdValid(value: string) {
-    if (!/^\d{16,21}$/.test(value)) return "Must be a valid Discord ID.";
+    if (!/^\d{16,21}$/.test(value)) return t("يجب أن يكون مُعرِّف ديسكورد صالحاً.", "Must be a valid Discord ID.");
     return true;
 }
 
@@ -60,8 +63,8 @@ function isStreamLinkDisabled() {
 }
 
 function isStreamLinkValid(value: string) {
-    if (!isStreamLinkDisabled() && !/https?:\/\/(www\.)?(twitch\.tv|youtube\.com)\/\w+/.test(value)) return "Streaming link must be a valid URL.";
-    if (value && value.length > 512) return "Streaming link must be not longer than 512 characters.";
+    if (!isStreamLinkDisabled() && !/https?:\/\/(www\.)?(twitch\.tv|youtube\.com)\/\w+/.test(value)) return t("رابط البثّ يجب أن يكون رابطاً صالحاً.", "Streaming link must be a valid URL.");
+    if (value && value.length > 512) return t("رابط البثّ يجب ألّا يتجاوز ٥١٢ حرفاً.", "Streaming link must be not longer than 512 characters.");
     return true;
 }
 
@@ -70,20 +73,20 @@ function parseNumber(value: string) {
 }
 
 function isNumberValid(value: number) {
-    if (isNaN(value)) return "Must be a number.";
-    if (value < 0) return "Must be a positive number.";
+    if (isNaN(value)) return t("يجب أن يكون رقماً.", "Must be a number.");
+    if (value < 0) return t("يجب أن يكون رقماً موجباً.", "Must be a positive number.");
     return true;
 }
 
 function isUrlValid(value: string) {
-    if (value && !/^https?:\/\/.+/.test(value)) return "Must be a valid URL.";
+    if (value && !/^https?:\/\/.+/.test(value)) return t("يجب أن يكون رابطاً صالحاً.", "Must be a valid URL.");
     return true;
 }
 
 function isImageKeyValid(value: string) {
-    if (/https?:\/\/(cdn|media)\.discordapp\.(com|net)\//.test(value)) return "Don't use a Discord link. Use an Imgur image link instead.";
-    if (/https?:\/\/(?!i\.)?imgur\.com\//.test(value)) return "Imgur link must be a direct link to the image (e.g. https://i.imgur.com/...). Right click the image and click 'Copy image address'";
-    if (/https?:\/\/(?!media\.)?tenor\.com\//.test(value)) return "Tenor link must be a direct link to the image (e.g. https://media.tenor.com/...). Right click the GIF and click 'Copy image address'";
+    if (/https?:\/\/(cdn|media)\.discordapp\.(com|net)\//.test(value)) return t("لا تستخدم رابط ديسكورد — روابطه تنتهي صلاحيتها. استخدم رابط صورة من Imgur.", "Don't use a Discord link. Use an Imgur image link instead.");
+    if (/https?:\/\/(?!i\.)?imgur\.com\//.test(value)) return t("رابط Imgur يجب أن يكون مباشراً للصورة (مثل https://i.imgur.com/...). انقر الصورة بالزر الأيمن ثم «نسخ عنوان الصورة».", "Imgur link must be a direct link to the image (e.g. https://i.imgur.com/...). Right click the image and click 'Copy image address'");
+    if (/https?:\/\/(?!media\.)?tenor\.com\//.test(value)) return t("رابط Tenor يجب أن يكون مباشراً للصورة (مثل https://media.tenor.com/...). انقر الصورة المتحركة بالزر الأيمن ثم «نسخ عنوان الصورة».", "Tenor link must be a direct link to the image (e.g. https://media.tenor.com/...). Right click the GIF and click 'Copy image address'");
     return true;
 }
 
@@ -98,9 +101,14 @@ function PairSetting<T>(props: { data: [TextOption<T>, TextOption<T>]; }) {
     );
 }
 
-function SingleSetting<T>({ settingsKey, label, disabled, isValid, transform }: TextOption<T>) {
+function SingleSetting<T>({ settingsKey, label, disabled, isValid, transform, preview }: TextOption<T>) {
     const [state, setState] = useState(settings.store[settingsKey] ?? "");
     const [error, setError] = useState<string | null>(null);
+    const [previewFailed, setPreviewFailed] = useState(false);
+
+    // Only http(s) values can be shown. An application asset key is resolved by
+    // Discord at dispatch time and has nothing to render here.
+    const previewUrl = preview && typeof state === "string" && /^https?:\/\//.test(state) ? state : null;
 
     function handleChange(newValue: any) {
         if (transform) newValue = transform(newValue);
@@ -109,6 +117,7 @@ function SingleSetting<T>({ settingsKey, label, disabled, isValid, transform }: 
 
         setState(newValue);
         setError(resolveError(valid));
+        setPreviewFailed(false);
 
         if (valid === true) {
             settings.store[settingsKey] = newValue;
@@ -121,12 +130,15 @@ function SingleSetting<T>({ settingsKey, label, disabled, isValid, transform }: 
             <Heading tag="h5">{label}</Heading>
             <TextInput
                 type="text"
-                placeholder={"Enter a value"}
+                placeholder={t("أدخل قيمة", "Enter a value")}
                 value={state}
                 onChange={handleChange}
                 disabled={disabled}
             />
             {error && <Text className={cl("error")} variant="text-sm/normal">{error}</Text>}
+            {previewUrl && (previewFailed
+                ? <Text className={cl("error")} variant="text-sm/normal">{t("تعذّر تحميل الصورة من هذا الرابط.", "This link did not load as an image.")}</Text>
+                : <img className={cl("preview")} src={previewUrl} alt="" onError={() => setPreviewFailed(true)} />)}
         </div>
     );
 }
@@ -136,7 +148,7 @@ function SelectSetting<T>({ settingsKey, label, options, disabled }: SelectOptio
         <div className={cl("single", { disabled })}>
             <Heading tag="h5">{label}</Heading>
             <Select
-                placeholder={"Select an option"}
+                placeholder={t("اختر خياراً", "Select an option")}
                 options={options}
                 maxVisibleItems={5}
                 closeOnSelect={true}
@@ -183,8 +195,8 @@ export function RPCSettings() {
             />
 
             <PairSetting data={[
-                { settingsKey: "appID", label: "Application ID", isValid: isAppIdValid },
-                { settingsKey: "appName", label: "Application Name", isValid: makeValidator(128, true) },
+                { settingsKey: "appID", label: t("مُعرِّف التطبيق", "Application ID"), isValid: isAppIdValid },
+                { settingsKey: "appName", label: t("اسم التطبيق", "Application Name"), isValid: makeValidator(128, true) },
             ]} />
 
             <PairSetting data={[
@@ -224,13 +236,13 @@ export function RPCSettings() {
             <Divider />
 
             <PairSetting data={[
-                { settingsKey: "imageBig", label: t("رابط/مفتاح الصورة الكبيرة", "Large Image URL/Key"), isValid: isImageKeyValid },
+                { settingsKey: "imageBig", label: t("رابط/مفتاح الصورة الكبيرة", "Large Image URL/Key"), isValid: isImageKeyValid, preview: true },
                 { settingsKey: "imageBigTooltip", label: t("نصّ الصورة الكبيرة", "Large Image Text"), isValid: maxLength128 },
             ]} />
             <SingleSetting settingsKey="imageBigURL" label={t("رابط قابل للنقر للصورة الكبيرة", "Large Image clickable URL")} isValid={isUrlValid} />
 
             <PairSetting data={[
-                { settingsKey: "imageSmall", label: t("رابط/مفتاح الصورة الصغيرة", "Small Image URL/Key"), isValid: isImageKeyValid },
+                { settingsKey: "imageSmall", label: t("رابط/مفتاح الصورة الصغيرة", "Small Image URL/Key"), isValid: isImageKeyValid, preview: true },
                 { settingsKey: "imageSmallTooltip", label: t("نصّ الصورة الصغيرة", "Small Image Text"), isValid: maxLength128 },
             ]} />
             <SingleSetting settingsKey="imageSmallURL" label={t("رابط قابل للنقر للصورة الصغيرة", "Small Image clickable URL")} isValid={isUrlValid} />
@@ -238,12 +250,12 @@ export function RPCSettings() {
             <Divider />
 
             <PairSetting data={[
-                { settingsKey: "buttonOneText", label: "Button1 Text", isValid: makeValidator(31) },
-                { settingsKey: "buttonOneURL", label: "Button1 URL", isValid: isUrlValid },
+                { settingsKey: "buttonOneText", label: t("نصّ الزرّ الأول", "Button1 Text"), isValid: makeValidator(31) },
+                { settingsKey: "buttonOneURL", label: t("رابط الزرّ الأول", "Button1 URL"), isValid: isUrlValid },
             ]} />
             <PairSetting data={[
-                { settingsKey: "buttonTwoText", label: "Button2 Text", isValid: makeValidator(31) },
-                { settingsKey: "buttonTwoURL", label: "Button2 URL", isValid: isUrlValid },
+                { settingsKey: "buttonTwoText", label: t("نصّ الزرّ الثاني", "Button2 Text"), isValid: makeValidator(31) },
+                { settingsKey: "buttonTwoURL", label: t("رابط الزرّ الثاني", "Button2 URL"), isValid: isUrlValid },
             ]} />
 
             <Divider />
