@@ -235,6 +235,10 @@ const TYPE_CATEGORY = {
     style: "improve",
     ci: "improve",
     build: "improve",
+    // Deletions/removals get their own "حذف · Removed" section (the category existed but
+    // no type reached it, so removals were never announced under it).
+    remove: "removed",
+    revert: "removed",
 };
 
 // Not user-facing — never announced.

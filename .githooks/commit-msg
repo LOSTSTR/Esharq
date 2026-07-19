@@ -1,0 +1,42 @@
+#!/bin/sh
+# Esharq commit-msg hook — enforces bilingual announcements.
+#
+# Every user-facing commit (the conventional-commit types the Discord notifier announces
+# and that we author) MUST carry a `notify-ar:` trailer in its body, so the notifier posts
+# the update in Arabic AND English instead of English-only. See
+# .github/scripts/discord-notify.mjs and the feedback_bilingual_commit_trailers memory.
+#
+# Exempt: merge commits, docs/test (never announced), and sync/upstream merges (their
+# translations live in .github/notify-overrides.json because they can't be amended).
+#
+# Activate once per clone (also listed in the post-format restore steps):
+#   git config core.hooksPath .githooks
+
+msg_file="$1"
+subject=$(head -n 1 "$msg_file")
+
+# Skip merge commits.
+case "$subject" in
+    "Merge "*) exit 0 ;;
+esac
+
+# Conventional-commit type = leading word before an optional (scope) and the colon.
+type=$(printf '%s' "$subject" | sed -n 's/^\([A-Za-z]\{1,\}\).*/\1/p' | tr 'A-Z' 'a-z')
+
+case "$type" in
+    feat|fix|perf|refactor|chore|style|ci|build|remove|revert)
+        if ! grep -qiE '^notify-ar:[[:space:]]*[^[:space:]]' "$msg_file"; then
+            echo "" >&2
+            echo "✗ Commit blocked: a user-facing '$type' commit must be announced bilingually." >&2
+            echo "  Add these trailers to the commit body, each on ONE line:" >&2
+            echo "" >&2
+            echo "    notify-ar: وصف عربي واضح لما تغيّر" >&2
+            echo "    notify-en: clear English description of what changed" >&2
+            echo "" >&2
+            echo "  (docs/test/merge/sync are exempt; sync uses .github/notify-overrides.json.)" >&2
+            exit 1
+        fi
+        ;;
+esac
+
+exit 0
