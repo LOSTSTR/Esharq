@@ -13,6 +13,9 @@ import { ModalCloseButton, ModalContent, ModalHeader, ModalRoot, openModal } fro
 import definePlugin from "@utils/types";
 import { findByPropsLazy } from "@webpack";
 import { ChannelStore, Forms, GuildChannelStore, GuildStore, IconUtils, PermissionStore, React, UserStore, useEffect, useMemo, useRef, useState, VoiceStateStore } from "@webpack/common";
+import { Logger } from "@utils/Logger";
+
+const logger = new Logger("VoiceChannelSearch");
 
 const ChannelActions = findByPropsLazy("selectVoiceChannel", "selectChannel");
 
@@ -50,7 +53,7 @@ async function scan(): Promise<VoiceChannel[]> {
                             if (cid) memberCount[cid] = (memberCount[cid] ?? 0) + 1;
                         }
                     }
-                } catch { }
+                } catch (err) { logger.debug("Ignored error", err); }
 
                 const guilds: any = GuildStore.getGuilds?.() ?? {};
                 const out: VoiceChannel[] = [];
@@ -158,7 +161,7 @@ function VoiceSearchModal({ rootProps, channels }: { rootProps: any; channels: V
             ChannelActions.selectVoiceChannel(ch.channelId);
             // Petit délai pour l'effet visuel avant de fermer
             await new Promise(r => setTimeout(r, 400));
-        } catch { }
+        } catch (err) { logger.debug("Ignored error", err); }
         setJoiningId(null);
         rootProps.onClose();
     }

@@ -12,6 +12,9 @@ import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { findStoreLazy, waitFor } from "@webpack";
 import { FluxDispatcher, Menu, React, UserStore } from "@webpack/common";
+import { Logger } from "@utils/Logger";
+
+const logger = new Logger("FakeAccount");
 
 const UserProfileStore = findStoreLazy("UserProfileStore") as any;
 const DS_KEY = "esharq-fakeAccount-switcher";
@@ -181,7 +184,7 @@ function dispatchUser(id: string, fields: Record<string, unknown>) {
         const updated = UserStore.getCurrentUser();
         if (updated) FluxDispatcher.dispatch({ type: "CURRENT_USER_UPDATE", user: { ...updated } });
         FluxDispatcher.dispatch({ type: "IDLE" });
-    } catch { }
+    } catch (err) { logger.debug("Ignored error", err); }
     store?.emitChange?.();
 }
 

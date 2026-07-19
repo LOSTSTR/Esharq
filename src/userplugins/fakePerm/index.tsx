@@ -11,6 +11,9 @@ import { t } from "@utils/esharqI18n";
 import { ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalRoot, openModal } from "@utils/esharqModals";
 import definePlugin, { OptionType } from "@utils/types";
 import { Button, FluxDispatcher, GuildChannelStore, GuildMemberStore, GuildRoleStore, GuildStore, Menu, React, Select, SelectedGuildStore, showToast, TextArea, UserStore, VoiceStateStore } from "@webpack/common";
+import { Logger } from "@utils/Logger";
+
+const logger = new Logger("FakePerm");
 
 let isEnabled = false;
 
@@ -73,7 +76,7 @@ function notifyMemberListChange() {
         }
 
         FluxDispatcher?.dispatch({ type: "GUILD_MEMBER_LIST_UPDATE", ops: [], id: "everyone", guildId });
-    } catch { }
+    } catch (err) { logger.debug("Ignored error", err); }
 }
 
 
@@ -131,7 +134,7 @@ function getMemberRoleIds(guildId: string | null, userId: string): string[] {
 }
 
 function toast(msg: string) {
-    try { showToast(msg); } catch { }
+    try { showToast(msg); } catch (err) { logger.debug("Ignored error", err); }
 }
 
 // ─── Common Styles ───────────────────────────────────────────────────────────
@@ -443,7 +446,7 @@ const userContextPatch: NavContextMenuPatchCallback = (children, { user }: any) 
                             if (va.length === 0) for (const arr of Object.values(gc)) { if (Array.isArray(arr)) for (const item of arr as any[]) { const ch = (item as any).channel ?? item; if ((ch?.type === 2 || ch?.type === 13) && ch.id && ch.name) va.push(item); } }
                             const seen = new Set<string>();
                             for (const item of va) { const ch = (item as any).channel ?? item; if (ch?.id && ch?.name && !seen.has(ch.id)) { seen.add(ch.id); allChannels.push({ id: ch.id, name: ch.name, position: ch.position ?? 0 }); } }
-                        } catch { }
+                        } catch (err) { logger.debug("Ignored error", err); }
                         allChannels.sort((a, b) => a.position - b.position);
                         if (allChannels.length === 0) return <Menu.MenuItem key="fp-move-empty" id="fp-move-empty" label={t("لا توجد قنوات صوتية", "No voice channels")} disabled />;
                         return allChannels.map(ch => <Menu.MenuItem key={`fp-move-${ch.id}`} id={`fp-move-${ch.id}`} label={`🔊 ${ch.name}`} action={() => toast(t(`تم النقل إلى #${ch.name} — محاكاة`, `Moved to #${ch.name} — simulation`))} />);

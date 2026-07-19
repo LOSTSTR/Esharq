@@ -10,6 +10,9 @@ import "../styles.css";
 import { copyToClipboard } from "@utils/clipboard";
 import type { RenderModalProps } from "@vencord/discord-types";
 import { Modal, React, showToast, TextInput, Toasts, useEffect, useRef, useState } from "@webpack/common";
+import { Logger } from "@utils/Logger";
+
+const logger = new Logger("TempMail");
 
 import {
     createAccount, deleteAccount, deleteMessage,
@@ -68,7 +71,7 @@ export function TempMailModal({ modalProps }: { modalProps: RenderModalProps; })
             const names = d.filter(x => x.isActive).map(x => x.domain);
             setDomains(names);
             if (names.length) setSelDomain(names[0]);
-        } catch { }
+        } catch (err) { logger.debug("Ignored error", err); }
     }
 
     async function fetchInbox(acc: SavedAccount, silent = false) {
@@ -101,7 +104,7 @@ export function TempMailModal({ modalProps }: { modalProps: RenderModalProps; })
 
     async function handleDeleteMessage(id: string) {
         if (!active) return;
-        try { await deleteMessage(id, active.token); } catch { }
+        try { await deleteMessage(id, active.token); } catch (err) { logger.debug("Ignored error", err); }
         await deleteMessageFromStore(active.id, id);
         setMessages(m => m.filter(x => x.id !== id));
         if (openMsg?.id === id) { setOpenMsg(null); setView("inbox"); }
@@ -147,7 +150,7 @@ export function TempMailModal({ modalProps }: { modalProps: RenderModalProps; })
 
     async function deleteAcc(acc: SavedAccount) {
         if (!confirm(`Delete ${acc.address} permanently?`)) return;
-        try { await deleteAccount(acc.id, acc.token); } catch { }
+        try { await deleteAccount(acc.id, acc.token); } catch (err) { logger.debug("Ignored error", err); }
         await removeAccount(acc.id);
         const fresh = await getSavedAccounts();
         setAccounts(fresh);

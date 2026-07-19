@@ -6,6 +6,9 @@
 
 import { EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
+import { Logger } from "@utils/Logger";
+
+const logger = new Logger("DoubleEmoji");
 
 let clickListener: ((e: MouseEvent) => void) | undefined;
 
@@ -26,7 +29,7 @@ export default definePlugin({
             emojiWrapper.style.background = "rgb(88 101 242 / 5%)";
 
             // Discord keeps the picker open when Shift is held; spoof it on this click.
-            try { Object.defineProperty(e, "shiftKey", { get: () => true, configurable: true }); } catch { }
+            try { Object.defineProperty(e, "shiftKey", { get: () => true, configurable: true }); } catch (err) { logger.debug("Ignored error", err); }
         };
 
         document.addEventListener("click", clickListener, { capture: true });

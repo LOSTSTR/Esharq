@@ -12,6 +12,9 @@ import definePlugin from "@utils/types";
 import { RelationshipType } from "@vencord/discord-types/enums";
 import { filters, find } from "@webpack";
 import { FluxDispatcher, GuildMemberStore, Menu, React, RelationshipStore, Toasts, UserStore, UserUtils } from "@webpack/common";
+import { Logger } from "@utils/Logger";
+
+const logger = new Logger("FakeFriends");
 
 // In-memory only — fake state resets on restart (nothing is ever sent to Discord's servers).
 const fakeState = new Map<string, "pending" | "accepted">();
@@ -101,7 +104,7 @@ function unpatchAcceptFriend() {
         const RA = find(filters.byProps("acceptFriend", "addFriend")) as any;
         if (RA) RA.acceptFriend = origAccept;
         origAccept = null;
-    } catch { }
+    } catch (err) { logger.debug("Ignored error", err); }
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
@@ -153,7 +156,7 @@ async function addPendingRequest(user: any) {
 }
 
 async function loadUser(userId: string): Promise<any | null> {
-    try { await UserUtils.getUser(userId); } catch { }
+    try { await UserUtils.getUser(userId); } catch (err) { logger.debug("Ignored error", err); }
     return UserStore.getUser(userId) ?? null;
 }
 
@@ -171,7 +174,7 @@ async function doFakeFriendRequest(userId: string) {
 
 async function removeFake(userId: string) {
     fakeState.delete(userId);
-    try { FluxDispatcher.dispatch({ type: "RELATIONSHIP_REMOVE", relationship: { id: userId } }); } catch { }
+    try { FluxDispatcher.dispatch({ type: "RELATIONSHIP_REMOVE", relationship: { id: userId } }); } catch (err) { logger.debug("Ignored error", err); }
 }
 
 // ── Count modal ────────────────────────────────────────────────────────────────

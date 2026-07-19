@@ -9,6 +9,9 @@ import { t } from "@utils/esharqI18n";
 import definePlugin, { makeRange, OptionType } from "@utils/types";
 import { findByPropsLazy } from "@webpack";
 import { UserStore } from "@webpack/common";
+import { Logger } from "@utils/Logger";
+
+const logger = new Logger("AudioLimiter");
 
 interface StreamData {
     id: string;
@@ -52,8 +55,8 @@ function applyLimiter(data: StreamData) {
         compressor.release.value = 0.1;
         data.__ncLimiterNode = compressor;
 
-        try { data.gainNode?.disconnect(); } catch { }
-        try { data.streamSourceNode?.disconnect(); } catch { }
+        try { data.gainNode?.disconnect(); } catch (err) { logger.debug("Ignored error", err); }
+        try { data.streamSourceNode?.disconnect(); } catch (err) { logger.debug("Ignored error", err); }
 
         source.connect(gain);
         gain.connect(compressor);
@@ -71,9 +74,9 @@ function applyLimiter(data: StreamData) {
 }
 
 function removeLimiter(data: StreamData) {
-    try { data.__ncSourceNode?.disconnect(); } catch { }
-    try { data.__ncGainNode?.disconnect(); } catch { }
-    try { data.__ncLimiterNode?.disconnect(); } catch { }
+    try { data.__ncSourceNode?.disconnect(); } catch (err) { logger.debug("Ignored error", err); }
+    try { data.__ncGainNode?.disconnect(); } catch (err) { logger.debug("Ignored error", err); }
+    try { data.__ncLimiterNode?.disconnect(); } catch (err) { logger.debug("Ignored error", err); }
     delete data.__ncSourceNode;
     delete data.__ncGainNode;
     delete data.__ncLimiterNode;

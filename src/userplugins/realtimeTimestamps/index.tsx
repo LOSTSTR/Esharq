@@ -9,6 +9,9 @@ import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { moment, useEffect, useReducer } from "@webpack/common";
+import { Logger } from "@utils/Logger";
+
+const logger = new Logger("RealtimeTimestamps");
 
 // ─── Settings ────────────────────────────────────────────────────────────────
 
@@ -45,7 +48,7 @@ function startGlobalTick() {
     if (globalTickInterval !== null) return;
     globalTickInterval = setInterval(() => {
         for (const fn of tickListeners) {
-            try { fn(); } catch { }
+            try { fn(); } catch (err) { logger.debug("Ignored error", err); }
         }
     }, 1000);
 }

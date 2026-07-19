@@ -13,6 +13,9 @@ import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { findByPropsLazy, findStoreLazy } from "@webpack";
 import { Menu, React, Toasts, useEffect,useState } from "@webpack/common";
+import { Logger } from "@utils/Logger";
+
+const logger = new Logger("FollowUser");
 
 const VoiceStateStore = findStoreLazy("VoiceStateStore");
 const ChannelStore = findStoreLazy("ChannelStore");
@@ -118,7 +121,7 @@ function joinChannel(channelId: string) {
                 guildId: ch?.guild_id ?? null,
             });
         }, 100);
-    } catch { }
+    } catch (err) { logger.debug("Ignored error", err); }
 }
 
 // ── Timer d'inactivite : unfollow auto apres X min sans utilisation ───────────
@@ -145,7 +148,7 @@ function leaveChannel() {
         setTimeout(() => {
             FluxDispatcher?.dispatch?.({ type: "VOICE_CHANNEL_SELECT", channelId: null, guildId: null });
         }, 100);
-    } catch { }
+    } catch (err) { logger.debug("Ignored error", err); }
 }
 
 function onVoiceStateUpdates(data: any) {

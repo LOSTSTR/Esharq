@@ -13,6 +13,9 @@ import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { ContextMenuApi, Menu, Popout, React, Tooltip, useEffect, useRef, useState } from "@webpack/common";
+import { Logger } from "@utils/Logger";
+
+const logger = new Logger("Backpack");
 
 const STORE_KEY = "Backpack_packedButtons";
 
@@ -24,7 +27,7 @@ async function loadPacked(): Promise<string[]> {
 }
 
 async function savePacked(ids: string[]) {
-    try { await DataStore.set(STORE_KEY, ids); } catch { }
+    try { await DataStore.set(STORE_KEY, ids); } catch (err) { logger.debug("Ignored error", err); }
 }
 
 async function packButton(id: string) {

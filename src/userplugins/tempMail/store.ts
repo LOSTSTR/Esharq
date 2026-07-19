@@ -7,6 +7,9 @@
 import * as DataStore from "@api/DataStore";
 
 import { TmAccount, TmMessage } from "./api";
+import { Logger } from "@utils/Logger";
+
+const logger = new Logger("TempMail");
 
 const ACCOUNTS_KEY = "TempMail_accounts";
 const ACTIVE_KEY = "TempMail_activeId";
@@ -82,6 +85,6 @@ export function getDataStorePath(): string {
     try {
         const p = process?.env?.APPDATA ?? "";
         if (p) return p + "\\discord\\IndexedDB  (VencordData)";
-    } catch { }
+    } catch (err) { logger.debug("Ignored error", err); }
     return "%APPDATA%\\discord\\IndexedDB  (VencordData)";
 }

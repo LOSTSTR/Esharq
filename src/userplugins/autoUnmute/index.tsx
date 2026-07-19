@@ -9,6 +9,9 @@ import { BanRiskWarning } from "@utils/esharqBanWarning";
 import definePlugin, { OptionType } from "@utils/types";
 import { findByPropsLazy, findStoreLazy } from "@webpack";
 import { ChannelStore, Constants, PermissionsBits, PermissionStore, RestAPI, UserStore } from "@webpack/common";
+import { Logger } from "@utils/Logger";
+
+const logger = new Logger("AutoUnmute");
 
 const VoiceStateStore = findStoreLazy("VoiceStateStore") as any;
 const VoiceActions = findByPropsLazy("toggleSelfMute");
@@ -58,14 +61,14 @@ export default definePlugin({
                 if (mute && !selfMute && PermissionStore.can(PermissionsBits.MUTE_MEMBERS, channel)) {
                     setTimeout(async () => {
                         try { await patchSelf(me.id, guildId, { mute: false }); }
-                        catch { try { VoiceActions.toggleSelfMute(); } catch { } }
+                        catch { try { VoiceActions.toggleSelfMute(); } catch (err) { logger.debug("Ignored error", err); } }
                     }, 100);
                 }
 
                 if (deaf && !selfDeaf && PermissionStore.can(PermissionsBits.DEAFEN_MEMBERS, channel)) {
                     setTimeout(async () => {
                         try { await patchSelf(me.id, guildId, { deaf: false }); }
-                        catch { try { VoiceActions.toggleSelfDeaf(); } catch { } }
+                        catch { try { VoiceActions.toggleSelfDeaf(); } catch (err) { logger.debug("Ignored error", err); } }
                     }, 100);
                 }
             }

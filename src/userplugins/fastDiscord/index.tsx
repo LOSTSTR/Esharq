@@ -165,10 +165,10 @@ function forceGC() {
         if (typeof (window as any).gc === "function") {
             (window as any).gc();
             setTimeout(() => {
-                try { if (typeof (window as any).gc === "function") (window as any).gc(); } catch { }
+                try { if (typeof (window as any).gc === "function") (window as any).gc(); } catch (err) { log.debug("Ignored error", err); }
             }, 100);
         }
-    } catch { }
+    } catch (err) { log.debug("Ignored error", err); }
 }
 
 function cacheCleanIntervalMs(): number {
@@ -326,7 +326,7 @@ function applyPresenceThrottle(enable: boolean) {
         for (const type of Array.from(pendingPresenceDispatch.keys())) {
             const pending = pendingPresenceDispatch.get(type)!;
             clearTimeout(pending.timer);
-            try { origFluxDispatch.call(FluxDispatcher, pending.event); } catch { }
+            try { origFluxDispatch.call(FluxDispatcher, pending.event); } catch (err) { log.debug("Ignored error", err); }
         }
         pendingPresenceDispatch.clear();
         (FluxDispatcher as any).dispatch = origFluxDispatch;

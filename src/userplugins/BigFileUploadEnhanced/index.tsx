@@ -16,6 +16,9 @@ import { Margins } from "@utils/margins";
 import definePlugin, { OptionType, PluginNative } from "@utils/types";
 import { chooseFile } from "@utils/web";
 import { Alerts, Button, DraftType, Forms, Menu, PermissionsBits, PermissionStore, React, Select, showToast, TextArea, TextInput, Toasts, UploadManager, useMemo } from "@webpack/common";
+import { Logger } from "@utils/Logger";
+
+const logger = new Logger("BigFileUploadEnhanced");
 
 // Added FileFast to Uploader type
 // TODO: fix the fucking gofile upload and the fucking filefast. i hate them both and they are harder to fix than catbox.
@@ -238,7 +241,7 @@ function getDestination(uploader: Uploader): { host: string; url: string; note?:
         case "Custom": {
             const url = settings.store.customRequestUrl?.trim() ?? "";
             let host = "";
-            try { host = url ? new URL(url).host : ""; } catch { }
+            try { host = url ? new URL(url).host : ""; } catch (err) { logger.debug("Ignored error", err); }
             return { host: host || "(invalid URL)", url: url || "(not set)" };
         }
     }
