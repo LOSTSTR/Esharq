@@ -203,7 +203,7 @@ async function printReport() {
         }
 
         const body = JSON.stringify({
-            username: "Equicord Reporter" + (CANARY ? " (Canary)" : ""),
+            username: "اشراق" + (CANARY ? " (Canary)" : ""),
             embeds
         });
 
