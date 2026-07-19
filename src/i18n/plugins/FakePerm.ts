@@ -8,8 +8,8 @@ import { definePluginI18n } from "@utils/i18n/types";
 
 export default definePluginI18n({
     "description": {
-        "ar": "يُحاكي بصرياً خيارات الإشراف في قائمة النقر بالزر الأيمن (كتم، إصمام، طرد، حظر، مهلة، رتب...). محلي بالكامل — لا يُرسَل أي إجراء فعلي إلى ديسكورد.",
-        "en": "Visually simulates moderation options in the right-click menu (mute, deafen, kick, ban, timeout, roles...). Entirely local — no real action is ever sent to Discord."
+        "ar": "يُحاكي بصرياً خيارات الإشراف في قائمة النقر بالزر الأيمن (كتم، إصمام، طرد، حظر، مهلة، رتب...). محلي بالكامل — لا يُرسَل أي إجراء فعلي إلى ديسكورد. عطّل ShowHiddenThings ليعمل جزء الصلاحيات، فكلتاهما تكتب الفحوص نفسها.",
+        "en": "Visually simulates moderation options in the right-click menu (mute, deafen, kick, ban, timeout, roles...). Entirely local — no real action is ever sent to Discord. Turn off ShowHiddenThings to use the permission part, since both rewrite the same checks."
     },
     "options": {
         "enabled": {

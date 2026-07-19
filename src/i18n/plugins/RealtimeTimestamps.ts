@@ -8,7 +8,7 @@ import { definePluginI18n } from "@utils/i18n/types";
 
 export default definePluginI18n({
     "description": {
-        "ar": "يستبدل طوابع ديسكورد الزمنية (مثل 15:31) بثوانٍ حيّة (مثل 15:34:21) تُحدَّث كل ثانية.",
-        "en": "Replaces Discord timestamps (e.g. 15:31) with live seconds (e.g. 15:34:21), updated every second."
+        "ar": "يستبدل طوابع ديسكورد الزمنية (مثل 15:31) بثوانٍ حيّة (مثل 15:34:21) تُحدَّث كل ثانية. عطّل CustomTimestamps لتعمل، فكلتاهما تكتب الطوابع نفسها.",
+        "en": "Replaces Discord timestamps (e.g. 15:31) with live seconds (e.g. 15:34:21), updated every second. Turn off CustomTimestamps to use this, since both rewrite the same timestamps."
     }
 });

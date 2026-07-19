@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { definePluginSettings } from "@api/Settings";
 import { addContextMenuPatch, NavContextMenuPatchCallback, removeContextMenuPatch } from "@api/ContextMenu";
+import { isPluginEnabled } from "@api/PluginManager";
+import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import { ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalRoot, openModal } from "@utils/esharqModals";
@@ -503,7 +504,7 @@ const settings = definePluginSettings({
 
 export default definePlugin({
     name: "FakePerm",
-    description: "Visually simulates moderation options in the right-click menu. No real action.",
+    description: "Visually simulates moderation options in the right-click menu. No real action. Turn off ShowHiddenThings to use the permission part, since both rewrite the same checks.",
     authors: [EquicordDevs.LOSTSTR],
     dependencies: ["ContextMenuAPI"],
     requiresRestart: false,
@@ -512,7 +513,7 @@ export default definePlugin({
     patches: [
         {
             find: "showCommunicationDisabledStyles",
-            predicate: () => isEnabled,
+            predicate: () => isEnabled && !isPluginEnabled("ShowHiddenThings"),
             replacement: {
                 match: /&&\i\.\i\.canManageUser\(\i\.\i\.MODERATE_MEMBERS,\i\.author,\i\)/,
                 replace: "",
@@ -520,7 +521,7 @@ export default definePlugin({
         },
         {
             find: "INVITES_DISABLED)||",
-            predicate: () => isEnabled,
+            predicate: () => isEnabled && !isPluginEnabled("ShowHiddenThings"),
             replacement: {
                 match: /\i\.\i\.can\(\i\.\i.MANAGE_GUILD,\i\)/,
                 replace: "true",
@@ -528,7 +529,7 @@ export default definePlugin({
         },
         {
             find: /,checkElevated:!1}\),\i\.\i\)}(?<=getCurrentUser\(\);return.+?)/,
-            predicate: () => isEnabled,
+            predicate: () => isEnabled && !isPluginEnabled("ShowHiddenThings"),
             replacement: {
                 match: /return \i\.\i\(\i\.\i\(\{user:\i,context:\i,checkElevated:!1\}\),\i\.\i\)/,
                 replace: "return true",
@@ -537,7 +538,7 @@ export default definePlugin({
         // fixes a bug where Members page must be loaded to see highest role
         {
             find: "#{intl::GUILD_MEMBER_MOD_VIEW_HIGHEST_ROLE}),children:",
-            predicate: () => isEnabled,
+            predicate: () => isEnabled && !isPluginEnabled("ShowHiddenThings"),
             replacement: {
                 match: /(#{intl::GUILD_MEMBER_MOD_VIEW_HIGHEST_ROLE}.{0,80})role:\i(?<=\[\i\.roles,\i\.highestRoleId,(\i)\].+?)/,
                 replace: (_, rest, roles) => `${rest}role:$self.getHighestRole(arguments[0],${roles})`,
@@ -546,7 +547,7 @@ export default definePlugin({
         // allows you to open mod view on yourself
         {
             find: 'action:"PRESS_MOD_VIEW",icon:',
-            predicate: () => isEnabled,
+            predicate: () => isEnabled && !isPluginEnabled("ShowHiddenThings"),
             replacement: {
                 match: /\i(?=\?null)/,
                 replace: "false"

@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { isPluginEnabled } from "@api/PluginManager";
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
@@ -116,7 +117,7 @@ function renderTooltipText(date: Date) {
 
 export default definePlugin({
     name: "RealtimeTimestamps",
-    description: "Replaces Discord timestamps (e.g. 15:31) with live seconds (e.g. 15:34:21), updated every second.",
+    description: "Replaces Discord timestamps (e.g. 15:31) with live seconds (e.g. 15:34:21), updated every second. Turn off CustomTimestamps to use this, since both rewrite the same timestamps.",
     tags: ["Appearance", "Chat", "Utility"],
     authors: [EquicordDevs.LOSTSTR],
     settings,
@@ -142,10 +143,15 @@ export default definePlugin({
         }
     },
 
+    // CustomTimestamps rewrites the exact same three expressions in the same module,
+    // so whichever plugin patches first wins and the other silently does nothing.
+    // Defer to it rather than register patches that cannot apply — the anchors below
+    // are correct and match fine when this plugin runs on its own.
     patches: [
         // ─── Main Timestamp component (cozy + compact messages + hover tooltip) ─
         {
             find: "#{intl::MESSAGE_EDITED_TIMESTAMP_A11Y_LABEL}",
+            predicate: () => !isPluginEnabled("CustomTimestamps"),
             replacement: [
                 {
                     // Compact mode: the useMemo that formats with "LT"
@@ -168,6 +174,7 @@ export default definePlugin({
         // ─── Timestamp markdown <t:unix:t> — hover tooltip ────────────────────
         {
             find: /.full,.{0,15}children:/,
+            predicate: () => !isPluginEnabled("CustomTimestamps"),
             replacement: {
                 match: /(__unsupportedReactNodeAsText:)\i\.full/,
                 replace: "$1$self.renderTooltip(new Date(arguments[0].node.timestamp*1000))",
