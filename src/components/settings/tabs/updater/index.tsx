@@ -50,18 +50,19 @@ function EquibopSection() {
         <Flex className={Margins.bottom20} flexDirection="column" gap="1em">
             <Card variant="brand">
                 <HeadingSecondary>Equibop & Equicord</HeadingSecondary>
-                <Paragraph>Equibop and Equicord are two separate things. This updater is for Equicord.</Paragraph>
+                <Paragraph>{t("Equibop و Equicord شيئان منفصلان. هذا المُحدِّث خاصّ بـ Equicord.", "Equibop and Equicord are two separate things. This updater is for Equicord.")}</Paragraph>
                 <Paragraph className={Margins.top8}>
-                    You receive separate popups for Equibop updates. You can also manually update by installing the <Link href="https://equibop.org/install">latest version</Link>.
+                    {t("تصلك نوافذ منفصلة لتحديثات Equibop، ويمكنك أيضاً تحديثه يدوياً بتثبيت ", "You receive separate popups for Equibop updates. You can also manually update by installing the ")}
+                    <Link href="https://equibop.org/install">{t("أحدث إصدار", "latest version")}</Link>.
                 </Paragraph>
             </Card>
 
             {isEquibopOutdated && (
                 <Card variant="warning">
-                    <HeadingSecondary>Equibop Outdated</HeadingSecondary>
+                    <HeadingSecondary>{t("إصدار Equibop قديم", "Equibop Outdated")}</HeadingSecondary>
                     <Flex flexDirection="column" gap="0.5em">
-                        <Paragraph>Your version of Equibop is outdated!</Paragraph>
-                        <Button variant="link" onClick={() => VesktopNative.app.openUpdater()}>Open Equibop Updater</Button>
+                        <Paragraph>{t("إصدارك من Equibop قديم!", "Your version of Equibop is outdated!")}</Paragraph>
+                        <Button variant="link" onClick={() => VesktopNative.app.openUpdater()}>{t("افتح مُحدِّث Equibop", "Open Equibop Updater")}</Button>
                     </Flex>
                 </Card>
             )}
@@ -72,7 +73,7 @@ function EquibopSection() {
 function Updater() {
     const settings = useSettings(["autoUpdate", "autoUpdateNotification", "plugins.Settings.arabicMode"]);
 
-    const [repo, err, repoPending] = useAwaiter(getRepo, { fallbackValue: "Loading..." });
+    const [repo, err, repoPending] = useAwaiter(getRepo, { fallbackValue: t("جارٍ التحميل…", "Loading...") });
 
     React.useEffect(() => {
         if (err)
@@ -118,7 +119,7 @@ function Updater() {
                 {repoPending
                     ? repo
                     : err
-                        ? "Failed to retrieve - check console"
+                        ? t("تعذّر الجلب — راجع الكونسول", "Failed to retrieve - check console")
                         : (
                             <Link href={repo}>
                                 {repo.split("/").slice(-2).join("/")}

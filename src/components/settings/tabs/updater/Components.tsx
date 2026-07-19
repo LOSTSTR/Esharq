@@ -141,21 +141,23 @@ export function Updatable(props: CommonProps) {
                             }
                         })}
                     >
-                        Update Now
+                        {t("حدّث الآن", "Update Now")}
                     </Button>
                 )}
             </Flex>
             {!updates && updateError ? (
                 <>
-                    <Span size="md" weight="medium" color="text-strong">Error checking for updates</Span>
+                    <Span size="md" weight="medium" color="text-strong">{t("تعذّر التحقّق من التحديثات", "Error checking for updates")}</Span>
                     <ErrorCard className={Margins.top8} style={{ padding: "1em" }}>
-                        <p>{updateError.stderr || updateError.stdout || "An unknown error occurred"}</p>
+                        <p>{updateError.stderr || updateError.stdout || t("حدث خطأ غير معروف", "An unknown error occurred")}</p>
                     </ErrorCard>
                 </>
             ) : isOutdated ? (
                 <>
                     <Paragraph>
-                        There {updates.length === 1 ? "is 1 update" : `are ${updates.length} updates`} available. Click the button above to download and install.
+                        {updates.length === 1
+                            ? t("يتوفّر تحديث واحد. اضغط الزرّ أعلاه لتنزيله وتثبيته.", "There is 1 update available. Click the button above to download and install.")
+                            : t(`تتوفّر ${updates.length} تحديثات. اضغط الزرّ أعلاه لتنزيلها وتثبيتها.`, `There are ${updates.length} updates available. Click the button above to download and install.`)}
                     </Paragraph>
                     <Changes updates={updates} {...props} />
                 </>
