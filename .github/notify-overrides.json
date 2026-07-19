@@ -1,0 +1,12 @@
+{
+    "_readme": "Arabic/English announcement text for commits whose message we cannot amend — upstream Equicord commits pulled in by a merge. Key is any unambiguous commit sha prefix. Fill this in as part of the upstream merge so the push announces both languages. Commits we author ourselves should carry notify-ar:/notify-en: trailers instead; this file is only the fallback for foreign commits. Keys starting with _ are ignored.",
+
+    "51cc856": {
+        "ar": "دعم الوضع المضغوط في إضافة sric، فصار العرض صحيحاً لمن يستخدم تخطيط الرسائل المضغوط بدل المريح.",
+        "en": "Added compact mode support to sric, so it renders correctly for anyone using the compact message layout instead of cozy."
+    },
+    "c4d8e86": {
+        "ar": "تحديث بعض معرّفات المطوّرين في قائمة المساهمين.",
+        "en": "Updated some developer IDs in the contributor list."
+    }
+}

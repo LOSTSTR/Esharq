@@ -21,7 +21,13 @@
  * verbatim as the Arabic / English lines of the announcement —
  *   notify-ar: شرح عربي مفصّل لما تغيّر ولماذا
  *   notify-en: detailed English explanation of what changed and why
- * Without them the commit subject is used (English only).
+ *
+ * Commits we cannot amend (upstream merges) get their Arabic from
+ * .github/notify-overrides.json, keyed by sha prefix. Anything still missing an
+ * Arabic line is announced in English only AND warned about in the run log.
+ *
+ * New-plugin announcements take both languages from src/i18n/plugins/<Name>.ts,
+ * falling back to the plugin's own `description` for English.
  *
  * DRY_RUN=1 prints the messages instead of posting (local preview).
  */
@@ -52,6 +58,32 @@ function sanitise(text, maxLen = 1000) {
         .trim()
         .slice(0, maxLen);
 }
+
+// ─── Reading JS string literals out of source ────────────────────────────────
+// A literal is: opening quote, then escapes or any char that is not the closing
+// quote, then the matching quote. The previous `["']([^"']+)["']` stopped at the
+// first quote of EITHER kind, so any description containing an apostrophe was cut
+// short — SmartBidi announced "…renders when it" instead of "…when it's mixed with
+// numbers, links, mentions or code…", and SilentDelete announced a single character.
+const STRING_LITERAL = String.raw`(["'])((?:\\.|(?!\1)[^\\])*)\1`;
+
+function unescapeLiteral(s) {
+    return s.replace(/\\n/g, " ").replace(/\\(.)/g, "$1");
+}
+
+// keyPattern must not contain a capturing group — STRING_LITERAL's backreference
+// relies on the quote being group 1.
+function readString(src, keyPattern) {
+    const m = src.match(new RegExp(keyPattern + String.raw`\s*` + STRING_LITERAL));
+    return m ? unescapeLiteral(m[2]) : "";
+}
+
+// `description: t("عربي", "English")` — the inline bilingual form. Plugins using it
+// carry both languages in the source itself and deliberately have no overlay file,
+// so reading only the plain-string form left them announced in English or not at all.
+// Groups: 2 = Arabic, 4 = English (the second literal backreferences group 3).
+const DESC_T_CALL =
+    /\bdescription:\s*t\(\s*(["'])((?:\\.|(?!\1)[^\\])*)\1\s*,\s*(["'])((?:\\.|(?!\3)[^\\])*)\3/;
 
 // ─── HTTP helper with timeout ─────────────────────────────────────────────────
 
@@ -107,6 +139,30 @@ const ICON_URL =
 
 // The Esharq emoji that heads every announcement. Keep this ID stable.
 const ICON = "<:esharqcloud:1521840260831641681>";
+
+// ─── Manual translations for commits we cannot amend ─────────────────────────
+// Upstream (Equicord) commits are English-only and never carry a notify-ar trailer,
+// so their announcement would arrive half-blank. Rather than let the script invent
+// Arabic, the translation is written by hand here and pushed together with the merge:
+//
+//   { "51cc856": { "ar": "…", "en": "…" } }        // key = any unambiguous sha prefix
+//
+// Precedence per commit: notify-ar/notify-en trailer → this file → subject (EN only).
+const OVERRIDES_PATH = ".github/notify-overrides.json";
+let overrides = {};
+if (existsSync(OVERRIDES_PATH)) {
+    try {
+        overrides = JSON.parse(readFileSync(OVERRIDES_PATH, "utf8"));
+    } catch (e) {
+        console.error(`[discord-notify] ${OVERRIDES_PATH} is not valid JSON — ignoring it (${e.message}).`);
+    }
+}
+
+function overrideFor(sha) {
+    if (!sha) return null;
+    const key = Object.keys(overrides).find(k => sha.startsWith(k));
+    return key ? overrides[key] : null;
+}
 
 // ─── Pushed range ─────────────────────────────────────────────────────────────
 // Scan the WHOLE pushed range, not just the last commit — otherwise a push that bundles
@@ -196,9 +252,13 @@ function parseCommit(c) {
     const category = isSync ? "sync" : TYPE_CATEGORY[type];
     if (!category) return null; // unrecognised prefix — don't guess
 
-    // Bilingual detail from commit trailers (preferred), else fall back to the subject.
-    const ar = sanitise((c.body.match(/^notify-ar:\s*(.+)$/mi) ?? [])[1] ?? "", 600);
-    const en = sanitise((c.body.match(/^notify-en:\s*(.+)$/mi) ?? [])[1] ?? "", 600);
+    // Bilingual detail: commit trailers first, then the hand-written overrides file,
+    // then the subject. Only the last one is English-only.
+    const ov = overrideFor(c.sha) ?? {};
+    const ar = sanitise((c.body.match(/^notify-ar:\s*(.+)$/mi) ?? [])[1] ?? ov.ar ?? "", 600);
+    const en = sanitise((c.body.match(/^notify-en:\s*(.+)$/mi) ?? [])[1] ?? ov.en ?? "", 600);
+
+    if (!ar) console.warn(`  ⚠ ${c.sha.slice(0, 7)} "${c.subject.slice(0, 60)}" has no Arabic — add a notify-ar trailer or an entry in ${OVERRIDES_PATH}`);
 
     return { sha: c.sha, category, scope, ar, en: en || title };
 }
@@ -211,19 +271,30 @@ function extractPluginInfo(filePath) {
     // Anchor on definePlugin( so we don't grab a settings option's name/description.
     const defIdx = src.search(/definePlugin\s*\(/);
     const defSrc = defIdx >= 0 ? src.slice(defIdx) : src;
-    const name = sanitise((defSrc.match(/\bname:\s*["']([^"']+)["']/) ?? [])[1] ?? "", 80);
-    const descEn = sanitise((defSrc.match(/\bdescription:\s*["']([^"']+)["']/) ?? [])[1] ?? "", 300);
+    const name = sanitise(readString(defSrc, String.raw`\bname:`), 80);
     const dirName = (filePath.match(/\/(equicordplugins|userplugins)\/([^/]+)\//) ?? [])[2] ?? filePath;
     const resolvedName = name || sanitise(dirName, 80);
 
-    // Arabic description from the i18n overlay, so every announcement carries both languages.
-    let descAr = "";
+    // Two sanctioned description forms: inline t("ar", "en"), or a plain English string
+    // paired with an overlay file. Try the inline form first — it already has both.
+    const inline = defSrc.match(DESC_T_CALL);
+    let descAr = inline ? sanitise(unescapeLiteral(inline[2]), 300) : "";
+    let descEn = inline
+        ? sanitise(unescapeLiteral(inline[4]), 300)
+        : sanitise(readString(defSrc, String.raw`\bdescription:`), 300);
+
     const overlayPath = `src/i18n/plugins/${resolvedName}.ts`;
     if (existsSync(overlayPath)) {
         const overlay = readFileSync(overlayPath, "utf8");
-        const m = overlay.match(/description["']?\s*:\s*\{[^}]*?["']?ar["']?\s*:\s*["']([^"']+)["']/);
-        if (m) descAr = sanitise(m[1], 300);
+        const block = (overlay.match(/["']?description["']?\s*:\s*\{([^}]*)\}/) ?? [])[1] ?? "";
+        descAr = sanitise(readString(block, String.raw`["']?ar["']?\s*:`), 300);
+        // The overlay's English is the reviewed counterpart of the Arabic line — prefer it
+        // so the two languages can never drift apart in an announcement.
+        const overlayEn = sanitise(readString(block, String.raw`["']?en["']?\s*:`), 300);
+        if (overlayEn) descEn = overlayEn;
     }
+
+    if (!descAr) console.warn(`  ⚠ ${resolvedName}: no Arabic description (missing src/i18n/plugins/${resolvedName}.ts) — announcement will be English-only`);
 
     return { name: resolvedName, descriptionEn: descEn || "No description yet.", descriptionAr: descAr };
 }
@@ -363,14 +434,16 @@ async function main() {
                     const before = run(`git show ${sha}~1:"${f}"`);
                     const defIdx = before.search(/definePlugin\s*\(/);
                     const defSrc = defIdx >= 0 ? before.slice(defIdx) : before;
-                    const real = (defSrc.match(/\bname:\s*["']([^"']+)["']/) ?? [])[1];
+                    const real = readString(defSrc, String.raw`\bname:`);
                     if (real) name = real;
                 } catch { /* first commit, or file unreadable — keep the folder name */ }
                 // Newlines preserved here too, for the same trailer-matching reason.
                 const body = String(run(`git log -1 --pretty=%b ${sha}`)).replace(/\r/g, "").slice(0, 4000);
-                ar = sanitise((body.match(/^notify-ar:\s*(.+)$/mi) ?? [])[1] ?? "", 600);
-                en = sanitise((body.match(/^notify-en:\s*(.+)$/mi) ?? [])[1] ?? "", 600);
+                const ov = overrideFor(sha) ?? {};
+                ar = sanitise((body.match(/^notify-ar:\s*(.+)$/mi) ?? [])[1] ?? ov.ar ?? "", 600);
+                en = sanitise((body.match(/^notify-en:\s*(.+)$/mi) ?? [])[1] ?? ov.en ?? "", 600);
                 if (!en) en = sanitise(run(`git log -1 --pretty=%s ${sha}`), 300);
+                if (!ar) console.warn(`  ⚠ removal ${sha.slice(0, 7)} has no Arabic — add an entry in ${OVERRIDES_PATH}`);
             }
         } catch { /* ignore — fall back to the bare name */ }
         return { name: sanitise(name, 80), ar, en };
