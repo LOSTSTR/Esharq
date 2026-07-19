@@ -139,8 +139,12 @@ export default definePlugin({
         {
             find: "streamSourceNode",
             replacement: {
-                match: /this\._volume\s*=\s*(\i);/,
-                replace: "this._volume=$1;$self.onVolumeChange(this);",
+                // The setter body is a comma expression, not statements, so the old
+                // `this._volume=<ident>;` anchor stopped matching and the whole plugin
+                // silently did nothing. Current shape:
+                //   set volume(e){this._volume=arguments[0],this.updateAudioElement()}
+                match: /set volume\(\i\)\{this\._volume=arguments\[0\],/,
+                replace: "$&$self.onVolumeChange(this),",
             },
         },
     ],
