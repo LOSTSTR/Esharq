@@ -209,13 +209,23 @@ async function createActivity(): Promise<Activity | undefined> {
     return activity;
 }
 
+// Bumped by every call so a slow one can tell it has been superseded. Without this a
+// setRpc() still awaiting its image lookups would resolve AFTER stop() had cleared the
+// activity and publish it right back — the settings modal debounces updates by 300ms
+// and then waits on the network, so that window is easily over a second and the
+// activity stayed on the profile after the plugin was turned off.
+let rpcGeneration = 0;
+
 export async function setRpc(disable?: boolean) {
+    const generation = ++rpcGeneration;
+
     // Never build the activity when clearing it. createActivity() awaits network
     // lookups for the image assets, so if one rejected — offline, bad app id, rate
-    // limit — this function threw before dispatching and the activity stayed on the
-    // profile after the plugin was turned off. Clearing now dispatches synchronously
-    // and cannot fail.
+    // limit — this function threw before dispatching and the activity was never
+    // cleared. Clearing dispatches synchronously and cannot fail.
     const activity: Activity | null | undefined = disable ? null : await createActivity();
+
+    if (generation !== rpcGeneration) return;
 
     FluxDispatcher.dispatch({
         type: "LOCAL_ACTIVITY_UPDATE",
