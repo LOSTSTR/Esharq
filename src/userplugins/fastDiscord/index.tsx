@@ -350,13 +350,6 @@ const settings = definePluginSettings({
             applySpringSkip(val);
         }
     },
-    disableTypingDots: {
-        type: OptionType.BOOLEAN,
-        description: t("إخفاء نقاط «X يكتب...» على الشاشة (بصري فقط)", "Hide the \"X is typing...\" dots on screen (visual only)"),
-        default: true,
-        disabled: () => isPluginEnabled("NoTypingAnimation"),
-        restartNeeded: true
-    },
     noGifAvatars: {
         type: OptionType.BOOLEAN,
         description: t("منع صور GIF المتحركة في القوائم والرسائل (عبر CSS)", "Block animated GIF avatars in lists and messages (via CSS)"),
@@ -448,15 +441,12 @@ export default definePlugin({
     settings,
 
     patches: [
-        // Disable "X is typing..." dots — patch targeting only the animation
-        {
-            find: "dotCycle",
-            predicate: () => settings.store.disableTypingDots && !isPluginEnabled("NoTypingAnimation"),
-            replacement: {
-                match: /focused:(\i)/g,
-                replace: (_, focused) => `_focused:${focused}=false`
-            }
-        },
+        // The typing-dots patch lived here as a byte-identical copy of the core
+        // NoTypingAnimation plugin, guarded by a predicate that already admitted the
+        // duplication. On current Discord it produced invalid JS ("Invalid left-hand
+        // side in assignment") and the module failed to evaluate, so it was removed —
+        // enable NoTypingAnimation for that feature instead.
+
         // Disable video autoplay — strict regex to avoid touching other modules
         {
             find: "autoplay:!0",
