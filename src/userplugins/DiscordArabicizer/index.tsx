@@ -345,6 +345,12 @@ function translatePartsArray(parts: any[]): any {
         const joined = parts.join("");
         const ar = lookup(joined);
         if (ar != null) return [diag(true, ar)];
+        // Baked-number strings ("3 New Mentions", "257 New") arrive here as all-string parts.
+        // This was the ONE translation path that skipped the numeric patterns, so those
+        // badges stayed English despite matching a pattern. Trimmed because the patterns are
+        // ^…$-anchored and the joined text may carry surrounding whitespace.
+        const num = numericTemplate(joined.trim());
+        if (num != null) return [diag(true, num)];
         collect(joined);
         return settings.store.diagnosticMode ? [diag(false, joined)] : parts;
     }
