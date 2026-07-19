@@ -30,7 +30,10 @@ export default definePlugin({
     authors: [Devs.thororen],
     description: "Fixes file extensions by renaming them to a supported format when possible",
     tags: ["Media", "Utility"],
-    reporterTestable: ReporterTestable.None,
+    // Patches must be reported on: this was the only plugin in the tree whose patch the
+    // reporter never checked, so a break here would have gone unnoticed. start() stays out
+    // of scope because it is not what None was guarding against here.
+    reporterTestable: ReporterTestable.Patches,
     patches: [
         // Taken from AnonymiseFileNames
         {
