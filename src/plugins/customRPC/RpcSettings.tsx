@@ -90,6 +90,22 @@ function isImageKeyValid(value: string) {
     return true;
 }
 
+/** Whatever link is entered below is handed to Discord, which re-hosts a copy of the image
+ *  on its own CDN so the activity keeps working. Two consequences are easy to miss, so we
+ *  spell them out next to the fields instead of burying them in the README. */
+function ImagePrivacyNotice() {
+    return (
+        <div className={cl("notice")}>
+            <Text variant="text-sm/normal">
+                {t(
+                    "تنبيه: الصورة التي تضعها هنا تُرسَل إلى ديسكورد ويحتفظ بنسخة منها على خوادمه، ويراها كلّ من يفتح ملفّك الشخصي. لا تستخدم صوراً خاصّة، ولا روابط تحوي معلومات شخصية — فقد تبقى متاحة حتى بعد حذف الأصل أو إيقاف الإضافة.",
+                    "Note: the image you enter here is sent to Discord, which keeps a copy on its own servers, and anyone who opens your profile can see it. Don't use private images or links containing personal information — they may stay reachable even after you delete the original or turn this plugin off."
+                )}
+            </Text>
+        </div>
+    );
+}
+
 function PairSetting<T>(props: { data: [TextOption<T>, TextOption<T>]; }) {
     const [left, right] = props.data;
 
@@ -234,6 +250,8 @@ export function RPCSettings() {
             ]} />
 
             <Divider />
+
+            <ImagePrivacyNotice />
 
             <PairSetting data={[
                 { settingsKey: "imageBig", label: t("رابط/مفتاح الصورة الكبيرة", "Large Image URL/Key"), isValid: isImageKeyValid, preview: true },
