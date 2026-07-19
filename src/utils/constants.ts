@@ -29,6 +29,11 @@ export const VENCORD_CONTRIB_ROLE_ID = "1173343399470964856";
 export const EQUIBOT_USER_ID = "1243063117852835941";
 export const KNOWN_ISSUES_CHANNEL_ID = "1466558228379992266";
 
+// Esharq
+// The Esharq Discord application id (also its bot user id). Its /plugin interaction
+// responses are augmented client-side with a real, per-viewer plugin toggle card.
+export const ESHARQ_BOT_USER_ID = "1528492372248236183";
+
 // Vencord
 export const VC_SUPPORT_CHANNEL_ID = "1026515880080842772";
 export const VC_GUILD_ID = "1015060230222131221";

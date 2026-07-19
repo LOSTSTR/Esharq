@@ -14,7 +14,7 @@ import { AddonCard } from "@components/settings";
 import { ExcludedReasons, PluginDependencyList } from "@components/settings/tabs/plugins";
 import { PluginCard } from "@components/settings/tabs/plugins/PluginCard";
 import { TooltipContainer } from "@components/TooltipContainer";
-import { EQUIBOT_USER_ID } from "@utils/constants";
+import { EQUIBOT_USER_ID, ESHARQ_BOT_USER_ID } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import { isEquicordGuild, isEquicordSupport } from "@utils/misc";
 import { Message } from "@vencord/discord-types";
@@ -22,6 +22,19 @@ import { showToast, Tooltip, useMemo } from "@webpack/common";
 import { JSX } from "react";
 
 import plugins, { ExcludedPlugins } from "~plugins";
+
+// Plugin-page URLs whose /plugins/<name> path we resolve to a local plugin. Esharq's own
+// site is accepted alongside the upstream ones so our /plugin bot cards are augmented too.
+const PLUGIN_URL_PREFIXES = [
+    "https://esharq.org/plugins/",
+    "https://equicord.org/plugins/",
+    "https://vencord.dev/plugins/",
+];
+const isPluginPageUrl = (url: string | undefined | null): url is string =>
+    !!url && PLUGIN_URL_PREFIXES.some(p => url.startsWith(p));
+
+// Apps whose messages we augment with a live, per-viewer plugin toggle card.
+const PLUGIN_CARD_BOT_IDS = [ESHARQ_BOT_USER_ID, EQUIBOT_USER_ID];
 
 export function ChatPluginCard({ url, description }: { url: string, description: string; }) {
     const pluginNameFromUrl = new URL(url).pathname.split("/")[2];
@@ -115,7 +128,7 @@ export const PluginCards = ErrorBoundary.wrap(function PluginCards({ message }: 
 
     // Process embeds
     message.embeds?.forEach(embed => {
-        if (!embed.url?.startsWith("https://equicord.org/plugins/") && !embed.url?.startsWith("https://vencord.dev/plugins/")) return;
+        if (!isPluginPageUrl(embed.url)) return;
 
         const isEquicord = isEquicordGuild(message.channel_id) && isEquicordSupport(message.author.id);
         if (!isEquicord) return;
@@ -140,10 +153,10 @@ export const PluginCards = ErrorBoundary.wrap(function PluginCards({ message }: 
 
     // Process components
     const components = (message.components?.[0] as any)?.components;
-    if (message.author.id === EQUIBOT_USER_ID && components?.length >= 4) {
+    if (PLUGIN_CARD_BOT_IDS.includes(message.author.id) && components?.length >= 4) {
         const description = components[1]?.content;
         const pluginUrl = components.find((c: any) => c?.components)?.components[0]?.url;
-        if (pluginUrl?.startsWith("https://equicord.org/plugins/") || pluginUrl?.startsWith("https://vencord.dev/plugins/")) {
+        if (isPluginPageUrl(pluginUrl)) {
             const pluginNameFromUrl = new URL(pluginUrl).pathname.split("/")[2];
             const actualPluginName = Object.keys(plugins).find(name =>
                 name.toLowerCase() === pluginNameFromUrl?.toLowerCase()
