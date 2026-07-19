@@ -7,5 +7,5 @@
 import { definePluginI18n } from "@utils/i18n/types";
 
 export default definePluginI18n({
-    "description": { "ar": "يتخطّى تخطيط ورسم الرسائل خارج الشاشة عبر content-visibility، مقلّلاً التقطيع في الخوادم الكبيرة.", "en": "Skips layout and paint for offscreen messages using CSS content-visibility, reducing lag in large servers." }
+    "description": { "ar": "يمنع شريط أدوات الرسالة من الانقصاص تحت الرسالة الأعلى، برفع الصف الذي تمرّ فوقه أو تحدّده.", "en": "Keeps the message action toolbar from clipping under the message above by lifting the hovered or focused row." }
 });
