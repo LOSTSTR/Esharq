@@ -7,7 +7,6 @@
 import "./styles.css";
 
 import { definePluginSettings } from "@api/Settings";
-import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { findByProps, findByPropsLazy } from "@webpack";
@@ -72,7 +71,7 @@ function isStreaming(): boolean {
 export default definePlugin({
     name: "NoDMWhileStreaming",
     description: "Hides DM and Group DM notifications and sidebar items while you are streaming",
-    authors: [EquicordDevs.LOSTSTR],
+    authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
     settings,
     patches: [
         // Filters DMs (type 1) and Group DMs (type 3) from the private channel list

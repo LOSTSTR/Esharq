@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 
 const logger = new Logger("DoubleEmoji");
@@ -15,7 +15,7 @@ let clickListener: ((e: MouseEvent) => void) | undefined;
 export default definePlugin({
     name: "DoubleEmoji",
     description: "Keeps the emoji picker open on click and highlights the selected emoji with a blue border.",
-    authors: [EquicordDevs.LOSTSTR],
+    authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
 
     start() {
         clickListener = (e: MouseEvent) => {

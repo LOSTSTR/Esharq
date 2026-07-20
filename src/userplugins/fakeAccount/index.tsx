@@ -7,7 +7,6 @@
 import { addContextMenuPatch, NavContextMenuPatchCallback, removeContextMenuPatch } from "@api/ContextMenu";
 import * as DataStore from "@api/DataStore";
 import { addHeaderBarButton, HeaderBarButton, removeHeaderBarButton } from "@api/HeaderBar";
-import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { findStoreLazy, waitFor } from "@webpack";
@@ -297,7 +296,7 @@ const ctxPatch: NavContextMenuPatchCallback = (children, props) => {
 export default definePlugin({
     name: "FakeAccount",
     description: "Add users to your account switcher and locally take on their appearance. Purely visual — only you see it; your real account and token are never touched, and nothing is sent to Discord.",
-    authors: [EquicordDevs.LOSTSTR],
+    authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
     dependencies: ["HeaderBarAPI"],
 
     async start() {

@@ -6,7 +6,6 @@
 
 import { addMessagePreEditListener, addMessagePreSendListener, MessageEditListener, MessageSendListener, removeMessagePreEditListener, removeMessagePreSendListener } from "@api/MessageEvents";
 import { definePluginSettings } from "@api/Settings";
-import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { showToast, Toasts } from "@webpack/common";
@@ -60,7 +59,7 @@ export default definePlugin({
     name: "ZeroWidthSanitizer",
     description: "Removes invisible zero-width characters from messages to prevent fingerprinting and tracking",
     tags: ["Privacy", "Chat"],
-    authors: [EquicordDevs.LOSTSTR, { name: "irritably", id: 928787166916640838n }],
+    authors: [{ name: "irritably", id: 928787166916640838n }],
     settings,
 
     // Richiede l'API MessageEvents

@@ -7,7 +7,6 @@
 import "./styles.css";
 
 import { addHeaderBarButton, HeaderBarButton, removeHeaderBarButton } from "@api/HeaderBar";
-import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import { ModalCloseButton, ModalContent, ModalHeader, ModalRoot, openModal } from "@utils/esharqModals";
 import definePlugin from "@utils/types";
@@ -294,7 +293,7 @@ function VCSHeaderButton() {
 export default definePlugin({
     name: "VoiceChannelSearch",
     description: "Search and join any voice channel across all your servers.",
-    authors: [EquicordDevs.LOSTSTR],
+    authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
     dependencies: ["HeaderBarAPI"],
 
     start() {

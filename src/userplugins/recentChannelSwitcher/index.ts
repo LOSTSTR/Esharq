@@ -6,7 +6,6 @@
 
 import * as DataStore from "@api/DataStore";
 import { definePluginSettings } from "@api/Settings";
-import { EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
 import { ChannelStore, GuildMemberStore, GuildStore, IconUtils, NavigationRouter, ReadStateStore, SelectedChannelStore, SelectedGuildStore, UserStore } from "@webpack/common";
 
@@ -554,7 +553,7 @@ export default definePlugin({
     name: "RecentChannelSwitcher",
     description: "Use Ctrl+Tab to preview and switch between recently opened channels and DMs.",
     tags: ["Shortcuts", "Chat", "Utility"],
-    authors: [EquicordDevs.LOSTSTR, { name: "SirPhantom89", id: 1464279455844274188n }],
+    authors: [{ name: "SirPhantom89", id: 1464279455844274188n }],
     settings,
 
     async start() {

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
+import { t } from "@utils/esharqI18n";
 import { findByPropsLazy } from "@webpack";
 import { FluxDispatcher } from "@webpack/common";
 
@@ -25,7 +25,7 @@ const handleVoiceChannelSelect = () => setTimeout(fixEngine, 1000);
 export default definePlugin({
     name: "FixScreenshare",
     description: "Fixes infinite loading and crashes on screenshare after a reload (Ctrl+R) by forcing the media engine to re-initialize.",
-    authors: [EquicordDevs.LOSTSTR],
+    authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
 
     start() {
         fixEngine();

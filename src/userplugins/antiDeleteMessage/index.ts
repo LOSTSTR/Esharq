@@ -6,7 +6,6 @@
 
 import * as DataStore from "@api/DataStore";
 import { definePluginSettings } from "@api/Settings";
-import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { Constants, RestAPI, UserStore } from "@webpack/common";
@@ -132,7 +131,7 @@ async function resendMessage(cached: CachedMessage) {
 export default definePlugin({
     name: "AntiDeleteMessage",
     description: "Automatically resends your messages if someone deletes them. Cache persisted across restarts.",
-    authors: [EquicordDevs.LOSTSTR],
+    authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
     settings,
 
     flux: {

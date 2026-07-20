@@ -6,7 +6,6 @@
 
 import { BaseText } from "@components/BaseText";
 import ErrorBoundary from "@components/ErrorBoundary";
-import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { findComponentByCodeLazy } from "@webpack";
@@ -86,7 +85,7 @@ const UserIDSection = ErrorBoundary.wrap(({ userId }: { userId: string; }) => (
 export default definePlugin({
     name: "ShowID",
     description: "Shows the user ID in Discord profiles, below the 'Member Since' section.",
-    authors: [EquicordDevs.LOSTSTR],
+    authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
 
     patches: [
         {

@@ -24,7 +24,7 @@ import definePlugin from "@utils/types";
 export default definePlugin({
     name: "PhilsPluginLibrary",
     description: "A library for phil's plugins.",
-    authors: [{ name: "philhk", id: 305288513941667851n }, { name: "LOSTSTR", id: 681465758127226900n }],
+    authors: [{ name: "philhk", id: 305288513941667851n }],
     patches: [
         {
             find: '"--custom-app-panels-height",',

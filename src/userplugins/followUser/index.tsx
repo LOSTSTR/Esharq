@@ -292,7 +292,7 @@ export default definePlugin({
     name: "FollowUser",
     dependencies: ["HeaderBarAPI"],
     description: "Follow a user across voice channels. Right-click a user → Follow User (you join their channel). Choose whether it stops itself after 30 minutes of inactivity or keeps following until you stop it.",
-    authors: [EquicordDevs.LOSTSTR, EquicordDevs.TheArmagan],
+    authors: [EquicordDevs.TheArmagan],
     settings,
 
     headerBarButton: {

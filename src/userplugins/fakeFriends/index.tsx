@@ -5,7 +5,6 @@
  */
 
 import { addContextMenuPatch, NavContextMenuPatchCallback, removeContextMenuPatch } from "@api/ContextMenu";
-import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import { ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalRoot, openModal } from "@utils/esharqModals";
 import definePlugin from "@utils/types";
@@ -367,7 +366,7 @@ const guildContextPatch: NavContextMenuPatchCallback = (children, props) => {
 export default definePlugin({
     name: "FakeFriends",
     description: "Locally simulate Discord friends and friend requests from the right-click menu. In-memory only (resets on restart); nothing is ever sent to Discord.",
-    authors: [EquicordDevs.LOSTSTR],
+    authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
     dependencies: ["ContextMenuAPI"],
 
     start() {

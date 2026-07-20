@@ -6,7 +6,6 @@
 
 import { isPluginEnabled } from "@api/PluginManager";
 import { definePluginSettings } from "@api/Settings";
-import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { moment, useEffect, useReducer } from "@webpack/common";
@@ -119,7 +118,7 @@ export default definePlugin({
     name: "RealtimeTimestamps",
     description: "Replaces Discord timestamps (e.g. 15:31) with live seconds (e.g. 15:34:21), updated every second. Turn off CustomTimestamps to use this, since both rewrite the same timestamps.",
     tags: ["Appearance", "Chat", "Utility"],
-    authors: [EquicordDevs.LOSTSTR],
+    authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
     settings,
 
     // Called directly by patches — must return a plain string, not a React

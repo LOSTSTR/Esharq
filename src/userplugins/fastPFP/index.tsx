@@ -5,7 +5,6 @@
  */
 
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
-import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { Menu, RestAPI, Toasts } from "@webpack/common";
@@ -102,7 +101,7 @@ const imageContextMenuPatch: NavContextMenuPatchCallback = (children, props) => 
 export default definePlugin({
     name: "FastPFP",
     description: "Allows you to quickly set any image as your profile picture or banner from the context menu.",
-    authors: [EquicordDevs.LOSTSTR],
+    authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
     contextMenus: {
         "message": messageContextMenuPatch,
         "image-context": imageContextMenuPatch

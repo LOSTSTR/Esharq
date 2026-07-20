@@ -7,7 +7,6 @@
 import "./styles.css";
 
 import { ChatBarButton, ChatBarButtonFactory } from "@api/ChatButtons";
-import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin, { IconProps } from "@utils/types";
 import { CloudUploadPlatform } from "@vencord/discord-types/enums";
@@ -391,7 +390,7 @@ export default definePlugin({
     name: "GifConvertor",
     dependencies: ["ChatInputButtonAPI"],
     description: "Converts an image or video to GIF and sends it in the current channel.",
-    authors: [EquicordDevs.LOSTSTR],
+    authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
 
     chatBarButton: {
         icon: GifIcon,

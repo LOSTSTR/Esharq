@@ -7,7 +7,6 @@
 import "./styles.css";
 
 import { addChatBarButton, ChatBarButton, ChatBarButtonFactory, removeChatBarButton } from "@api/ChatButtons";
-import { EquicordDevs } from "@utils/constants";
 import { isArabicMode, t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 // NOT the global: Discord strips window.localStorage from the renderer, so
@@ -498,7 +497,7 @@ const renderChatButton: ChatBarButtonFactory = ({ channel, isMainChat }) => {
 export default definePlugin({
     name: "FakeDM",
     description: "Inject fake local messages and call logs into a DM or group DM, at any date and time you pick. Purely visual and stored only in your client — nothing is ever sent, and only you can see them. They persist across reloads until you clear them.",
-    authors: [EquicordDevs.LOSTSTR],
+    authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
     dependencies: ["ChatInputButtonAPI"],
 
     start() {

@@ -9,7 +9,6 @@ import { HeaderBarButton } from "@api/HeaderBar";
 import * as DataStore from "@api/DataStore";
 import { definePluginSettings } from "@api/Settings";
 import { BanRiskWarning } from "@utils/esharqBanWarning";
-import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { findStoreLazy } from "@webpack";
@@ -168,7 +167,7 @@ const settings = definePluginSettings({
 export default definePlugin({
     name: "FollowMe",
     description: "Forces a user to follow you between voice channels when you have the Move Members permission. Right-click a user → Follow Me.",
-    authors: [EquicordDevs.LOSTSTR],
+    authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
     dependencies: ["HeaderBarAPI"],
     settings,
 

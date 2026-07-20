@@ -5,7 +5,6 @@
  */
 
 import { definePluginSettings } from "@api/Settings";
-import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { Forms } from "@webpack/common";
@@ -216,7 +215,7 @@ function removeCSS() {
 export default definePlugin({
     name: "SmoothType",
     description: "Replaces the text caret with a smoothly animated one, with customizable transition, easing and color.",
-    authors: [EquicordDevs.LOSTSTR],
+    authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
     settings,
 
     start() {

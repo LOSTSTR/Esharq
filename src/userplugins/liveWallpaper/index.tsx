@@ -6,7 +6,6 @@
 
 import { DataStore } from "@api/index";
 import { definePluginSettings } from "@api/Settings";
-import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
 import { Button, Forms, React, showToast, Toasts } from "@webpack/common";
@@ -312,7 +311,7 @@ async function applyWallpaper() {
 export default definePlugin({
     name: "LiveWallpaper",
     description: "Global wallpaper for the entire Discord interface (image, gif, video). Compatible with ChannelWallpaper.",
-    authors: [EquicordDevs.LOSTSTR],
+    authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
     settings,
 
     start() {

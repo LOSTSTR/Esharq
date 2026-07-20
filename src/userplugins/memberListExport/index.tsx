@@ -22,7 +22,6 @@ import "./style.css";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { definePluginSettings } from "@api/Settings";
 import { addChannelToolbarButton, ChannelToolbarButton, removeChannelToolbarButton } from "@api/HeaderBar";
-import { EquicordDevs } from "@utils/constants";
 import { getUniqueUsername } from "@utils/discord";
 import { classNameFactory } from "@utils/css";
 import definePlugin, { OptionType } from "@utils/types";
@@ -191,7 +190,7 @@ function MemberListExportButton() {
 export default definePlugin({
     name: "MemberListExport",
     description: "Adds a download button to export the current member list as JSON or CSV.",
-    authors: [EquicordDevs.LOSTSTR, { name: "SirPhantom89", id: 1464279455844274188n }],
+    authors: [{ name: "SirPhantom89", id: 1464279455844274188n }],
     tags: ["Servers", "Utility"],
     dependencies: ["HeaderBarAPI"],
     settings,
