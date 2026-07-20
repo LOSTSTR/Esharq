@@ -1355,10 +1355,6 @@ export const EquicordDevs = Object.freeze({
         name: "LOSTSTR",
         id: 681465758127226900n
     },
-    Unknown: {
-        name: "مؤلف غير معروف · Unknown",
-        id: 0n
-    },
     NRaymond: {
         name: "『N』𝚁𝙰𝚈𝙼𝙾𝙽𝙳♞",
         id: 1072961475125182564n
