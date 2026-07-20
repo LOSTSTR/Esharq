@@ -7,7 +7,7 @@
 import "./styles.css";
 
 import * as DataStore from "@api/DataStore";
-import { t } from "@utils/esharqI18n";
+import { EquicordDevs } from "@utils/constants";
 import { openModal } from "@utils/modal";
 import definePlugin from "@utils/types";
 import { VoiceState } from "@vencord/discord-types";
@@ -60,7 +60,7 @@ function openDashboard(): void {
 export default definePlugin({
     name: "PersonalAnalytics",
     description: "Tracks your personal Discord activity and shows a beautiful stats dashboard.",
-    authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
+    authors: [EquicordDevs.Unknown],
     tags: ["Utility", "Activity"],
 
     toolboxActions: {
