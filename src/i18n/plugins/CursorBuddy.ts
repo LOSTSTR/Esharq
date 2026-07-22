@@ -47,6 +47,14 @@ export default definePluginI18n({
         "shake": {
             "ar": "اهتزاز النافذة أثناء مشي الحصان",
             "en": "Shake the buddy on click."
+        },
+        "customSize": {
+            "ar": "حجم الصورة المخصّصة",
+            "en": "Custom image size"
+        },
+        "customFlip": {
+            "ar": "قلب الصورة أفقيّاً عند التحرّك يساراً",
+            "en": "Flip the image horizontally when moving left"
         }
     }
 });
