@@ -59,6 +59,22 @@ export default definePluginI18n({
         "smallTextString": {
             "ar": "نص تنسيق النص الصغير في أصول النشاط",
             "en": "Small text format in activity assets."
+        },
+        "detailsLink": {
+            "ar": "رابط تفاصيل النشاط",
+            "en": "Activity details link"
+        },
+        "stateLink": {
+            "ar": "رابط حالة النشاط",
+            "en": "Activity state link"
+        },
+        "largeImageLink": {
+            "ar": "رابط الصورة الكبيرة في أصول النشاط",
+            "en": "Activity assets large image link"
+        },
+        "smallImageLink": {
+            "ar": "رابط الصورة الصغيرة في أصول النشاط",
+            "en": "Activity assets small image link"
         }
     }
 });

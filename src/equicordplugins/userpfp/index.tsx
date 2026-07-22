@@ -84,7 +84,7 @@ export default definePlugin({
                     className={cl("settings-button")}
                     onClick={() => VencordNative.native.openExternal(DONO_URL)}
                 >
-                    Support UserPFP here <Heart className={cl("settings-heart")} />
+                    {t("ادعم UserPFP هنا", "Support UserPFP here")} <Heart className={cl("settings-heart")} />
                 </Button>
             </Flex>
         </>

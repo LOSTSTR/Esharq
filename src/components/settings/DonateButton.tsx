@@ -20,6 +20,7 @@ import { Button } from "@components/Button";
 import { Heart } from "@components/Heart";
 import { OpenExternalIcon } from "@components/Icons";
 import { openInviteModal } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import { ButtonProps } from "@vencord/discord-types";
 import { showToast } from "@webpack/common";
 
@@ -39,7 +40,7 @@ export function DonateButton({
             className={className || "vc-donate-button"}
         >
             <Heart />
-            Donate
+            {t("تبرّع", "Donate")}
         </Button>
     );
 }
@@ -57,12 +58,12 @@ export function InviteButton({
             onClick={async e => {
                 e.preventDefault();
                 openInviteModal("QamdqDNEDa").catch(() =>
-                    showToast("Invalid or expired invite"),
+                    showToast(t("دعوة غير صالحة أو منتهية الصلاحية", "Invalid or expired invite")),
                 );
             }}
             className={className || "vc-donate-button"}
         >
-            Invite
+            {t("دعوة", "Invite")}
             <OpenExternalIcon className="vc-invite-link" />
         </Button>
     );
@@ -82,7 +83,7 @@ export function TranslateButton({
             onClick={() => VencordNative.native.openExternal(link)}
             className={className || "vc-translate-button"}
         >
-            Translate Here
+            {t("ترجم هنا", "Translate Here")}
         </Button>
     );
 }

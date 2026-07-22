@@ -15,6 +15,18 @@ export default definePluginI18n({
         "dontFollowForwards": {
             "ar": "بعد توجيه رسالة واحدة، لا تنتقل إليها. اضغط Shift لتجاهل هذا السلوك",
             "en": "After forwarding a single message, don't jump to it. Hold shift to ignore this behavior"
+        },
+        "resendOnFail": {
+            "ar": "محاولة إعادة إرسال الرسالة المُوجَّهة إذا فشل التوجيه. قد يسبب إشعارات غير مقصودة أو تكرار النص، ويتجاوز قيود المحتوى الحسّاس (NSFW).",
+            "en": "This will attempt to resend a forwarded message if the forward fails. Could cause unintentional pings or text spam. Bypasses NSFW restrictions."
+        },
+        "forwardPreface": {
+            "ar": "النصّ الذي تُستهَلّ به الرسالة المُوجَّهة",
+            "en": "What should the forwarded message be prefaced with"
+        },
+        "selfForward": {
+            "ar": "إظهار القناة الحالية في نافذة قائمة التوجيه.",
+            "en": "Show the current channel in the forward list popup."
         }
     }
 });

@@ -459,11 +459,9 @@ export default definePlugin({
         <>
             <Heading>{t("معلومات", "Information")}</Heading>
             <Paragraph>
-                This plugin adds a christmas-y snowfall effect on top of Discord's interface.
-                You can change the type of snow in the settings below.
+                {t("تُضيف هذه الإضافة تأثير تساقط ثلوج بطابع عيد الميلاد فوق واجهة Discord. يمكنك تغيير نوع الثلج من الإعدادات أدناه.", "This plugin adds a christmas-y snowfall effect on top of Discord's interface. You can change the type of snow in the settings below.")}
                 <br /><br />
-                NOTE: While on most computers this plugin will not impact performance any more than your average Equicord extension,
-                it may cause some lag on lower end systems.
+                {t("ملاحظة: في معظم الأجهزة لن تؤثّر هذه الإضافة على الأداء أكثر من أيّ إضافة Equicord عادية، لكنّها قد تُسبّب بعض التأخّر على الأجهزة الضعيفة.", "NOTE: While on most computers this plugin will not impact performance any more than your average Equicord extension, it may cause some lag on lower end systems.")}
             </Paragraph>
         </>
     ),

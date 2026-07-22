@@ -145,6 +145,10 @@ const NUMERIC_PATTERNS: { re: RegExp; ar: (m: RegExpMatchArray) => string }[] = 
     { re: /^(.+?)['’]s profile is private, so some info is hidden\. Add them as a friend to see more\.$/, ar: m => `الملف الشخصي لـ${m[1]} خاصّ، لذا بعض المعلومات مخفيّة. أضِفه صديقاً لرؤية المزيد.` },
     { re: /^(\d+) Boosts?$/, ar: m => `${m[1]} تعزيز` },
     { re: /^(\d+)\+ Boosts?$/, ar: m => `${m[1]}+ تعزيز` },
+    // عدّاد الفعاليّات ("1 Event" / "2 Events")
+    { re: /^(\d+) Events?$/, ar: m => arCount(+m[1], "فعالية واحدة", "فعاليتان", "فعاليات", "فعالية") },
+    // مدّة الاشتراك بالأشهر ("2 Months")
+    { re: /^(\d+) Months?$/, ar: m => arCount(+m[1], "شهر واحد", "شهران", "أشهر", "شهراً") },
     { re: /^(\d+) of (\d+) users$/, ar: m => `${m[1]} من ${m[2]} مستخدم` },
     // مدد زمنية مخبوزة (وقت تشغيل البثّ، مدّة المكالمة…) — صيغة مبسّطة مقبولة
     { re: /^(\d+) hours?$/, ar: m => `${m[1]} ساعة` },

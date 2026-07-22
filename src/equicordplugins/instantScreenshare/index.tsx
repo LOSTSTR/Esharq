@@ -74,7 +74,7 @@ export default definePlugin({
         <>
             <HeadingSecondary>{t("لنظام Linux", "For Linux")}</HeadingSecondary>
             <Paragraph>
-                For Wayland it only pops up the screenshare select
+                {t("على Wayland يفتح نافذة اختيار مشاركة الشاشة فقط", "For Wayland it only pops up the screenshare select")}
                 <br />{t("على X11 قد يعمل وقد لا يعمل :shrug:", "For X11 it may or may not work :shrug:")}</Paragraph>
             <br />
             <HeadingSecondary>{t("أجهزة الفيديو", "Video Devices")}</HeadingSecondary>

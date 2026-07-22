@@ -317,23 +317,20 @@ export default definePlugin({
                             className={Margins.top8}
                             onClick={() => ShowCurrentGame.updateSetting(true)}
                         >
-                            Enable
+                            {t("تفعيل", "Enable")}
                         </Button>
                     </ErrorCard>
                 )}
 
                 <Flex flexDirection="column" gap=".5em" className={Margins.top16}>
-                    <Paragraph>
-                        Go to the <Link href="https://discord.com/developers/applications">{t("بوابة مطوّري ديسكورد", "Discord Developer Portal")}</Link> to create an application and
-                        get the application ID.
-                    </Paragraph>
+                    <Paragraph>{t("لإنشاء تطبيق والحصول على مُعرِّف التطبيق، افتح بوابة مطوّري ديسكورد:", "To create an application and get the application ID, open the Discord Developer Portal:")}</Paragraph>
+                    <Paragraph><Link href="https://discord.com/developers/applications">discord.com/developers/applications</Link></Paragraph>
                     <Paragraph>{t("ارفع الصور في تبويب الحالة الغنية للحصول على مفاتيح الصور.", "Upload images in the Rich Presence tab to get the image keys.")}</Paragraph>
-                    <Paragraph>
-                        If you want to use an image link, download your image and reupload the image to <Link href="https://imgur.com">Imgur</Link> and get the image link by right-clicking the image and selecting "Copy image address".
-                    </Paragraph>
+                    <Paragraph>{t("إذا أردت استخدام رابط صورة، نزّل صورتك وأعِد رفعها إلى Imgur، ثمّ انسخ رابط الصورة بالنقر عليها بالزرّ الأيمن واختيار «نسخ عنوان الصورة».", "If you want to use an image link, download your image and reupload it to Imgur, then copy the image link by right-clicking the image and selecting \"Copy image address\".")}</Paragraph>
+                    <Paragraph><Link href="https://imgur.com">imgur.com</Link></Paragraph>
                     <Paragraph>{t("لا يمكنك رؤية أزرارك في ملفك الشخصي، لكنّ الجميع يرونها بشكل طبيعي.", "You can't see your own buttons on your profile, but everyone else can see it fine.")}</Paragraph>
                     <Paragraph>
-                        Some weird unicode text ("fonts" 𝖑𝖎𝖐𝖊 𝖙𝖍𝖎𝖘) may cause the rich presence to not show up, try using normal letters instead.
+                        {t("قد تمنع بعض النصوص اليونيكودية الغريبة (خطوط «فاخرة» مثلاً) ظهور الحالة الغنية، فجرّب استخدام حروف عاديّة بدلاً منها.", "Some weird unicode text (\"fonts\" 𝖑𝖎𝖐𝖊 𝖙𝖍𝖎𝖘) may cause the rich presence to not show up, try using normal letters instead.")}
                     </Paragraph>
                 </Flex>
 

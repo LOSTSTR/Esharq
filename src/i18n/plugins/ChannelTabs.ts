@@ -10,5 +10,11 @@ export default definePluginI18n({
     "description": {
         "ar": "يتيح تصفح القنوات الأكثر زيارة في تبويبات كالمتصفح",
         "en": "Browse your most-visited channels in browser-style tabs."
+    },
+    "options": {
+        "showBookmarkBar": {
+            "ar": "إظهار شريط الإشارات المرجعية",
+            "en": "Show the bookmark bar"
+        }
     }
 });

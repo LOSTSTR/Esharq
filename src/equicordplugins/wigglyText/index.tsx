@@ -118,11 +118,11 @@ export default definePlugin({
     settings,
     settingsAboutComponent: () => (
         <BaseText>
-            You can make text wiggle with the following:<br />
+            {t("يمكنك جعل النصّ يتموّج بالطرق التالية:", "You can make text wiggle with the following:")}<br />
             <ul className="wiggle-example">
-                <li><ExampleWiggle wiggle="x">{t("يساراً ويميناً", "left and right")}</ExampleWiggle> by typing <code>&lt;~text~&gt;</code></li>
-                <li><ExampleWiggle wiggle="y">{t("أعلى وأسفل", "up and down")}</ExampleWiggle> by typing <code>^~text~^</code></li>
-                <li><ExampleWiggle wiggle="xy">in a circle</ExampleWiggle> by typing <code>)~text~(</code></li>
+                <li><ExampleWiggle wiggle="x">{t("يساراً ويميناً", "left and right")}</ExampleWiggle> {t("بكتابة", "by typing")} <code>&lt;~text~&gt;</code></li>
+                <li><ExampleWiggle wiggle="y">{t("أعلى وأسفل", "up and down")}</ExampleWiggle> {t("بكتابة", "by typing")} <code>^~text~^</code></li>
+                <li><ExampleWiggle wiggle="xy">{t("في دائرة", "in a circle")}</ExampleWiggle> {t("بكتابة", "by typing")} <code>)~text~(</code></li>
             </ul>
         </BaseText>
     ),

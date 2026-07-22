@@ -186,7 +186,7 @@ export default definePlugin({
             </Paragraph>
 
             <Paragraph className={Margins.top8}>
-                No, you cannot use server-side features like checking the "Send to Client" box.
+                {t("لا، لا يمكنك استخدام ميزات جهة الخادم مثل تفعيل خانة «Send to Client».", "No, you cannot use server-side features like checking the \"Send to Client\" box.")}
             </Paragraph>
         </ErrorCard>
     ), { noop: true })

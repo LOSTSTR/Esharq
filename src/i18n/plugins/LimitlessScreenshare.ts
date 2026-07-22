@@ -19,6 +19,10 @@ export default definePluginI18n({
         "maxResolution": {
             "ar": "أقصى دقة لشريط التمرير",
             "en": "Max Resolution for the range slider"
+        },
+        "roundResolution": {
+            "ar": "تقريب الدقّة إلى أقرب 10p",
+            "en": "Round resolution to the nearest 10p"
         }
     }
 });

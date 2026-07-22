@@ -10,5 +10,11 @@ export default definePluginI18n({
     "description": {
         "ar": "طيّ عناصر الواجهة الأصلية: قائمة القنوات، والأعضاء، وزرّ الدردشة، ومنطقة المستخدم.",
         "en": "Native collapsible channel, member, chat button, and user area surfaces."
+    },
+    "options": {
+        "detachUserArea": {
+            "ar": "فصل منطقة المستخدم لتتمكّن من تحريكها بحرّية عندما لا تكون مطويّة.",
+            "en": "Detach the user area so it can be moved freely when it is not collapsed."
+        }
     }
 });

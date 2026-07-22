@@ -239,8 +239,11 @@ export default definePlugin({
             <section>
                 <Paragraph>{t("يمكنك تخصيص الرسائل المنطوقة أدناه. يمكنك تعطيل رسائل معيّنة بتركها فارغة", "You can customise the spoken messages below. You can disable specific messages by setting them to nothing")}</Paragraph>
                 <Paragraph>
-                    The special placeholders <code>{"{{USER}}"}</code>, <code>{"{{DISPLAY_NAME}}"}</code>, <code>{"{{NICKNAME}}"}</code> and <code>{"{{CHANNEL}}"}</code>{" "}
-                    will be replaced with the user's name (nothing if it's yourself), the user's display name, the user's nickname on current server and the channel's name respectively
+                    {t("العناصر النائبة الخاصّة:", "The special placeholders:")}{" "}
+                    <code>{"{{USER}}"}</code>, <code>{"{{DISPLAY_NAME}}"}</code>, <code>{"{{NICKNAME}}"}</code>, <code>{"{{CHANNEL}}"}</code>
+                </Paragraph>
+                <Paragraph>
+                    {t("سيجري استبدالها على الترتيب بـ: اسم المستخدم (فارغ إن كان أنت)، والاسم المعروض، واسم المستخدم المستعار في الخادم الحالي، واسم القناة.", "will respectively be replaced with the user's name (nothing if it's yourself), the user's display name, the user's nickname on the current server, and the channel's name.")}
                 </Paragraph>
                 {hasEnglishVoices && (
                     <>

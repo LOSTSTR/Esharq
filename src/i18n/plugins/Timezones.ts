@@ -55,6 +55,22 @@ export default definePluginI18n({
         "askedTimezone": {
             "ar": "ما إذا كان قد تم سؤال المستخدم عن ضبط منطقته الزمنية",
             "en": "Whether you've been asked to set a timezone."
+        },
+        "showOwnTimezone": {
+            "ar": "يعرض منطقتك الزمنية في ملفك الشخصي ورؤوس الرسائل",
+            "en": "Shows your timezone in your profile and message headers"
+        },
+        "twentyFourHourFormat": {
+            "ar": "عرض الوقت بتنسيق 24 ساعة",
+            "en": "Show time in 24h format"
+        },
+        "recipientTimezoneInDms": {
+            "ar": "في الرسائل المباشرة، عرض المنطقة الزمنية للمُستلِم على رسائلك",
+            "en": "In DMs, show the recipient's timezone on your messages"
+        },
+        "showLocalTimezone": {
+            "ar": "عرض المنطقة الزمنية المحلية بدلاً من الوقت المحلي فقط",
+            "en": "Show Local Timezone instead of just local"
         }
     },
     "toolboxActions": {
