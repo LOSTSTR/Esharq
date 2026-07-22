@@ -24,6 +24,7 @@ import BadgeAPI from "@plugins/_api/badges";
 import { gitRemote } from "@shared/vencordUserAgent";
 import { IS_WINDOWS, VC_DONOR_ROLE_ID, VC_GUILD_ID } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { applyArabicFont } from "@utils/esharqFont";
 import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { isAnyPluginDev, isEsharqContributor } from "@utils/misc";
@@ -43,9 +44,10 @@ type KeysOfType<Object, Type> = {
 
 function EquicordSettings() {
     const settings = useSettings();
-    useSettings(["plugins.Settings.arabicMode"]);
+    useSettings(["plugins.Settings.arabicMode", "plugins.Settings.arabicFont"]);
 
     const arabicMode: boolean = (Settings.plugins as any)?.Settings?.arabicMode ?? false;
+    const arabicFont: boolean = (Settings.plugins as any)?.Settings?.arabicFont ?? true;
 
     const user = UserStore?.getCurrentUser();
 
@@ -313,6 +315,20 @@ function EquicordSettings() {
                 description={t(
                     "تفعيل أسماء ووصف الإضافات وإعدادات Esharq باللغة العربية.",
                     "Enable Arabic names, descriptions, and settings for plugins and the Esharq panel."
+                )}
+                hideBorder
+            />
+
+            <FormSwitch
+                value={arabicFont}
+                onChange={v => {
+                    (Settings.plugins as any).Settings.arabicFont = v;
+                    applyArabicFont(v);
+                }}
+                title={t("خطّ التعريب العربي (Tajawal)", "Arabic Font (Tajawal)")}
+                description={t(
+                    "توحيد خطّ كل النصّ العربي (واجهة ديسكورد وواجهة Esharq والإضافات). مفعّل افتراضياً — عطّله للإبقاء على خطّ ديسكورد. يمسّ المحارف العربية فقط دون اللاتيني والأكواد.",
+                    "Unify the font of all Arabic text (Discord UI, the Esharq panel, and plugins). On by default — disable to keep Discord's font. Only Arabic glyphs are affected; Latin and code stay untouched."
                 )}
                 hideBorder
             />

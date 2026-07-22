@@ -18,6 +18,7 @@ import {
 } from "@components/settings";
 import { gitHashShort } from "@shared/vencordUserAgent";
 import { Devs } from "@utils/constants";
+import { applyArabicFont, initArabicFont } from "@utils/esharqFont";
 import { t } from "@utils/esharqI18n";
 import { isTruthy } from "@utils/guards";
 import definePlugin, { IconProps, OptionType } from "@utils/types";
@@ -103,6 +104,14 @@ const settings = definePluginSettings({
         default: false,
         restartNeeded: true,
     },
+    arabicFont: {
+        type: OptionType.BOOLEAN,
+        description: "Arabic Font (Tajawal) — Unify the font of all Arabic text (Discord UI, the Esharq panel, and plugins). On by default; disable to keep Discord's default font. Only Arabic glyphs are affected; Latin text and code blocks stay untouched.",
+        default: true,
+        onChange(value: boolean) {
+            applyArabicFont(value);
+        }
+    },
     settingsLocation: {
         type: OptionType.SELECT,
         description: "Where to display the Equicord settings section",
@@ -130,6 +139,11 @@ export default definePlugin({
     required: true,
 
     settings,
+
+    start() {
+        // خطّ التعريب العربي الموحّد: يُحقن مرّة ويطبّق الحالة المحفوظة (مفعّل افتراضياً).
+        initArabicFont(settings.store.arabicFont);
+    },
 
     patches: [
         {
