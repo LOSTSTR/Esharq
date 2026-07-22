@@ -1371,10 +1371,6 @@ export const EquicordDevs = Object.freeze({
         name: "pandaptable",
         id: 97153209843335168n
     },
-    "3j_7": {
-        name: "3j_7",
-        id: 428275226883915778n
-    },
     SobakinTech: {
         name: "sobakintech",
         id: 745203026335236178n
@@ -1426,7 +1422,6 @@ export const EsharqDevs: ReadonlySet<string> = new Set([
     "683031548672606264",
     "1161389239112568902",
     "1295464673264664747",
-    "428275226883915778",
 ]);
 
 // Esharq contributor ids — these show the Esharq Contributor badge (shared circular EA

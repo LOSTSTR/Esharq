@@ -9,7 +9,7 @@
 ### The Arabic Discord Client Mod
 
 **A Discord experience with exclusive customizations by**  
-**LOSTSTR · krym511 · 𝚁𝙰𝚈𝙼𝙾𝙽𝙳♞ · Abo Ahmed · S99 · iosiph · .fmo · Bspeed**
+**LOSTSTR · krym511 · 𝚁𝙰𝚈𝙼𝙾𝙽𝙳♞ · Abo Ahmed · S99 · iosiph · .fmo**
 
 ---
 
@@ -103,8 +103,6 @@ Join our community: **[discord.gg/QamdqDNEDa](https://discord.gg/QamdqDNEDa)**
 | **Abo Ahmed** | Contributor |
 | **S99** | Contributor |
 | **.fmo** | Contributor |
-| **Bspeed** | Contributor |
-
 ---
 
 ## 📥 Installation
