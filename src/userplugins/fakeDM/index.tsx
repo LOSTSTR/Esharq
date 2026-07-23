@@ -7,6 +7,7 @@
 import "./styles.css";
 
 import { addChatBarButton, ChatBarButton, ChatBarButtonFactory, removeChatBarButton } from "@api/ChatButtons";
+import { EquicordDevs } from "@utils/constants";
 import { isArabicMode, t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 // NOT the global: Discord strips window.localStorage from the renderer, so
@@ -79,6 +80,7 @@ function removeFake(channelId: string, id: string) {
 }
 
 function clearFakes(channelId: string): number {
+    if (activeRing?.channelId === channelId) stopFakeRing();
     const ids = fakeIds.get(channelId);
     if (!ids?.size) return 0;
     let n = 0;
@@ -120,10 +122,10 @@ function displayName(user: any): string {
 }
 
 /** Discord CDN avatar, or the default avatar when the user has none. */
-function avatarUrl(user: any): string {
+function avatarUrl(user: any, size = 64): string {
     if (user?.avatar) {
         const ext = user.avatar.startsWith("a_") ? "gif" : "png";
-        return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${ext}?size=64`;
+        return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${ext}?size=${size}`;
     }
     const idx = Number((BigInt(user?.id ?? "0") >> 22n) % 6n);
     return `https://cdn.discordapp.com/embed/avatars/${idx}.png`;
@@ -212,6 +214,80 @@ function injectCall(channelId: string, caller: any, missed: boolean, durationSec
     }
 }
 
+// ── Fake incoming call — Discord's REAL ring, reproduced from a captured payload ─
+// A real DM incoming call fires (captured live via EsharqCallCapture, in this order):
+//   1. CALL_CREATE            ongoingRings: {}
+//   2. VOICE_STATE_UPDATES    the CALLER joins the DM channel's call voice (guildId: null)
+//   3. CALL_UPDATE            ongoingRings: { [yourId]: callerId }
+// (2) is the piece that makes it read as an INCOMING call FROM the caller — with only the
+// CALL events it looks like an OUTGOING call you started. (3)'s `ongoingRings[you]=caller` is
+// what actually rings you (ringtone + native screen). Dispatched LOCALLY — nothing reaches
+// Discord's servers. Cleanup pulls the caller back out of voice, clears ongoingRings, deletes
+// the call. Auto-ends after 30s.
+const RING_REGION = "us-east";
+const RING_TIMEOUT_MS = 30_000;
+let activeRing: { channelId: string; messageId: string; callerId: string; sessionId: string; } | null = null;
+let ringTimer: ReturnType<typeof setTimeout> | null = null;
+
+// 32 hex chars, shaped like Discord's voice session ids.
+function randomSessionId(): string {
+    let s = "";
+    for (let i = 0; i < 32; i++) s += Math.floor(Math.random() * 16).toString(16);
+    return s;
+}
+
+function callerVoiceState(userId: string, sessionId: string, channelId: string | null) {
+    return {
+        userId, guildId: null, sessionId, channelId,
+        mute: false, deaf: false, selfMute: false, selfDeaf: false,
+        selfVideo: false, suppress: false, selfStream: false,
+        requestToSpeakTimestamp: null, discoverable: true,
+        connectedAt: Math.floor(Date.now() / 1000),
+    };
+}
+
+// Discord's own Accept/Decline buttons can't end a PHANTOM call — declining needs a server
+// round-trip that never comes, so the ring would hang. We own the dismissal: Esc ends it
+// instantly (capture-phase so Discord doesn't also react), plus the auto-timeout. No on-screen
+// toast — the hint lives in the plugin's ring tab instead (owner's request).
+function onRingKey(e: KeyboardEvent) {
+    if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        stopFakeRing();
+    }
+}
+
+function startFakeRing(channelId: string, caller: any) {
+    const me = UserStore.getCurrentUser();
+    if (!me || caller.id === me.id) return;
+    stopFakeRing(); // never stack two rings
+
+    const messageId = uniqueSnowflake(new Date());
+    const sessionId = randomSessionId();
+
+    // Exact captured order: create → caller joins the call's voice → ring the current user.
+    FluxDispatcher.dispatch({ type: "CALL_CREATE", channelId, messageId, region: RING_REGION, ongoingRings: {} });
+    FluxDispatcher.dispatch({ type: "VOICE_STATE_UPDATES", voiceStates: [callerVoiceState(caller.id, sessionId, channelId)] });
+    FluxDispatcher.dispatch({ type: "CALL_UPDATE", channelId, messageId, region: RING_REGION, ongoingRings: { [me.id]: caller.id } });
+
+    activeRing = { channelId, messageId, callerId: caller.id, sessionId };
+    ringTimer = setTimeout(stopFakeRing, RING_TIMEOUT_MS);
+    document.addEventListener("keydown", onRingKey, true);
+}
+
+function stopFakeRing() {
+    if (ringTimer) { clearTimeout(ringTimer); ringTimer = null; }
+    document.removeEventListener("keydown", onRingKey, true);
+    if (!activeRing) return;
+    const { channelId, messageId, callerId, sessionId } = activeRing;
+    activeRing = null;
+    // Pull the caller back out of voice (channelId null = left), un-ring, delete the call.
+    FluxDispatcher.dispatch({ type: "VOICE_STATE_UPDATES", voiceStates: [callerVoiceState(callerId, sessionId, null)] });
+    FluxDispatcher.dispatch({ type: "CALL_UPDATE", channelId, messageId, region: RING_REGION, ongoingRings: {} });
+    FluxDispatcher.dispatch({ type: "CALL_DELETE", channelId });
+}
+
 // ── Restore persisted fakes when a channel's messages load ───────────────────
 function restoreForChannel(channelId: string) {
     const fakes = loadPersisted().filter(f => f.channelId === channelId);
@@ -252,7 +328,7 @@ function FakeDMModal({ rootProps }: { rootProps: RenderModalProps; }) {
 
     const [authorId, setAuthorId] = useState<string>(members.find(m => m.id !== me?.id)?.id ?? me?.id ?? "");
     const [content, setContent] = useState("");
-    const [mode, setMode] = useState<"message" | "call">("message");
+    const [mode, setMode] = useState<"message" | "call" | "ring">("message");
     const [missed, setMissed] = useState(false);
     const [minutes, setMinutes] = useState("5");
     const [when, setWhen] = useState(() => toLocalInput(new Date()));
@@ -296,13 +372,29 @@ function FakeDMModal({ rootProps }: { rootProps: RenderModalProps; }) {
         showToast(t("تمّت الإضافة محلياً (أنت فقط تراها)", "Injected locally (only you can see it)"), Toasts.Type.SUCCESS);
     }
 
+    function startRing() {
+        if (!channel) return;
+        const caller = UserStore.getUser(authorId);
+        if (!caller) return;
+        if (caller.id === me?.id) {
+            showToast(t("اختر متّصِلاً غيرك", "Pick a caller other than yourself"), Toasts.Type.FAILURE);
+            return;
+        }
+        rootProps.onClose(); // close the composer first, then Discord's ring takes over
+        startFakeRing(channel.id, caller);
+    }
+
     const cls = (...xs: (string | false | undefined)[]) => xs.filter(Boolean).join(" ");
 
     return (
         <ModalRoot {...rootProps} size={ModalSize.MEDIUM}>
             <ModalHeader>
                 <Text variant="heading-lg/semibold">
-                    {mode === "message" ? t("محادثة وهمية", "Fake DM") : t("مكالمة وهمية", "Fake Call")}
+                    {mode === "message"
+                        ? t("محادثة وهمية", "Fake DM")
+                        : mode === "call"
+                            ? t("مكالمة وهمية", "Fake Call")
+                            : t("مكالمة واردة وهمية", "Fake Incoming Call")}
                 </Text>
             </ModalHeader>
 
@@ -317,7 +409,7 @@ function FakeDMModal({ rootProps }: { rootProps: RenderModalProps; }) {
 
                     {/* Mode tabs */}
                     <div className="esharq-fakedm-tabs" role="tablist">
-                        {(["message", "call"] as const).map(m => (
+                        {(["message", "call", "ring"] as const).map(m => (
                             <button
                                 key={m}
                                 role="tab"
@@ -325,7 +417,11 @@ function FakeDMModal({ rootProps }: { rootProps: RenderModalProps; }) {
                                 className={cls("esharq-fakedm-tab", mode === m && "esharq-fakedm-tab-on")}
                                 onClick={() => setMode(m)}
                             >
-                                {m === "message" ? t("💬 رسالة", "💬 Message") : t("📞 مكالمة", "📞 Call")}
+                                {m === "message"
+                                    ? t("💬 رسالة", "💬 Message")
+                                    : m === "call"
+                                        ? t("📞 مكالمة", "📞 Call")
+                                        : t("📲 مكالمة واردة", "📲 Incoming call")}
                             </button>
                         ))}
                     </div>
@@ -351,24 +447,28 @@ function FakeDMModal({ rootProps }: { rootProps: RenderModalProps; }) {
                         ))}
                     </div>
 
-                    {/* When */}
-                    <Text variant="text-xs/semibold" className="esharq-fakedm-label">{t("التوقيت", "When")}</Text>
-                    <div className="esharq-fakedm-row">
-                        <input
-                            type="datetime-local"
-                            className="esharq-fakedm-date"
-                            value={when}
-                            onChange={e => setWhen(e.currentTarget.value)}
-                            dir="ltr"
-                        />
-                        <button className="esharq-fakedm-chip" onClick={() => shiftBy(0)}>{t("الآن", "Now")}</button>
-                    </div>
-                    <div className="esharq-fakedm-row esharq-fakedm-row-wrap">
-                        <button className="esharq-fakedm-chip" onClick={() => shiftBy(5 * 60e3)}>{t("قبل ٥ دقائق", "5m ago")}</button>
-                        <button className="esharq-fakedm-chip" onClick={() => shiftBy(60 * 60e3)}>{t("قبل ساعة", "1h ago")}</button>
-                        <button className="esharq-fakedm-chip" onClick={() => shiftBy(24 * 3600e3)}>{t("أمس", "Yesterday")}</button>
-                        <button className="esharq-fakedm-chip" onClick={() => shiftBy(7 * 24 * 3600e3)}>{t("الأسبوع الماضي", "Last week")}</button>
-                    </div>
+                    {/* When — not shown for an incoming ring (it's immediate) */}
+                    {mode !== "ring" && (
+                        <>
+                            <Text variant="text-xs/semibold" className="esharq-fakedm-label">{t("التوقيت", "When")}</Text>
+                            <div className="esharq-fakedm-row">
+                                <input
+                                    type="datetime-local"
+                                    className="esharq-fakedm-date"
+                                    value={when}
+                                    onChange={e => setWhen(e.currentTarget.value)}
+                                    dir="ltr"
+                                />
+                                <button className="esharq-fakedm-chip" onClick={() => shiftBy(0)}>{t("الآن", "Now")}</button>
+                            </div>
+                            <div className="esharq-fakedm-row esharq-fakedm-row-wrap">
+                                <button className="esharq-fakedm-chip" onClick={() => shiftBy(5 * 60e3)}>{t("قبل ٥ دقائق", "5m ago")}</button>
+                                <button className="esharq-fakedm-chip" onClick={() => shiftBy(60 * 60e3)}>{t("قبل ساعة", "1h ago")}</button>
+                                <button className="esharq-fakedm-chip" onClick={() => shiftBy(24 * 3600e3)}>{t("أمس", "Yesterday")}</button>
+                                <button className="esharq-fakedm-chip" onClick={() => shiftBy(7 * 24 * 3600e3)}>{t("الأسبوع الماضي", "Last week")}</button>
+                            </div>
+                        </>
+                    )}
 
                     {mode === "message" ? (
                         <textarea
@@ -382,7 +482,7 @@ function FakeDMModal({ rootProps }: { rootProps: RenderModalProps; }) {
                                 if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); }
                             }}
                         />
-                    ) : (
+                    ) : mode === "call" ? (
                         <>
                             <div className="esharq-fakedm-row">
                                 <button
@@ -415,12 +515,22 @@ function FakeDMModal({ rootProps }: { rootProps: RenderModalProps; }) {
                                 </div>
                             )}
                         </>
+                    ) : (
+                        <Text variant="text-xs/normal" className="esharq-fakedm-note esharq-fakedm-ring-note">
+                            {t("سيرنّ عميلك بمكالمة واردة حقيقيّة من المُتّصِل المختار — شاشة ديسكورد ونغمتها الأصليّة. محليّ بالكامل — لا يُرسَل شيء. لإنهاء الرنين اضغط زرّ Esc في لوحة المفاتيح (أو ينتهي تلقائياً بعد ٣٠ ثانية) — أزرار ديسكورد لا تُنهي مكالمة وهميّة.", "Your client will ring with a genuine incoming call from the chosen caller — Discord's own screen and ringtone. Fully local — nothing is sent. To end the ring, press the Esc key (or it auto-ends after 30s) — Discord's own buttons can't end a fake call.")}
+                        </Text>
                     )}
 
                     <div className="esharq-fakedm-actions">
-                        <button className="esharq-fakedm-submit" onClick={submit}>
-                            {mode === "message" ? t("إضافة الرسالة", "Inject Message") : t("إضافة المكالمة", "Inject Call")}
-                        </button>
+                        {mode === "ring" ? (
+                            <button className="esharq-fakedm-submit" onClick={startRing}>
+                                {t("📲 بدء الرنين", "📲 Start ringing")}
+                            </button>
+                        ) : (
+                            <button className="esharq-fakedm-submit" onClick={submit}>
+                                {mode === "message" ? t("إضافة الرسالة", "Inject Message") : t("إضافة المكالمة", "Inject Call")}
+                            </button>
+                        )}
                         <button
                             className="esharq-fakedm-clear"
                             disabled={clearableCount === 0}
@@ -496,8 +606,8 @@ const renderChatButton: ChatBarButtonFactory = ({ channel, isMainChat }) => {
 
 export default definePlugin({
     name: "FakeDM",
-    description: "Inject fake local messages and call logs into a DM or group DM, at any date and time you pick. Purely visual and stored only in your client — nothing is ever sent, and only you can see them. They persist across reloads until you clear them.",
-    authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
+    description: "Inject fake local messages and call logs into a DM or group DM at any date/time, or trigger a genuine incoming call ring (Discord's own ring screen and ringtone). Purely visual and stored only in your client — nothing is ever sent, and only you can see them. Messages and call logs persist across reloads until you clear them.",
+    authors: [EquicordDevs.LOSTSTR],
     dependencies: ["ChatInputButtonAPI"],
 
     start() {
@@ -508,6 +618,7 @@ export default definePlugin({
     stop() {
         removeChatBarButton("esharq-fakedm");
         FluxDispatcher.unsubscribe("LOAD_MESSAGES_SUCCESS", onLoadMessages);
+        stopFakeRing(); // never leave a fake call ringing in the store
         // Remove any currently-injected fakes from the open channel view.
         for (const channelId of [...fakeIds.keys()]) clearFakes(channelId);
     },
