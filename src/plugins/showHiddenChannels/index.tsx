@@ -26,7 +26,7 @@ import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Channel, Role } from "@vencord/discord-types";
-import { ChannelStore, PermissionsBits, PermissionStore, Tooltip } from "@webpack/common";
+import { ChannelStore, FluxDispatcher, PermissionsBits, PermissionStore, Tooltip } from "@webpack/common";
 
 import HiddenChannelLockScreen, { setChannelBeginHeader } from "./components/HiddenChannelLockScreen";
 
@@ -73,6 +73,12 @@ export const settings = definePluginSettings({
         description: "Whether the allowed users and roles dropdown for hidden channels is open by default",
         type: OptionType.BOOLEAN,
         default: true
+    },
+    revealPrivateChannelNames: {
+        description: "Reveal private channel names by overriding Discord's private-channel-hiding experiment locally (so they show their real name instead of \"No Access\"). Requires a restart.",
+        type: OptionType.BOOLEAN,
+        default: true,
+        restartNeeded: true
     }
 });
 
@@ -87,6 +93,19 @@ export default definePlugin({
     authors: [Devs.BigDuck, Devs.AverageReactEnjoyer, Devs.D3SOX, Devs.Ven, Devs.Nuckyz, Devs.Nickyux, Devs.Rini, EquicordDevs.Oggetto],
     isModified: true,
     settings,
+
+    start() {
+        // تجاوز محليّ لتجربة إخفاء أسماء القنوات الخاصّة (2026-02-private-channel-hiding)،
+        // فتظهر الأسماء الحقيقيّة بدل «No Access». تجاوز تجربة محليّ فقط — بلا اتصال بالخادم
+        // (كما تفعل إضافة Experiments). يُطبَّق بالكامل بعد إعادة التشغيل.
+        if (settings.store.revealPrivateChannelNames) {
+            FluxDispatcher.dispatch({
+                type: "APEX_EXPERIMENT_OVERRIDE_CREATE",
+                experimentName: "2026-02-private-channel-hiding",
+                variantId: -1
+            } as any);
+        }
+    },
 
     patches: [
         {

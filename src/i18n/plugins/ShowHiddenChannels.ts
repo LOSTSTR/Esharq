@@ -34,6 +34,10 @@ export default definePluginI18n({
         "defaultAllowedUsersAndRolesDropdownState": {
             "ar": "ما إذا كانت القائمة المنسدلة للمستخدمين والأدوار المسموح لهم في القنوات المخفية مفتوحة افتراضياً",
             "en": "Default state of the allowed users/roles dropdown."
+        },
+        "revealPrivateChannelNames": {
+            "ar": "إظهار أسماء القنوات الخاصّة بتجاوز تجربة إخفائها محليّاً (فتظهر باسمها الحقيقيّ بدل «No Access»). يتطلّب إعادة تشغيل.",
+            "en": "Reveal private channel names by overriding Discord's private-channel-hiding experiment locally (so they show their real name instead of \"No Access\"). Requires a restart."
         }
     }
 });
