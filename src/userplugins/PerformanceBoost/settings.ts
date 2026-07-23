@@ -7,13 +7,34 @@
 import { definePluginSettings } from "@api/Settings";
 import { OptionType } from "@utils/types";
 
+import { handleGameModeChange, PluginManagerControls } from "./PluginManager";
+
 // الأوصاف هنا بالإنجليزية؛ العربية تأتي من overlay (src/i18n/plugins/PerformanceBoost.ts).
 // definePluginSettings يحفظ الإعدادات تلقائياً (لا localStorage).
 export const settings = definePluginSettings({
+    // المفتاح الرئيسي: تفعيله يطبّق تحسينات وقت التشغيل ويُعطّل بقيّة الإضافات (عدا الأساسيّة
+    // واستثناءاتك) مع طلب إعادة تشغيل. الربط عبر onChange (يعمل من الإعدادات أو زرّ الشريط).
     // ملاحظة: لا تُسمِّ هذا "enabled" — Settings.plugins[name].enabled محجوز لعلَم تفعيل الإضافة نفسها في Vencord
     gameMode: {
         type: OptionType.BOOLEAN, default: false,
-        description: "Enable performance / game mode"
+        description: "Enable performance / game mode (also disables other plugins except essentials and your exceptions; requires a restart)",
+        onChange: handleGameModeChange
+    },
+    // زرّ الاستثناءات: اختيار الإضافات التي تبقى مُفعّلة عند تفعيل وضع الأداء (يُرسَم داخل المكوّن).
+    pluginManager: {
+        type: OptionType.COMPONENT,
+        description: "Choose which plugins stay enabled when performance mode is on.",
+        component: PluginManagerControls
+    },
+    // الاستثناءات: أسماء إضافات تبقى مُفعّلة (مفصولة بفواصل) — مخفيّة عن قائمة الإعدادات.
+    pluginKeep: {
+        type: OptionType.STRING, default: "", hidden: true,
+        description: "Comma-separated plugin names kept enabled (exceptions)."
+    },
+    // لقطة الإضافات التي كانت مُفعّلة قبل تعطيل البقيّة، لاستعادتها عند الإطفاء.
+    pluginSaved: {
+        type: OptionType.STRING, default: "", hidden: true,
+        description: "JSON snapshot of plugins enabled before disabling the rest, restored when turned off."
     },
     // افتراضياً مُطفأ: حرية كاملة للمستخدم — لا تفعيل تلقائي إلا إن طلبه صراحةً.
     autoDetectGames: {

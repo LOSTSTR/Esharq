@@ -12,7 +12,7 @@ export default definePluginI18n({
         "en": "Game/performance mode: cuts animations and heavy UI and applies runtime speedups (spring skip, passive listeners, lazy images, memory-freeing) to lower CPU/RAM usage — manually or automatically when a game starts."
     },
     "options": {
-        "gameMode": { "ar": "تفعيل وضع الأداء/الألعاب", "en": "Enable performance / game mode" },
+        "gameMode": { "ar": "تفعيل وضع الأداء/الألعاب (يُعطّل أيضاً بقيّة الإضافات عدا الأساسيّة واستثناءاتك؛ يتطلّب إعادة تشغيل)", "en": "Enable performance / game mode (also disables other plugins except essentials and your exceptions; requires a restart)" },
         "autoDetectGames": { "ar": "تفعيل تلقائي عند اكتشاف لعبة", "en": "Automatically enable when a game is detected" },
         "autoHighLoad": { "ar": "تفعيل وضع الأداء تلقائياً عندما يبقى استهلاك ديسكورد للمعالج فوق الحدّ (فحص كل 30 ثانية — سطح المكتب فقط)", "en": "Automatically enable performance mode when Discord's CPU usage stays above the threshold (checks every 30s, desktop only)" },
         "cpuThreshold": { "ar": "حدّ استهلاك المعالج (%) الذي يُطلق وضع الأداء التلقائي (إجمالي عمليات ديسكورد)", "en": "CPU threshold (%) that triggers automatic performance mode (total across Discord processes)" },
