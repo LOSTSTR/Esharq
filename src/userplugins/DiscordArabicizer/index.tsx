@@ -16,7 +16,7 @@ import "./styles.css";
 import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
-import { i18n } from "@webpack/common";
+import { i18n, React } from "@webpack/common";
 
 import { collectMissing as rawCollect, sessionStats } from "./collector";
 import { startDomFallback, stopDomFallback } from "./domFallback";
@@ -168,6 +168,25 @@ const NUMERIC_PATTERNS: { re: RegExp; ar: (m: RegExpMatchArray) => string }[] = 
     { re: /^Quest progress: (\d+)%$/, ar: m => `تقدّم المهمة: ${m[1]}%` },
     // رصيد سيُطبَّق في تاريخ مخبوز ("Credit will be applied on Jun 22, 2026.") — نُبقي التاريخ كصيغة ديسكورد
     { re: /^Credit will be applied on (.+)\.$/, ar: m => `سيُطبَّق الرصيد في ${m[1]}.` },
+    // جزء من جملة الاشتراك المتأخّر ("...and will end on August 21, 2026") — يصل نائبةً مستقلّة.
+    { re: /^end on (.+)$/, ar: m => `ينتهي في ${m[1]}` },
+    { re: /^for (\d+) months?\. Keep it with Nitro!$/, ar: m => `لمدّة ${arCount(+m[1], "شهر واحد", "شهرين", "أشهر", "شهراً")}. احتفظ به مع Nitro!` },
+    // ── عدّادات مخبوزة بفواصل الآلاف (قائمة الخوادم/الاكتشاف) ──
+    // هذه بالمئات في الحصاد؛ نمط واحد يغنيها كلّها بدل إضافة كل رقم للقاموس يدوياً.
+    { re: /^([\d,]+) Members?$/, ar: m => `${m[1]} عضو` },
+    { re: /^([\d,]+) Online$/, ar: m => `${m[1]} متصل` },
+    { re: /^([\d,]+) (?:Person|People)$/, ar: m => `${m[1]} شخص` },
+    { re: /^([\d,]+) servers?$/, ar: m => `${m[1]} خادم` },
+    // النسخة الصغيرة من "Months" (النمط الأعلى يطابق الكبيرة فقط)
+    { re: /^(\d+) months?$/, ar: m => arCount(+m[1], "شهر واحد", "شهران", "أشهر", "شهراً") },
+    // «و4 آخرين» في قوائم الأسماء المختصرة
+    { re: /^, and (\d+) others?$/, ar: m => `، و${m[1]} آخرين` },
+    { re: /^\{0\}, \{1\}, and (\d+) others?$/, ar: m => `{0}، {1}، و${m[1]} آخرين` },
+    // «يقول:» في معاينة الرسالة (يبقى اسم المستخدم كما هو)
+    { re: /^(.+) says:$/, ar: m => `${m[1]} يقول:` },
+    // عدّاد الأيام حتى الإسقاط التالي
+    { re: /^(\d+) days? until your next$/, ar: m => `${arCount(+m[1], "يوم واحد", "يومان", "أيام", "يوماً")} حتى` },
+    { re: /^(\d+) days? until your next \{0\} drop$/, ar: m => `${arCount(+m[1], "يوم واحد", "يومان", "أيام", "يوماً")} حتى إسقاط {0} التالي` },
     // ── الإعداد التمهيدي / دليل الخادم / الأذونات ──
     { re: /^Question (\d+)$/, ar: m => `السؤال ${m[1]}` },
     { re: /^Available Answers — (\d+) of (\d+)$/, ar: m => `الإجابات المتاحة — ${m[1]} من ${m[2]}` },
@@ -291,6 +310,42 @@ function recoverTemplate(orig: StrFn, msg: any, realValues: any): string | null 
 }
 
 // يُعيد بناء مصفوفة الأجزاء من ترجمة فيها نوائب {0}، مع إدراج العناصر الأصلية في مكانها.
+// ── ترجمة النصّ داخل النوائب (عناصر React) ───────────────────────────────────
+// rebuildFromTemplate كان يُدرج النوائب كما هي. فإن كانت النائبة عنصر React يحوي
+// نصّاً إنجليزيّاً (‎<strong>past due</strong>‎ أو رابط "Learn more") بقي إنجليزيّاً
+// وسط جملة عربية — وهذا ما ظهر في صفحة الاشتراكات:
+//   «اشتراكك past due وسوف end on August 21, 2026. Learn more.»
+// القالب نفسه كان مُترجَماً، والمفتاح "Learn more" موجوداً في القاموس؛ العطب أن
+// محتوى النائبة لم يُمَسّ أصلاً. نترجم هنا أبناء العنصر النصّيين باستنساخه
+// (عناصر React غير قابلة للتعديل في مكانها) مع حدّ عمق يمنع أي تكرار غير منتهٍ.
+function translateNode(node: any, depth = 0): any {
+    if (depth > 4 || node == null) return node;
+
+    if (typeof node === "string") {
+        const core = node.trim();
+        if (core.length < 2) return node;
+        const ar = lookup(core) ?? numericTemplate(core);
+        if (ar == null) { collect(core); return node; }
+        return node.replace(core, ar); // نحافظ على المسافات المحيطة
+    }
+
+    if (Array.isArray(node)) {
+        let changed = false;
+        const out = node.map(n => {
+            const r = translateNode(n, depth + 1);
+            if (r !== n) changed = true;
+            return r;
+        });
+        return changed ? out : node;
+    }
+
+    const kids = node?.props?.children;
+    if (kids == null) return node;
+    const newKids = translateNode(kids, depth + 1);
+    if (newKids === kids) return node;
+    try { return React.cloneElement(node, undefined, newKids); } catch { return node; }
+}
+
 function rebuildFromTemplate(translated: string, placeholders: any[]): any[] {
     const result: any[] = [];
     const re = /\{(\d+)\}/g;
@@ -298,7 +353,7 @@ function rebuildFromTemplate(translated: string, placeholders: any[]): any[] {
     let m: RegExpExecArray | null;
     while ((m = re.exec(translated)) != null) {
         if (m.index > last) result.push(translated.slice(last, m.index));
-        result.push(placeholders[Number(m[1])] ?? "");
+        result.push(translateNode(placeholders[Number(m[1])] ?? ""));
         last = m.index + m[0].length;
     }
     if (last < translated.length) result.push(translated.slice(last));
@@ -372,7 +427,12 @@ function translatePartsArray(parts: any[]): any {
     // (ج) ترجمة كل جزء نصّي على حدة (يحلّ الأوصاف ذات الروابط)، مع حفظ المسافات والعناصر.
     let changed = false;
     const perPart = parts.map(p => {
-        if (typeof p !== "string") return p;
+        // العناصر (روابط/عريض) قد تحوي نصّاً إنجليزيّاً بدورها — نفس عطب النوائب أعلاه.
+        if (typeof p !== "string") {
+            const r = translateNode(p);
+            if (r !== p) changed = true;
+            return r;
+        }
         const mt = p.match(/^(\s*)([\s\S]*?)(\s*)$/);
         const lead = mt?.[1] ?? "";
         const core = mt?.[2] ?? p;
