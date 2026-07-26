@@ -226,31 +226,36 @@ export default definePlugin({
     dependencies: ["BadgeAPI"],
     settings,
 
-    // One registered badge that expands into the whole local list, so adding or
-    // removing badges never needs a re-register.
-    userProfileBadge: {
+    // Must be the PLURAL field: PluginManager only ever calls addProfileBadge for
+    // `userProfileBadges` (the singular one merely pulls in the BadgeAPI dep).
+    // One registered entry expands into the whole local list through getBadges,
+    // so adding or removing a badge never needs a re-register.
+    userProfileBadges: [{
         id: "vc-mybadges",
         key: "MyBadges",
         description: t("شارة محلية", "Local badge"),
         // Yours and yours only: never drawn on anyone else's profile.
         shouldShow: ({ userId }) => userId === UserStore.getCurrentUser()?.id && badges.length > 0,
+        // Read live, because _getBadges takes the position from THIS entry rather
+        // than from the ones getBadges returns.
+        get position() {
+            return settings.store.atStart ? BadgePosition.START : BadgePosition.END;
+        },
         getBadges: () => {
             const size = Number(settings.store.badgeSize);
-            const position = settings.store.atStart ? BadgePosition.START : BadgePosition.END;
 
             return badges.map((badge): ProfileBadge => ({
                 id: `vc-mybadges-${badge.id}`,
                 key: badge.name,
                 description: badge.name,
                 iconSrc: badge.src,
-                position,
                 props: {
                     className: cl("badge"),
                     style: { width: size, height: size, objectFit: "contain" }
                 }
             }));
         }
-    },
+    }],
 
     async start() {
         try {
