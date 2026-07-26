@@ -1,0 +1,77 @@
+.vc-mybadges-root {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.vc-mybadges-note {
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: var(--background-modifier-hover);
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 18px;
+}
+
+.vc-mybadges-label {
+    margin-top: 4px;
+}
+
+.vc-mybadges-add {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.vc-mybadges-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.vc-mybadges-row > div:first-child {
+    flex: 1;
+    min-width: 0;
+}
+
+.vc-mybadges-empty {
+    padding: 16px 8px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.vc-mybadges-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.vc-mybadges-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--background-secondary);
+}
+
+.vc-mybadges-preview {
+    flex-shrink: 0;
+    object-fit: contain;
+}
+
+.vc-mybadges-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--header-primary);
+    font-size: 14px;
+}
+
+.vc-mybadges-badge {
+    object-fit: contain;
+    vertical-align: middle;
+}
