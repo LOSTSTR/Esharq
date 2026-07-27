@@ -257,7 +257,15 @@ const NUMERIC_PATTERNS: { re: RegExp; ar: (m: RegExpMatchArray) => string }[] = 
     { re: /^Your activity is shared with friends and any server you join with (\d+) or fewer members\.$/, ar: m => `يُشارَك نشاطك مع أصدقائك ومع أي خادم تنضمّ إليه بـ${m[1]} عضواً أو أقل.` },
     { re: /^Show (\d+) more items?$/, ar: m => `عرض ${m[1]} عنصراً إضافياً` },
     // بطاقة نشاط البثّ: العدد مخبوز في النصّ فيلزمه نمط لا مدخل قاموس.
-    { re: /^In a party of (\d+)$/, ar: m => `في مجموعة من ${m[1]}` }
+    { re: /^In a party of (\d+)$/, ar: m => `في مجموعة من ${m[1]}` },
+    // ── عدّادات وأسماء مخبوزة (طلبات الصداقة · الطرد · تفويض التطبيقات) ──
+    { re: /^\+ (\d+) more$/, ar: m => `+${m[1]} أخرى` },
+    { re: /^(\d+) others$/, ar: m => `${m[1]} آخرين` },
+    { re: /^Pending, (\d+) new$/, ar: m => `قيد الانتظار، ${m[1]} جديد` },
+    { re: /^Used in ([\d,]+) servers$/, ar: m => `مُستخدَم في ${m[1]} خادم` },
+    { re: /^Active since (.+)$/, ar: m => `نشِط منذ ${m[1]}` },
+    { re: /^This will allow the developer of (.+) to:$/, ar: m => `سيتيح هذا لمطوّر ${m[1]} أن:` },
+    { re: /^Are you sure you want to kick @(.+) from the server\? They will be able to rejoin again with a new invite\.$/, ar: m => `هل تريد فعلاً طرد @${m[1]} من الخادم؟ سيتمكّن من الانضمام مجدّداً بدعوة جديدة.` }
 ];
 
 function numericTemplate(text: string): string | null {
