@@ -12,7 +12,7 @@ export default definePluginI18n({
         "en": "Resist server voice moderation: auto-rejoin, auto-unmute/undeafen, and stay in a pinned channel if moved. ⚠️ May violate Discord ToS. Use at your own risk — Esharq disclaims all liability."
     },
     "options": {
-        "autoReconnect": { "ar": "إعادة الانضمام تلقائياً للقناة المثبّتة عند قطع الاتصال." },
+        "autoReconnect": { "ar": "إعادة الانضمام تلقائياً عند قطع اتصالك: إلى القناة المثبّتة إن كانت لديك واحدة، وإلا فإلى القناة التي أُخرجت منها." },
         "autoUndeafen": { "ar": "التراجع تلقائياً عن كتم السماع من الخادم." },
         "autoUnmute": { "ar": "التراجع تلقائياً عن الكتم من الخادم." },
         "stayInChannel": { "ar": "العودة للقناة المثبّتة إن تم نقلك." },

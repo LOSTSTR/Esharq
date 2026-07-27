@@ -4,18 +4,24 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { DataStore } from "@api/index";
 import { definePluginSettings } from "@api/Settings";
+import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
+import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
-import { findByPropsLazy } from "@webpack";
-import { Menu, RestAPI, SelectedChannelStore, Toasts, UserStore, VoiceStateStore } from "@webpack/common";
+import { ChannelActions, ChannelStore, Menu, RestAPI, SelectedChannelStore, Toasts, UserStore } from "@webpack/common";
 
-const ChannelActions = findByPropsLazy("selectVoiceChannel", "disconnect");
+const logger = new Logger("VoiceGuard");
+const PIN_KEY = "VoiceGuard_pinnedChannel";
 
 // A single voice-state entry as it arrives on the VOICE_STATE_UPDATES flux event.
+// On a disconnect Discord still sends OUR entry, with channelId nulled and the
+// channel we were thrown out of in oldChannelId.
 interface VoiceState {
     userId: string;
     channelId?: string | null;
+    oldChannelId?: string | null;
     guildId?: string;
     deaf: boolean;
     mute: boolean;
@@ -30,7 +36,7 @@ const DEBOUNCE = 1500;
 const settings = definePluginSettings({
     autoReconnect: {
         type: OptionType.BOOLEAN,
-        description: "Automatically rejoin the pinned channel if you get disconnected.",
+        description: "Automatically rejoin when you get disconnected: the pinned channel if you have one, otherwise the channel you were thrown out of.",
         default: true
     },
     autoUndeafen: {
@@ -69,54 +75,72 @@ function undoServerState(guildId: string, myId: string, key: "deaf" | "mute") {
     RestAPI.patch({ url: `/guilds/${guildId}/members/${myId}`, body: { [key]: false } });
 }
 
-function handleVoiceStateUpdate(voiceStates: VoiceState[]) {
-    if (busy) return;
+/** Join a channel, guarding against a channel that no longer exists. */
+function rejoin(channelId: string, message: string) {
+    if (!ChannelStore.getChannel(channelId)) {
+        logger.warn(`channel ${channelId} is gone — not rejoining`);
+        return;
+    }
 
+    lastActionAt = Date.now();
+    startCooldown();
+
+    try {
+        ChannelActions.selectVoiceChannel(channelId);
+        toast(message);
+    } catch (e) {
+        logger.error("failed to join the channel", e);
+    }
+}
+
+function handleVoiceStateUpdate(voiceStates: VoiceState[]) {
     const myId = UserStore.getCurrentUser()?.id;
     if (!myId) return;
-    const mine = voiceStates.find(s => s.userId === myId);
-    const now = Date.now();
 
-    // Disconnected → rejoin the pinned channel.
-    if (!mine) {
-        if (settings.store.autoReconnect && lastChannelId && pinnedChannelId === lastChannelId && now - lastActionAt > DEBOUNCE) {
-            const inChannel = VoiceStateStore.getVoiceStatesForChannel(lastChannelId);
-            if (!inChannel || !(myId in inChannel)) {
-                lastActionAt = now;
-                ChannelActions.selectVoiceChannel(lastChannelId);
-                toast(t("أُعيد الاتصال بالقناة المثبّتة.", "Reconnected to the pinned channel."));
-                startCooldown();
-            }
+    const mine = voiceStates.find(s => s.userId === myId);
+    if (!mine) return; // the event is about other people
+
+    // Remember where we are the moment we see it, so a later disconnect always
+    // has somewhere to return to.
+    if (mine.channelId) lastChannelId = mine.channelId;
+
+    if (busy || Date.now() - lastActionAt < DEBOUNCE) return;
+
+    // Disconnected: our state still arrives, with channelId nulled — this is NOT
+    // a missing entry, which is why testing for one never fired.
+    if (mine.channelId == null) {
+        const target = pinnedChannelId ?? mine.oldChannelId ?? lastChannelId;
+        if (settings.store.autoReconnect && target) {
+            rejoin(target, t("أُعيد الاتصال بالقناة الصوتية.", "Reconnected to the voice channel."));
         }
         return;
     }
 
-    // Moved away from the pinned channel → jump back.
+    // Moved out of the pinned channel → go back.
     if (settings.store.stayInChannel && pinnedChannelId && mine.channelId !== pinnedChannelId) {
-        ChannelActions.selectVoiceChannel(pinnedChannelId);
-        toast(t("أنت مثبّت في هذه القناة.", "You're pinned to this channel."), false);
-        startCooldown();
+        rejoin(pinnedChannelId, t("عُدتَ إلى القناة المثبّتة.", "Moved back to the pinned channel."));
         return;
     }
 
     if (settings.store.autoUndeafen && mine.deaf && mine.guildId) {
         undoServerState(mine.guildId, myId, "deaf");
         toast(t("أُلغِي كتم السماع تلقائياً.", "Automatically undeafened."));
+        lastActionAt = Date.now();
         startCooldown();
+        return;
     }
 
     if (settings.store.autoUnmute && mine.mute && mine.guildId) {
         undoServerState(mine.guildId, myId, "mute");
         toast(t("أُلغِي الكتم تلقائياً.", "Automatically unmuted."));
+        lastActionAt = Date.now();
         startCooldown();
     }
-
-    lastChannelId = mine.channelId ?? null;
-    lastActionAt = now;
 }
 
 function pinChannelContextMenu(children: any, { channel }: { channel: { id: string; name: string; type: number; }; }) {
-    if (!channel || channel.type !== 2) return; // 2 = guild voice channel
+    // 2 = guild voice, 13 = stage
+    if (!channel || (channel.type !== 2 && channel.type !== 13)) return;
 
     const pinned = pinnedChannelId === channel.id;
     children.push(
@@ -125,6 +149,7 @@ function pinChannelContextMenu(children: any, { channel }: { channel: { id: stri
             label={pinned ? t("إلغاء تثبيت القناة", "Unpin channel") : t("تثبيت القناة", "Pin channel")}
             action={() => {
                 pinnedChannelId = pinned ? null : channel.id;
+                void DataStore.set(PIN_KEY, pinnedChannelId);
                 toast(pinnedChannelId ? t(`تم تثبيت: ${channel.name}`, `Pinned: ${channel.name}`) : t("أُلغي التثبيت", "Channel unpinned"));
             }}
         />
@@ -134,7 +159,7 @@ function pinChannelContextMenu(children: any, { channel }: { channel: { id: stri
 export default definePlugin({
     name: "VoiceGuard",
     description: "Resist server voice moderation: auto-rejoin, auto-unmute/undeafen, and stay in a pinned channel if moved. ⚠️ May violate Discord ToS. Use at your own risk — Esharq disclaims all liability.",
-    authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
+    authors: [EquicordDevs.LOSTSTR],
     settings,
 
     flux: {
@@ -147,11 +172,21 @@ export default definePlugin({
         "channel-context": pinChannelContextMenu
     },
 
-    start() {
+    async start() {
         lastChannelId = SelectedChannelStore.getVoiceChannelId() ?? null;
+
+        // The pin used to live only in memory, so it silently vanished on every
+        // restart and left auto-rejoin with no target.
+        try {
+            const saved = await DataStore.get(PIN_KEY);
+            if (typeof saved === "string") pinnedChannelId = saved;
+        } catch (e) {
+            logger.error("failed to load the pinned channel", e);
+        }
     },
 
     stop() {
+        // Keep the pin on disk; only clear the in-memory session state.
         pinnedChannelId = null;
         lastChannelId = null;
         busy = false;
