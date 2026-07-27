@@ -56,7 +56,7 @@ const settings = definePluginSettings({
     },
     autoReconnect: {
         type: OptionType.BOOLEAN,
-        description: "Automatically rejoin when you get disconnected: the pinned channel if you have one, otherwise the channel you were thrown out of.",
+        description: "Brings you back if somebody disconnects you. No pin required: it returns you to the very channel you were thrown out of, or to your pinned channel if you have set one. Leaving on your own is left alone.",
         default: true
     },
     autoUndeafen: {
