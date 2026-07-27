@@ -5,6 +5,7 @@
  */
 
 import { Paragraph } from "@components/Paragraph";
+import { t } from "@utils/esharqI18n";
 import { Patch, ReplaceFn } from "@utils/types";
 import { TextArea, useEffect, useRef, useState } from "@webpack/common";
 
@@ -35,18 +36,18 @@ export function FullPatchInput({ setFind, setParsedFind, setMatch, setReplacemen
         try {
             let { find, replacement } = (0, eval)(`([${patch}][0])`) as Patch;
 
-            if (!find) throw new Error("No 'find' field");
-            if (!replacement) throw new Error("No 'replacement' field");
+            if (!find) throw new Error(t("لا يوجد حقل 'find'", "No 'find' field"));
+            if (!replacement) throw new Error(t("لا يوجد حقل 'replacement'", "No 'replacement' field"));
 
             if (replacement instanceof Array) {
-                if (replacement.length === 0) throw new Error("Invalid replacement");
+                if (replacement.length === 0) throw new Error(t("استبدال غير صالح", "Invalid replacement"));
 
                 // Only test the first replacement
                 replacement = replacement[0];
             }
 
-            if (!replacement.match) throw new Error("No 'replacement.match' field");
-            if (replacement.replace == null) throw new Error("No 'replacement.replace' field");
+            if (!replacement.match) throw new Error(t("لا يوجد حقل 'replacement.match'", "No 'replacement.match' field"));
+            if (replacement.replace == null) throw new Error(t("لا يوجد حقل 'replacement.replace'", "No 'replacement.replace' field"));
 
             setFind(find instanceof RegExp ? `/${find.source}/` : find);
             setParsedFind(find);

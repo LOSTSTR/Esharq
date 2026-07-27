@@ -6,6 +6,7 @@
 
 import { Heading } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
+import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { canonicalizeMatch, canonicalizeReplace } from "@utils/patches";
 import { makeCodeblock } from "@utils/text";
@@ -55,7 +56,7 @@ function Match({ matchResult }: { matchResult: RegExpMatchArray | null; }) {
 
     return (
         <>
-            <Heading>Match</Heading>
+            <Heading>{t("المطابقة", "Match")}</Heading>
             <div style={{ userSelect: "text" }}>{Parser.parse(fullMatch)}</div>
             <div style={{ userSelect: "text" }}>{Parser.parse(groups)}</div>
         </>
@@ -134,7 +135,7 @@ export function PatchPreview({ module, match, replacement, setReplacementError }
                             const wrappedCode = "0," + (!isArrowFunction ? "function" : "") + patchedCode.slice(patchedCode.indexOf("("));
                             Function(wrappedCode);
 
-                            setCompileResult([true, "Compiled successfully"]);
+                            setCompileResult([true, t("تمّت الترجمة بنجاح", "Compiled successfully")]);
                         } catch (err) {
                             setCompileResult([false, (err as Error).message]);
                         }
