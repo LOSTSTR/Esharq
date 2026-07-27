@@ -11,24 +11,40 @@ import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
-import { findByPropsLazy } from "@webpack";
-import { Menu, React, ReactDOM } from "@webpack/common";
+import { Menu, PresenceStore, React, ReactDOM } from "@webpack/common";
 
-const PresenceStore = findByPropsLazy("getStatus", "getActivities");
-const STORE_KEY = "lastOnlineTracker_data";
+// v2: the old key holds timestamps written by a bug that stamped "now" whenever
+// Discord merely mentioned someone was offline, so those values are worthless.
+const STORE_KEY = "lastOnlineTracker_v2";
 
 const settings = definePluginSettings({
     persist: {
         type: OptionType.BOOLEAN,
-        default: false,
-        description: "Keep last-seen times after restart. Off by default — saved times don't refresh until that person goes offline again, so they can go stale."
+        default: true,
+        description: "Remember last-seen times across restarts. Worth keeping on: Discord never tells anyone how long a person has been away, so the only times that exist are the departures this plugin watched happen."
     }
 });
 
 const lastSeen = new Map<string, number>();
+/**
+ * Last status we saw per user. A "last seen" time is only meaningful when we
+ * WITNESS someone go online → offline; being told that an already-offline person
+ * is offline says nothing about when they were last around.
+ */
+const prevStatus = new Map<string, string>();
 let loaded = false;
-let ready = false;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
+
+/** Record everyone's current status, so the next change is a real transition. */
+function seedStatuses() {
+    try {
+        for (const id of PresenceStore.getUserIds() ?? []) {
+            prevStatus.set(id, PresenceStore.getStatus(id) ?? "offline");
+        }
+    } catch (e) {
+        console.error("LastOnlineTracker failed to read current statuses", e);
+    }
+}
 
 async function load() {
     if (!settings.store.persist || loaded) return;
@@ -132,7 +148,7 @@ const ctxPatch = (children: any[], props: any) => {
 
 export default definePlugin({
     name: "LastOnlineTracker",
-    description: "Shows 'Active X ago' under usernames in the DM list.",
+    description: "Shows 'Active X ago' under usernames in the DM list, for the people it watched go offline. Discord never reveals how long someone has already been away, so anyone who was offline before you started shows no time at all rather than a made-up one.",
     authors: [EquicordDevs.LOSTSTR],
     tags: ["Friends", "Utility"],
     enabledByDefault: false,
@@ -141,16 +157,29 @@ export default definePlugin({
 
     flux: {
         PRESENCE_UPDATES({ updates }: { updates?: Array<{ user: { id: string; }; status: string; clientStatus?: Record<string, string>; }>; }) {
-            if (!ready || !updates) return;
-            for (const { user, status, clientStatus } of updates)
-                if (status === "offline" && !Object.keys(clientStatus ?? {}).length) mark(user.id);
+            if (!updates) return;
+
+            for (const { user, status, clientStatus } of updates) {
+                const id = user.id;
+                const offline = status === "offline" && !Object.keys(clientStatus ?? {}).length;
+                const before = prevStatus.get(id);
+                prevStatus.set(id, offline ? "offline" : status);
+
+                // Only stamp a time when we actually watched them drop offline.
+                // Discord re-sends offline presences whenever it syncs a guild, and
+                // treating those as "just left" is what made people who never came
+                // online show up as active moments ago.
+                if (offline && before != null && before !== "offline") mark(id);
+            }
         }
     },
 
     async start() {
         await load();
-        ready = false;
-        setTimeout(() => { ready = true; }, 4000);
+        // Baseline every status we already know, so the first genuine change is
+        // recognisable as one. The old 4-second "settle" timer is gone: it only
+        // muted the first burst of offline presences, never the later ones.
+        seedStatuses();
 
         document.getElementById("los-style")?.remove();
         const style = document.createElement("style");
@@ -180,7 +209,7 @@ export default definePlugin({
         removeMemberListDecorator("LastOnlineTracker");
         removeContextMenuPatch("user-context", ctxPatch);
         removeContextMenuPatch("gdm-context", ctxPatch);
-        ready = false;
+        prevStatus.clear();
         loaded = false;
         if (!settings.store.persist) lastSeen.clear();
     },
