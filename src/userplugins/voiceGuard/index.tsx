@@ -4,10 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import "./style.css";
+
 import { DataStore } from "@api/index";
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
-import { t } from "@utils/esharqI18n";
+import { isArabicMode, t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
 import { ChannelActions, ChannelStore, Menu, RestAPI, SelectedChannelStore, Toasts, UserStore } from "@webpack/common";
@@ -29,11 +31,29 @@ interface VoiceState {
 
 let pinnedChannelId: string | null = null;
 let lastChannelId: string | null = null;
+/** Set when YOU hit disconnect, so leaving on purpose is never undone. */
+let leftOnPurpose = false;
 let busy = false;
 let lastActionAt = 0;
 const DEBOUNCE = 1500;
 
+function PinNotice() {
+    return (
+        <div className="vc-voiceguard-note" dir={isArabicMode() ? "rtl" : "ltr"}>
+            {t(
+                "⚠️ خيار «العودة للقناة المثبّتة إن تم نقلك» لا يعمل إلا بعد تثبيت القناة الصوتية: انقر عليها بالزرّ الأيمن ثم اختر «تثبيت القناة».",
+                "⚠️ \"Jump back to the pinned channel if you get moved\" only works once you pin the voice channel: right-click it and choose \"Pin channel\"."
+            )}
+        </div>
+    );
+}
+
 const settings = definePluginSettings({
+    notice: {
+        type: OptionType.COMPONENT,
+        description: "",
+        component: PinNotice
+    },
     autoReconnect: {
         type: OptionType.BOOLEAN,
         description: "Automatically rejoin when you get disconnected: the pinned channel if you have one, otherwise the channel you were thrown out of.",
@@ -51,7 +71,7 @@ const settings = definePluginSettings({
     },
     stayInChannel: {
         type: OptionType.BOOLEAN,
-        description: "Jump back to the pinned channel if you get moved.",
+        description: "Jump back to the pinned channel if you get moved. Requires pinning a voice channel first: right-click it → Pin channel.",
         default: true
     },
     cooldown: {
@@ -109,6 +129,9 @@ function handleVoiceStateUpdate(voiceStates: VoiceState[]) {
     // Disconnected: our state still arrives, with channelId nulled — this is NOT
     // a missing entry, which is why testing for one never fired.
     if (mine.channelId == null) {
+        // You pressed disconnect yourself — dragging you back in would be wrong.
+        if (leftOnPurpose) return;
+
         const target = pinnedChannelId ?? mine.oldChannelId ?? lastChannelId;
         if (settings.store.autoReconnect && target) {
             rejoin(target, t("أُعيد الاتصال بالقناة الصوتية.", "Reconnected to the voice channel."));
@@ -165,6 +188,12 @@ export default definePlugin({
     flux: {
         VOICE_STATE_UPDATES({ voiceStates }: { voiceStates: VoiceState[]; }) {
             handleVoiceStateUpdate(voiceStates);
+        },
+
+        // Fired only when THIS client picks a voice channel, or leaves with a null
+        // one — the difference between quitting and being thrown out.
+        VOICE_CHANNEL_SELECT({ channelId }: { channelId: string | null; }) {
+            leftOnPurpose = channelId == null;
         }
     },
 
