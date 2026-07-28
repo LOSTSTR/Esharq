@@ -172,7 +172,7 @@ export default definePlugin({
 
         // ─── Timestamp markdown <t:unix:t> — hover tooltip ────────────────────
         {
-            find: /.full,.{0,15}children:/,
+            find: /\.full,.{0,15}children:/,
             predicate: () => !isPluginEnabled("CustomTimestamps"),
             replacement: {
                 match: /(__unsupportedReactNodeAsText:)\i\.full/,

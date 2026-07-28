@@ -262,7 +262,7 @@ function FakeIcon() {
 function RestoreButton() {
     const [active, setActive] = React.useState(!!activeFakeId);
     React.useEffect(() => {
-        const timer = setInterval(() => setActive(!!activeFakeId), 300);
+        const timer = setInterval(() => setActive(!!activeFakeId), 2000);
         return () => clearInterval(timer);
     }, []);
     if (!active) return null;
