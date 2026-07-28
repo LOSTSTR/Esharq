@@ -11,11 +11,11 @@ import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
-import { Menu, PresenceStore, React, ReactDOM } from "@webpack/common";
+import { Menu, PresenceStore, React, ReactDOM, UserStore } from "@webpack/common";
 
-// v2: the old key holds timestamps written by a bug that stamped "now" whenever
-// Discord merely mentioned someone was offline, so those values are worthless.
-const STORE_KEY = "lastOnlineTracker_v2";
+// v3: earlier keys hold times written before departures had to be witnessed, so
+// they are full of people who never actually left. Start clean rather than show them.
+const STORE_KEY = "lastOnlineTracker_v3";
 
 const settings = definePluginSettings({
     persist: {
@@ -27,24 +27,25 @@ const settings = definePluginSettings({
 
 const lastSeen = new Map<string, number>();
 /**
- * Last status we saw per user. A "last seen" time is only meaningful when we
- * WITNESS someone go online → offline; being told that an already-offline person
- * is offline says nothing about when they were last around.
+ * When we first saw each user online, for this session only. A last-seen time is
+ * only ever written for someone we WATCHED go online and then offline.
+ *
+ * Nothing is seeded from the presence store: a snapshot tells us what someone's
+ * status is, never when it changed, so treating "the store said online, now an
+ * event says offline" as a departure turned every guild sync into a mass exodus.
  */
-const prevStatus = new Map<string, string>();
+const seenOnlineAt = new Map<string, number>();
+
+/**
+ * How long we must have watched somebody be online before their going offline
+ * counts as a real departure. Opening a guild makes Discord replay presences for
+ * its whole member list in one burst; a genuine departure never happens within a
+ * moment of us first laying eyes on the person.
+ */
+const MIN_ONLINE_MS = 15_000;
+
 let loaded = false;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
-
-/** Record everyone's current status, so the next change is a real transition. */
-function seedStatuses() {
-    try {
-        for (const id of PresenceStore.getUserIds() ?? []) {
-            prevStatus.set(id, PresenceStore.getStatus(id) ?? "offline");
-        }
-    } catch (e) {
-        console.error("LastOnlineTracker failed to read current statuses", e);
-    }
-}
 
 async function load() {
     if (!settings.store.persist || loaded) return;
@@ -159,27 +160,36 @@ export default definePlugin({
         PRESENCE_UPDATES({ updates }: { updates?: Array<{ user: { id: string; }; status: string; clientStatus?: Record<string, string>; }>; }) {
             if (!updates) return;
 
+            const now = Date.now();
+            const myId = UserStore.getCurrentUser()?.id;
+
             for (const { user, status, clientStatus } of updates) {
                 const id = user.id;
-                const offline = status === "offline" && !Object.keys(clientStatus ?? {}).length;
-                const before = prevStatus.get(id);
-                prevStatus.set(id, offline ? "offline" : status);
+                // A last-seen time under your own name means nothing.
+                if (id === myId) continue;
 
-                // Only stamp a time when we actually watched them drop offline.
-                // Discord re-sends offline presences whenever it syncs a guild, and
-                // treating those as "just left" is what made people who never came
-                // online show up as active moments ago.
-                if (offline && before != null && before !== "offline") mark(id);
+                const offline = status === "offline" && !Object.keys(clientStatus ?? {}).length;
+
+                if (!offline) {
+                    if (!seenOnlineAt.has(id)) seenOnlineAt.set(id, now);
+                    continue;
+                }
+
+                const onlineSince = seenOnlineAt.get(id);
+                // Consume it either way, so a stream of offline updates for the
+                // same person can never stamp them more than once.
+                seenOnlineAt.delete(id);
+
+                // Someone we never saw online tells us nothing, and someone who
+                // appeared and vanished within the same burst is Discord catching
+                // us up on a guild, not a person walking away.
+                if (onlineSince != null && now - onlineSince >= MIN_ONLINE_MS) mark(id);
             }
         }
     },
 
     async start() {
         await load();
-        // Baseline every status we already know, so the first genuine change is
-        // recognisable as one. The old 4-second "settle" timer is gone: it only
-        // muted the first burst of offline presences, never the later ones.
-        seedStatuses();
 
         document.getElementById("los-style")?.remove();
         const style = document.createElement("style");
@@ -209,7 +219,7 @@ export default definePlugin({
         removeMemberListDecorator("LastOnlineTracker");
         removeContextMenuPatch("user-context", ctxPatch);
         removeContextMenuPatch("gdm-context", ctxPatch);
-        prevStatus.clear();
+        seenOnlineAt.clear();
         loaded = false;
         if (!settings.store.persist) lastSeen.clear();
     },
