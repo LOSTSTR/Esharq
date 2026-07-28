@@ -265,7 +265,17 @@ const NUMERIC_PATTERNS: { re: RegExp; ar: (m: RegExpMatchArray) => string }[] = 
     { re: /^Used in ([\d,]+) servers$/, ar: m => `مُستخدَم في ${m[1]} خادم` },
     { re: /^Active since (.+)$/, ar: m => `نشِط منذ ${m[1]}` },
     { re: /^This will allow the developer of (.+) to:$/, ar: m => `سيتيح هذا لمطوّر ${m[1]} أن:` },
-    { re: /^Are you sure you want to kick @(.+) from the server\? They will be able to rejoin again with a new invite\.$/, ar: m => `هل تريد فعلاً طرد @${m[1]} من الخادم؟ سيتمكّن من الانضمام مجدّداً بدعوة جديدة.` }
+    { re: /^Are you sure you want to kick @(.+) from the server\? They will be able to rejoin again with a new invite\.$/, ar: m => `هل تريد فعلاً طرد @${m[1]} من الخادم؟ سيتمكّن من الانضمام مجدّداً بدعوة جديدة.` },
+    // ── متجر Nitro والمنشورات: العدد أو الوقت مخبوز في النصّ ──
+    { re: /^(\d+) Orbs$/, ar: m => `${m[1]} Orbs` },
+    { re: /^(\d+) Orbs earned$/, ar: m => `رُبِحت ${m[1]} Orbs` },
+    { re: /^Watch the video to win (\d+) Orbs!$/, ar: m => `شاهِد الفيديو لتربح ${m[1]} Orbs!` },
+    { re: /^for (\d+) minutes and win (\d+) Orbs\.$/, ar: m => `لمدّة ${m[1]} دقيقة وتربح ${m[2]} Orbs.` },
+    { re: /^for (\d+) minutes with your Discord client open and win (\d+) Orbs\.$/, ar: m => `لمدّة ${m[1]} دقيقة مع إبقاء ديسكورد مفتوحاً وتربح ${m[2]} Orbs.` },
+    { re: /^(\d+) Active Posts?$/, ar: m => arCount(+m[1], "منشور نشِط واحد", "منشوران نشِطان", "منشورات نشِطة", "منشوراً نشِطاً") },
+    { re: /^(\d+)\+ new messages since (.+)$/, ar: m => `أكثر من ${m[1]} رسالة جديدة منذ ${m[2]}` },
+    { re: /^(.+), NaN members$/, ar: m => `${m[1]}، الأعضاء` },
+    { re: /^You have NaN days left to get (.+) off Nitro Yearly$/, ar: m => `بقيت لك أيام للحصول على خصم ${m[1]} على Nitro السنوي` }
 ];
 
 function numericTemplate(text: string): string | null {
