@@ -275,7 +275,12 @@ const NUMERIC_PATTERNS: { re: RegExp; ar: (m: RegExpMatchArray) => string }[] = 
     { re: /^(\d+) Active Posts?$/, ar: m => arCount(+m[1], "منشور نشِط واحد", "منشوران نشِطان", "منشورات نشِطة", "منشوراً نشِطاً") },
     { re: /^(\d+)\+ new messages since (.+)$/, ar: m => `أكثر من ${m[1]} رسالة جديدة منذ ${m[2]}` },
     { re: /^(.+), NaN members$/, ar: m => `${m[1]}، الأعضاء` },
-    { re: /^You have NaN days left to get (.+) off Nitro Yearly$/, ar: m => `بقيت لك أيام للحصول على خصم ${m[1]} على Nitro السنوي` }
+    { re: /^You have NaN days left to get (.+) off Nitro Yearly$/, ar: m => `بقيت لك أيام للحصول على خصم ${m[1]} على Nitro السنوي` },
+    // ── عدّادات صفحات الخصوصية والارتباطات (العدد مخبوز في النصّ) ──
+    { re: /^(\d+) Permissions? enabled$/, ar: m => arCount(+m[1], "إذن واحد مفعّل", "إذنان مفعّلان", "أذونات مفعّلة", "إذناً مفعّلاً") },
+    { re: /^(\d+) accounts?$/, ar: m => arCount(+m[1], "حساب واحد", "حسابان", "حسابات", "حساباً") },
+    { re: /^(\d+) connections?$/, ar: m => arCount(+m[1], "ارتباط واحد", "ارتباطان", "ارتباطات", "ارتباطاً") },
+    { re: /^You may also be sharing activity from (\d+) games you play, including$/, ar: m => `قد تشارك أيضاً نشاط ${m[1]} لعبة تلعبها، منها` }
 ];
 
 function numericTemplate(text: string): string | null {
