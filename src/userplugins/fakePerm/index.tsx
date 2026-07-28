@@ -562,7 +562,8 @@ export default definePlugin({
         }
     },
 
-    _domObserver: null as MutationObserver | null,
+    _domInterval: null as ReturnType<typeof setInterval> | null,
+    _domTimer: null as ReturnType<typeof setTimeout> | null,
 
     applyDomOverrides() {
         if (!isEnabled) return;
@@ -600,19 +601,25 @@ export default definePlugin({
         style.textContent = "[class*='submenu']::-webkit-scrollbar{display:none!important}[class*='submenu']{scrollbar-width:none!important} .fp-footer-fix { display: flex; gap: 8px; padding: 16px; }";
         document.head.appendChild(style);
 
-        let _domTimer: ReturnType<typeof setTimeout> | null = null;
-        this._domObserver = new MutationObserver(() => {
+        // A MutationObserver on body+subtree used to drive this, which made the
+        // browser build a mutation record for every single DOM change Discord
+        // makes — typing, scrolling, hovering — even while no fake state was set
+        // and the callback returned immediately. A slow poll costs nothing when
+        // idle and is plenty for keeping the overrides applied.
+        this._domInterval = setInterval(() => {
             if (!isEnabled) return;
             if (fakeNicks.size === 0 && disconnectedUsers.size === 0 && kickedUsers.size === 0 && mutedUsers.size === 0 && deafenedUsers.size === 0) return;
-            if (_domTimer) return;
-            _domTimer = setTimeout(() => { _domTimer = null; if (isEnabled) this.applyDomOverrides(); }, 1000);
-        });
-        this._domObserver.observe(document.body, { childList: true, subtree: true });
+            if (this._domTimer) return;
+            this._domTimer = setTimeout(() => {
+                this._domTimer = null;
+                if (isEnabled) this.applyDomOverrides();
+            }, 150);
+        }, 3000);
     },
 
     stop() {
-        this._domObserver?.disconnect();
-        this._domObserver = null;
+        if (this._domInterval) { clearInterval(this._domInterval); this._domInterval = null; }
+        if (this._domTimer) { clearTimeout(this._domTimer); this._domTimer = null; }
         removeContextMenuPatch("user-context", userContextPatch);
         removeContextMenuPatch("message", messageContextPatch);
         isEnabled = false;
