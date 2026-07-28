@@ -149,7 +149,7 @@ const ctxPatch = (children: any[], props: any) => {
 export default definePlugin({
     name: "LastOnlineTracker",
     description: "Shows 'Active X ago' under usernames in the DM list, for the people it watched go offline. Discord never reveals how long someone has already been away, so anyone who was offline before you started shows no time at all rather than a made-up one.",
-    authors: [EquicordDevs.LOSTSTR],
+    authors: [{ name: "k1ng_op", id: 641266820187160576n }, EquicordDevs.LOSTSTR],
     tags: ["Friends", "Utility"],
     enabledByDefault: false,
     dependencies: ["MemberListDecoratorsAPI", "ContextMenuAPI"],

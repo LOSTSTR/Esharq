@@ -41,7 +41,7 @@ function reply(channelId: string, json: string) {
 export default definePlugin({
     name: "EmbedBuilder",
     description: "Generate embed JSON quickly for use with webhooks or bots.",
-    authors: [EquicordDevs.LOSTSTR],
+    authors: [{ name: "Mifu", id: 1309909311618814005n }, EquicordDevs.LOSTSTR],
     tags: ["Chat", "Utility"],
     enabledByDefault: false,
     settings,
