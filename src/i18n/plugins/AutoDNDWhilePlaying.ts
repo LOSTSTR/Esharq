@@ -15,10 +15,6 @@ export default definePluginI18n({
         "statusToSet": {
             "ar": "الحالة التي تُضبط أثناء تشغيل لعبة",
             "en": "The status to set while playing a game."
-        },
-        "excludeInvisible": {
-            "ar": "منع تغييرات الحالة التلقائية عندما تكون حالتك مضبوطة على غير مرئي",
-            "en": "Prevent automatic status changes when your status is set to invisible."
         }
     }
 });

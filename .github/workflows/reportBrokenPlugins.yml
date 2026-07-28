@@ -17,13 +17,13 @@ on:
                     visible for everyone, so DO NOT pass sensitive webhooks like
                     discord webhook. This is meant to be used by Equibot."
                 required: false
-            pr_repo:
+            repository:
                 type: string
-                description: "Fork repo to checkout when testing a PR"
+                description: repository to test patches on
                 required: false
-            pr_branch:
+            ref:
                 type: string
-                description: "Branch to checkout when testing a PR"
+                description: "Git reference to test patches on. This can be a branch, tag, or commit SHA."
                 required: false
     schedule:
         #   # Every day at midnight
@@ -40,11 +40,11 @@ jobs:
         steps:
             - uses: actions/checkout@v7
               with:
-                  repository: ${{ inputs.pr_repo || github.repository }}
+                  repository: ${{ inputs.repository || github.repository }}
                   # 'main' is this fork's default branch — upstream Equicord schedules this
                   # against its own 'dev', which does not exist here, so every nightly run
                   # died at checkout and the patch report never ran.
-                  ref: ${{ inputs.pr_branch || (github.event_name == 'schedule' && 'main' || github.ref) }}
+                  ref: ${{ inputs.ref || (github.event_name == 'schedule' && 'main' || github.ref) }}
 
             - uses: pnpm/action-setup@v6
 

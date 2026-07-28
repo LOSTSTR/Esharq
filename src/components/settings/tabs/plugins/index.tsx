@@ -38,7 +38,7 @@ import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
 import { useAwaiter, useCleanupEffect, useIntersection } from "@utils/react";
 import { PluginTag, PluginTags } from "@utils/types";
-import { Alerts, lodash, Parser, React, SearchableSelect, Select, TextInput, Toasts, Tooltip, useCallback, useMemo, useRef, useState } from "@webpack/common";
+import { Alerts, ConfirmModal, lodash, openModal, Parser, React, SearchableSelect, Select, TextInput, Toasts, Tooltip, useCallback, useMemo, useRef, useState } from "@webpack/common";
 import { JSX } from "react";
 
 import Plugins, { ExcludedPlugins, PluginMeta } from "~plugins";
@@ -109,6 +109,7 @@ function ReloadRequiredCard({ required, enabledPlugins, openWarningModal, resetC
 
 const enum SearchStatus {
     ALL,
+    FAVORITES,
     ENABLED,
     DISABLED,
     EQUICORD,
@@ -170,23 +171,29 @@ export default function PluginSettings() {
             const displayed = pluginNames.slice(0, maxDisplay);
             const remainingCount = pluginNames.length - displayed.length;
 
-            Alerts.show({
-                title: t("إعادة تشغيل مطلوبة", "Restart Required"),
-                body: (
-                    <div>
-                        {displayed.map((s, i) => (
-                            <span key={i}>
-                                {i > 0 && "، "}
-                                {Parser.parse("`" + s + "`")}
-                            </span>
-                        ))}
-                        {remainingCount > 0 && <span> {t(`و${remainingCount} أخرى`, `and ${remainingCount} more`)}</span>}
-                    </div>
-                ),
-                confirmText: t("إعادة التشغيل الآن", "Restart Now"),
-                cancelText: t("لاحقاً!", "Later!"),
-                onConfirm: () => location.reload()
-            });
+            openModal(props => (
+                <ConfirmModal
+                    {...props}
+                    title={t("إعادة تشغيل مطلوبة", "Restart required")}
+                    confirmText={t("إعادة التشغيل الآن", "Restart now")}
+                    cancelText={t("لاحقاً!", "Later!")}
+                    variant="primary"
+                    onConfirm={() => location.reload()}
+                >
+                    <>
+                        <p>{t("الإضافات التالية تحتاج إعادة تشغيل:", "The following plugins require a restart:")}</p>
+                        <div>
+                            {displayed.map((s, i) => (
+                                <React.Fragment key={i}>
+                                    {i > 0 && t("، ", ", ")}
+                                    {Parser.parse("`" + s + "`")}
+                                </React.Fragment>
+                            ))}
+                            {remainingCount > 0 && <span> {t(`و${remainingCount} أخرى`, `and ${remainingCount} more`)}</span>}
+                        </div>
+                    </>
+                </ConfirmModal>
+            ));
         };
     }, []);
 
@@ -204,8 +211,11 @@ export default function PluginSettings() {
         return o;
     }, []);
 
-    const sortedPlugins = useMemo(() => Object.values(Plugins)
-        .sort((a, b) => a.name.localeCompare(b.name)), []);
+    const sortedPlugins = useMemo(() =>
+        Object.values(Plugins).sort((a, b) => a.name.localeCompare(b.name)),
+        []
+    )
+        .toSorted((a, b) => Number(settings.plugins[b.name]?.isFavorite ?? false) - Number(settings.plugins[a.name]?.isFavorite ?? false));
 
     const hasUserPlugins = useMemo(() => !IS_STANDALONE && Object.values(PluginMeta).some(m => m.userPlugin), []);
 
@@ -218,6 +228,9 @@ export default function PluginSettings() {
         const { status, tags } = searchValue;
 
         switch (status) {
+            case SearchStatus.FAVORITES:
+                if (!settings.plugins[plugin.name]?.isFavorite) return false;
+                break;
             case SearchStatus.DISABLED:
                 if (isPluginEnabled(plugin.name)) return false;
                 break;
@@ -433,13 +446,14 @@ export default function PluginSettings() {
                     <Select
                         options={[
                             { label: t("عرض الكل", "Show All"), value: SearchStatus.ALL, default: true },
+                            { label: t("عرض المفضّلة", "Show Favorites"), value: SearchStatus.FAVORITES },
                             { label: t("عرض المفعَّلة", "Show Enabled"), value: SearchStatus.ENABLED },
                             { label: t("عرض المعطَّلة", "Show Disabled"), value: SearchStatus.DISABLED },
                             { label: t("عرض Esharq", "Show Esharq"), value: SearchStatus.ESHARQ },
                             { label: t("عرض Equicord", "Show Equicord"), value: SearchStatus.EQUICORD },
                             { label: t("عرض Vencord", "Show Vencord"), value: SearchStatus.VENCORD },
                             { label: t("عرض الجديدة", "Show New"), value: SearchStatus.NEW },
-                            hasUserPlugins && { label: t("عرض الإضافات الشخصية", "Show User Plugins"), value: SearchStatus.USER_PLUGINS },
+                            hasUserPlugins && { label: t("عرض الإضافات الشخصية", "Show UserPlugins"), value: SearchStatus.USER_PLUGINS },
                             { label: t("عرض إضافات API", "Show API Plugins"), value: SearchStatus.API_PLUGINS },
                         ].filter(isTruthy)}
                         serialize={String}

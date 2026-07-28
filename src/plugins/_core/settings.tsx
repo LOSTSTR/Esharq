@@ -117,16 +117,16 @@ const settings = definePluginSettings({
         description: "Where to display the Equicord settings section",
         options: [
             { label: t("في الأعلى تماماً", "At the very top"), value: "top" },
-            { label: t("فوق قسم Nitro", "Above the Nitro section"), value: "aboveNitro", default: true },
-            { label: t("أسفل قسم Nitro", "Below the Nitro section"), value: "belowNitro" },
-            { label: t("فوق إعدادات النشاط", "Above Activity Settings"), value: "aboveActivity" },
-            { label: t("أسفل إعدادات النشاط", "Below Activity Settings"), value: "belowActivity" },
+            { label: t("فوق قسم الفوترة", "Above Billing section"), value: "aboveNitro", default: true },
+            { label: t("أسفل قسم الفوترة", "Below Billing section"), value: "belowNitro" },
+            { label: t("فوق إعدادات الألعاب والتطبيقات", "Above Games & Apps Settings"), value: "aboveActivity" },
+            { label: t("أسفل إعدادات الألعاب والتطبيقات", "Below Games & Apps Settings"), value: "belowActivity" },
             { label: t("في الأسفل تماماً", "At the very bottom"), value: "bottom" },
         ] as { label: string; value: SettingsLocation; default?: boolean; }[]
     },
     includeVencordInfoWhenCopying: {
         type: OptionType.BOOLEAN,
-        description: "Also copy Vencord info when clicking the version info in settings",
+        description: "Also copy Equicord info (Equicord, Electron, Chromium) when clicking the version info in the bottom left area of the Settings page",
         default: true
     }
 });
@@ -279,8 +279,8 @@ export default definePlugin({
             top: "user_section",
             aboveNitro: "billing_section",
             belowNitro: "billing_section",
-            aboveActivity: "activity_section",
-            belowActivity: "activity_section",
+            aboveActivity: "games_and_apps_section",
+            belowActivity: "games_and_apps_section",
             bottom: "utility_section"
         };
 

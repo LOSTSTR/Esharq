@@ -233,7 +233,7 @@ export default function ReviewComponent({ review, refetch, profileId }: { review
                         <>
                             {Parser.parseGuildEventDescription(review.comment.substring(0, 200))}...
                             <br />
-                            <a onClick={() => setShowAll(true)}>{t("اقرأ المزيد", "Read more")}</a>]
+                            <a onClick={() => setShowAll(true)}>{t("اقرأ المزيد", "Read more")}</a>
                         </>
                     )
                     : Parser.parseGuildEventDescription(review.comment)}

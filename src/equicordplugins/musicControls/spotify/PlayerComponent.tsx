@@ -27,6 +27,7 @@ import { classNameFactory } from "@utils/css";
 import { copyWithToast, openImageModal } from "@utils/discord";
 import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
+import { formatDuration } from "@utils/text";
 import { ContextMenuApi, FluxDispatcher, Menu, React, useEffect, useState, useStateFromStores } from "@webpack/common";
 
 import { settings } from "../settings";
@@ -34,13 +35,6 @@ import { SeekBar } from "./SeekBar";
 import { SpotifyStore, Track } from "./SpotifyStore";
 
 const cl = classNameFactory("vc-spotify-");
-
-function msToHuman(ms: number) {
-    const minutes = ms / 1000 / 60;
-    const m = Math.floor(minutes);
-    const s = Math.floor((minutes - m) * 60);
-    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
-}
 
 function Svg(path: string, label: string) {
     return () => (
@@ -194,7 +188,7 @@ function SpotifySeekBar() {
                 className={cl("progress-time") + " " + cl("time-left")}
                 aria-label="Progress"
             >
-                {msToHuman(position)}
+                {formatDuration(position)}
             </Span>
             <SeekBar
                 initialValue={position}
@@ -202,7 +196,7 @@ function SpotifySeekBar() {
                 maxValue={duration}
                 onValueChange={onChange}
                 asValueChanges={onChange}
-                onValueRender={msToHuman}
+                onValueRender={formatDuration}
             />
             <Span
                 size="xs"
@@ -210,7 +204,7 @@ function SpotifySeekBar() {
                 className={cl("progress-time") + " " + cl("time-right")}
                 aria-label="Total Duration"
             >
-                {msToHuman(duration)}
+                {formatDuration(duration)}
             </Span>
         </div>
     );
