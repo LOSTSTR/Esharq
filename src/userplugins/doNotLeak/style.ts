@@ -6,97 +6,53 @@
 
 import { findByProps } from "@webpack";
 
-const CssFormatCode: string = `body:has(
-    div.{sidebar}
-        > section
-        div.{wrapper}
-        div.{actionButtons}
-        > button:nth-child(2).{buttonActive}
-)
-.{messageContent} {
+/**
+ * Blurring is switched on by the `vc-dnl-active` class that index.ts puts on
+ * <body> from Discord's own streaming state. It used to be decided here in CSS
+ * with `body:has(div.{sidebar} > section div.{actionButtons} > button:nth-child(2).{buttonActive})`,
+ * which guessed at the share-screen button by its position and mangled class
+ * names — so any layout change made it match while nothing was being shared,
+ * and everything stayed blurred.
+ */
+const CssFormatCode: string = `body.vc-dnl-active .{messageContent} {
 filter: blur(12px);
 }
 
-body:has(
-    div.{sidebar}
-        > section
-        div.{wrapper}
-        div.{actionButtons}
-        > button:nth-child(2).{buttonActive}
-)
-.{visualMediaItemContainer} {
+body.vc-dnl-active .{visualMediaItemContainer} {
 filter: blur(50px) brightness(0.1);
 }
 
-body:has(
-    div.{sidebar}
-        > section
-        div.{wrapper}
-        div.{actionButtons}
-        > button:nth-child(2).{buttonActive}
-)
-.{embedWrapper} {
+body.vc-dnl-active .{embedWrapper} {
 filter: blur(50px);
 }
 
-body.vc-dnl-hide-in-streamer-mode:has(.{notice}.{colorStreamerMode})
-.{visualMediaItemContainer} {
-filter: blur(50px) brightness(0.1);
+body.vc-dnl-active.vc-dnl-show-messages .{messageContent},
+body.vc-dnl-active.vc-dnl-show-messages .{visualMediaItemContainer},
+body.vc-dnl-active.vc-dnl-show-messages .{embedWrapper} {
+filter: none !important;
 }
 
-body.vc-dnl-hide-in-streamer-mode:has(.{notice}.{colorStreamerMode})
-.{messageContent} {
-filter: blur(12px);
-}
-
-body.vc-dnl-hide-in-streamer-mode:has(.{notice}.{colorStreamerMode})
-.{embedWrapper} {
-filter: blur(50px);
-}
-
-body.vc-dnl-show-messages .{visualMediaItemContainer} {
-filter: blur(0px) brightness(1) !important;
-}
-
-body.vc-dnl-show-messages .{messageContent} {
-filter: blur(0px) !important;
-}
-
-body.vc-dnl-show-messages .{embedWrapper} {
-filter: blur(0px) !important;
-}
-
-body.vc-dnl-hover-to-view .{messageContent}:hover {
-filter: blur(0px) brightness(1) !important;
-}
-
-body.vc-dnl-hover-to-view .{embedWrapper}:hover {
-filter: blur(0px) brightness(1) !important;
-}
-
-body.vc-dnl-hover-to-view .{visualMediaItemContainer}:hover {
-filter: blur(0px) brightness(1) !important;
+body.vc-dnl-active.vc-dnl-hover-to-view .{messageContent}:hover,
+body.vc-dnl-active.vc-dnl-hover-to-view .{visualMediaItemContainer}:hover,
+body.vc-dnl-active.vc-dnl-hover-to-view .{embedWrapper}:hover {
+filter: none !important;
 }`;
 
 export function getStyle(): string {
-    const messageContent = findByProps("messageContent", "titleCase");
-    const embedWrapper = findByProps("embedWrapper");
-    const mediaContainer = findByProps("visualMediaItemContainer");
-    const notice = findByProps("colorStreamerMode", "notice");
-    const actionBar = findByProps("actionButtons", "buttonActive", "wrapper");
-    const sidebar = findByProps("sidebar", "panels");
-    const Classes = Object.assign(
-        {},
-        actionBar,
-        notice,
-        mediaContainer,
-        embedWrapper,
-        messageContent,
-        sidebar
-    );
-    let CssCode = CssFormatCode;
-    for (const className in Classes) {
-        CssCode = CssCode.replaceAll(`{${className}}`, Classes[className]);
+    // Resolve each token from its OWN module. Merging every module into one
+    // object let a shared key (`wrapper`, …) from a later module overwrite an
+    // earlier one, so a token could silently end up as the wrong class.
+    const tokens: Record<string, string | undefined> = {
+        messageContent: findByProps("messageContent", "titleCase")?.messageContent,
+        visualMediaItemContainer: findByProps("visualMediaItemContainer")?.visualMediaItemContainer,
+        embedWrapper: findByProps("embedWrapper")?.embedWrapper
+    };
+
+    let css = CssFormatCode;
+    for (const [token, className] of Object.entries(tokens)) {
+        // An unresolved token would leave `.{token}` in the sheet, which is an
+        // invalid selector — drop that rule instead of shipping broken CSS.
+        css = css.replaceAll(`{${token}}`, className ?? "vc-dnl-unresolved");
     }
-    return CssCode;
+    return css;
 }

@@ -8,8 +8,8 @@ import { definePluginI18n } from "@utils/i18n/types";
 
 export default definePluginI18n({
     "description": {
-        "ar": "إخفاء محتوى كل الرسائل والمرفقات أثناء البثّ أو مشاركة الشاشة.",
-        "en": "Hide all message contents and attachments when you're streaming or sharing your screen."
+        "ar": "إخفاء محتوى كل الرسائل والمرفقات أثناء مشاركتك للشاشة.",
+        "en": "Hide all message contents and attachments while you are sharing your screen."
     },
     "options": {
         "hoverToView": {
@@ -19,7 +19,7 @@ export default definePluginI18n({
             "ar": "اختصار لوحة المفاتيح لإظهار محتوى الرسالة."
         },
         "enableForStream": {
-            "ar": "تشويش كل الرسائل في وضع البثّ."
+            "ar": "التشويش أيضاً حين يكون «وضع البثّ» في ديسكورد مفعّلاً، لا أثناء مشاركتك للشاشة فقط."
         }
     }
 });

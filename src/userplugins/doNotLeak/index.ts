@@ -7,6 +7,7 @@
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
+import { ApplicationStreamingStore, StreamerModeStore } from "@webpack/common";
 
 import { getStyle } from "./style";
 
@@ -25,15 +26,37 @@ const settings = definePluginSettings({
     },
     enableForStream: {
         type: OptionType.BOOLEAN,
-        description: "Blur all messages in streamer mode.",
+        description: "Also blur while Discord's Streamer Mode is on, not only while you are actually sharing.",
         default: false,
-        onChange: () => updateClassList("hide-in-streamer-mode", settings.store.enableForStream)
+        onChange: syncActive
     }
 });
 
+function updateClassList(className: string, condition: boolean) {
+    document.body.classList.toggle(`vc-dnl-${className}`, condition);
+}
+
+/**
+ * Ask Discord whether anything is actually being shared, instead of guessing
+ * from the toolbar's DOM. `getCurrentUserActiveStream` is non-null only while
+ * WE are streaming, so nothing is blurred just because the plugin is enabled.
+ */
+function isSharing(): boolean {
+    try {
+        if (ApplicationStreamingStore.getCurrentUserActiveStream() != null) return true;
+        return settings.store.enableForStream && StreamerModeStore.enabled;
+    } catch {
+        return false;
+    }
+}
+
+function syncActive() {
+    updateClassList("active", isSharing());
+}
+
 export default definePlugin({
     name: "DoNotLeak",
-    description: "Hide all message contents and attachments when you're streaming or sharing your screen.",
+    description: "Hide all message contents and attachments while you are sharing your screen.",
     authors: [EquicordDevs.Perny, EquicordDevs.LOSTSTR],
     enabledByDefault: false,
     tags: ["Privacy", "Utility"],
@@ -46,23 +69,22 @@ export default definePlugin({
 
         document.addEventListener("keyup", keyUpHandler);
         document.addEventListener("keydown", keyDownHandler);
+        ApplicationStreamingStore.addChangeListener(syncActive);
+        StreamerModeStore.addChangeListener(syncActive);
+
         updateClassList("hover-to-view", settings.store.hoverToView);
-        updateClassList("hide-in-streamer-mode", settings.store.enableForStream);
+        syncActive();
     },
     stop() {
         document.removeEventListener("keyup", keyUpHandler);
         document.removeEventListener("keydown", keyDownHandler);
+        ApplicationStreamingStore.removeChangeListener(syncActive);
+        StreamerModeStore.removeChangeListener(syncActive);
+
         document.getElementById("vc-dont-leak-style")?.remove();
+        for (const c of ["active", "hover-to-view", "show-messages"]) updateClassList(c, false);
     }
 });
-
-function updateClassList(className: string, condition: boolean) {
-    if (condition) {
-        document.body.classList.add(`vc-dnl-${className}`);
-        return;
-    }
-    document.body.classList.remove(`vc-dnl-${className}`);
-}
 
 function keyUpHandler(e: KeyboardEvent) {
     if (e.key !== settings.store.keybind) return;
