@@ -55,41 +55,79 @@ function forEachConnection(fn: (c: any) => void) {
     try { mediaEngine()?.connections?.forEach(fn); } catch { /* آمن */ }
 }
 
-function readState() {
+type ProcState = { echo: boolean; agc: boolean; noiseMode: NoiseMode; vadThreshold: number; };
+
+// The processing intent MicPro owns. Discord's per-connection setters (setEchoCancellation…)
+// never update the MediaEngineStore getters, so reading those back would flip the UI off a
+// moment after the user toggles. We keep the truth here (persisted) and apply it to the live
+// connection(s). Before the user ever touches the panel, we seed from the store's real values.
+function storeProc(): ProcState {
     const S = MediaEngineStore as any;
     const suppression = !!S?.getNoiseSuppression?.();
     const cancellation = !!S?.getNoiseCancellation?.();
     return {
-        inputVolume: Number(S?.getInputVolume?.() ?? 100),
-        noiseMode: (cancellation ? "krisp" : suppression ? "standard" : "none") as NoiseMode,
         echo: !!S?.getEchoCancellation?.(),
         agc: !!S?.getAutomaticGainControl?.(),
+        noiseMode: (cancellation ? "krisp" : suppression ? "standard" : "none") as NoiseMode,
+        vadThreshold: Number(S?.getModeOptions?.()?.threshold ?? -60)
+    };
+}
+function currentProc(): ProcState {
+    return settings.store.procState ?? storeProc();
+}
+function saveProc(patch: Partial<ProcState>) {
+    settings.store.procState = { ...currentProc(), ...patch };
+}
+
+function readState() {
+    const S = MediaEngineStore as any;
+    const p = currentProc();
+    return {
+        inputVolume: Number(S?.getInputVolume?.() ?? 100),
+        noiseMode: p.noiseMode,
+        echo: p.echo,
+        agc: p.agc,
         krispSupported: !!S?.isNoiseCancellationSupported?.(),
         inputMode: String(S?.getInputMode?.() ?? "VOICE_ACTIVITY"),
-        vadThreshold: Number(S?.getModeOptions?.()?.threshold ?? -60),
+        vadThreshold: p.vadThreshold,
         deviceId: String(S?.getInputDeviceId?.() ?? "default"),
         inCall: inCall()
     };
 }
 
+function applyNoiseTo(c: any, mode: NoiseMode) {
+    if (mode === "krisp") { c.setNoiseSuppression(false); c.setNoiseCancellation(true); }
+    else if (mode === "standard") { c.setNoiseCancellation(false); c.setNoiseSuppression(true); }
+    else { c.setNoiseCancellation(false); c.setNoiseSuppression(false); }
+}
+function applySensitivityTo(c: any, mode: string, thresholdDb: number) {
+    const cur = (MediaEngineStore as any)?.getModeOptions?.() ?? {};
+    c.setInputMode(mode, {
+        vadThreshold: thresholdDb, vadAutoThreshold: false,
+        vadUseKrisp: cur.vadUseKrisp, vadKrispActivationThreshold: cur.vadKrispActivationThreshold
+    });
+}
+
+// Re-applies the whole owned intent to one connection — used when a call starts, so the
+// user's choices actually take effect on every call (Discord would otherwise reset them).
+function applyProcToConnection(c: any) {
+    const p = currentProc();
+    const mode = String((MediaEngineStore as any)?.getInputMode?.() ?? "VOICE_ACTIVITY");
+    try {
+        c.setEchoCancellation(p.echo);
+        c.setAutomaticGainControl({ ...DEFAULT_AGC, enabled: p.agc });
+        applyNoiseTo(c, p.noiseMode);
+        applySensitivityTo(c, mode, p.vadThreshold);
+    } catch { /* آمن */ }
+}
+
+// Each setter persists the intent (so the panel doesn't flip back) AND applies it live.
 const apply = {
     inputVolume(v: number) { try { FluxDispatcher.dispatch({ type: "AUDIO_SET_INPUT_VOLUME", volume: v }); } catch { /* آمن */ } },
-    echo(on: boolean) { forEachConnection(c => c.setEchoCancellation(on)); },
-    agc(on: boolean) { forEachConnection(c => c.setAutomaticGainControl({ ...DEFAULT_AGC, enabled: on })); },
-    noise(mode: NoiseMode) {
-        forEachConnection(c => {
-            if (mode === "krisp") { c.setNoiseSuppression(false); c.setNoiseCancellation(true); }
-            else if (mode === "standard") { c.setNoiseCancellation(false); c.setNoiseSuppression(true); }
-            else { c.setNoiseCancellation(false); c.setNoiseSuppression(false); }
-        });
-    },
-    sensitivity(mode: string, thresholdDb: number) {
-        const cur = (MediaEngineStore as any)?.getModeOptions?.() ?? {};
-        forEachConnection(c => c.setInputMode(mode, {
-            vadThreshold: thresholdDb, vadAutoThreshold: false,
-            vadUseKrisp: cur.vadUseKrisp, vadKrispActivationThreshold: cur.vadKrispActivationThreshold
-        }));
-    }
+    echo(on: boolean) { saveProc({ echo: on }); forEachConnection(c => c.setEchoCancellation(on)); },
+    agc(on: boolean) { saveProc({ agc: on }); forEachConnection(c => c.setAutomaticGainControl({ ...DEFAULT_AGC, enabled: on })); },
+    noise(mode: NoiseMode) { saveProc({ noiseMode: mode }); forEachConnection(c => applyNoiseTo(c, mode)); },
+    sensitivity(mode: string, thresholdDb: number) { saveProc({ vadThreshold: thresholdDb }); forEachConnection(c => applySensitivityTo(c, mode, thresholdDb)); }
 };
 
 // يُطفئ على اتصال واحد كل ما يُحوّل الصوت إلى أحادي فيكسر الستيريو: إلغاء ضوضاء/صدى/AGC.
@@ -190,7 +228,10 @@ function useLiveLevel(): number {
                     ref.current.raf = requestAnimationFrame(tick);
                 };
                 tick();
-            } catch { /* الميكروفون مرفوض — يبقى صفراً بلا ضرر */ }
+            } catch (e) {
+                // لو رُفض الميكروفون أو فشل فتح التيار يبقى المقياس صفراً — نُسجّله للتشخيص بدل ابتلاعه.
+                console.error("[MicPro] live input meter unavailable:", e);
+            }
         })();
         return () => {
             cancelled = true;
@@ -476,7 +517,7 @@ function ProcessingPane() {
                     onGain={v => { apply.inputVolume(v); setS(p => ({ ...p, inputVolume: v })); }} />
             </Tile>
 
-            <SliderTile span label={t("حساسية الصوت", "Sensitivity")} value={sensitivityPct} min={0} max={100} disabled={off || !isVAD}
+            <SliderTile span label={t("حساسية الصوت", "Sensitivity")} value={sensitivityPct} min={0} max={100} disabled={!isVAD}
                 onInput={v => { const db = v - 100; apply.sensitivity(s.inputMode, db); setS(p => ({ ...p, vadThreshold: db })); }} />
 
             <div className="micpro-note">{t("اسحب مستوى الإدخال يميناً/يساراً لضبط كسب الميكروفون؛ والشريط الملوّن يوضّح صوتك الحيّ.", "Drag the input level to set your mic gain; the colored bar shows your live voice.")}</div>
@@ -485,7 +526,7 @@ function ProcessingPane() {
                 <Cap label={t("إلغاء الضوضاء", "Noise reduction")} />
                 <div className="micpro-seg">
                     {([["none", t("بلا", "None")], ["standard", t("قياسي", "Standard")], ["krisp", "Krisp"]] as [NoiseMode, string][]).map(([mode, lbl]) => (
-                        <button key={mode} type="button" disabled={off || (mode === "krisp" && !s.krispSupported)}
+                        <button key={mode} type="button" disabled={mode === "krisp" && !s.krispSupported}
                             className={"micpro-seg-btn" + (s.noiseMode === mode ? " micpro-seg-on" : "")}
                             onClick={() => { apply.noise(mode); setS(p => ({ ...p, noiseMode: mode })); }}>{lbl}</button>
                     ))}
@@ -493,9 +534,9 @@ function ProcessingPane() {
             </Tile>
 
             <div className="micpro-grid2">
-                <SwitchTile label={t("إلغاء الصدى", "Echo cancel")} note={t("يزيل صدى السمّاعات", "Removes speaker echo")} on={s.echo} disabled={off}
+                <SwitchTile label={t("إلغاء الصدى", "Echo cancel")} note={t("يزيل صدى السمّاعات", "Removes speaker echo")} on={s.echo}
                     onChange={v => { apply.echo(v); setS(p => ({ ...p, echo: v })); }} />
-                <SwitchTile label={t("AGC تلقائي", "Auto AGC")} note={t("موازنة تلقائية للكسب", "Auto gain balancing")} on={s.agc} disabled={off}
+                <SwitchTile label={t("AGC تلقائي", "Auto AGC")} note={t("موازنة تلقائية للكسب", "Auto gain balancing")} on={s.agc}
                     onChange={v => { apply.agc(v); setS(p => ({ ...p, agc: v })); }} />
             </div>
 
@@ -504,7 +545,7 @@ function ProcessingPane() {
                 {testing ? t("⏹  إيقاف الاختبار", "⏹  Stop test") : t("🎧  اختبار الميكروفون (سماع نفسك)", "🎧  Test microphone (hear yourself)")}
             </button>
 
-            {off && <div className="micpro-hint">{t("بعض عناصر المعالجة تُطبَّق أثناء المكالمة فقط.", "Some processing controls apply only during a call.")}</div>}
+            {off && <div className="micpro-hint">{t("إعداداتك محفوظة وتُطبَّق تلقائياً على مكالمتك الحالية والقادمة.", "Your settings are saved and applied automatically to your current and next call.")}</div>}
         </>
     );
 }
@@ -592,7 +633,11 @@ export default definePlugin({
                     try {
                         if (connection?.context !== "default") return;
                         const p = microphoneStore?.get?.().currentProfile;
-                        if (p?.channelsEnabled === true && (p.channels ?? 1) >= 2) disableMonoBreakers(connection);
+                        const stereo = p?.channelsEnabled === true && (p.channels ?? 1) >= 2;
+                        // Stereo needs noise/echo/AGC off (they downmix to mono) — it wins.
+                        // Otherwise re-apply the user's processing intent so it sticks per call.
+                        if (stereo) disableMonoBreakers(connection);
+                        else applyProcToConnection(connection);
                     } catch { /* آمن */ }
                 }, "MicPro");
             }

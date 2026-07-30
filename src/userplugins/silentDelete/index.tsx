@@ -11,7 +11,7 @@ import { definePluginSettings } from "@api/Settings";
 import { BanRiskWarning } from "@utils/esharqBanWarning";
 import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
-import { ChannelStore, Constants, Menu, RestAPI, UserStore } from "@webpack/common";
+import { ChannelStore, Constants, Menu, React, RestAPI, UserStore } from "@webpack/common";
 
 const settings = definePluginSettings({
     warning: {
@@ -55,8 +55,11 @@ const settings = definePluginSettings({
 
 const getAccentColor = () => settings.store.accentColor || "#ed4245";
 
-const SilentDeleteIcon = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill={getAccentColor()}>
+// Accepts + spreads the props Discord's popover button passes (className/size), so the
+// button renders correctly; the colour is set via inline `style` (which beats Discord's
+// `fill: currentColor` CSS) so the icon actually shows in the accent red, not muted grey.
+const SilentDeleteIcon = ({ width = 18, height = 18, ...props }: React.SVGProps<SVGSVGElement>) => (
+    <svg width={width} height={height} viewBox="0 0 24 24" {...props} style={{ fill: getAccentColor(), ...props.style }}>
         <path d="M15 3.999V2H9V3.999H3V5.999H21V3.999H15Z" />
         <path d="M5 6.99902V18.999C5 20.101 5.897 20.999 7 20.999H17C18.103 20.999 19 20.101 19 18.999V6.99902H5ZM11 17H9V11H11V17ZM15 17H13V11H15V17Z" />
     </svg>
@@ -95,14 +98,30 @@ async function silentDeleteMessage(channelId: string, messageId: string, deleteO
 }
 
 const messageContextMenuPatch: NavContextMenuPatchCallback = (children, { message }) => {
-    if (!message || message.author.id !== UserStore.getCurrentUser().id || !message.deleted) return;
+    if (!message || message.author?.id !== UserStore.getCurrentUser()?.id) return;
 
-    const group = findGroupChildrenByChildId("remove-message-history", children) ?? children;
+    // Deleted own message → the existing "Silent Delete History" entry.
+    if (message.deleted) {
+        const group = findGroupChildrenByChildId("remove-message-history", children) ?? children;
+        group.push(
+            <Menu.MenuItem
+                id="silent-delete-history"
+                label={<span style={{ color: getAccentColor() }}>{t("سجلّ الحذف الصامت", "Silent Delete History")}</span>}
+                action={() => silentDeleteMessage(message.channel_id, message.id, false)}
+                icon={SilentDeleteIcon}
+            />
+        );
+        return;
+    }
+
+    // Own, non-deleted message → the actual "Silent Delete" action, right in the menu
+    // next to Discord's own Delete (so it's reachable without the hover toolbar).
+    const group = findGroupChildrenByChildId("delete", children) ?? children;
     group.push(
         <Menu.MenuItem
-            id="silent-delete-history"
-            label={<span style={{ color: getAccentColor() }}>{t("سجلّ الحذف الصامت", "Silent Delete History")}</span>}
-            action={() => silentDeleteMessage(message.channel_id, message.id, false)}
+            id="silent-delete-msg"
+            label={<span style={{ color: getAccentColor() }}>{t("حذف صامت", "Silent Delete")}</span>}
+            action={() => silentDeleteMessage(message.channel_id, message.id)}
             icon={SilentDeleteIcon}
         />
     );
@@ -137,7 +156,7 @@ export default definePlugin({
                 if (!count || count < 1 || count > 100) return;
 
                 const channelId = ctx.channel.id;
-                const currentUserId = UserStore.getCurrentUser().id;
+                const currentUserId = UserStore.getCurrentUser()?.id;
 
                 (async () => {
                     try {
@@ -186,15 +205,16 @@ export default definePlugin({
 
     start() {
         addButton("SilentDelete", msg => {
-            if (msg.author.id !== UserStore.getCurrentUser().id || msg.deleted) return null;
+            const mine = msg.author?.id === UserStore.getCurrentUser()?.id;
+            if (!mine || msg.deleted) return null;
 
             return {
+                key: "silent-delete",
                 label: t("حذف صامت", "Silent Delete"),
                 icon: SilentDeleteIcon,
                 message: msg,
                 channel: ChannelStore.getChannel(msg.channel_id),
-                onClick: () => silentDeleteMessage(msg.channel_id, msg.id),
-                dangerous: true
+                onClick: () => silentDeleteMessage(msg.channel_id, msg.id)
             };
         }, SilentDeleteIcon);
     },

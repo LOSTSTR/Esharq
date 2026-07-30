@@ -27,14 +27,14 @@ export default definePlugin({
         {
             find: "#{intl::MESSAGE_UTILITIES_A11Y_LABEL}",
             replacement: {
-                // Discord now wraps the react button in `<flag>?<Fragment>:null,` instead of
-                // emitting it inline, so the old anchor never matched and every plugin that
-                // adds a hover button silently rendered nothing. Anchor instead on the
-                // avatar element that carries the message, run to the close of the react
-                // button fragment, and insert just before the reply-other button.
-                match: /\(0,\i\.jsx\)\(\i,\{channel:\i,message:(\i)\}\).{0,200}?\]\}\):null,(?=\i&&!\i\?\(0,\i\.jsx\)\((\i\.\i),\{label:)/,
-                replace: (m, message, ButtonComponent) =>
-                    `${m}Vencord.Api.MessagePopover._buildPopoverElements(${ButtonComponent},${message}),`
+                // Discord kept changing the message-toolbar render, so our older custom anchor
+                // stopped matching and plugin hover buttons silently vanished. This is the
+                // current upstream Equicord patch: anchor on `togglePopout`, capture the react
+                // button + its show flag + the message, inject our buttons, then re-emit the
+                // react button. (Verified against Equicord/Equicord main.)
+                match: /(?<=\]\}\)),(.{0,40}togglePopout:.+?\}\))\]\}\):null,(?<=\((\i),\{label:.+?:null,(\i)\?\(0,\i\.jsxs?\)\(\i\.Fragment.+?message:(\i).+?)/,
+                replace: (_, ReactButton, ButtonComponent, showReactButton, message) =>
+                    `]}):null,Vencord.Api.MessagePopover._buildPopoverElements(${ButtonComponent},${message}),${showReactButton}?${ReactButton}:null,`
             }
         }
     ]

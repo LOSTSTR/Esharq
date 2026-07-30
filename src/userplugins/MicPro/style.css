@@ -151,6 +151,8 @@
     content: "";
     position: absolute;
     inset-inline: 0;
+    top: 50%;
+    transform: translateY(-50%);
     height: 9px;
     border-radius: 6px;
     background: var(--background-tertiary);
@@ -159,7 +161,10 @@
 .micpro-il-live {
     position: absolute;
     inset-inline-start: 0;
+    top: 50%;
+    transform: translateY(-50%);
     height: 9px;
+    min-width: 2px;
     border-radius: 6px;
     background: linear-gradient(90deg, var(--green-360, #23a55a), var(--yellow-300, #f0b132) 78%, var(--red-400, #f23f43));
     pointer-events: none;
@@ -198,6 +203,8 @@
     content: "";
     position: absolute;
     inset-inline: 0;
+    top: 50%;
+    transform: translateY(-50%);
     height: 6px;
     border-radius: 6px;
     background: var(--background-tertiary);
@@ -206,6 +213,8 @@
 .micpro-range-fill {
     position: absolute;
     inset-inline-start: 0;
+    top: 50%;
+    transform: translateY(-50%);
     height: 6px;
     border-radius: 6px;
     background: var(--brand-experiment, #5865f2);
