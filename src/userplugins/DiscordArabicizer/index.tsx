@@ -100,6 +100,12 @@ export function formatMessage(template: string, values?: Record<string, any>): s
 }
 
 // أسماء أيام الأسبوع (للطوابع الزمنية «Monday at 9:00am»).
+// الصيغة المفردة للوقت النسبيّ ("an hour ago" → «منذ ساعة»).
+const AGO_ONE: Record<string, string> = {
+    second: "منذ ثانية", minute: "منذ دقيقة", hour: "منذ ساعة", day: "منذ يوم",
+    week: "منذ أسبوع", month: "منذ شهر", year: "منذ سنة"
+};
+
 const WEEKDAYS_AR: Record<string, string> = {
     Sunday: "الأحد", Monday: "الاثنين", Tuesday: "الثلاثاء", Wednesday: "الأربعاء",
     Thursday: "الخميس", Friday: "الجمعة", Saturday: "السبت"
@@ -145,6 +151,11 @@ const NUMERIC_PATTERNS: { re: RegExp; ar: (m: RegExpMatchArray) => string }[] = 
     { re: /^(.+?)['’]s profile is private, so some info is hidden\. Add them as a friend to see more\.$/, ar: m => `الملف الشخصي لـ${m[1]} خاصّ، لذا بعض المعلومات مخفيّة. أضِفه صديقاً لرؤية المزيد.` },
     { re: /^(\d+) Boosts?$/, ar: m => `${m[1]} تعزيز` },
     { re: /^(\d+)\+ Boosts?$/, ar: m => `${m[1]}+ تعزيز` },
+    // نافذة «أوشكت على الوصول» للتعزيز — العدد متغيّر واسم المكافأة (يبقى كما هو).
+    {
+        re: /^Just (\d+) more Boosts? to help unlock (.+?) for everyone\.$/,
+        ar: m => `${arCount(+m[1], "تعزيز واحد إضافي", "تعزيزان إضافيّان", "تعزيزات إضافية", "تعزيزاً إضافيّاً")} فقط لمساعدة الجميع على فتح ${m[2]}.`
+    },
     // عدّاد الفعاليّات ("1 Event" / "2 Events")
     { re: /^(\d+) Events?$/, ar: m => arCount(+m[1], "فعالية واحدة", "فعاليتان", "فعاليات", "فعالية") },
     // مدّة الاشتراك بالأشهر ("2 Months")
@@ -162,6 +173,19 @@ const NUMERIC_PATTERNS: { re: RegExp; ar: (m: RegExpMatchArray) => string }[] = 
     { re: /^(\d+)d ago$/, ar: m => `قبل ${m[1]} يوم` },
     { re: /^(\d+)w ago$/, ar: m => `قبل ${m[1]} أسبوع` },
     { re: /^(\d+)y ago$/, ar: m => `قبل ${m[1]} سنة` },
+    // وقت نسبيّ بالصيغة الطويلة ("6 hours ago") — يملأ به ديسكورد {timeAgo} في
+    // "Active {timeAgo}"، فلولا هذه الأنماط يبقى «نشط 6 hours ago» مختلطاً.
+    { re: /^(\d+) seconds? ago$/, ar: m => `منذ ${arCount(+m[1], "ثانية", "ثانيتين", "ثوانٍ", "ثانية")}` },
+    { re: /^(\d+) minutes? ago$/, ar: m => `منذ ${arCount(+m[1], "دقيقة", "دقيقتين", "دقائق", "دقيقة")}` },
+    { re: /^(\d+) hours? ago$/, ar: m => `منذ ${arCount(+m[1], "ساعة", "ساعتين", "ساعات", "ساعة")}` },
+    { re: /^(\d+) days? ago$/, ar: m => `منذ ${arCount(+m[1], "يوم", "يومين", "أيام", "يوماً")}` },
+    { re: /^(\d+) weeks? ago$/, ar: m => `منذ ${arCount(+m[1], "أسبوع", "أسبوعين", "أسابيع", "أسبوعاً")}` },
+    { re: /^(\d+) months? ago$/, ar: m => `منذ ${arCount(+m[1], "شهر", "شهرين", "أشهر", "شهراً")}` },
+    { re: /^(\d+) years? ago$/, ar: m => `منذ ${arCount(+m[1], "سنة", "سنتين", "سنوات", "سنة")}` },
+    // الصيغة المفردة التي يخرجها moment.js ("an hour ago" / "a day ago").
+    { re: /^an? (second|minute|hour|day|week|month|year) ago$/, ar: m => AGO_ONE[m[1]] },
+    { re: /^a few seconds ago$/, ar: () => "منذ لحظات" },
+    { re: /^just now$/i, ar: () => "الآن" },
     // عدّاد أسئلة الإعداد ("Questions (1/5)")
     { re: /^Questions \((\d+)\/(\d+)\)$/, ar: m => `أسئلة (${m[1]}/${m[2]})` },
     // تقدّم المهمة ("Quest progress: 0%".."99%"؛ الـ100% مفتاح في القاموس)
@@ -274,6 +298,10 @@ const NUMERIC_PATTERNS: { re: RegExp; ar: (m: RegExpMatchArray) => string }[] = 
     { re: /^for (\d+) minutes with your Discord client open and win (\d+) Orbs\.$/, ar: m => `لمدّة ${m[1]} دقيقة مع إبقاء ديسكورد مفتوحاً وتربح ${m[2]} Orbs.` },
     { re: /^(\d+) Active Posts?$/, ar: m => arCount(+m[1], "منشور نشِط واحد", "منشوران نشِطان", "منشورات نشِطة", "منشوراً نشِطاً") },
     { re: /^(\d+)\+ new messages since (.+)$/, ar: m => `أكثر من ${m[1]} رسالة جديدة منذ ${m[2]}` },
+    // أصوات التصويت + تذكيرات متأخّرة + خصم مستقل
+    { re: /^(\d+) votes?$/, ar: m => arCount(+m[1], "صوت واحد", "صوتان", "أصوات", "صوتاً") },
+    { re: /^(\d+) overdue reminders?$/, ar: m => arCount(+m[1], "تذكير متأخّر واحد", "تذكيران متأخّران", "تذكيرات متأخّرة", "تذكيراً متأخّراً") },
+    { re: /^(\d+)% discount$/, ar: m => `خصم ${m[1]}%` },
     { re: /^(.+), NaN members$/, ar: m => `${m[1]}، الأعضاء` },
     { re: /^You have NaN days left to get (.+) off Nitro Yearly$/, ar: m => `بقيت لك أيام للحصول على خصم ${m[1]} على Nitro السنوي` },
     // ── عدّادات صفحات الخصوصية والارتباطات (العدد مخبوز في النصّ) ──
@@ -387,6 +415,25 @@ function rebuildFromTemplate(translated: string, placeholders: any[]): any[] {
 // منطق الترجمة المشترك (يُستخدَم على intl الأساسي وعلى الكائنات الناتجة عن withFormatters)
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * يترجم قيم العناصر النائبة التي تُطابق نمطاً رقمياً قبل حقنها في القالب.
+ * ضروري لأنّ "Active {timeAgo}" يُترجَم إلى «نشط {timeAgo}»، لكن ديسكورد يملأ
+ * timeAgo بالنصّ الإنجليزي «6 hours ago» فيخرج «نشط 6 hours ago» مختلطاً.
+ * نقتصر على numericTemplate (أنماط مُثبَّتة بـ ^…$: وقت/عدّ) حتى لا نُترجم اسم
+ * مستخدم أو قناة يُمرَّر كقيمة {user}/{channel}.
+ */
+function translateValues(values: any): any {
+    if (values == null || typeof values !== "object") return values;
+    let out: Record<string, any> | null = null;
+    for (const k in values) {
+        const v = values[k];
+        if (typeof v !== "string") continue;
+        const tr = numericTemplate(v.trim());
+        if (tr != null) (out ??= { ...values })[k] = tr;
+    }
+    return out ?? values;
+}
+
 function translateString(orig: StrFn, msg: any, values: any, methodName: string): any {
     const out = orig(msg, values);
     if (typeof out !== "string") return out;
@@ -400,7 +447,7 @@ function translateString(orig: StrFn, msg: any, values: any, methodName: string)
         const tmpl = recoverTemplate(orig, msg, values);
         if (tmpl != null && tmpl !== out) {
             const arTmpl = lookup(tmpl);
-            if (arTmpl != null) return diag(true, formatMessage(arTmpl, values));
+            if (arTmpl != null) return diag(true, formatMessage(arTmpl, translateValues(values)));
             collect(tmpl);
             return diag(false, out);
         }
@@ -494,7 +541,7 @@ function translateFormat(orig: StrFn, msg: any, values: any): any {
         const tmpl = recoverTemplate(orig, msg, values);
         if (tmpl != null && tmpl !== out) {
             const arTmpl = lookup(tmpl);
-            if (arTmpl != null) return diag(true, formatMessage(arTmpl, values));
+            if (arTmpl != null) return diag(true, formatMessage(arTmpl, translateValues(values)));
             collect(tmpl);
             return diag(false, out);
         }
