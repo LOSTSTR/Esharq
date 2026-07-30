@@ -9,8 +9,10 @@
  *   erases and redraws — done with @property-registered angle vars driving a conic
  *   gradient (Chromium in Discord supports @property; if it ever doesn't, the static
  *   faint gold outline below still shows — graceful degradation, never broken).
- * - Contributor = «ومضات الطيف»: the ring color hard-jumps through 6 spectrum colors
- *   (steps, no blending) with a matching glow.
+ * - Contributor = «النار الذهبية / Golden Fire»: the fire is baked into the badge image
+ *   itself — a transparent animated APNG (orb + golden flame ring + rising embers) served
+ *   from Esharq-Bored. So there's no CSS ring here; we just show the image un-clipped
+ *   (border-radius: 0) so the flames around the orb aren't cut off. Unified for all.
  * - Donor       = «بريق العملة»: a steady gold rim plus a diagonal shine that sweeps
  *   across the badge face like a coin/metal gleam (owner-picked D4).
  * - Custom      = unchanged spinning RGB ring (per-member images from
@@ -68,6 +70,24 @@
     height: 100%;
     border-radius: 50%;
     object-fit: cover;
+}
+
+/* ── Esharq Contributor chat badge — the animated APNG scene shown inline in chat.
+ * Unlike the dev/donor badges it is NOT cropped to a circle (that would cut the chess
+ * pieces and flames); it shows the full square art on its own transparent background. ── */
+.esharq-contributor-chat-badge {
+    display: inline-flex;
+    width: 20px;
+    height: 20px;
+    margin: 0 2px;
+    vertical-align: middle;
+}
+
+.esharq-contributor-chat-badge img {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    object-fit: contain;
 }
 
 /* ── Esharq Custom badge — per-member circular image + spinning RGB (rainbow) ring.
@@ -183,37 +203,9 @@ a[aria-label*="Esharq Developer"]::before {
     pointer-events: none;
 }
 
-/* Contributor (profile) — «القصاصات»: حلقة أساس هادئة (::before) + قصاصات ملوّنة تنفجر
- * خارجاً وتتلاشى دورياً (::after). كلاهما خلف صورة الشارة (img أعلى بـ z-index). */
-a[aria-label*="Esharq Contributor"]::before {
-    content: "";
-    position: absolute;
-    inset: -3.5px;
-    border-radius: 50%;
-    border: 1.5px solid rgb(255 255 255 / 45%);
-    box-shadow: 0 0 6px rgb(232 121 249 / 40%);
-    z-index: 0;
-    pointer-events: none;
-}
-
-a[aria-label*="Esharq Contributor"]::after {
-    content: "";
-    position: absolute;
-    inset: -3.5px;
-    border-radius: 50%;
-
-    /* النقاط الستّ على حافة الدائرة تماماً (نصف قطر 50%) — فتنطلق من الحافة لا من الوجه */
-    background:
-        radial-gradient(circle 2px at 50% 0%, #f472b6 94%, transparent 96%),
-        radial-gradient(circle 2px at 93% 25%, #60a5fa 94%, transparent 96%),
-        radial-gradient(circle 2px at 93% 75%, #34d399 94%, transparent 96%),
-        radial-gradient(circle 2px at 50% 100%, #fbbf24 94%, transparent 96%),
-        radial-gradient(circle 2px at 7% 75%, #c4b5fd 94%, transparent 96%),
-        radial-gradient(circle 2px at 7% 25%, #fda4af 94%, transparent 96%);
-    animation: esharq-confetti 2.2s ease-out infinite;
-    z-index: 0;
-    pointer-events: none;
-}
+/* Contributor (profile) — «النار الذهبية»: النار الآن مدموجة داخل صورة الشارة نفسها
+ * (APNG شفّاف متحرّك: كرة + حلقة لهب ذهبية + شرر). فلا حاجة لحلقة CSS — نعرض الصورة
+ * كاملة بلا قصّ دائري (border-radius: 0 أدناه) كي لا تُقصّ النار حول الكرة. */
 
 /* Donor (profile) — «بريق العملة»: حافة ذهبية ثابتة (::before) + ومضة لمعان
  * تمرّ قطريّاً فوق وجه الشارة دوريّاً (::after فوق الصورة) — كلمعة معدن/عملة. */
@@ -246,6 +238,12 @@ a[aria-label*="Esharq Donor"] img {
     z-index: 1;
     border-radius: 50%;
     transition: transform 0.25s ease;
+}
+
+/* Contributor image carries its own baked fire (transparent APNG) — don't circle-clip it,
+ * or the flames around the orb get cut off. */
+a[aria-label*="Esharq Contributor"] img {
+    border-radius: 0;
 }
 
 a[aria-label*="Esharq Developer"]:hover img,
@@ -288,21 +286,8 @@ a[aria-label*="Esharq Contributor"]:hover img {
 }
 
 /* «القصاصات»: تبدأ على حافة الشارة، تنفجر قليلاً وتتلاشى تماماً قبل بلوغ الشارة المجاورة */
-@keyframes esharq-confetti {
-    0% {
-        transform: scale(1);
-        opacity: 0;
-    }
 
-    15% {
-        opacity: 1;
-    }
-
-    80%, 100% {
-        transform: scale(1.55);
-        opacity: 0;
-    }
-}
+/* (النار لم تعد حلقة CSS — صارت مدموجة في صورة APNG لشارة المساهمين) */
 
 /* «بريق العملة»: شريط اللمعان يعبر وجه الشارة قطريّاً ذهاباً وإياباً */
 @keyframes esharq-coin-gleam {

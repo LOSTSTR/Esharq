@@ -10,6 +10,7 @@ import { Heading } from "@components/Heading";
 import { Heart } from "@components/Heart";
 import { Paragraph } from "@components/Paragraph";
 import { DonateButton, TranslateButton } from "@components/settings";
+import { ESHARQ_LOGO } from "@components/settings/esharqLogo";
 import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { Modal, openModal } from "@webpack/common";
@@ -70,7 +71,7 @@ export function EquicordDonorModal() {
     openModal(props => (
         <ErrorBoundary noop onError={() => {
             props.onClose();
-            VencordNative.native.openExternal("https://github.com/sponsors/thororen1234");
+            VencordNative.native.openExternal("https://ko-fi.com/loststr");
         }}>
             <Modal
                 {...props}
@@ -84,28 +85,24 @@ export function EquicordDonorModal() {
                         }}
                     >
                         <Flex justifyContent="center" alignItems="center" gap="0.5em">
-                            <Heart />{t("متبرّع Equicord", "Equicord Donor")}</Flex>
+                            <Heart />{t("متبرّع إشراق", "Esharq Donor")}</Flex>
                     </Heading>
                 }
             >
                 <div>
-                    <Flex>
+                    <Flex justifyContent="center">
                         <img
                             role="presentation"
-                            src="https://cdn.discordapp.com/emojis/1026533070955872337.png"
+                            src={ESHARQ_LOGO}
                             alt=""
-                            style={{ margin: "auto" }}
-                        />
-                        <img
-                            role="presentation"
-                            src="https://cdn.discordapp.com/emojis/1026533090627174460.png"
-                            alt=""
+                            width={96}
+                            height={96}
                             style={{ margin: "auto" }}
                         />
                     </Flex>
                     <div style={{ padding: "1em" }}>
-                        <Paragraph>{t("هذه الشارة ميزة خاصّة لمتبرّعي Equicord (وليس Vencord)", "This Badge is a special perk for Equicord (Not Vencord) Donors")}</Paragraph>
-                        <Paragraph className={Margins.top20}>{t("يُرجى التفكير في دعم تطوير Equicord بأن تصبح متبرّعاً. سيعني ذلك الكثير! :3", "Please consider supporting the development of Equicord by becoming a donor. It would mean a lot! :3")}</Paragraph>
+                        <Paragraph>{t("هذه الشارة ميزة خاصّة بمتبرّعي إشراق (وليست إيكوكورد أو فينكورد).", "This badge is a special perk for Esharq donors (not Equicord or Vencord).")}</Paragraph>
+                        <Paragraph className={Margins.top20}>{t("يُرجى التفكير في دعم تطوير إشراق بأن تصبح متبرّعاً. سيعني ذلك الكثير! :3", "Please consider supporting the development of Esharq by becoming a donor. It would mean a lot! :3")}</Paragraph>
                     </div>
                 </div>
                 <div>

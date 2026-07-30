@@ -73,6 +73,16 @@ const EsharqDonorChatBadge = ({ userId }: { userId: string; }) => {
     );
 };
 
+// The Contributor badge also shows inline in chat (message decoration), same idea as the
+// Developer and Donor chat badges. It shows the FULL square art (no circular crop, no ring —
+// the art carries its own fire/ice glow). Devs are excluded here since they already show the
+// Developer chat badge, so a dev never gets two inline badges.
+const EsharqContributorChatBadge = () => (
+    <span className="esharq-contributor-chat-badge" role="img" aria-label="مساهم إشراق · Esharq Contributor">
+        <img src={ESHARQ_CONTRIBUTOR_BADGE} alt="" />
+    </span>
+);
+
 // Esharq Custom badges — a per-member custom round image with a spinning RGB ring, for
 // specific members who don't fit the donor/contributor/developer tiers. Profile only.
 // Each member's image is mapped by Discord user id in
@@ -293,12 +303,17 @@ export default definePlugin({
             const id = message?.author?.id ?? "";
             return EsharqDonorBadges[id]?.length ? <EsharqDonorChatBadge userId={id} /> : null;
         });
+        addMessageDecoration("esharq-contributor", ({ message }) => {
+            const id = message?.author?.id ?? "";
+            return shouldShowEsharqContributorBadge(id) && !isEsharqDev(id) ? <EsharqContributorChatBadge /> : null;
+        });
     },
 
     async stop() {
         clearInterval(intervalId);
         removeMessageDecoration("esharq-dev");
         removeMessageDecoration("esharq-donor");
+        removeMessageDecoration("esharq-contributor");
     },
 
     getBadges(profile: { userId: string; guildId: string; }) {
