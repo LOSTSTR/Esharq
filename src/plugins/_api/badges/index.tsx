@@ -29,7 +29,7 @@ import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import { isEsharqDev, setEsharqTeam, shouldShowContributorBadge, shouldShowEquicordContributorBadge, shouldShowEsharqContributorBadge, shouldShowEsharqDeveloperBadge } from "@utils/misc";
 import definePlugin from "@utils/types";
-import { ContextMenuApi, Menu, Toasts, UserStore } from "@webpack/common";
+import { ContextMenuApi, Menu, Toasts, Tooltip, UserStore } from "@webpack/common";
 
 import Plugins, { PluginMeta } from "~plugins";
 
@@ -93,9 +93,22 @@ const EsharqCustomBadge: ProfileBadge = {
     position: BadgePosition.START,
     shouldShow: ({ userId }) => userId in EsharqCustomBadges,
     component: ({ userId }: ProfileBadge & BadgeUserArgs) => (
-        <span className="esharq-custom-badge" role="img" aria-label="مخصّص · Esharq Custom">
-            <img src={EsharqCustomBadges[userId]} alt="" />
-        </span>
+        // Custom badges are component-rendered, so Discord's description tooltip never shows;
+        // wrap in an explicit Tooltip so hovering reveals ":3" (same idea as the donor badge's
+        // "متبرّع إشراق" hover text). Only one custom member exists, so this shared text is theirs.
+        <Tooltip text=":3">
+            {({ onMouseEnter, onMouseLeave }) => (
+                <span
+                    className="esharq-custom-badge"
+                    role="img"
+                    aria-label=":3"
+                    onMouseEnter={onMouseEnter}
+                    onMouseLeave={onMouseLeave}
+                >
+                    <img src={EsharqCustomBadges[userId]} alt="" />
+                </span>
+            )}
+        </Tooltip>
     ),
     onClick: (_, { userId }) => openContributorModal(UserStore.getUser(userId)),
 };
