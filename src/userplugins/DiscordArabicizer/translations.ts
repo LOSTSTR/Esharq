@@ -187,6 +187,13 @@ export const translations: Record<string, string> = {
     "You will not receive desktop notifications": "لن تتلقّى إشعارات سطح المكتب",
     "You will appear offline": "ستظهر بحالة غير متصل",
 
+    // ── حصاد 2026-07-31: صوت / تحديث / نشاط ──
+    "Briefly leave voice?": "مغادرة الصوت مؤقّتاً؟",
+    "Waiting for Voice Server": "بانتظار خادم الصوت",
+    "Update anyway!": "حدّث على أي حال!",
+    "Updating Discord while in a voice channel will cause you to leave briefly. You're probably going to update anyway but, you know, just warning you.": "تحديث ديسكورد وأنت في قناة صوتية سيجعلك تغادرها لوهلة. على الأرجح ستُحدّث على أي حال، لكن... تعلم، مجرّد تحذير.",
+    "Activity live": "نشاط مباشر",
+
     // ── الأصدقاء / الحالة الصوتية / رسالة جديدة ──
     "In a Voice Channel": "في قناة صوتية",
     "New Message": "رسالة جديدة",
