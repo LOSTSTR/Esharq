@@ -90,40 +90,22 @@
     object-fit: contain;
 }
 
-/* ── Esharq Custom badge — per-member circular image + spinning RGB (rainbow) ring.
- * Each special member's round image is wrapped in .esharq-custom-badge. Same keyframes as
- * the developer ring, but a rainbow gradient. ── */
+/* ── Esharq Custom badge — per-member image shown AS-IS (owner 2026-07-30: no effects,
+ * no ring, no circular crop, no text). The image is displayed exactly as provided. If a
+ * future custom member ever wants the old spinning RGB ring, give them a variant class;
+ * the plain form is now the default. ── */
 .esharq-custom-badge {
-    position: relative;
     display: inline-flex;
     width: 18px;
     height: 18px;
     margin: 0 3px;
     vertical-align: middle;
-    border-radius: 50%;
-}
-
-.esharq-custom-badge::before {
-    content: "";
-    position: absolute;
-    inset: -2px;
-    border-radius: 50%;
-    background: conic-gradient(from 0deg, #ff0040, #ff8c00, #ffe600, #00e676, #00e5ff, #2979ff, #d500f9, #ff0040);
-    animation:
-        esharq-ring-spin 2s linear infinite,
-        esharq-ring-glow 1s ease-in-out infinite alternate;
-    filter: blur(1px);
-    z-index: 0;
-    pointer-events: none;
 }
 
 .esharq-custom-badge img {
-    position: relative;
-    z-index: 1;
     width: 100%;
     height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 /* ── Donor badge shown inline in chat (message decoration) — the member's own image
@@ -249,17 +231,6 @@ a[aria-label*="Esharq Contributor"] img {
 a[aria-label*="Esharq Developer"]:hover img,
 a[aria-label*="Esharq Contributor"]:hover img {
     transform: scale(1.12);
-}
-
-/* لا تزال مستخدمة لشارات المخصّصين (حلقة RGB الدوّارة) */
-@keyframes esharq-ring-spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-@keyframes esharq-ring-glow {
-    from { filter: blur(1px); }
-    to { filter: blur(3px); }
 }
 
 /* «القلم الذهبي»: الرأس يرسم القوس كاملاً، وقفة قصيرة، ثم الذيل يلحقه فيمحوه */
