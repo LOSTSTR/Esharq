@@ -107,6 +107,7 @@ const EsharqCustomBadge: ProfileBadge = {
                         aria-label={entry.tooltip || "Esharq Custom"}
                         onMouseEnter={onMouseEnter}
                         onMouseLeave={onMouseLeave}
+                        onClick={e => { e.stopPropagation(); EquicordDonorModal(); }}
                     >
                         <img src={entry.image} alt="" />
                     </span>
@@ -114,8 +115,9 @@ const EsharqCustomBadge: ProfileBadge = {
             </Tooltip>
         );
     },
-    // Same idea as the donor badges: clicking opens the Esharq donor modal ("متبرّع إشراق").
-    onClick: () => EquicordDonorModal(),
+    // ⚠️ onClick on a `component:` ProfileBadge is IGNORED by the badge API (like the auto
+    // tooltip) — so the click is wired INSIDE the <span> above instead. This makes EVERY custom
+    // badge (present and future, any member in custom.json) open the Esharq donor modal on click.
 };
 
 // The Custom badge also shows inline in chat — the member's OWN image, shown as-is (no ring/
@@ -133,7 +135,7 @@ const EsharqCustomChatBadge = ({ userId }: { userId: string; }) => {
                     aria-label={entry.tooltip || "Esharq Custom"}
                     onMouseEnter={onMouseEnter}
                     onMouseLeave={onMouseLeave}
-                    onClick={() => EquicordDonorModal()}
+                    onClick={e => { e.stopPropagation(); EquicordDonorModal(); }}
                 >
                     <img src={entry.image} alt="" />
                 </span>
