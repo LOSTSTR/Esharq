@@ -108,6 +108,23 @@
     object-fit: contain;
 }
 
+/* Custom badge shown inline in chat (message decoration) — same plain look as the profile
+ * custom badge: the image as-is, no ring, no crop. */
+.esharq-custom-chat-badge {
+    display: inline-flex;
+    width: 20px;
+    height: 20px;
+    margin: 0 2px;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.esharq-custom-chat-badge img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
 /* ── Donor badge shown inline in chat (message decoration) — the member's own image
  * with the «بريق العملة / Coin Gleam» gold glow: steady rim (::before) + a diagonal
  * shine sweeping across the face (::after), same keyframe as the profile donor badge. ── */

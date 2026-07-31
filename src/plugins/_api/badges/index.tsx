@@ -83,8 +83,9 @@ const EsharqContributorChatBadge = () => (
     </span>
 );
 
-// Esharq Custom badges — a per-member custom round image with a spinning RGB ring, for
-// specific members who don't fit the donor/contributor/developer tiers. Profile only.
+// Esharq Custom badges — a per-member image shown AS-IS (no ring/crop/text). Also shown
+// inline in chat (message decoration) like the donor/contributor/developer badges; clicking
+// opens the Esharq donor modal ("متبرّع إشراق"), and hovering shows ":3".
 // Each member's image is mapped by Discord user id in
 // Esharq-Bored/badges/custom/custom.json (loaded into EsharqCustomBadges).
 const EsharqCustomBadge: ProfileBadge = {
@@ -92,25 +93,53 @@ const EsharqCustomBadge: ProfileBadge = {
     description: "مخصّص · Esharq Custom",
     position: BadgePosition.START,
     shouldShow: ({ userId }) => userId in EsharqCustomBadges,
-    component: ({ userId }: ProfileBadge & BadgeUserArgs) => (
-        // Custom badges are component-rendered, so Discord's description tooltip never shows;
-        // wrap in an explicit Tooltip so hovering reveals ":3" (same idea as the donor badge's
-        // "متبرّع إشراق" hover text). Only one custom member exists, so this shared text is theirs.
-        <Tooltip text=":3">
+    component: ({ userId }: ProfileBadge & BadgeUserArgs) => {
+        // Per-member image + hover text come from custom.json ({ image, tooltip }); since
+        // component-rendered badges get no automatic Discord tooltip, wrap in an explicit one.
+        const entry = EsharqCustomBadges[userId];
+        if (!entry?.image) return null;
+        return (
+            <Tooltip text={entry.tooltip || " "}>
+                {({ onMouseEnter, onMouseLeave }) => (
+                    <span
+                        className="esharq-custom-badge"
+                        role="img"
+                        aria-label={entry.tooltip || "Esharq Custom"}
+                        onMouseEnter={onMouseEnter}
+                        onMouseLeave={onMouseLeave}
+                    >
+                        <img src={entry.image} alt="" />
+                    </span>
+                )}
+            </Tooltip>
+        );
+    },
+    // Same idea as the donor badges: clicking opens the Esharq donor modal ("متبرّع إشراق").
+    onClick: () => EquicordDonorModal(),
+};
+
+// The Custom badge also shows inline in chat — the member's OWN image, shown as-is (no ring/
+// crop, like its profile badge). Same idea as the donor/dev/contributor chat badges; hover
+// reveals ":3" and clicking opens the Esharq donor modal.
+const EsharqCustomChatBadge = ({ userId }: { userId: string; }) => {
+    const entry = EsharqCustomBadges[userId];
+    if (!entry?.image) return null;
+    return (
+        <Tooltip text={entry.tooltip || " "}>
             {({ onMouseEnter, onMouseLeave }) => (
                 <span
-                    className="esharq-custom-badge"
+                    className="esharq-custom-chat-badge"
                     role="img"
-                    aria-label=":3"
+                    aria-label={entry.tooltip || "Esharq Custom"}
                     onMouseEnter={onMouseEnter}
                     onMouseLeave={onMouseLeave}
+                    onClick={() => EquicordDonorModal()}
                 >
-                    <img src={EsharqCustomBadges[userId]} alt="" />
+                    <img src={entry.image} alt="" />
                 </span>
             )}
         </Tooltip>
-    ),
-    onClick: (_, { userId }) => openContributorModal(UserStore.getUser(userId)),
+    );
 };
 
 // Esharq Contributor badge — a shared circular EA image with a spinning RGB ring. Granted to
@@ -178,8 +207,9 @@ let EquicordDonorBadges = {} as Record<string, Array<Record<"tooltip" | "badge",
 // Esharq's own donors only (from Esharq-Bored). The merged set above is used to render badges;
 // this one decides who sees the "thank you for donating" card, so Equicord donors don't trigger it.
 let EsharqDonorBadges = {} as Record<string, Array<Record<"tooltip" | "badge", string>>>;
-// Esharq Custom badges: Discord user id → custom badge image url (from Esharq-Bored).
-let EsharqCustomBadges = {} as Record<string, string>;
+// Esharq Custom badges: Discord user id → { image, tooltip } (from Esharq-Bored/custom.json).
+// Data-driven so a member's image AND hover text can change with NO rebuild (edit the JSON).
+let EsharqCustomBadges = {} as Record<string, { image: string; tooltip?: string; }>;
 
 async function loadBadges(url: string, noCache = false) {
     const init = {} as RequestInit;
@@ -320,6 +350,10 @@ export default definePlugin({
             const id = message?.author?.id ?? "";
             return shouldShowEsharqContributorBadge(id) && !isEsharqDev(id) ? <EsharqContributorChatBadge /> : null;
         });
+        addMessageDecoration("esharq-custom", ({ message }) => {
+            const id = message?.author?.id ?? "";
+            return id in EsharqCustomBadges ? <EsharqCustomChatBadge userId={id} /> : null;
+        });
     },
 
     async stop() {
@@ -327,6 +361,7 @@ export default definePlugin({
         removeMessageDecoration("esharq-dev");
         removeMessageDecoration("esharq-donor");
         removeMessageDecoration("esharq-contributor");
+        removeMessageDecoration("esharq-custom");
     },
 
     getBadges(profile: { userId: string; guildId: string; }) {
