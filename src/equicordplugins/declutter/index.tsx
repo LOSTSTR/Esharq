@@ -182,6 +182,7 @@ export default definePlugin({
                 match: /(?=0!==\i.length&&\i\?\(0,)/,
                 replace: "null&&",
             },
+            predicate: () => settings.store.removeProfileFrame,
         },
         {
             // Avatar decoration
@@ -191,8 +192,7 @@ export default definePlugin({
                 replace: "$1null",
             },
             predicate: () =>
-                settings.store.removeAvatarDecoration &&
-                !isPluginEnabled(decor.name),
+                settings.store.removeAvatarDecoration && !isPluginEnabled(decor.name),
         },
         {
             // Avatar decoration on dms list
@@ -202,8 +202,7 @@ export default definePlugin({
                 replace: "null",
             },
             predicate: () =>
-                settings.store.removeAvatarDecoration &&
-                !isPluginEnabled(decor.name),
+                settings.store.removeAvatarDecoration && !isPluginEnabled(decor.name),
         },
         // User Area
         {
