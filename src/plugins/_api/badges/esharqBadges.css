@@ -90,15 +90,16 @@
     object-fit: contain;
 }
 
-/* ── Esharq Custom badge — per-member image shown AS-IS (owner 2026-07-30: no effects,
- * no ring, no circular crop, no text). The image is displayed exactly as provided. If a
- * future custom member ever wants the old spinning RGB ring, give them a variant class;
- * the plain form is now the default. ── */
+/* ── Esharq Custom badge — per-member image shown AS-IS (owner 2026-07-30: no effects, no
+ * ring, no crop, no text). Sized to match Discord's native profile badges: 22px box + 0 2px
+ * margin like the other Esharq badges (was 18px/3px → looked small and over-spaced; our
+ * iconSrc dev/contributor/donor badges inherit ~22px from Discord, but a component badge must
+ * set it). If a future custom member wants the old RGB ring, give them a variant class. ── */
 .esharq-custom-badge {
     display: inline-flex;
-    width: 18px;
-    height: 18px;
-    margin: 0 3px;
+    width: 22px;
+    height: 22px;
+    margin: 0 2px;
     vertical-align: middle;
     cursor: pointer;
 }
