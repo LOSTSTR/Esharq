@@ -246,19 +246,32 @@ const IGNORED_TYPES = new Set(["docs", "test"]);
 
 function parseCommit(c) {
     const m = c.subject.match(/^(\w+)(?:\(([^)]*)\))?!?:\s*([\s\S]+)$/);
-    const type = (m?.[1] ?? "").toLowerCase();
-    const scope = sanitise(m?.[2] ?? "", 60);
+    const rawName = m?.[1] ?? "";
+    const type = rawName.toLowerCase();
+    let scope = sanitise(m?.[2] ?? "", 60);
     const title = sanitise(m?.[3] ?? c.subject, 300);
 
     if (IGNORED_TYPES.has(type)) return null;
 
-    const isSync = type === "sync" || /merge upstream/i.test(c.subject);
-    const category = isSync ? "sync" : TYPE_CATEGORY[type];
-    if (!category) return null; // unrecognised prefix — don't guess
-
     // Bilingual detail: commit trailers first, then the hand-written overrides file,
     // then the subject. Only the last one is English-only.
     const ov = overrideFor(c.sha) ?? {};
+
+    const isSync = type === "sync" || /merge upstream/i.test(c.subject);
+    let category = isSync ? "sync" : TYPE_CATEGORY[type];
+
+    // Upstream Equicord commits use "PluginName: message" (no conventional prefix), so they'd
+    // normally be skipped. If we've hand-curated an override for one (in notify-overrides.json),
+    // announce it under «إصلاح · Fix» with the plugin name as the scope — this lets a
+    // `git merge upstream` batch's fixes be announced DELIBERATELY (one override per fix)
+    // WITHOUT opening the floodgates to every upstream commit (Lint, Merge, etc. stay silent).
+    if (!category && ov.ar) {
+        category = "fix";
+        if (!scope && rawName) scope = sanitise(rawName, 60);
+    }
+
+    if (!category) return null; // unrecognised prefix + no curated override — don't guess
+
     const ar = sanitise((c.body.match(/^notify-ar:\s*(.+)$/mi) ?? [])[1] ?? ov.ar ?? "", 600);
     const en = sanitise((c.body.match(/^notify-en:\s*(.+)$/mi) ?? [])[1] ?? ov.en ?? "", 600);
 

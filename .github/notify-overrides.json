@@ -1,5 +1,5 @@
 {
-    "_readme": "Arabic/English announcement text for commits whose message we cannot amend — upstream Equicord commits pulled in by a merge. Key is any unambiguous commit sha prefix. Fill this in as part of the upstream merge so the push announces both languages. Commits we author ourselves should carry notify-ar:/notify-en: trailers instead; this file is only the fallback for foreign commits. Keys starting with _ are ignored.",
+    "_readme": "Arabic/English announcement text for commits whose message we cannot amend — upstream Equicord commits pulled in by a merge. Key is any unambiguous commit sha prefix. An override ALSO promotes an otherwise-skipped upstream commit (a 'PluginName: message' subject with no conventional prefix) into an «إصلاح · Fix» announcement showing the plugin name — so add one entry here for every upstream fix you want Esharq users to see. Commits we author ourselves should carry notify-ar:/notify-en: trailers instead; this file is only the fallback for foreign commits. Keys starting with _ are ignored.",
 
     "51cc856": {
         "ar": "دعم الوضع المضغوط في إضافة sric، فصار العرض صحيحاً لمن يستخدم تخطيط الرسائل المضغوط بدل المريح.",
@@ -8,5 +8,54 @@
     "c4d8e86": {
         "ar": "تحديث بعض معرّفات المطوّرين في قائمة المساهمين.",
         "en": "Updated some developer IDs in the contributor list."
+    },
+
+    "519b20e0": {
+        "ar": "عادت ميزات المهام (Quests) للعمل بعد تحديث ديسكورد.",
+        "en": "Quest features work again after a Discord update."
+    },
+    "9054059b": {
+        "ar": "عادت مشاهدة صور البانر (اللافتات) للمستخدمين.",
+        "en": "Viewing user banners works again."
+    },
+    "415bbb02": {
+        "ar": "أُصلح وصار مستقرّاً (أُزيلت رقعة مؤقّتة).",
+        "en": "Fixed and stabilized (temporary patch removed)."
+    },
+    "a3250ea5": {
+        "ar": "كان معطّلاً تماماً — عاد يعمل.",
+        "en": "Was completely broken — now works."
+    },
+    "faafedb7": {
+        "ar": "أُصلح اختيار الصور المتحرّكة (GIF) من البحث.",
+        "en": "Fixed selecting GIFs from search."
+    },
+    "8492c8d0": {
+        "ar": "الردّ مع Shift لم يعد يتحوّل إلى «بدون منشن».",
+        "en": "Shift-reply no longer turns into No Mention."
+    },
+    "5a47e41f": {
+        "ar": "أُصلح خطأ كان يوقفه (predicate ناقص).",
+        "en": "Fixed an error that broke it (missing predicate)."
+    },
+    "c84389de": {
+        "ar": "أُصلحت أيقونة المنصّة/الجهاز.",
+        "en": "Fixed the platform/device icon."
+    },
+    "015dc5dd": {
+        "ar": "أُصلح تعارض كان يعطّله.",
+        "en": "Fixed a conflict."
+    },
+    "7e126aa1": {
+        "ar": "نُقل إلى تبويب مستقلّ في الإعدادات.",
+        "en": "Moved to its own settings tab."
+    },
+    "94bbe63a": {
+        "ar": "أُصلحت مواضع إعدادات «فوق/تحت النشاط».",
+        "en": "Fixed the Above/Below Activity settings locations."
+    },
+    "43b01e0c": {
+        "ar": "إصلاح عدّة رقعات مكسورة أخرى بعد تحديث ديسكورد.",
+        "en": "Repaired several other broken patches after a Discord update."
     }
 }
