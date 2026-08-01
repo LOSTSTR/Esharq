@@ -183,21 +183,22 @@ a[aria-label*="Esharq Contributor"],
 a[aria-label*="Esharq Donor"] {
     position: relative;
 
-    /* تباعد أفقي يمنع تشابك الحلقات مع الشارة المجاورة (الحلقة تمتدّ ~3px لكل جهة) */
-    margin: 0 4px;
+    /* نفس تباعد بادجات ديسكورد الأصليّة ومطابق للشارة المخصّصة (0 2px). صُغِّرت الحلقات إلى
+     * ~2px لكل جهة كي تناسب هذا التباعد الضيّق دون أن تتشابك مع الشارة المجاورة. */
+    margin: 0 2px;
 }
 
 /* Developer (profile) — «القلم الذهبي»: قوس ذهبي يرسم نفسه ثم يُمحى ويُعاد */
 a[aria-label*="Esharq Developer"]::before {
     content: "";
     position: absolute;
-    inset: -3.5px;
+    inset: -2px;
     border-radius: 50%;
     background: conic-gradient(from -90deg,
         transparent 0 var(--esharq-pen-t),
         #fbbf24 var(--esharq-pen-t) var(--esharq-pen-h),
         transparent var(--esharq-pen-h));
-    mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
     filter: drop-shadow(0 0 3px #fbbf24);
     animation: esharq-pen 2.4s ease-in-out infinite;
     z-index: 0;
