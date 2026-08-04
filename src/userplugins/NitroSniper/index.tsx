@@ -20,6 +20,11 @@ let claiming = false;
 const codeQueue: Array<{ code: string; channelId: string; guildId?: string; messageId: string; }> = [];
 
 const settings = definePluginSettings({
+    ignoreOwnGiftLinks: {
+        type: OptionType.BOOLEAN,
+        default: false,
+        description: "Do not redeem Nitro gift links from messages you sent yourself."
+    },
     notifyOnRedeem: {
         type: OptionType.BOOLEAN,
         default: true,
@@ -40,51 +45,67 @@ function processQueue() {
 
     logger.log(`Attempting to redeem code: ${code} (channel: ${channelId}, guild: ${guildId ?? "dm"})`);
 
-    GiftActions.redeemGiftCode({
-        code,
-        onRedeemed: (gift: any) => {
-            logger.log(`Successfully redeemed code: ${code} (channel: ${channelId}, guild: ${guildId ?? "dm"})`);
+    const onSuccess = (gift: any) => {
+        logger.log(`Successfully redeemed code: ${code} (channel: ${channelId}, guild: ${guildId ?? "dm"})`);
 
-            if (settings.store.notifyOnRedeem) {
-                const user = UserStore.getCurrentUser();
-                const giftType = gift?.subscription_plan?.name || "Nitro";
+        if (settings.store.notifyOnRedeem) {
+            const user = UserStore.getCurrentUser();
+            const giftType = gift?.subscription_plan?.name || "Nitro";
 
-                showNotification({
-                    title: "Nitro Sniped! 🎉",
-                    body: `Successfully redeemed ${giftType} code`,
-                    color: "#5865F2",
-                    icon: user.getAvatarURL(),
-                    onClick: () => {
-                        NavigationRouter.transitionTo(`/channels/${guildId ?? "@me"}/${channelId}/${messageId}`);
-                    }
-                });
-            }
-
-            claiming = false;
-            processQueue();
-        },
-
-        onError: (err: Error) => {
-            logger.error(`Failed to redeem code: ${code} (channel: ${channelId}, guild: ${guildId ?? "dm"})`, err);
-
-            if (settings.store.notifyOnFail) {
-                const user = UserStore.getCurrentUser();
-
-                showNotification({
-                    title: "Nitro Redeem Failed ❌",
-                    body: `Failed to redeem code: ${code}`,
-                    color: "#ED4245",
-                    icon: user.getAvatarURL(),
-                    onClick: () => {
-                        NavigationRouter.transitionTo(`/channels/${guildId ?? "@me"}/${channelId}/${messageId}`);
-                    }
-                });
-            }
-
-            claiming = false;
-            processQueue();
+            showNotification({
+                title: "Nitro Sniped! 🎉",
+                body: `Successfully redeemed ${giftType} code`,
+                color: "#5865F2",
+                icon: user.getAvatarURL(),
+                onClick: () => {
+                    NavigationRouter.transitionTo(`/channels/${guildId ?? "@me"}/${channelId}/${messageId}`);
+                }
+            });
         }
-    });
+
+        finish();
+    };
+
+    const onFailure = (err: unknown) => {
+        logger.error(`Failed to redeem code: ${code} (channel: ${channelId}, guild: ${guildId ?? "dm"})`, err);
+
+        if (settings.store.notifyOnFail) {
+            const user = UserStore.getCurrentUser();
+
+            showNotification({
+                title: "Nitro Redeem Failed ❌",
+                body: `Failed to redeem code: ${code}`,
+                color: "#ED4245",
+                icon: user.getAvatarURL(),
+                onClick: () => {
+                    NavigationRouter.transitionTo(`/channels/${guildId ?? "@me"}/${channelId}/${messageId}`);
+                }
+            });
+        }
+
+        finish();
+    };
+
+    // حارس: أيّاً كان شكل الواجهة، لا نُنهي المحاولة إلا مرّة واحدة — فلو نفّذ ديسكورد
+    // النداء الراجع *و* حلّ الوعد معاً لم يُستهلك عنصران من الطابور بمحاولة واحدة.
+    let settled = false;
+    function finish() {
+        if (settled) return;
+        settled = true;
+        claiming = false;
+        processQueue();
+    }
+
+    // ديسكورد حوّل redeemGiftCode من نداءات راجعة (onRedeemed/onError) إلى Promise.
+    // النسخة القديمة كانت تمرّر النداءات فقط: لا يُستدعى أيٌّ منها أبداً، فتبقى الراية
+    // `claiming` مرفوعة إلى الأبد ويتجمّد الطابور بعد أوّل رابط هدية — وهو سبب توقّف
+    // الإضافة عن العمل. نمرّر الاثنين معاً فتعمل مع أيّ من الشكلين بلا تخمين.
+    try {
+        const result = GiftActions.redeemGiftCode({ code, onRedeemed: onSuccess, onError: onFailure });
+        if (result != null && typeof result.then === "function") result.then(onSuccess, onFailure);
+    } catch (err) {
+        onFailure(err);
+    }
 }
 
 export default definePlugin({
@@ -120,6 +141,7 @@ export default definePlugin({
     flux: {
         MESSAGE_CREATE({ message }) {
             if (!message.content) return;
+            if (settings.store.ignoreOwnGiftLinks && message.author?.id === UserStore.getCurrentUser()?.id) return;
 
             const match = message.content.match(/(?:discord\.gift\/|discord\.com\/gifts?\/)([a-zA-Z0-9]{16,24})/);
             if (!match) return;

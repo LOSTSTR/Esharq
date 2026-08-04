@@ -8,6 +8,7 @@ import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { definePluginSettings } from "@api/Settings";
 
 import { t } from "@utils/esharqI18n";
+import { sleep } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import { findByCodeLazy } from "@webpack";
 import {
@@ -16,6 +17,7 @@ import {
     GuildMemberStore,
     GuildRoleStore,
     GuildStore,
+    IconUtils,
     Menu,
     RestAPI,
     showToast,
@@ -83,7 +85,36 @@ const StickerExtMap = {
 const MAX_EMOJI_SIZE_BYTES = 256 * 1024;
 const MAX_STICKER_SIZE_BYTES = 512 * 1024;
 
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+// عميل ديسكورد يمثّل الصلاحيات ورايات التجاوزات بـ BigInt (منذ تجاوز عددها 53 بتاً).
+// و`JSON.stringify` يرمي TypeError على BigInt، فكان جسم أي طلب فيه صلاحيات يفشل قبل
+// إرساله أصلاً — تُبتلَع الأخطاء في try/catch لكل رتبة/قناة فيخرج سيرفر «منسوخ» فارغ.
+// نحوّلها إلى نصّ (وهو ما تتوقّعه واجهة ديسكورد أصلاً: الصلاحيات نصّ عشري).
+const permString = (v: unknown): string => typeof v === "bigint" ? v.toString() : String(v ?? "0");
+
+/**
+ * يحوّل أيقونة السيرفر إلى data URI. نقطة `POST /guilds` تطلب صورةً مُرمَّزة base64،
+ * بينما `guild.icon` ليس إلا بصمة (hash) — فإرسالها كما هي يُرجع 400 ويُسقط العملية
+ * كلّها من أوّل نداء. نُرجع undefined عند أي تعذّر فيُنشأ السيرفر بلا أيقونة بدل الفشل.
+ */
+async function guildIconDataUrl(guildId: string, icon: string | null | undefined): Promise<string | undefined> {
+    if (!icon) return undefined;
+    try {
+        // PNG ثابت: نقطة الإنشاء لا تقبل GIF متحرّكاً لأيقونة سيرفر جديد.
+        const url = IconUtils.getGuildIconURL({ id: guildId, icon, size: 256, canAnimate: false });
+        if (!url) return undefined;
+        const res = await fetch(url);
+        if (!res.ok) return undefined;
+        const blob = await res.blob();
+        return await new Promise<string>(resolve => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.readAsDataURL(blob);
+        });
+    } catch (e) {
+        ERR("Failed to convert guild icon, creating without one:", e);
+        return undefined;
+    }
+}
 
 const settings = definePluginSettings({
     copyRoles: {
@@ -241,7 +272,7 @@ async function copyGuild(guildId: string): Promise<void> {
                 name: role.name,
                 color: role.color,
                 hoist: role.hoist,
-                permissions: role.permissions,
+                permissions: permString(role.permissions),
                 mentionable: role.mentionable,
                 position: role.position,
                 id: role.id,
@@ -253,8 +284,15 @@ async function copyGuild(guildId: string): Promise<void> {
         const backupChannels: BackupChannel[] = [];
         for (const [, channelData] of Object.entries(allChannels)) {
             if (channelData && (channelData as any).guild_id === guildId) {
+                // allow/deny تصل BigInt من المخزن (انظر permString) — نُطبِّعها هنا مرّة
+                // واحدة عند الالتقاط، فيبقى جسم كل طلب لاحق قابلاً للتحويل إلى JSON.
                 const permOverwrites = (channelData as any).permissionOverwrites
-                    ? Object.values((channelData as any).permissionOverwrites)
+                    ? Object.values((channelData as any).permissionOverwrites).map((o: any) => ({
+                        id: o.id,
+                        type: typeof o.type === "number" ? o.type : Number(o.type ?? 0),
+                        allow: permString(o.allow),
+                        deny: permString(o.deny),
+                    }))
                     : [];
                 backupChannels.push({
                     name: (channelData as any).name,
@@ -307,12 +345,14 @@ async function copyGuild(guildId: string): Promise<void> {
 
         // --- Create new guild ---
         LOG("Creating new guild...");
+        // الأيقونة صورة base64 لا بصمة، و`description` ليست من حقول إنشاء السيرفر
+        // (تخصّ سيرفرات المجتمع فقط) — إرسالها كان يُفشل الإنشاء من أوّل نداء.
+        const iconDataUrl = await guildIconDataUrl(guildId, guild.icon);
         const { body: newGuild } = await RestAPI.post({
             url: "/guilds",
             body: {
                 name: `${guild.name} (Copy)`,
-                icon: guild.icon,
-                description: guild.description,
+                ...(iconDataUrl ? { icon: iconDataUrl } : {}),
             },
         });
         const newGuildId = newGuild.id;
@@ -359,6 +399,13 @@ async function copyGuild(guildId: string): Promise<void> {
             LOG("Roles done");
         }
 
+        // تجاوزات الأذونات لا تُنقل إلا لرتبة نُسخت فعلاً: تجاوز عضو (type 1) أو رتبة لم
+        // تُنسخ يشير إلى مُعرّف لا وجود له في السيرفر الجديد، فيرفض ديسكورد الطلب كلّه
+        // (400) وتضيع القناة بأسرها. الإسقاط يعني قناةً بأذونات افتراضية بدل لا شيء.
+        const mapOverwrites = (list: any[]) => list
+            .filter(o => Number(o.type) === 0 && roleMapping[o.id] != null)
+            .map(o => ({ ...o, id: roleMapping[o.id] }));
+
         // --- Copy channels ---
         const channelMapping: Record<string, string> = {};
         if (settings.store.copyChannels) {
@@ -368,9 +415,7 @@ async function copyGuild(guildId: string): Promise<void> {
 
             for (const channel of categories) {
                 try {
-                    const permissionOverwrites = channel.permission_overwrites.map((o: any) => ({
-                        ...o, id: roleMapping[o.id] || o.id,
-                    }));
+                    const permissionOverwrites = mapOverwrites(channel.permission_overwrites);
                     const { body } = await RestAPI.post({
                         url: `/guilds/${newGuildId}/channels`,
                         body: { name: channel.name, type: channel.type, permission_overwrites: permissionOverwrites },
@@ -395,9 +440,7 @@ async function copyGuild(guildId: string): Promise<void> {
                 const forums = groupChannels.filter(c => c.type === 15).sort((a, b) => a.position - b.position);
                 for (const channel of [...nonForums, ...forums]) {
                     try {
-                        const permissionOverwrites = channel.permission_overwrites.map((o: any) => ({
-                            ...o, id: roleMapping[o.id] || o.id,
-                        }));
+                        const permissionOverwrites = mapOverwrites(channel.permission_overwrites);
                         const channelBody: any = {
                             name: channel.name,
                             type: channel.type,
