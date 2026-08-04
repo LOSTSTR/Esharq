@@ -1,0 +1,48 @@
+/*
+ * Vencord, a Discord client mod
+ * Copyright (c) 2026 Vendicated and contributors
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+/* ورقة «مُدارة» لا استيراد عادي: هذه القواعد غير مقيّدة بالإضافة وتستعمل !important، فكانت
+   — بوصفها جزءاً من الورقة المحقونة دوماً — تُخفي أيقونات القفل وتُظهر أزرار تمرير الفأرة
+   لكلّ مستخدم، بمن فيهم من لم يُفعّل هذه الإضافة قطّ، وتُعاد مطابقتها مع كل تمرير على قائمة
+   القنوات. الآن تُفعَّل مع الإضافة وتُطفأ معها. */
+
+/* ── الشريط الجانبي: تأثيرات القنوات ──────────────────────────────────── */
+
+/* إخفاء أيقونة القفل على القنوات غير المتاحة */
+[class*="locked"] [class*="lockIcon"],
+[class*="locked"] [class*="lock-"],
+[class*="locked"] svg[class*="lock"],
+[class*="channelLocked"],
+[class*="iconLocked"] {
+    display: none !important;
+}
+
+/* إزالة التعتيم عن القنوات المقفلة */
+[class*="wrapper"][class*="locked"],
+[class*="container"][class*="locked"],
+[class*="channel"][class*="locked"] {
+    opacity: 1 !important;
+}
+
+/* اسم القناة المقفلة بلون القنوات العادية */
+[class*="locked"] [class*="name"],
+[class*="locked"] [class*="channelName"] {
+    opacity: 1 !important;
+}
+
+/* إظهار أزرار ديسكورد الأصلية عند تمرير الفأرة على أي قناة */
+li[class*="channel"]:hover [class*="children"],
+li[class*="channel"]:hover [class*="iconContainer"],
+li[class*="channel"]:hover [class*="buttons"] {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+li[class*="channel"]:hover [class*="actionIcon"] {
+    color: var(--interactive-normal) !important;
+    opacity: 1 !important;
+}

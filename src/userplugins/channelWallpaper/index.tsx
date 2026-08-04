@@ -150,6 +150,9 @@ function handleFocusChange() {
     else pauseVideo();
 }
 
+// مؤقّتات الحقن الجارية — تُلغى عند الإيقاف كي لا يبقى نبضٌ يعمل بعد تعطيل الإضافة.
+const injectTimers = new Set<ReturnType<typeof setInterval>>();
+
 function applyWallpaper(channelId?: string) {
     removeWallpaperElements();
 
@@ -240,14 +243,17 @@ function applyWallpaper(channelId?: string) {
     };
 
     if (!tryInject()) {
-        let _injTick = 0;
-        const observer = new MutationObserver((_, obs) => {
-            if (++_injTick % 3 !== 0) return;
-            if (tryInject()) obs.disconnect();
-        });
-        const root = document.querySelector('[class*="chat"]') || document.body;
-        observer.observe(root, { childList: true, subtree: true });
-        setTimeout(() => observer.disconnect(), 3000);
+        // استقصاء دوري بدل MutationObserver على شجرة الدردشة: المراقب كان يُستدعى مع كل
+        // رسالة وكل تمرير (آلاف المرّات في الدقيقة) لمجرّد انتظار ظهور حاوية واحدة. نبض
+        // كل نصف ثانية يكفي لعمل يحدث مرّة، وبكلفة تكاد لا تُذكر.
+        let polls = 0;
+        const timer = setInterval(() => {
+            if (tryInject() || ++polls > 30) {   // ‎30 × 500ms = ١٥ ثانية سقفاً
+                clearInterval(timer);
+                injectTimers.delete(timer);
+            }
+        }, 500);
+        injectTimers.add(timer);
     }
 }
 
@@ -373,6 +379,8 @@ export default definePlugin({
     },
 
     stop() {
+        for (const timer of injectTimers) clearInterval(timer);
+        injectTimers.clear();
         removeWallpaperElements();
         document.removeEventListener("visibilitychange", handleVisChange);
         window.removeEventListener("focus", handleFocusChange);

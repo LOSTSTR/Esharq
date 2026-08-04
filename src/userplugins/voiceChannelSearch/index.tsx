@@ -7,12 +7,15 @@
 import "./styles.css";
 
 import { addHeaderBarButton, HeaderBarButton, removeHeaderBarButton } from "@api/HeaderBar";
+import { disableStyle, enableStyle } from "@api/Styles";
 import { t } from "@utils/esharqI18n";
 import { ModalCloseButton, ModalContent, ModalHeader, ModalRoot, openModal } from "@utils/esharqModals";
 import definePlugin from "@utils/types";
 import { findByPropsLazy } from "@webpack";
 import { ChannelStore, Forms, GuildChannelStore, GuildStore, IconUtils, PermissionStore, React, UserStore, useEffect, useMemo, useRef, useState, VoiceStateStore } from "@webpack/common";
 import { Logger } from "@utils/Logger";
+
+import sidebarStyle from "./sidebar.css?managed";
 
 const logger = new Logger("VoiceChannelSearch");
 
@@ -297,9 +300,11 @@ export default definePlugin({
     dependencies: ["HeaderBarAPI"],
 
     start() {
+        enableStyle(sidebarStyle);
         addHeaderBarButton("esharq-voice-channel-search", () => <VCSHeaderButton />, 9);
     },
     stop() {
+        disableStyle(sidebarStyle);
         removeHeaderBarButton("esharq-voice-channel-search");
         scanCache = null;
     },

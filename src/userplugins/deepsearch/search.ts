@@ -43,6 +43,8 @@ interface SearchQueryRequest {
     content?: string;
     include_nsfw?: boolean;
     mentions?: string;
+    has?: string | string[];
+    pinned?: boolean;
     offset: number;
     sort_by: "timestamp";
     sort_order: "desc";
@@ -63,6 +65,15 @@ function buildApiQuery(filters: FilterState, content: string, offset: number): S
     if (filters.channelId) query.channel_id = filters.channelId;
     if (filters.mentions) query.mentions = filters.mentions;
     if (filters.includeNSFW) query.include_nsfw = true;
+    if (filters.isPinned) query.pinned = true;
+
+    // نُمرِّر مرشّحات has/pinned إلى الخادم بدل تصفيتها عندنا فقط: كانت النتائج تُقتطَع
+    // عند حدّ الصفحات قبل أن تصل الرسائل المطابقة أصلاً، فتظهر «لا نتائج» رغم وجودها.
+    const has: string[] = [];
+    if (filters.hasAttachments) has.push("file");
+    if (filters.hasEmbeds) has.push("embed");
+    if (filters.linkDomain || filters.linkContains) has.push("link");
+    if (has.length) query.has = has;
 
     return query;
 }
@@ -142,7 +153,7 @@ function messagePassesClientFilters(message: Message, filters: FilterState): boo
     return true;
 }
 
-function getCacheKey(guildId: string, content: string, filters: FilterState): string {
+function getCacheKey(targetId: string, content: string, filters: FilterState): string {
     const filterStr = JSON.stringify({
         a: filters.authorId,
         c: filters.channelId,
@@ -158,7 +169,7 @@ function getCacheKey(guildId: string, content: string, filters: FilterState): st
         df: filters.dateFrom,
         dt: filters.dateTo
     });
-    return CACHE_PREFIX + guildId + "-" + content.toLowerCase().trim() + "-" + filterStr;
+    return CACHE_PREFIX + targetId + "-" + content.toLowerCase().trim() + "-" + filterStr;
 }
 
 async function getCachedResults(key: string): Promise<SearchResult[] | null> {
@@ -199,8 +210,14 @@ export async function loadLastQuery(): Promise<{ query: string; filters: FilterS
     }
 }
 
+/** هدف البحث: سيرفر كامل، أو قناة واحدة (وهي الطريقة الوحيدة للبحث في الرسائل الخاصة). */
+export interface SearchTarget {
+    guildId?: string;
+    channelId?: string;
+}
+
 export async function deepSearch(
-    guildId: string,
+    target: SearchTarget,
     content: string,
     filters: FilterState,
     limit: number = 100,
@@ -208,10 +225,24 @@ export async function deepSearch(
     signal?: AbortSignal
 ): Promise<SearchResult[]> {
     if (signal?.aborted) return [];
-    const cacheKey = getCacheKey(guildId, content, filters);
+    const targetId = target.guildId || target.channelId || "global";
+    const cacheKey = getCacheKey(targetId, content, filters);
     const cached = await getCachedResults(cacheKey);
     if (signal?.aborted) return [];
     if (cached) return cached;
+
+    // نقطة البحث تختلف بين السيرفر والقناة؛ بلا هذا كانت الرسائل الخاصة غير قابلة للبحث.
+    // ثوابت ديسكورد غير مُنمَّطة عندنا (any)، فلا يكشف المُصرِّف اسماً مفقوداً — نتحقّق منه
+    // وقت التنفيذ ونسقط إلى المسار الصريح المستقرّ بدل أن نرمي TypeError.
+    const searchChannel = (Constants.Endpoints as any).SEARCH_CHANNEL;
+    const endpoint = target.guildId
+        ? Constants.Endpoints.SEARCH_GUILD(target.guildId)
+        : target.channelId
+            ? (typeof searchChannel === "function"
+                ? searchChannel(target.channelId)
+                : `/channels/${target.channelId}/messages/search`)
+            : null;
+    if (!endpoint) return [];
 
     const results: SearchResult[] = [];
     const seen = new Set<string>();
@@ -225,7 +256,7 @@ export async function deepSearch(
 
         try {
             const response = await RestAPI.get({
-                url: Constants.Endpoints.SEARCH_GUILD(guildId),
+                url: endpoint,
                 query,
                 retries: 2
             }) as { body?: { messages?: Message[][]; total_results?: number; }; };
@@ -239,13 +270,19 @@ export async function deepSearch(
             for (const group of body.messages) {
                 for (const msg of group) {
                     const msgId = msg.id;
-                    if (seen.has(msgId)) continue;
+                    if (!msgId || seen.has(msgId)) continue;
+
+                    // كل مجموعة تُرجِع الرسالة المطابقة *ومعها* رسائل السياق حولها؛ الخادم
+                    // يُعلّم المطابِقة وحدها بـhit. بدون هذا كانت الجيران تُحسَب نتائج.
+                    if ("hit" in msg && !(msg as any).hit) continue;
+
                     seen.add(msgId);
 
                     if (!messagePassesClientFilters(msg, filters)) continue;
 
-                    const user = UserStore.getUser(msg.author?.id) ?? null;
-                    const channel = { id: msg.channel_id, guild_id: guildId } as Channel;
+                    // في الرسائل الخاصة قد لا يكون المؤلّف في المخزن — نرجع إلى بيانات الرسالة.
+                    const user = UserStore.getUser(msg.author?.id) ?? (msg.author as any) ?? null;
+                    const channel = { id: msg.channel_id, guild_id: target.guildId ?? "@me" } as Channel;
 
                     results.push({
                         message: msg,

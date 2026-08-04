@@ -23,6 +23,15 @@ const settings = definePluginSettings({
         description: "Clear your custom status when music stops or you disable the plugin.",
         default: true,
     },
+    // رسالة اختيارية تحلّ محلّ المسح: تُترك فارغة ⇒ يُمسَح النصّ (السلوك السابق نفسه).
+    customMessage: {
+        type: OptionType.STRING,
+        description: "Message to set instead of clearing when music stops (leave blank to clear).",
+        default: "",
+        hidden() {
+            return !settings.store.clearOnStop;
+        },
+    },
 });
 
 // ── Playback tracking ─────────────────────────────────────────────────────────
@@ -112,7 +121,7 @@ function setStatus(text: string) {
 function clearStatus() {
     lastSentLine = null;
     CustomStatusSetting?.updateSetting({
-        text: "",
+        text: settings.store.customMessage || "",
         expiresAtMs: "0",
         emojiId: "0",
         emojiName: "",

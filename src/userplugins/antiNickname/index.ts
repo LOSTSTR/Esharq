@@ -7,7 +7,7 @@
 import { definePluginSettings } from "@api/Settings";
 import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
-import { RestAPI, showToast, Toasts, UserStore } from "@webpack/common";
+import { GuildMemberStore, GuildStore, RestAPI, showToast, Toasts, UserStore } from "@webpack/common";
 
 const settings = definePluginSettings({
     showToast: {
@@ -19,6 +19,11 @@ const settings = definePluginSettings({
 
 // Guard against re-entrancy: our own PATCH triggers GUILD_MEMBER_UPDATE again.
 const resettingGuilds = new Set<string>();
+
+// آخر لقب معروف لكل سيرفر. GUILD_MEMBER_UPDATE يُطلَق أيضاً عند تغيّر وسم السيرفر أو
+// الرتب أو زينة الأفتار، وفي كل تلك الحالات يصل اللقب *الحالي* كما هو — فكانت الإضافة
+// تظنّه لقباً مفروضاً جديداً وتُطلق PATCH بلا داعٍ. نقارن بالسابق فلا نتحرّك إلا عند تغيّر فعلي.
+const knownNicks = new Map<string, string | null>();
 
 async function resetNick(guildId: string, forcedNick: string) {
     if (resettingGuilds.has(guildId)) return;
@@ -49,14 +54,35 @@ export default definePlugin({
     settings,
 
     flux: {
-        GUILD_MEMBER_UPDATE({ guildId, user, nick }: { guildId: string; user: { id: string; }; nick: string | null; }) {
+        GUILD_MEMBER_UPDATE({ guildId, user, nick }: { guildId: string; user: { id: string; }; nick?: string | null; }) {
             const me = UserStore.getCurrentUser();
-            if (!me || user.id !== me.id || !nick) return;
-            setTimeout(() => resetNick(guildId, nick), 300);
+            if (!me || user.id !== me.id) return;
+
+            const currentNick = nick ?? null;
+            const prevNick = knownNicks.get(guildId);
+            knownNicks.set(guildId, currentNick);
+
+            if (!currentNick) return;                                   // لا لقب أصلاً
+            if (prevNick !== undefined && prevNick === currentNick) return; // لم يتغيّر — حدث آخر
+
+            setTimeout(() => resetNick(guildId, currentNick), 300);
+        }
+    },
+
+    start() {
+        // لقطة أولية للألقاب الحالية، وإلا اعتُبر أوّل حدث في كل سيرفر «تغييراً».
+        knownNicks.clear();
+        const me = UserStore.getCurrentUser();
+        if (!me) return;
+        const guilds = GuildStore.getGuilds();
+        if (!guilds) return;
+        for (const guildId in guilds) {
+            knownNicks.set(guildId, GuildMemberStore.getMember(guildId, me.id)?.nick ?? null);
         }
     },
 
     stop() {
         resettingGuilds.clear();
+        knownNicks.clear();
     }
 });

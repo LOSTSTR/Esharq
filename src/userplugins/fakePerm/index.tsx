@@ -542,16 +542,12 @@ export default definePlugin({
                 match: /(#{intl::GUILD_MEMBER_MOD_VIEW_HIGHEST_ROLE}.{0,80})role:\i(?<=\[\i\.roles,\i\.highestRoleId,(\i)\].+?)/,
                 replace: (_, rest, roles) => `${rest}role:$self.getHighestRole(arguments[0],${roles})`,
             }
-        },
-        // allows you to open mod view on yourself
-        {
-            find: 'action:"PRESS_MOD_VIEW",icon:',
-            predicate: () => isEnabled && !isPluginEnabled("ShowHiddenThings"),
-            replacement: {
-                match: /\i(?=\?null)/,
-                replace: "false"
-            }
         }
+        // أُزيلت رقعة «فتح عرض الإشراف على نفسك»: كانت نسخةً حرفيةً مكرّرة من رقعة إضافة
+        // ShowHiddenThings الأساسية (نفس البحث ونفس الاستبدال)، تحرسها هنا شرطيةٌ تُعطّلها
+        // متى فُعّلت تلك الإضافة. أسقطها المصدر الأصلي ضمن «إصلاحات webpack»: صيانة رقعة
+        // واحدة في مكان واحد مُحدَّث أضمن من نسخة ثانية تتخلّف. من يريد الميزة يُفعّل
+        // ShowHiddenThings ⇐ خيار «عرض الإشراف».
     ],
 
     getHighestRole({ member }: { member: any; }, roles: any[]): any | undefined {

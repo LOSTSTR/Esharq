@@ -20,7 +20,12 @@ interface DetectionSnapshot {
     record?: DetectionRecord;
 }
 
-function useBlockState(userId: string) {
+/**
+ * @param passive في قائمة الأعضاء: اقرأ النتيجة المخزّنة فقط ولا تُطلق كشفاً جديداً.
+ * القائمة تُركّب شارةً لكلّ عضو ظاهر، فكان كل تمرير يُطلق عشرات طلبات الكشف دفعةً
+ * واحدة (وتحديثات حالة متتالية). الكشف يبقى فعّالاً في الملف الشخصي وفي الرسائل.
+ */
+function useBlockState(userId: string, passive = false) {
     const [snapshot, setSnapshot] = useState<DetectionSnapshot>(() => ({
         userId,
         record: getDetectionRecord(userId)
@@ -42,21 +47,21 @@ function useBlockState(userId: string) {
 
     useEffect(() => {
         if (!record) {
-            void ensureDetection(userId);
+            if (!passive) void ensureDetection(userId);
             return;
         }
 
         const remainingMs = record.checkedAt + getDetectionTtlMs(record.state) - Date.now();
         if (remainingMs <= 0) {
-            setSnapshot({ userId });
+            if (!passive) setSnapshot({ userId });
             return;
         }
 
         const timeout = window.setTimeout(() => {
-            setSnapshot({ userId });
+            if (!passive) setSnapshot({ userId });
         }, remainingMs);
         return () => window.clearTimeout(timeout);
-    }, [record, userId]);
+    }, [record, userId, passive]);
 
     return record?.state ?? "unknown";
 }
@@ -71,7 +76,7 @@ export interface DetectBlockBadgeProps {
 export function DetectBlockBadge({ user, isMemberList, isMessage, isProfile }: DetectBlockBadgeProps) {
     if (!user) return null;
 
-    const state = useBlockState(user.id);
+    const state = useBlockState(user.id, isMemberList);
     if (state !== "blockedYou") return null;
 
     return (

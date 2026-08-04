@@ -456,7 +456,9 @@ function renderOverlay() {
 
     shell.appendChild(list);
 
-    if (!switcherCandidates.some(candidate => candidate.channelId !== SelectedChannelStore.getChannelId())) {
+    // الشرط السابق كان «لا مرشّح يختلف عن القناة الحالية»، فإن كان المرشّح الوحيد هو القناة
+    // المفتوحة ظهرت البطاقة ورسالة «لا قنوات أخرى» معاً — متناقضتين. نعرضها عند الفراغ فقط.
+    if (!switcherCandidates.length) {
         const empty = createTextElement("div", "No other channels yet. Star channels or visit more channels to fill this menu.");
         empty.style.cssText = "padding:16px;border-radius:8px;background:var(--background-secondary-alt,#232428);color:var(--text-muted,#949ba4);font-size:13px;text-align:center;";
         list.appendChild(empty);
