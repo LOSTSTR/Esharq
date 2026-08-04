@@ -8,7 +8,7 @@ import "./VencordTab.css";
 
 import { openNotificationLogModal } from "@api/Notifications/notificationLog";
 import { plugins } from "@api/PluginManager";
-import { Settings, useSettings } from "@api/Settings";
+import { useSettings } from "@api/Settings";
 import { Button } from "@components/Button";
 import { Divider } from "@components/Divider";
 import { FormSwitch } from "@components/FormSwitch";
@@ -24,7 +24,6 @@ import BadgeAPI from "@plugins/_api/badges";
 import { gitRemote } from "@shared/vencordUserAgent";
 import { IS_WINDOWS, VC_DONOR_ROLE_ID, VC_GUILD_ID } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
-import { applyArabicFont } from "@utils/esharqFont";
 import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { isAnyPluginDev, isEsharqContributor } from "@utils/misc";
@@ -44,10 +43,9 @@ type KeysOfType<Object, Type> = {
 
 function EquicordSettings() {
     const settings = useSettings();
-    useSettings(["plugins.Settings.arabicMode", "plugins.Settings.arabicFont"]);
 
-    const arabicMode: boolean = (Settings.plugins as any)?.Settings?.arabicMode ?? false;
-    const arabicFont: boolean = (Settings.plugins as any)?.Settings?.arabicFont ?? true;
+    // إضافة التعريب اختيارية وقد لا تكون مضمّنة في كل نسخة — نقرأها بحذر لا بافتراض.
+    const arabicizerPlugin = plugins.DiscordArabicizer;
 
     const user = UserStore?.getCurrentUser();
 
@@ -294,44 +292,24 @@ function EquicordSettings() {
                 </a>.
             </Notice.Info>
 
-            <FormSwitch
-                value={arabicMode}
-                onChange={v => {
-                    (Settings.plugins as any).Settings.arabicMode = v;
-                    // اللغة مُجمّدة حتى إعادة التشغيل، فنُظهر التنبيه فوراً. نصّ t() يأتي باللغة
-                    // الحالية للجلسة (المُجمّدة): إنجليزي إن كان العميل إنجليزياً وفعّلنا العربية، والعكس.
-                    Alerts.show({
-                        title: t("إعادة تشغيل مطلوبة", "Restart Required"),
-                        body: t(
-                            "يلزم إعادة تشغيل ديسكورد لتطبيق تغيير اللغة.",
-                            "A Discord restart is required to apply the language change."
-                        ),
-                        confirmText: t("إعادة التشغيل الآن", "Restart Now"),
-                        cancelText: t("لاحقاً", "Later"),
-                        onConfirm: relaunch
-                    });
-                }}
-                title="وضع اللغة العربية / Arabic Mode"
-                description={t(
-                    "تفعيل أسماء ووصف الإضافات وإعدادات Esharq باللغة العربية.",
-                    "Enable Arabic names, descriptions, and settings for plugins and the Esharq panel."
-                )}
-                hideBorder
-            />
-
-            <FormSwitch
-                value={arabicFont}
-                onChange={v => {
-                    (Settings.plugins as any).Settings.arabicFont = v;
-                    applyArabicFont(v);
-                }}
-                title={t("خطّ التعريب العربي (Tajawal)", "Arabic Font (Tajawal)")}
-                description={t(
-                    "توحيد خطّ كل النصّ العربي (واجهة ديسكورد وواجهة Esharq والإضافات). مفعّل افتراضياً — عطّله للإبقاء على خطّ ديسكورد. يمسّ المحارف العربية فقط دون اللاتيني والأكواد.",
-                    "Unify the font of all Arabic text (Discord UI, the Esharq panel, and plugins). On by default — disable to keep Discord's font. Only Arabic glyphs are affected; Latin and code stay untouched."
-                )}
-                hideBorder
-            />
+            {/* انتقل مفتاحا التعريب (لغة الإضافات + خطّ العربية) إلى إضافة DiscordArabicizer
+                ليجتمع كلّ ما يخصّ التعريب في مكان واحد. نُبقي مؤشّراً هنا كي لا يضيعا عن
+                من اعتاد مكانهما — ويظهر فقط إن كانت الإضافة موجودة فعلاً في هذه النسخة. */}
+            {arabicizerPlugin != null && (
+                <Notice.Info className={Margins.bottom20} style={{ width: "100%" }}>
+                    {t(
+                        "انتقلت خيارات التعريب (تفعيل تعريب الإضافات، وخطّ النصوص العربية) إلى ",
+                        "The localization options (plugin localization and the Arabic font) moved to "
+                    )}
+                    <a
+                        role="button"
+                        onClick={() => openPluginModal(arabicizerPlugin)}
+                        style={{ cursor: "pointer", color: "var(--text-link)" }}
+                    >
+                        {t("إضافة DiscordArabicizer", "the DiscordArabicizer plugin")}
+                    </a>.
+                </Notice.Info>
+            )}
 
             {switches.filter((s): s is Exclude<typeof s, false> => !!s).map(
                 s => (

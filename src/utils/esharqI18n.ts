@@ -4,28 +4,30 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Settings } from "@api/Settings";
+import { prefsReady, readPluginsArabic } from "./esharqPrefs";
 
 /**
- * Frozen, per-session snapshot of the Arabic-mode flag. Captured once on the
- * first read taken AFTER the settings store is ready, then kept constant until
- * the next client restart. The `arabicMode` setting carries `restartNeeded`, so
- * toggling it takes effect on restart — at which point this re-reads the new
- * value. Freezing means EVERY `t()` call (whether evaluated at module load or at
- * render time) returns the same language, so translations can never end up in a
- * mixed half-Arabic/half-English state.
+ * Frozen, per-session snapshot of the plugin-localization flag. Captured once on
+ * the first read taken AFTER the settings store is ready, then kept constant until
+ * the next client restart. The setting carries `restartNeeded`, so toggling it
+ * takes effect on restart — at which point this re-reads the new value. Freezing
+ * means EVERY `t()` call (whether evaluated at module load or at render time)
+ * returns the same language, so translations can never end up in a mixed
+ * half-Arabic/half-English state.
+ *
+ * المفتاح يسكن الآن في إعدادات DiscordArabicizer (باسم `pluginsArabic`) بدل إضافة
+ * Settings؛ يتكفّل esharqPrefs بالقراءة وبالترحيل من المفتاح القديم.
  */
 let arabicModeSnapshot: boolean | undefined;
 
 export function isArabicMode(): boolean {
     if (arabicModeSnapshot !== undefined) return arabicModeSnapshot;
 
-    const pluginSettings = Settings.plugins as Record<string, Record<string, unknown>> | undefined;
-    const value = pluginSettings?.Settings?.arabicMode === true;
+    const value = readPluginsArabic();
     // Only lock in the snapshot once the settings store actually exists; before
     // that we return the best-effort default without freezing, so an early call
     // can't permanently capture the wrong value.
-    if (pluginSettings?.Settings != null) arabicModeSnapshot = value;
+    if (prefsReady()) arabicModeSnapshot = value;
     return value;
 }
 
