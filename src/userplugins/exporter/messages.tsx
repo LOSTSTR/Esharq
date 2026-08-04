@@ -6,10 +6,9 @@
 
 import "./styles.css";
 
-import { addHeaderBarButton, HeaderBarButton, removeHeaderBarButton } from "@api/HeaderBar";
+import { HeaderBarButton } from "@api/HeaderBar";
 import { t } from "@utils/esharqI18n";
 import { ModalCloseButton, ModalContent, ModalHeader, ModalRoot, openModal } from "@utils/esharqModals";
-import definePlugin from "@utils/types";
 import { ChannelStore, Forms, IconUtils, MessageStore, React, RestAPI, UserStore, useEffect, useState } from "@webpack/common";
 
 function ExportIcon({ width = 20, height = 20 }: { width?: number; height?: number; }) {
@@ -552,7 +551,7 @@ function ExportDMModal({ rootProps }: { rootProps: any; }) {
     );
 }
 
-function ExportButton() {
+export function ExportMessagesButton() {
     return (
         <HeaderBarButton
             icon={ExportIcon}
@@ -561,14 +560,3 @@ function ExportButton() {
         />
     );
 }
-
-export default definePlugin({
-    name: "ExportDM",
-    enabledByDefault: false,
-    description: "Exports your DMs with messages, images, videos, audio, links, embeds, stickers, reactions in TXT/JSON/CSV/MD/HTML.",
-    authors: [{ name: "Nightcord", id: 0n }],
-    dependencies: ["HeaderBarAPI"],
-
-    start() { addHeaderBarButton("esharq-export-dm", () => <ExportButton />, 4); },
-    stop() { removeHeaderBarButton("esharq-export-dm"); },
-});

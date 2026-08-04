@@ -7,6 +7,7 @@
 import { addContextMenuPatch, NavContextMenuPatchCallback, removeContextMenuPatch } from "@api/ContextMenu";
 import { t } from "@utils/esharqI18n";
 import { ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalRoot, openModal } from "@utils/esharqModals";
+import { sleep } from "@utils/misc";
 import definePlugin from "@utils/types";
 import { RelationshipType } from "@vencord/discord-types/enums";
 import { filters, find } from "@webpack";
@@ -276,7 +277,7 @@ async function floodGuild(guildId: string) {
             await addPendingRequest(user);
             sent++;
         }
-        await new Promise(r => setTimeout(r, 60));
+        await sleep(60);
     }
     toast(t(`تم إنشاء ${sent} طلب صداقة وهمي!`, `${sent} fake friend request${sent > 1 ? "s" : ""} created!`), sent > 0 ? Toasts.Type.SUCCESS : Toasts.Type.FAILURE);
 }
