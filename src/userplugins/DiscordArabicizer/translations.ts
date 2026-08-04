@@ -6670,4 +6670,58 @@ export const translations: Record<string, string> = {
     "Unknown Server": "خادم غير معروف",
     "Paid Services Terms": "شروط الخدمات المدفوعة",
     "{label}: {value}": "{label}: {value}",
+
+    // ── coverage batch 50 (الاشتراكات والفوترة · المجموعات · المُشرف الآلي · مزايا البثّ) ──
+    // ملاحظة: مفاتيح تبدأ بفاصلة أو تنتهي بنقطة هي *شظايا* تصل مفردةً من مسار الأجزاء
+    // (نصّ + عنصر React عريض)، لا جُملاً كاملة — لذا تُرجَم كما تصل بالضبط.
+    "Confirm & Pay": "تأكيد ودفع",
+    "Accept the Terms of Service and Paid Services Terms to continue": "وافق على شروط الخدمة وشروط الخدمات المدفوعة للمتابعة",
+    "Cancellation will take effect at the end of your current billing period on": "سيسري الإلغاء في نهاية دورة الفوترة الحالية بتاريخ",
+    ", you'll lose access to all your Nitro perks, including bigger file uploads and the ability to use custom emoji everywhere.": "، وستفقد الوصول إلى كل مزايا Nitro، بما فيها رفع ملفات أكبر واستخدام الإيموجي المخصّص في كل مكان.",
+    "You can restart your subscription anytime.": "يمكنك إعادة تفعيل اشتراكك في أي وقت.",
+    "Your next renewal date will be": "سيكون تاريخ تجديدك التالي",
+    "Your next renewal date will be {0}.": "سيكون تاريخ تجديدك التالي {0}.",
+    "Next Yearly Recurring": "التجديد السنوي التالي",
+    "Nitro Basic Monthly": "نيترو الأساسي الشهري",
+    "Nitro Basic Yearly": "نيترو الأساسي السنوي",
+    "{planName} Adjustment": "تسوية {planName}",
+    "{price} / Year": "{price} / سنة",
+    "Today's Total": "إجمالي اليوم",
+    "This adjustment includes prorations, discounts, applicable taxes, and refunds.": "تشمل هذه التسوية الحسابات التناسبية والخصومات والضرائب المطبَّقة والمبالغ المستردّة.",
+    "Subscriptions FAQ": "الأسئلة الشائعة عن الاشتراكات",
+    // البلد/المنطقة — نستعمل صياغة مفتاح "Country/Region" نفسه في القاموس.
+    "Completing this purchase will update your Country/Region to **{country}**. This means:\n\n- You won't be able to use a payment method from a different Country/Region\n- You won't be able to change your Country/Region again for 90 days": "سيؤدّي إتمام هذا الشراء إلى تحديث البلد/المنطقة إلى **{country}**. وهذا يعني:\n\n- لن تتمكّن من استخدام طريقة دفع من بلد/منطقة أخرى\n- لن تتمكّن من تغيير البلد/المنطقة مجدّداً لمدّة 90 يوماً",
+    "Selecting this payment method will update your account Country/Region": "سيؤدّي اختيار طريقة الدفع هذه إلى تحديث البلد/المنطقة في حسابك",
+    "This payment method can't be used in your current Country/Region": "لا يمكن استخدام طريقة الدفع هذه في بلدك/منطقتك الحالية",
+    "Connect to PayPal": "الاتصال بـPayPal",
+
+    // ── مزايا Nitro والبثّ ──
+    "View All Nitro Perks": "عرض كل مزايا Nitro",
+    "Stream in HD resolution with": "ابدأ البثّ بدقّة HD مع",
+    "Stream your clutchest moments in 4k resolution with Nitro. Or stream funny cat videos, we don't judge.": "ابثّ أروع لحظاتك بدقّة 4k مع Nitro. أو ابثّ مقاطع القطط الطريفة، لن نحكم عليك.",
+    "Unlock HD streaming in 4k at 60 fps": "افتح البثّ عالي الدقّة 4k بمعدّل 60 إطاراً في الثانية",
+    // "Bigger {0}" حيث {0} عنصر عريض نصّه "uploads": القالب يُطابَق أولاً فيخرج الترتيب
+    // عربيّاً صحيحاً («ملفات أكبر») بدل ترجمة الشظيتين كلٍّ على حدة («أكبر ملفات»).
+    "Bigger {0}": "{0} أكبر",
+    "uploads": "ملفات",
+    "custom emoji": "إيموجي مخصّص",
+    "stickers": "ملصقات",
+    "Shop This Look": "تسوّق هذا المظهر",
+    "Most used emoji lately?": "أكثر إيموجي استخدمتَه مؤخّراً؟",
+
+    // ── المجموعات الخاصّة ──
+    "Edit Group Icon": "تعديل أيقونة المجموعة",
+    "{0} changed the group name: {1}. {2}": "{0} غيّر اسم المجموعة: {1}. {2}",
+    "changed the group name:": "غيّر اسم المجموعة:",
+    "Welcome to the beginning of the {0} group.": "مرحباً بك في بداية مجموعة {0}.",
+    "Welcome to the beginning of the": "مرحباً بك في بداية",
+    "Welcome to": "مرحباً بك في",
+    "group.": "المجموعة.",
+    "channel.": "القناة.",
+
+    // ── متفرّقات ──
+    "Manage App": "إدارة التطبيق",
+    "Create New AutoMod Rule": "إنشاء قاعدة إشراف آلي جديدة",
+    "private": "خاصّ",
+    "year": "سنة",
 };

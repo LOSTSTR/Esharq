@@ -124,6 +124,12 @@ function arCount(n: number, one: string, two: string, few: string, many: string)
     return rest >= 3 && rest <= 10 ? `${n} ${few}` : `${n} ${many}`;
 }
 
+// دورات الفوترة كما تصل مفردةً داخل جُمل الاشتراك ("every year" / "every month").
+// في الصيغة المختلطة تصل نائبةً ({1}) لا كلمةً، فنُعيدها كما هي ليملأها rebuildFromTemplate.
+const PERIOD_AR: Record<string, string> = {
+    year: "سنة", month: "شهر", week: "أسبوع", day: "يوم"
+};
+
 const NUMERIC_PATTERNS: { re: RegExp; ar: (m: RegExpMatchArray) => string }[] = [
     // ── شارة الإشارات غير المقروءة ──
     // ديسكورد يرسلها بحروف عادية ("3 New Mentions") ويرفعها CSS إلى حروف كبيرة، فلا
@@ -308,7 +314,26 @@ const NUMERIC_PATTERNS: { re: RegExp; ar: (m: RegExpMatchArray) => string }[] = 
     { re: /^(\d+) Permissions? enabled$/, ar: m => arCount(+m[1], "إذن واحد مفعّل", "إذنان مفعّلان", "أذونات مفعّلة", "إذناً مفعّلاً") },
     { re: /^(\d+) accounts?$/, ar: m => arCount(+m[1], "حساب واحد", "حسابان", "حسابات", "حساباً") },
     { re: /^(\d+) connections?$/, ar: m => arCount(+m[1], "ارتباط واحد", "ارتباطان", "ارتباطات", "ارتباطاً") },
-    { re: /^You may also be sharing activity from (\d+) games you play, including$/, ar: m => `قد تشارك أيضاً نشاط ${m[1]} لعبة تلعبها، منها` }
+    { re: /^You may also be sharing activity from (\d+) games you play, including$/, ar: m => `قد تشارك أيضاً نشاط ${m[1]} لعبة تلعبها، منها` },
+    // ── إقرار الاشتراك المتجدّد (السعر والتاريخ والدورة مخبوزة → لا يصلح مفتاح قاموس) ──
+    // يصل بصيغتين: نصّاً كاملاً، أو قالباً مختلطاً فيه نائبتان ({0} زرّ التأكيد، {1} الدورة)؛
+    // نمط واحد يغطّيهما لأنّ PERIOD_AR يُعيد النائبة كما هي حين لا تكون كلمة دورة.
+    {
+        re: /^By clicking ['‘’](.+?)['‘’], you are signing up for a recurring subscription\. You['‘’]ll be charged (.+?) today, then (.+?) plus applicable taxes every (\S+) starting (.+?) until you cancel\. Prices subject to change\. Cancel anytime in your Settings\.$/,
+        ar: m => `بالنقر على «${lookup(m[1]) ?? m[1]}»، أنت تشترك في اشتراك متجدّد تلقائياً. سيُخصم منك ${m[2]} اليوم، ثم ${m[3]} زائد الضرائب المطبَّقة كل ${PERIOD_AR[m[4]] ?? m[4]} ابتداءً من ${m[5]} حتى تُلغي. الأسعار عرضة للتغيير. يمكنك الإلغاء في أي وقت من الإعدادات.`
+    },
+    // شارة التوفير على الخطّة السنوية ("2 months free!")
+    { re: /^(\d+) months? free!$/, ar: m => `${arCount(+m[1], "شهر واحد", "شهران", "أشهر", "شهراً")} مجاناً!` },
+    // سطر التسويات في فاتورة الشراء (المبلغ مخبوز)
+    { re: /^Total adjustments (.+)$/, ar: m => `إجمالي التسويات ${m[1]}` },
+    // تاريخ تأسيس الخادم في بطاقته ("Est. Oct 2024") — يبقى التاريخ بصيغة ديسكورد
+    { re: /^Est\. (.+)$/, ar: m => `تأسّس ${m[1]}` },
+    // مدد قصيرة في قوائم الإشراف الآلي/الوضع البطيء
+    { re: /^\((\d+) secs?\)$/, ar: m => `(${m[1]} ثانية)` },
+    { re: /^(\d+) secs?$/, ar: m => `${m[1]} ثانية` },
+    { re: /^(\d+)-day$/, ar: m => `${m[1]} يوماً` },
+    // اسم قاعدة الإشراف الآلي في قائمة السياق ("Filter (1 Word)")
+    { re: /^Filter \((\d+) Words?\)$/, ar: m => `تصفية (${m[1]} كلمة)` }
 ];
 
 function numericTemplate(text: string): string | null {
@@ -493,6 +518,13 @@ function translatePartsArray(parts: any[]): any {
     }
     const arTmpl = lookup(template);
     if (arTmpl != null) return rebuildFromTemplate(arTmpl, placeholders);
+
+    // نمط رقمي على *القالب* نفسه: القوالب المختلطة التي فيها سعر/تاريخ/عدد مخبوز لا تصلح
+    // مفاتيحَ قاموس (القيمة تتغيّر)، وكان هذا المسار الوحيد الذي لا يجرّب الأنماط — فتُقطَّع
+    // الجملة إلى شظايا في المسار (ج) ويخرج ترتيبها العربي مقلوباً. الأنماط التي تُنتج {0}
+    // موجودة أصلاً في القائمة أعلاه، وهذا يجعلها تعمل هنا أيضاً بترتيب صحيح.
+    const numTmpl = numericTemplate(template);
+    if (numTmpl != null) return rebuildFromTemplate(numTmpl, placeholders);
 
     // (ج) ترجمة كل جزء نصّي على حدة (يحلّ الأوصاف ذات الروابط)، مع حفظ المسافات والعناصر.
     let changed = false;
