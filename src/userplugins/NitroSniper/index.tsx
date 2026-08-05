@@ -10,14 +10,21 @@ import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
 import { findByPropsLazy } from "@webpack";
-import { NavigationRouter, React, UserStore } from "@webpack/common";
+import { ChannelStore, NavigationRouter, React, UserStore } from "@webpack/common";
 
 const logger = new Logger("NitroSniper");
 const GiftActions = findByPropsLazy("redeemGiftCode");
 
 let startTime = 0;
 let claiming = false;
-const codeQueue: Array<{ code: string; channelId: string; guildId?: string; messageId: string; }> = [];
+const codeQueue: Array<{
+    code: string;
+    channelId: string;
+    guildId?: string;
+    messageId: string;
+    /** Who posted the code — shown in the notification so a claim is traceable to its source. */
+    senderName?: string;
+}> = [];
 
 const settings = definePluginSettings({
     ignoreOwnGiftLinks: {
@@ -41,7 +48,7 @@ function processQueue() {
     if (claiming || !codeQueue.length) return;
 
     claiming = true;
-    const { code, channelId, guildId, messageId } = codeQueue.shift()!;
+    const { code, channelId, guildId, messageId, senderName } = codeQueue.shift()!;
 
     logger.log(`Attempting to redeem code: ${code} (channel: ${channelId}, guild: ${guildId ?? "dm"})`);
 
@@ -54,7 +61,9 @@ function processQueue() {
 
             showNotification({
                 title: "Nitro Sniped! 🎉",
-                body: `Successfully redeemed ${giftType} code`,
+                body: senderName
+                    ? t(`استُبدل كود ${giftType} من ${senderName}`, `Redeemed a ${giftType} code from ${senderName}`)
+                    : t(`استُبدل كود ${giftType}`, `Successfully redeemed ${giftType} code`),
                 color: "#5865F2",
                 icon: user.getAvatarURL(),
                 onClick: () => {
@@ -74,7 +83,9 @@ function processQueue() {
 
             showNotification({
                 title: "Nitro Redeem Failed ❌",
-                body: `Failed to redeem code: ${code}`,
+                body: senderName
+                    ? t(`فشل استبدال كود من ${senderName}`, `Failed to redeem a code from ${senderName}`)
+                    : t(`فشل استبدال الكود: ${code}`, `Failed to redeem code: ${code}`),
                 color: "#ED4245",
                 icon: user.getAvatarURL(),
                 onClick: () => {
@@ -112,6 +123,7 @@ export default definePlugin({
     name: "NitroSniper",
     description: "Automatically redeems Nitro gift links sent in chat.\n\n⚠️ WARNING: This plugin automatically redeems Nitro gift codes found in chat. This may violate Discord's Terms of Service and could result in account suspension. Use at your own risk.",
     tags: ["Utility", "Fun"],
+    searchTerms: ["nitro", "gift", "redeem", "snipe", "نيترو", "هدية"],
     authors: [
         { name: "neoarz", id: 1015372540937502851n },
         { name: "irritably", id: 928787166916640838n }
@@ -138,6 +150,13 @@ export default definePlugin({
         claiming = false;
     },
 
+    stop() {
+        // Disabling mid-claim would otherwise leave the claiming flag raised and stale entries
+        // queued, so the next enable would redeem codes from a session that already ended.
+        codeQueue.length = 0;
+        claiming = false;
+    },
+
     flux: {
         MESSAGE_CREATE({ message }) {
             if (!message.content) return;
@@ -148,11 +167,18 @@ export default definePlugin({
 
             if (new Date(message.timestamp).getTime() < startTime) return;
 
+            // MESSAGE_CREATE does not reliably include guild_id, and without it the jump link
+            // below resolves to /channels/@me/<guild channel>/<id> and goes nowhere. The channel
+            // store is authoritative; the payload field stays as a fallback. Same order our
+            // autoClaim plugin already uses.
+            const channel = ChannelStore.getChannel(message.channel_id);
+
             codeQueue.push({
                 code: match[1],
                 channelId: message.channel_id,
-                guildId: message.guild_id,
-                messageId: message.id
+                guildId: channel?.guild_id ?? message.guild_id,
+                messageId: message.id,
+                senderName: message.author?.globalName ?? message.author?.username
             });
             processQueue();
         }
