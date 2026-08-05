@@ -144,6 +144,65 @@ const EsharqCustomChatBadge = ({ userId }: { userId: string; }) => {
     );
 };
 
+// Esharq self-service supporter badge — the member's own image, own hover text and own effect,
+// all from selfserve.json.
+//
+// A `component:` badge rather than an iconSrc one, and that is forced rather than stylistic:
+// Discord replaces the className on an iconSrc badge, which is why every other Esharq effect is
+// targeted through the aria-label (see esharqBadges.css). That cannot work here, because the
+// hover text is free-form — there is no stable string to match on. Rendering our own component
+// gives the className back, which is what makes a per-member effect possible at all.
+const EsharqSelfServeBadge: ProfileBadge = {
+    id: "esharq_selfserve_badge",
+    description: "داعم إشراق · Esharq Supporter",
+    position: BadgePosition.START,
+    shouldShow: ({ userId }) => EsharqSelfServeBadges[userId]?.live?.image != null,
+    component: ({ userId }: ProfileBadge & BadgeUserArgs) => {
+        const live = EsharqSelfServeBadges[userId]?.live;
+        if (!live?.image) return null;
+        return (
+            <Tooltip text={live.tooltip || " "}>
+                {({ onMouseEnter, onMouseLeave }) => (
+                    <span
+                        className={selfServeClass("esharq-selfserve-badge", live.effect)}
+                        role="img"
+                        aria-label={live.tooltip || "Esharq Supporter"}
+                        onMouseEnter={onMouseEnter}
+                        onMouseLeave={onMouseLeave}
+                        onClick={e => { e.stopPropagation(); EquicordDonorModal(); }}
+                    >
+                        <img src={live.image} alt="" />
+                    </span>
+                )}
+            </Tooltip>
+        );
+    },
+    // ⚠️ Same caveat as the Custom badge: onClick on a `component:` ProfileBadge is IGNORED by
+    // the badge API, so the click is wired inside the <span> above instead.
+};
+
+// The self-service badge also shows inline in chat, like the donor/dev/contributor/custom ones.
+const EsharqSelfServeChatBadge = ({ userId }: { userId: string; }) => {
+    const live = EsharqSelfServeBadges[userId]?.live;
+    if (!live?.image) return null;
+    return (
+        <Tooltip text={live.tooltip || " "}>
+            {({ onMouseEnter, onMouseLeave }) => (
+                <span
+                    className={selfServeClass("esharq-selfserve-chat-badge", live.effect)}
+                    role="img"
+                    aria-label={live.tooltip || "Esharq Supporter"}
+                    onMouseEnter={onMouseEnter}
+                    onMouseLeave={onMouseLeave}
+                    onClick={e => { e.stopPropagation(); EquicordDonorModal(); }}
+                >
+                    <img src={live.image} alt="" />
+                </span>
+            )}
+        </Tooltip>
+    );
+};
+
 // Esharq Contributor badge — a shared circular EA image with a spinning RGB ring. Granted to
 // everyone in EsharqContributors (seeded with the whole dev team). Profile only. Uses iconSrc
 // (not component) so Discord shows the description tooltip ("مساهم إشراق · Esharq Contributor"),
@@ -213,6 +272,26 @@ let EsharqDonorBadges = {} as Record<string, Array<Record<"tooltip" | "badge", s
 // Data-driven so a member's image AND hover text can change with NO rebuild (edit the JSON).
 let EsharqCustomBadges = {} as Record<string, { image: string; tooltip?: string; }>;
 
+// Esharq self-service supporter badges (Esharq-Bored/badges/selfserve.json). A supporter sets
+// their own image, hover text and effect with /badge in the Esharq server; a moderator approves
+// it and the entry appears here on the next refetch — no rebuild, no release.
+//
+// Only `live` is rendered. A submission awaiting review is never published (its image stays
+// inside the private review channel until approval), so nothing unreviewed can reach a client.
+interface SelfServeEntry {
+    live?: { image: string; tooltip?: string; effect?: string; };
+}
+let EsharqSelfServeBadges = {} as Record<string, SelfServeEntry>;
+
+// Effects the client knows how to draw (see esharqBadges.css). Anything else — a typo, or a
+// newer effect added server-side before a client update — falls back to no effect rather than
+// rendering a broken badge, which is what keeps the JSON forward-compatible.
+const SELF_SERVE_EFFECTS = ["gleam", "rgb", "pulse", "aurora", "silver"];
+
+function selfServeClass(base: string, effect?: string): string {
+    return effect && SELF_SERVE_EFFECTS.includes(effect) ? `${base} esharq-fx-${effect}` : base;
+}
+
 async function loadBadges(url: string, noCache = false) {
     const init = {} as RequestInit;
     if (noCache) init.cache = "no-cache";
@@ -233,11 +312,15 @@ async function loadAllBadges(noCache = false) {
     // donor/custom JSONs. Isolated with catch so a missing/malformed file leaves the
     // compiled seed in place (setEsharqTeam falls back) without breaking the other loads.
     const esharqTeam = await loadBadges("https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/team.json", noCache).catch(() => null);
+    // Self-service supporter badges. Isolated with catch because this file does not exist until
+    // the first badge is approved — a 404 must leave the other badge sets working.
+    const esharqSelfServe = await loadBadges("https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges/selfserve.json", noCache).catch(() => null);
 
     DonorBadges = vencordBadges;
     EquicordDonorBadges = esharqBadges;
     EsharqDonorBadges = esharqBadges;
     EsharqCustomBadges = esharqCustom;
+    EsharqSelfServeBadges = esharqSelfServe ?? {};
     setEsharqTeam(esharqTeam);
 }
 
@@ -334,7 +417,7 @@ export default definePlugin({
 
     // Listed in reverse display order: every START badge is unshifted, so the last one here
     // ends up first. This puts the Esharq Developer badge first, then the Custom badge.
-    userProfileBadges: [UserPluginContributorBadge, EquicordContributorBadge, ContributorBadge, EsharqContributorBadge, EsharqCustomBadge, EsharqDeveloperBadge],
+    userProfileBadges: [UserPluginContributorBadge, EquicordContributorBadge, ContributorBadge, EsharqContributorBadge, EsharqSelfServeBadge, EsharqCustomBadge, EsharqDeveloperBadge],
 
     async start() {
         await loadAllBadges();
@@ -356,6 +439,10 @@ export default definePlugin({
             const id = message?.author?.id ?? "";
             return id in EsharqCustomBadges ? <EsharqCustomChatBadge userId={id} /> : null;
         });
+        addMessageDecoration("esharq-selfserve", ({ message }) => {
+            const id = message?.author?.id ?? "";
+            return EsharqSelfServeBadges[id]?.live?.image ? <EsharqSelfServeChatBadge userId={id} /> : null;
+        });
     },
 
     async stop() {
@@ -364,6 +451,7 @@ export default definePlugin({
         removeMessageDecoration("esharq-donor");
         removeMessageDecoration("esharq-contributor");
         removeMessageDecoration("esharq-custom");
+        removeMessageDecoration("esharq-selfserve");
     },
 
     getBadges(profile: { userId: string; guildId: string; }) {

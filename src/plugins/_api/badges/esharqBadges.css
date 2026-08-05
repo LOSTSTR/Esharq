@@ -174,6 +174,161 @@
     object-fit: cover;
 }
 
+/* ══ Self-service supporter badges ═══════════════════════════════════════════════════════
+ * Image, hover text AND effect are all per-member, chosen by the supporter with /badge and
+ * approved by a moderator; they arrive from Esharq-Bored/badges/selfserve.json with no rebuild.
+ *
+ * These are COMPONENT badges, unlike the donor/dev/contributor ones above, and that is forced
+ * by the constraint documented at the top of this file: Discord replaces the className on an
+ * iconSrc badge, so those effects have to be targeted through the aria-label. That approach
+ * cannot work here, because the hover text is free-form — there is no stable string to match.
+ * Rendering our own component hands the className back, which is what makes a per-member
+ * effect possible at all.
+ *
+ * Sizes deliberately match the rest of the Esharq set: 22px in the profile, 20px in chat,
+ * 0 2px margin (a 4px gap between neighbours), rings inset 2px to fit that spacing.
+ * ═════════════════════════════════════════════════════════════════════════════════════════ */
+
+.esharq-selfserve-badge {
+    position: relative;
+    display: inline-flex;
+    width: 22px;
+    height: 22px;
+    margin: 0 2px;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.esharq-selfserve-chat-badge {
+    position: relative;
+    display: inline-flex;
+    width: 20px;
+    height: 20px;
+    margin: 0 2px;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+/* «بريق العملة» — نفس مؤثّر شارة المتبرّعين الحالي تماماً */
+.esharq-fx-gleam::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1.5px rgb(227 194 90 / 55%), 0 0 9px rgb(227 194 90 / 40%);
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* «حلقة ألوان دوّارة» */
+.esharq-fx-rgb::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    background: conic-gradient(#f04, #ff8c00, #ffe600, #00e676, #00b0ff, #7c4dff, #f04);
+    mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
+    animation: esharq-fx-spin 3s linear infinite;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* «نبض ذهبي» */
+.esharq-fx-pulse::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    animation: esharq-fx-pulse 2s ease-in-out infinite;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* «شفق متدرّج» — نفس دوران حلقة الألوان بتدرّج أهدأ وأبطأ */
+.esharq-fx-aurora::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #7ef9ff, #a06bff, #ff6ec7, #7ef9ff);
+    mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 1px));
+    animation: esharq-fx-spin 6s linear infinite;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* «حافة فضّية» */
+.esharq-fx-silver::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1.5px rgb(216 222 233 / 75%), 0 0 7px rgb(216 222 233 / 35%);
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* ومضة اللمعان تمرّ فوق وجه الشارة (بريق العملة والحافة الفضّية) */
+.esharq-fx-gleam::after,
+.esharq-fx-silver::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background-size: 260% 260%;
+    animation: esharq-coin-gleam 3.2s ease-in-out infinite;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.esharq-fx-gleam::after {
+    background: linear-gradient(115deg, transparent 42%, rgb(255 246 216 / 80%) 50%, transparent 58%);
+}
+
+.esharq-fx-silver::after {
+    background: linear-gradient(115deg, transparent 44%, rgb(255 255 255 / 65%) 50%, transparent 56%);
+    animation-duration: 4.5s;
+}
+
+/* بلا مؤثّر: تُعرض الصورة كاملة بلا قصّ — كما اختار المالك للشارة المخصّصة */
+.esharq-selfserve-badge img,
+.esharq-selfserve-chat-badge img {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* مع أي مؤثّر حلقيّ تُقصّ الصورة دائريّاً كي تنطبق الحلقة على حافتها */
+.esharq-fx-gleam img,
+.esharq-fx-rgb img,
+.esharq-fx-pulse img,
+.esharq-fx-aurora img,
+.esharq-fx-silver img {
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+@keyframes esharq-fx-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes esharq-fx-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 1.5px rgb(251 191 36 / 70%), 0 0 4px rgb(251 191 36 / 25%);
+    }
+
+    50% {
+        box-shadow: 0 0 0 1.5px rgb(251 191 36 / 90%), 0 0 12px rgb(251 191 36 / 65%);
+    }
+}
+
+/* لا تجميد للحركة عند تفضيل «تقليل الحركة»: قرار المالك (٢٠٢٦-٠٧-١٥) أنّ المؤثّرات تعمل
+ * دائماً، وقد سبق أن أزال كتلة مماثلة كانت تُجمّد كل حركات المشروع. */
+
 /* Both profile badges (Developer + Contributor) are iconSrc badges targeted via their
  * aria-label (the description tooltip). They share the same round image + hover styling;
  * only the ::before ring gradient differs (gold for Developer, RGB rainbow for Contributor).
