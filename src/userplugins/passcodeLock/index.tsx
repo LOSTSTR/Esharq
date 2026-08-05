@@ -48,16 +48,14 @@ function getUserAssets() {
     return { avatarUrl, username: user.globalName || user.username || "User" };
 }
 
-function escapeHtml(text: string) {
-    return text.replace(/[&<>"']/g, char => {
-        switch (char) {
-            case "&": return "&amp;";
-            case "<": return "&lt;";
-            case ">": return "&gt;";
-            case "\"": return "&quot;";
-            default: return "&#39;";
-        }
-    });
+/**
+ * Make a URL safe to interpolate into a CSS `url('…')`. HTML escaping was used here before and
+ * was both wrong and ineffective: entities stay literal inside a CSS string, while the characters
+ * that can actually break out — quotes, backslashes, newlines and parentheses — passed straight
+ * through. encodeURI leaves a working URL and removes all of them.
+ */
+function cssUrl(url: string) {
+    return encodeURI(url).replace(/['"()\\]/g, "");
 }
 
 const DS_KEY = "PasscodeLock_data";
@@ -570,8 +568,8 @@ function PasscodeLocker({ type, button, onDone }: LockerProps) {
         <div className="pcl-layout" ref={rootRef}>
             <div className="pcl-layout-bg" />
             <div className="pcl-controls">
-                <div id="vcl-avatar" style={{ backgroundImage: `url('${escapeHtml(avatarUrl)}')` }} className="pcl-animate" />
-                <p id="vcl-username" className="pcl-animate">{escapeHtml(username)}</p>
+                <div id="vcl-avatar" style={{ backgroundImage: `url('${cssUrl(avatarUrl)}')` }} className="pcl-animate" />
+                <p id="vcl-username" className="pcl-animate">{username}</p>
                 <p id="vcl-sub" className="pcl-animate">{title}</p>
 
                 <div id="vcl-input-wrap" className="pcl-animate">
@@ -701,10 +699,13 @@ function openLocker(type: LockType, button: HTMLElement | null, onSuccess?: (new
                 }
 
                 if (success && type === "editor" && newCode) {
-                    hashCode(newCode).then(({ hash, salt, iterations }) => {
+                    hashCode(newCode).then(({ hash, salt, iterations, kdf }) => {
                         data.hash = hash;
                         data.salt = salt;
                         data.iterations = iterations;
+                        // MUST be stored: hasPasscode() refuses a hash whose KDF it cannot verify,
+                        // so omitting this makes a freshly set passcode look like no passcode at all.
+                        data.kdf = kdf;
                         saveData();
                         showToast(t("تم تحديث الرمز!", "Passcode has been updated!"), Toasts.Type.SUCCESS);
                     }).catch(e => {
@@ -793,7 +794,7 @@ export default definePlugin({
                         openLocker("editor", document.body, () => force(n => n + 1));
                     }}
                 >
-                    {hasPasscode(data) ? t("تعديل الرمز", "Edit Passcode") : t("إعداد الرمز", "Set Up Passcode")}
+                    {hasPasscode(data) ? t("تغيير الرمز", "Change Passcode") : t("إعداد الرمز", "Set Up Passcode")}
                 </button>
                 <button
                     style={{ padding: "8px 14px", borderRadius: "4px", background: "transparent", color: "var(--text-normal, #fff)", border: "1px solid var(--background-modifier-accent, #555)", cursor: "pointer" }}
@@ -803,7 +804,7 @@ export default definePlugin({
                         }
                         lock(document.body);
                     }}>
-                    Lock Discord Now
+                    {t("اقفل ديسكورد الآن", "Lock Discord Now")}
                 </button>
             </div>
         );
