@@ -333,7 +333,26 @@ const NUMERIC_PATTERNS: { re: RegExp; ar: (m: RegExpMatchArray) => string }[] = 
     { re: /^(\d+) secs?$/, ar: m => `${m[1]} ثانية` },
     { re: /^(\d+)-day$/, ar: m => `${m[1]} يوماً` },
     // اسم قاعدة الإشراف الآلي في قائمة السياق ("Filter (1 Word)")
-    { re: /^Filter \((\d+) Words?\)$/, ar: m => `تصفية (${m[1]} كلمة)` }
+    { re: /^Filter \((\d+) Words?\)$/, ar: m => `تصفية (${m[1]} كلمة)` },
+
+    // ── دفعة ٥١: عدّادات نتائج البحث والوسائط ──
+    // «38,179 Results» — الفاصلة جزء من الرقم فتُلتقط معه
+    { re: /^([\d,]+) Results?$/, ar: m => `${m[1]} نتيجة` },
+    { re: /^(\d+) Messages? ›$/, ar: m => `${m[1]} رسالة ›` },
+    { re: /^(\d+) lines?$/, ar: m => `${m[1]} سطر` },
+    { re: /^(\d+) images?$/, ar: m => `${m[1]} صورة` },
+    { re: /^Uploading (\d+) Files?$/, ar: m => `جارٍ رفع ${m[1]} ملف` },
+    { re: /^Filters \((\d+)\)$/, ar: m => `المرشّحات (${m[1]})` },
+    // عدّاد تنازلي مضغوط في المهامّ («14D 18H»)
+    { re: /^(\d+)D (\d+)H$/, ar: m => `${m[1]} يوم و${m[2]} ساعة` },
+    { re: /^Want to make it easier to follow this chain of (\d+) replies\?$/, ar: m => `أتريد تسهيل متابعة سلسلة الردود هذه البالغة ${m[1]} ردود؟` },
+
+    // ⚠️ يمرّر ديسكورد أحياناً NaN بدل العدد (خلل عنده) — نقبله كما هو بدل أن يبقى السطر إنجليزيّاً
+    { re: /^(.+?), (.+?), and (\d+|NaN) others are currently in voice$/, ar: m => `${m[1]} و${m[2]} و${m[3]} آخرون في الصوت حالياً` },
+    { re: /^(.+?), (.+?), (.+?), and (\d+|NaN) others$/, ar: m => `${m[1]} و${m[2]} و${m[3]} و${m[4]} آخرون` },
+    { re: /^Added (.+?)\. (\d+|NaN) recipients selected\.$/, ar: m => `أُضيف ${m[1]}. ${m[2]} مستلماً محدَّداً.` },
+    { re: /^(\d+|NaN) mentions, (.+?) \(announcement channel\)$/, ar: m => `${m[1]} إشارة، ${m[2]} (قناة إعلانات)` },
+    { re: /^You have (\d+|NaN) hours? left to get (.+?) off Nitro Yearly$/, ar: m => `أمامك ${m[1]} ساعة للحصول على خصم ${m[2]} على نيترو السنوي` }
 ];
 
 function numericTemplate(text: string): string | null {
