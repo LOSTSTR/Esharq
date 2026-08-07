@@ -12,8 +12,8 @@ import { classNameFactory } from "@utils/css";
 import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import { useForceUpdater } from "@utils/react";
-import { findComponentByCodeLazy, findStoreLazy } from "@webpack";
-import { Button, ContextMenuApi, FluxDispatcher, useCallback, useEffect, useRef, UserStore, useState, useStateFromStores } from "@webpack/common";
+import { findComponentByCodeLazy } from "@webpack";
+import { Button, ChannelRTCStore, ContextMenuApi, FluxDispatcher, useCallback, useEffect, useRef, UserStore, useState, useStateFromStores } from "@webpack/common";
 
 import channelTabs from "..";
 import BookmarkContainer, { HorizontalScroller } from "./BookmarkContainer";
@@ -23,7 +23,6 @@ import { BasicContextMenu } from "./ContextMenus";
 type TabSet = Record<string, ChannelTabsProps[]>;
 
 const PlusSmallIcon = findComponentByCodeLazy("0v-5h5a1");
-const ChannelRTCStore = findStoreLazy("ChannelRTCStore");
 
 const cl = classNameFactory("vc-channeltabs-");
 
@@ -98,7 +97,7 @@ export default function ChannelsTabsContainer(props: BasicChannelTabsProps) {
         "newTabButtonBehavior"
     ]);
     const GhostTabs = useGhostTabs();
-    const isFullscreen = useStateFromStores([ChannelRTCStore], () => ChannelRTCStore.isFullscreenInContext() ?? false);
+    const isFullscreen = useStateFromStores([], () => ChannelRTCStore.isFullscreenInContext() ?? false);
 
     const _update = useForceUpdater();
     const update = useCallback((save = true) => {

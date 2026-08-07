@@ -13,9 +13,7 @@ import { t } from "@utils/esharqI18n";
 import { classes } from "@utils/misc";
 import { Guild, RenderModalProps } from "@vencord/discord-types";
 import { findCssClassesLazy } from "@webpack";
-import { Button, closeModal, IconUtils, Modal,openModal, useStateFromStores } from "@webpack/common";
-
-import { SortedGuildStore } from "..";
+import { Button, closeModal, IconUtils, Modal, openModal, SortedGuildStore, useStateFromStores } from "@webpack/common";
 
 const cl = classNameFactory("vc-hideservers-");
 const IconClasses = findCssClassesLazy("icon", "acronym", "childWrapper");

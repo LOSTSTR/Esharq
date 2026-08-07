@@ -24,8 +24,8 @@ import { getIntlMessage } from "@utils/discord";
 import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
-import { findByPropsLazy, findStoreLazy } from "@webpack";
-import { FluxDispatcher } from "@webpack/common";
+import { findByPropsLazy } from "@webpack";
+import { ExpandedGuildFolderStore, FluxDispatcher, SortedGuildStore } from "@webpack/common";
 import { ReactNode } from "react";
 
 import FolderSideBar from "./FolderSideBar";
@@ -36,8 +36,6 @@ enum FolderIconDisplay {
     MoreThanOneFolderExpanded
 }
 
-export const ExpandedGuildFolderStore = findStoreLazy("ExpandedGuildFolderStore");
-export const SortedGuildStore = findStoreLazy("SortedGuildStore");
 const FolderUtils = findByPropsLazy("move", "toggleGuildFolderExpand");
 
 let lastGuildId = null as string | null;

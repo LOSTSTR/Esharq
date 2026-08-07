@@ -54,12 +54,7 @@ export const enum TimestampMode {
     CUSTOM,
 }
 
-export const settings = definePluginSettings({
-    config: {
-        type: OptionType.COMPONENT,
-        component: RPCSettings
-    },
-}).withPrivateSettings<{
+export interface RpcConfig {
     appID?: string;
     appName?: string;
     details?: string;
@@ -83,7 +78,14 @@ export const settings = definePluginSettings({
     buttonTwoURL?: string;
     partySize?: number;
     partyMaxSize?: number;
-}>();
+}
+
+export const settings = definePluginSettings({
+    config: {
+        type: OptionType.COMPONENT,
+        component: RPCSettings
+    },
+}).withPrivateSettings<RpcConfig>();
 
 async function createActivity(): Promise<Activity | undefined> {
     const {

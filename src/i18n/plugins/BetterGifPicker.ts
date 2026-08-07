@@ -10,11 +10,5 @@ export default definePluginI18n({
     "description": {
         "ar": "يُحسّن محدد GIF ويُضيف تصفية حسب الفئة",
         "en": "Improves the GIF picker and adds category filtering."
-    },
-    "options": {
-        "keepOpen": {
-            "ar": "إبقاء منتقي الـ GIF مفتوحاً بعد الاختيار",
-            "en": "Keep the GIF picker open after selecting a GIF."
-        }
     }
 });

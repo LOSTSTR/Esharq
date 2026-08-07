@@ -26,8 +26,7 @@ import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
-import { findStoreLazy } from "@webpack";
-import { GuildStore, PresenceStore, RelationshipStore, Tooltip, useStateFromStores } from "@webpack/common";
+import { GuildStore, PresenceStore, RelationshipStore, Tooltip, UserGuildJoinRequestStore, useStateFromStores } from "@webpack/common";
 
 const enum IndicatorType {
     SERVER = 1 << 0,
@@ -37,8 +36,6 @@ const enum IndicatorType {
 
 let onlineFriendsCount = 0;
 let guildCount = 0;
-
-const UserGuildJoinRequestStore = findStoreLazy("UserGuildJoinRequestStore");
 
 function FriendsIndicator() {
     onlineFriendsCount = useStateFromStores([RelationshipStore, PresenceStore], () => {

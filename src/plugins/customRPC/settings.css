@@ -16,6 +16,23 @@
     width: 100%;
 }
 
+.vc-customRPC-settings-presets {
+    display: grid;
+    gap: 0.5em;
+}
+
+.vc-customRPC-settings-preset-create {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.5em;
+}
+
+.vc-customRPC-settings-preset-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 0.5em;
+}
+
 .vc-customRPC-settings-single {
     display: grid;
     gap: 0.5em;
@@ -28,23 +45,4 @@
 
 .vc-customRPC-settings-error {
     color: var(--text-feedback-critical);
-}
-
-.vc-customRPC-settings-notice {
-    display: flex;
-    gap: 0.5em;
-    padding: 0.6em 0.75em;
-    border-radius: 6px;
-    border-left: 3px solid var(--text-feedback-warning, var(--text-warning));
-    background: var(--background-secondary);
-    color: var(--text-secondary);
-}
-
-.vc-customRPC-settings-preview {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 8px;
-    background: var(--background-secondary);
-    justify-self: start;
 }

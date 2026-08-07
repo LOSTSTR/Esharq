@@ -8,25 +8,30 @@ import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
+import { Channel } from "@vencord/discord-types";
 import { Menu, NavigationRouter, RestAPI, Toasts, UserStore } from "@webpack/common";
 
 async function findLastMessageFromUser(guildId: string, channelId: string, userId: string) {
     try {
+        const isDM = guildId === "@me";
         const res = await RestAPI.get({
-            url: `/guilds/${guildId}/messages/search?author_id=${userId}&channel_id=${channelId}&sort_by=timestamp&sort_order=desc&offset=0`
+            url: isDM
+                ? `/channels/${channelId}/messages/search`
+                : `/guilds/${guildId}/messages/search`,
+            query: {
+                author_id: userId,
+                channel_id: channelId,
+                sort_by: "timestamp",
+                sort_order: "desc",
+                offset: 0
+            }
         });
 
-        const allMessages = res.body.messages?.flat() || [];
-        const newestMessage = allMessages.find(msg => msg && msg.id);
+        const messageId = res.body.messages
+            ?.flat()
+            .find(msg => msg?.author?.id === userId)?.id;
 
-        if (newestMessage) return newestMessage.id;
-
-        Toasts.show({
-            type: Toasts.Type.FAILURE,
-            message: t("لم يُعثَر على أي رسائل حديثة من هذا المستخدم.", "Couldn't find any recent messages from this user."),
-            id: Toasts.genId()
-        });
-        return null;
+        if (messageId) return messageId;
     } catch (error) {
         console.error("Error finding last message:", error);
         Toasts.show({
@@ -36,32 +41,32 @@ async function findLastMessageFromUser(guildId: string, channelId: string, userI
         });
         return null;
     }
+
+    Toasts.show({
+        type: Toasts.Type.FAILURE,
+        message: t("لم يُعثَر على أي رسائل حديثة من هذا المستخدم.", "Couldn't find any recent messages from this user."),
+        id: Toasts.genId()
+    });
+    return null;
 }
 
-async function jumpToLastActive(channel: any, targetUserId?: string) {
-    try {
-        if (!channel) {
-            Toasts.show({
-                type: Toasts.Type.FAILURE,
-                message: t("معلومات القناة غير متاحة.", "Channel information not available."),
-                id: Toasts.genId()
-            });
-            return;
-        }
-        const guildId = channel.guild_id !== null ? channel.guild_id : "@me";
-        const channelId = channel.id;
-        let userId: string;
-        if (targetUserId) {
+async function jumpToLastActive(channel: Channel, targetUserId?: string) {
+    if (!channel) {
+        Toasts.show({
+            type: Toasts.Type.FAILURE,
+            message: t("معلومات القناة غير متاحة.", "Channel information not available."),
+            id: Toasts.genId()
+        });
+        return;
+    }
 
-            userId = targetUserId;
-        } else {
-            const currentUser = UserStore.getCurrentUser();
-            userId = currentUser.id;
-        }
-        const messageId = await findLastMessageFromUser(guildId, channelId, userId);
+    try {
+        const guildId = channel.guild_id ?? "@me";
+        const userId = targetUserId ?? UserStore.getCurrentUser().id;
+
+        const messageId = await findLastMessageFromUser(guildId, channel.id, userId);
         if (messageId) {
-            const url = `/channels/${guildId}/${channelId}/${messageId}`;
-            NavigationRouter.transitionTo(url);
+            NavigationRouter.transitionTo(`/channels/${guildId}/${channel.id}/${messageId}`);
         }
     } catch (error) {
         console.error("Error in jumpToLastActive:", error);
@@ -72,6 +77,7 @@ async function jumpToLastActive(channel: any, targetUserId?: string) {
         });
     }
 }
+
 const ChannelContextMenuPatch: NavContextMenuPatchCallback = (children, { channel }) => {
     children.push(
         <Menu.MenuItem
@@ -84,6 +90,7 @@ const ChannelContextMenuPatch: NavContextMenuPatchCallback = (children, { channe
         />
     );
 };
+
 const UserContextMenuPatch: NavContextMenuPatchCallback = (children, { user, channel }) => {
     if (!channel || !user?.id) return;
 

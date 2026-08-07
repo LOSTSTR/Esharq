@@ -19,8 +19,7 @@ import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { Guild } from "@vencord/discord-types";
-import { findStoreLazy } from "@webpack";
-import { Menu, React, useStateFromStores } from "@webpack/common";
+import { Menu, React, SortedGuildStore, useStateFromStores } from "@webpack/common";
 
 import hiddenServersButton from "./components/HiddenServersButton";
 import { HiddenServersStore } from "./HiddenServersStore";
@@ -39,8 +38,6 @@ type qsResult = {
         guild_id?: string;
     };
 };
-
-export const SortedGuildStore = findStoreLazy("SortedGuildStore");
 
 const Patch: NavContextMenuPatchCallback = (
     children,
