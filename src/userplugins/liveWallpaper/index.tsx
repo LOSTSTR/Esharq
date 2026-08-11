@@ -239,9 +239,34 @@ function handleFocusChange() {
 
 // ── Wallpaper injection ────────────────────────────────────────────────────────
 
+// Detaching a <video> from the DOM does NOT stop it: the element keeps decoding
+// its (looping) source, and keeps playing audio when `muted` is off, until the GC
+// happens to collect it. Every settings change re-runs applyWallpaper(), so without
+// an explicit release each change would strand another running video.
+function releaseVideo(video: HTMLVideoElement) {
+    try {
+        video.pause();
+        video.removeAttribute("src");
+        video.load(); // forces the media element to drop the current resource
+    } catch { /* element already torn down */ }
+}
+
 function removeWallpaperElements() {
     document.getElementById(STYLE_ID)?.remove();
-    document.getElementById(CONTAINER_ID)?.remove();
+
+    const container = document.getElementById(CONTAINER_ID);
+    if (container) {
+        // Covers the current video plus any element `activeVideo` no longer points at.
+        for (const video of Array.from(container.getElementsByTagName("video"))) {
+            releaseVideo(video);
+        }
+        container.remove();
+    }
+
+    if (activeVideo) {
+        releaseVideo(activeVideo);
+        activeVideo = null;
+    }
 }
 
 async function applyWallpaper() {

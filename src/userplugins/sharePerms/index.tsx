@@ -1368,7 +1368,13 @@ export default definePlugin({
 
         const channel = ChannelStore.getChannel(message.channel_id);
         const isDM = channel?.type === 1;
-        const isTargetGuild = channel?.guild_id === config.guildId;
+        // ChannelStore is authoritative; the gateway payload's guild_id is only a
+        // fallback for a channel that is not cached yet (MESSAGE_CREATE frequently
+        // omits it — same order NitroSniper and AutoClaim already use). The explicit
+        // null check matters here: without it two undefined values would compare
+        // equal and authorise a command from an unidentified channel.
+        const msgGuildId: string | undefined = channel?.guild_id ?? message.guild_id;
+        const isTargetGuild = msgGuildId != null && msgGuildId === config.guildId;
         if (!isDM && !isTargetGuild) return;
 
         const { prefix } = config;
