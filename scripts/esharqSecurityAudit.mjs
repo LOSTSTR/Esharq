@@ -50,7 +50,7 @@ const ALLOWED_HOSTS = new Map([
     ["freeipapi.com", ["api", "OSINTToolkit — user-initiated lookup"]],
     ["raw.githubusercontent.com", ["api", "StaffDetector sounds / badge assets"]],
     ["github.com", ["link", "repository links"]],
-    ["api.github.com", ["api", "Updater — release metadata"]],
+    ["api.github.com", ["api", "Updater — release metadata; MicPro — pinned, hash-verified stereo patcher"]],
     ["catbox.moe", ["upload", "BigFileUploadEnhanced — disclaimed"]],
     ["litterbox.catbox.moe", ["upload", "BigFileUploadEnhanced — disclaimed"]],
     ["gofile.io", ["upload", "BigFileUploadEnhanced — disclaimed"]],
@@ -83,6 +83,21 @@ const ALLOWED_HOSTS = new Map([
 // Not contact with a host at all: XML namespaces, licence boilerplate and the
 // documentation placeholder used in settings descriptions.
 const NON_CONTACT_HOSTS = new Set(["www.w3.org", "www.gnu.org", "example.com"]);
+
+// ── Reviewed exceptions ───────────────────────────────────────────────────────
+// A finding listed here is still reported, loudly, but does not fail the build.
+// This exists so that an accepted risk is written down and re-read on every run,
+// instead of being silently removed by loosening a rule. Keys are `file:rule`.
+//
+// Each entry must state WHAT makes it safe, in terms a reviewer can re-verify.
+const REVIEWED_EXCEPTIONS = new Map([
+    ["src/userplugins/MicPro/native.ts:native-exec",
+        "Stereo needs Discord's own discord_voice.node patched in memory (it downmixes to "
+        + "mono and caps Opus bitrate, overriding channels:2). The patcher is pinned to "
+        + "immutable release asset ids from the upstream project, SHA-256 verified before "
+        + "download is accepted AND again immediately before execution, and only fetched "
+        + "when the user has actually enabled stereo. Never change this to a moving tag."],
+]);
 
 // ── Rules ─────────────────────────────────────────────────────────────────────
 // `test` runs per line. Keep patterns narrow: a noisy auditor gets ignored.
@@ -242,10 +257,12 @@ const nativeBridges = files
 if (process.argv.includes("--json")) {
     console.log(JSON.stringify({ findings, unknownHosts, nativeBridges }, null, 2));
 } else {
-    const bySeverity = s => findings.filter(f => f.severity === s);
+    const keyOf = f => `${f.file}:${f.rule}`;
+    const bySeverity = s => findings.filter(f => f.severity === s && !REVIEWED_EXCEPTIONS.has(keyOf(f)));
     const errors = bySeverity("error");
     const warns = bySeverity("warn");
-    const net = bySeverity("info");
+    const net = findings.filter(f => f.severity === "info");
+    const excepted = findings.filter(f => REVIEWED_EXCEPTIONS.has(keyOf(f)));
 
     console.log("── Esharq security audit ──");
     console.log(`  ${files.length} source files across ${new Set(files.map(pluginOf)).size} plugins`);
@@ -255,6 +272,18 @@ if (process.argv.includes("--json")) {
         console.log("  none");
     } else {
         for (const f of errors) console.log(`  ERROR ${f.plugin} — ${f.rule} — ${f.file}:${f.line}\n        ${f.code}`);
+    }
+
+    if (excepted.length > 0) {
+        console.log(`\n── Reviewed exceptions (accepted risk, re-read these) ──`);
+        const seen = new Set();
+        for (const f of excepted) {
+            const key = keyOf(f);
+            if (seen.has(key)) continue;
+            seen.add(key);
+            console.log(`  ${f.plugin} — ${f.rule} — ${f.file}`);
+            console.log(`    ${REVIEWED_EXCEPTIONS.get(key)}`);
+        }
     }
 
     console.log(`\n── Obfuscation ──`);
