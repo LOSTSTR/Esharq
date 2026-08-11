@@ -76,7 +76,7 @@ function clearMessageHistory(msg: MLMessage) {
         FluxDispatcher.dispatch({
             type: "MESSAGE_DELETE",
             channelId: msg.channel_id,
-            messageId: msg.id,
+            id: msg.id,
             mlDeleted: true
         });
     } else {
@@ -174,7 +174,7 @@ const patchChannelContextMenu: NavContextMenuPatchCallback = (
     children,
     { channel },
 ) => {
-    const messages = MessageStore.getMessages(channel?.id) as MLMessage[];
+    const messages = MessageStore.getMessages(channel?.id);
     if (!messages?.some(msg => doesMessageHaveHistory(msg))) return;
 
     const group = findGroupChildrenByChildId("mark-channel-read", children) ?? children;

@@ -12,6 +12,10 @@ import { Alerts } from "../utils/ui";
 
 type RestartTrackingSettings = Pick<DefinedSettings<SettingsDefinition>, "def" | "pluginName">;
 
+interface RestartPromptOptions {
+    onDecline?: () => void;
+}
+
 let restartDirty = false;
 let didAttachRestartListeners = false;
 const restartListenerCleanups: (() => void)[] = [];
@@ -53,9 +57,24 @@ export function setRestartDirty(dirty: boolean): void {
     restartDirty = dirty;
 }
 
-export function promptToRestartIfDirty(): boolean {
+export function promptToRestartIfDirty({ onDecline }: RestartPromptOptions = {}): boolean {
     if (!restartDirty) {
         return false;
+    }
+
+    let didConfirm = false;
+    let didDecline = false;
+
+    function declineRestart(): void {
+        if (didConfirm || didDecline) {
+            return;
+        }
+
+        didDecline = true;
+
+        if (onDecline) {
+            setTimeout(onDecline, 0);
+        }
     }
 
     Alerts.show({
@@ -63,7 +82,12 @@ export function promptToRestartIfDirty(): boolean {
         body: t("تغيير أجريته على إعدادات Questify يتطلّب إعادة تشغيل.", "A change you've made to Questify's settings requires a restart."),
         confirmText: t("إعادة التشغيل", "Restart"),
         cancelText: t("لاحقاً", "Later"),
-        onConfirm: () => location.reload(),
+        onConfirm: () => {
+            didConfirm = true;
+            location.reload();
+        },
+        onCancel: declineRestart,
+        onCloseCallback: declineRestart,
     });
 
     return true;

@@ -10,7 +10,8 @@ import { QuestTaskType } from "@vencord/discord-types/enums";
 import type { JSX } from "react";
 
 import { getQuestifySettings, useQuestifySettings } from "../settings/access";
-import { autoCompleteQuestTaskTypes, defaultAllowChangingDangerousSettings, defaultAutoCompleteQuestsSimultaneously, defaultAutoCompleteQuestTypes, defaultCompleteVideoQuestsQuicker, defaultMakeMobileVideoQuestsDesktopCompatible, defaultResumeInterruptedQuests, isDesktopCompatible } from "../settings/def";
+import { resetDangerousSettings } from "../settings/dangerous";
+import { autoCompleteQuestTaskTypes, defaultAutoCompleteQuestTypes, isDesktopCompatible } from "../settings/def";
 import { Alerts, q } from "../utils/ui";
 import { ManaButton, type ManaSelectOption, SettingsCard, SettingsDescription, SettingsHeader, SettingsNotice, SettingsParagraph, SettingsSelect, SettingsSubheader, SettingsSubtleSwitch } from "./shared";
 
@@ -27,6 +28,7 @@ type QuestModifySettingKey =
     | "autoCompleteQuestsSimultaneously"
     | "resumeInterruptedQuests"
     | "completeVideoQuestsQuicker"
+    | "preventVideoQuestsPausing"
     | "makeMobileVideoQuestsDesktopCompatible";
 
 interface QuestDisableOption {
@@ -107,6 +109,7 @@ export function QuestFeaturesSetting(): JSX.Element {
         "autoCompleteQuestsSimultaneously",
         "autoCompleteQuestTypes",
         "completeVideoQuestsQuicker",
+        "preventVideoQuestsPausing",
     ]);
 
     const disableFeatureOptions = getDisableFeatureOptions();
@@ -182,17 +185,6 @@ export function QuestFeaturesSetting(): JSX.Element {
         }
     }
 
-    function resetDangerousSettings() {
-        const settings = getQuestifySettings();
-
-        settings.allowChangingDangerousSettings = defaultAllowChangingDangerousSettings;
-        settings.autoCompleteQuestsSimultaneously = defaultAutoCompleteQuestsSimultaneously;
-        settings.completeVideoQuestsQuicker = defaultCompleteVideoQuestsQuicker;
-        settings.makeMobileVideoQuestsDesktopCompatible = defaultMakeMobileVideoQuestsDesktopCompatible;
-        settings.resumeInterruptedQuests = defaultResumeInterruptedQuests;
-        settings.autoCompleteQuestTypes = { ...defaultAutoCompleteQuestTypes };
-    }
-
     function updateDangerousAccess(checked: boolean) {
         function setDangerousAccess() {
             getQuestifySettings().allowChangingDangerousSettings = checked;
@@ -265,15 +257,15 @@ export function QuestFeaturesSetting(): JSX.Element {
             <SettingsNotice className={["notice-card-red", questFeatures.disableQuestsEverything ? "dimmed-settings-item" : undefined, questFeatures.allowChangingDangerousSettings ? undefined : "notice-card-solo", "no-bottom-margin"].filter(c => c !== undefined)}>
                 <SettingsParagraph>
                     {t(
-                        "بدأ Discord بإصدار تحذيرات للمستخدمين الذين يستخدمون سكريبتات أو إضافات تعدّل طريقة إكمال المهام، وهو ما يتعارض مع ",
-                        "Discord has started issuing warnings to users who use scripts or plugins that modify how quests are completed, which conflicts with the "
+                        "طبّق Discord نظام حظر من المهام يقيّد وصولك — مؤقتاً أو دائماً — إلى إكمال المهام والمطالبة بمكافآتها إذا تبيّن أنك تكملها بوسائل غير رسمية. تعديل طريقة إكمال المهام مخالف لـ",
+                        "Discord has implemented a Quest Ban system which will temporarily or permanently limit your access to completing Quests and claiming their rewards if you are found to be completing them through unofficial means. Modifying the completion of Quests is against their "
                     )}<a href="https://discord.com/safety/platform-manipulation-policy-explainer" target="_blank" rel="noreferrer">{t("شروط الخدمة", "Terms of Service")}</a>{t(".", ".")}
                 </SettingsParagraph>
                 <br />
                 <SettingsParagraph>
                     {t(
-                        "تبدو التحذيرات مقتصرة على التهديد بفقدان الوصول إلى المهام أو مكافآتها، لكن Discord قد يتخذ إجراءات أشد في أي وقت.",
-                        "The warnings appear to be limited to threatening loss of access to quests or their rewards, but Discord may take harsher action at any time."
+                        "يبدو أن العقوبة تقتصر على فقدان الوصول إلى المهام ومكافآتها، لكن Discord قد يشدّدها في أي وقت.",
+                        "The punishment appears limited to loss of access to Quests and their rewards, but Discord may escalate at any time."
                     )}
                 </SettingsParagraph>
                 <br />
@@ -312,6 +304,24 @@ export function QuestFeaturesSetting(): JSX.Element {
                                 "Discord allows completing video quests 24 seconds before the video duration has elapsed since you enrolled in the quest."
                                     + "\n\nThis means that if a video quest is 24 seconds or shorter, or if you enrolled in a video quest and return later to complete it, it can be completed instantly."
                                     + "\n\nThis setting only applies to auto-completing video quests and depends on the auto-complete setting below. Manually completing video quests will still require waiting the full duration."
+                            )
+                        }}
+                    />
+                    <SettingsSubtleSwitch
+                        disabled={questFeatures.disableQuestsEverything || !questFeatures.allowChangingDangerousSettings}
+                        checked={questFeatures.preventVideoQuestsPausing}
+                        label={t("منع إيقاف مهام الفيديو مؤقتاً عند فقدان التركيز:", "Prevent Video Quests from pausing when losing focus:")}
+                        onChange={checked => updateModifyValue("preventVideoQuestsPausing", checked)}
+                        bottomSpacing="5"
+                        tooltip={{
+                            position: "top",
+                            text: t(
+                                "يفرض Discord بقاءك داخل نافذة العميل حتى تشتغل مقاطع مهام الفيديو."
+                                + "\n\nيمنع هذا الإعداد إيقاف المقطع مؤقتاً ويسمح للإكمال بالتقدّم كالمعتاد."
+                                + "\n\nينطبق هذا الإعداد على إكمال مهام الفيديو يدوياً فقط.",
+                                "Discord forces you to be tabbed into the client for Video Quests to play their video."
+                                + "\n\nThis setting prevents the video from pausing and allows completion to progress as normal."
+                                + "\n\nThis setting applies only to manually completing Video Quests."
                             )
                         }}
                     />

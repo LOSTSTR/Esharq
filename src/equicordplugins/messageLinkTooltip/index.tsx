@@ -12,6 +12,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
+import type { Message } from "@vencord/discord-types";
 import { findComponentByCodeLazy } from "@webpack";
 import { ChannelStore, Constants, MessageStore, RestAPI, Tooltip, useEffect, useState, useStateFromStores } from "@webpack/common";
 import type { ComponentType } from "react";
@@ -154,7 +155,9 @@ function useMessage(channelId, messageId) {
         [MessageStore],
         () => MessageStore.getMessage(channelId, messageId)
     );
-    const [message, setMessage] = useState(cachedMessage);
+    // Nullable: the cached lookup can miss, and the REST fallback below may also
+    // fail to resolve the message — both paths are already handled by callers.
+    const [message, setMessage] = useState<Message | undefined>(cachedMessage);
     useEffect(() => {
         if (message == null)
             (async () => {

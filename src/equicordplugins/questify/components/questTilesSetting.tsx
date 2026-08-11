@@ -11,6 +11,7 @@ import { findComponentByCodeLazy } from "@webpack";
 import { QuestStore, useEffect, useMemo, useRef, useState, useStateFromStores } from "@webpack/common";
 import type { JSX, SyntheticEvent } from "react";
 
+import { enabledOnStartup } from "..";
 import { getQuestifySettings, useQuestifySettings } from "../settings/access";
 import { defaultQuestTileClaimedColorSetting, defaultQuestTileExpiredColorSetting, defaultQuestTileIgnoredColorSetting, defaultQuestTileUnclaimedColorSetting, type QuestTileColorSetting, type QuestTileGradient } from "../settings/def";
 import { rerenderQuests } from "../settings/rerender";
@@ -326,11 +327,11 @@ export function QuestTilesSetting(): JSX.Element {
                     );
                 })}
             </SettingsRow>
-            <DummyQuestPreview
+            {enabledOnStartup && <DummyQuestPreview
                 disabled={disabled}
                 dummyColor={previewColor}
                 dummyGradient={questTiles.questTileGradient as QuestTileGradient}
-            />
+            />}
         </SettingsCard>
     );
 }
