@@ -39,6 +39,29 @@
  *
  * To update: bump both asset ids AND both hashes together, taking the digests from
  * the GitHub releases API. Never relax the check to make an update "work".
+ *
+ * STATIC AUDIT of the pinned patcher.node (2026-08-11, 619a2733…, 309760 bytes),
+ * done by parsing the PE without executing it:
+ *
+ *   - Imports ONE dll, kernel32. No ws2_32/wininet/winhttp/urlmon/dnsapi, so it has
+ *     no linked network capability at all; no shell32/CreateProcess/WinExec, so it
+ *     cannot spawn anything; no advapi32/crypt32, so no registry or credential APIs.
+ *   - The OS calls it does import — GetModuleHandleW, K32GetModuleInformation,
+ *     VirtualProtect, FlushInstructionCache, GetCurrentProcess — are exactly the set
+ *     the published patcher.cpp uses.
+ *   - No URLs, no IP literals, no base64 blobs. Its strings are the documented result
+ *     fields and error codes (`module_base`, `patches_in_ini`, `rva_out_of_bounds`,
+ *     `already_patched`, `discord_voice.node not found in process`).
+ *   - The embedded PDB path is `D:\a\DiscordVoicePatcher\DiscordVoicePatcher\build\
+ *     Release\patcher.pdb` — the GitHub Actions Windows runner layout for that repo,
+ *     matching the `build/Release/patcher.node` artifact its public
+ *     .github/workflows/build-and-release.yml compiles with node-gyp and uploads.
+ *
+ * What that does NOT establish: the build is not reproducible, so the bytes cannot be
+ * proven to come from that source; and LoadLibrary/GetProcAddress are present (as in
+ * every MSVC binary), which is in principle a way to resolve APIs that are not
+ * imported. The evidence is strong, not conclusive. If a stronger guarantee is ever
+ * required, the answer is to build it ourselves from source, not to trust harder.
  */
 
 import { DATA_DIR } from "@main/utils/constants";
