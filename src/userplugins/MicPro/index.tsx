@@ -21,18 +21,12 @@ import { EquicordDevs } from "@utils/constants";
 import { isArabicMode, t } from "@utils/esharqI18n";
 import { ModalContent, ModalHeader, ModalRoot, openModal, type RenderModalProps } from "@utils/esharqModals";
 import { ModalSize } from "@utils/modal";
-import definePlugin, { PluginNative } from "@utils/types";
+import definePlugin from "@utils/types";
 import { FluxDispatcher, MediaEngineStore, React, Select, useEffect, useRef, useState, VoiceActions } from "@webpack/common";
 
 import { settings } from "./settings";
 
-const Native = IS_DISCORD_DESKTOP
-    ? (VencordNative.pluginHelpers.MicPro as PluginNative<typeof import("./native")>)
-    : null;
-
 let micPatcher: MicrophonePatcher | undefined;
-// جاهزية محرّك النقل الأصلي (patcher.node): null=لم يُحسم، true=طُبّق، false=فشل ⇒ الستيريو لن يُحترَم.
-let nativeReady: boolean | null = null;
 // إلغاء اشتراك حارس الستيريو على الاتصالات الجديدة (البند 1) — يُفصَل عند الإيقاف.
 let stereoGuardOff: (() => void) | undefined;
 
@@ -472,16 +466,10 @@ function TransmissionControls() {
                 {t("✓ تطبيق على المكالمة", "✓ Apply to call")}
             </button>
 
-            {nativeReady === false ? (
-                <div className="micpro-warn">⚠️ {t("محرّك الستيريو لم يُحمَّل، فلن يُبَثّ الصوت ستيريو فعلياً. أعد تشغيل ديسكورد؛ وإن استمرّ الأمر فتحقّق من اتصالك بالإنترنت.", "The stereo engine didn't load, so audio won't actually transmit in stereo. Restart Discord; if it persists, check your internet connection.")}</div>
-            ) : (
-                <div className="micpro-hint">
-                    <span className="micpro-dot" />
-                    {nativeReady
-                        ? t("محرّك الستيريو جاهز — يُطبَّق على مكالمتك الحالية.", "Stereo engine ready — applies to your current call.")
-                        : t("يُطبَّق على مكالمتك الحالية عبر محرّك ديسكورد الأصلي.", "Applies to your current call via Discord's native engine.")}
-                </div>
-            )}
+            <div className="micpro-hint">
+                <span className="micpro-dot" />
+                {t("يُطبَّق على مكالمتك الحالية عبر محرّك ديسكورد الأصلي.", "Applies to your current call via Discord's native engine.")}
+            </div>
         </>
     );
 }
@@ -642,14 +630,19 @@ export default definePlugin({
                 }, "MicPro");
             }
 
+            // Ensure Discord's own voice module is loaded before the first call, so the
+            // transport patch and the per-connection stereo guard above take effect.
+            //
+            // NOTE: an in-memory `discord_voice` patch used to be applied here by
+            // downloading `patcher.node` from a third-party GitHub release and requiring
+            // it. That was removed deliberately: it fetched an unpinned, unverified
+            // native binary from a personal repository and executed it inside Discord,
+            // which is remote code execution against every user of this plugin. Stereo
+            // now relies only on the in-process transport patch plus disabling the
+            // mono-downmixing processors. Do not reintroduce a downloaded native module.
             const nativeModules = globalThis.DiscordNative?.nativeModules;
             if (!nativeModules?.requireModule) throw new Error("DiscordNative.nativeModules is unavailable");
             nativeModules.requireModule("discord_voice");
-            Native?.applyPatches().then(result => {
-                if (result.error) { nativeReady = false; console.error("[MicPro] stereo engine failed:", result.error); return; }
-                nativeReady = result.ok > 0;
-                console.log(`[MicPro] ${result.module_base} | patches: ok:${result.ok} failed:${result.failed} skipped:${result.skipped}`);
-            }).catch(e => { nativeReady = false; console.error("[MicPro]", e); });
         } catch (e) {
             console.error("[MicPro] stereo engine init failed", e);
         }

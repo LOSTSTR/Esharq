@@ -40,7 +40,8 @@
         "test": "pnpm buildStandalone && pnpm testTsc && pnpm lint:fix && pnpm lint-styles && pnpm lint:intl && pnpm lint:patches && pnpm generatePluginJson",
         "testWeb": "pnpm lint:fix && pnpm buildWeb && pnpm testTsc",
         "testTsc": "tsc --noEmit",
-        "testEsharq": "node scripts/esharqCheck.mjs && tsc --noEmit -p tsconfig.esharq.json && stylelint \"src/userplugins/**/*.css\""
+        "testEsharq": "node scripts/esharqCheck.mjs && node scripts/esharqSecurityAudit.mjs && tsc --noEmit -p tsconfig.esharq.json && stylelint \"src/userplugins/**/*.css\"",
+        "securityAudit": "node scripts/esharqSecurityAudit.mjs"
     },
     "dependencies": {
         "@ffmpeg/ffmpeg": "^0.12.10",
