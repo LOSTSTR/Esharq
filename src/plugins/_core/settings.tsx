@@ -5,7 +5,7 @@
  */
 
 import { definePluginSettings } from "@api/Settings";
-import { BackupRestoreIcon, CloudIcon, LogIcon, MainSettingsIcon, PaintbrushIcon, PatchHelperIcon, PluginsIcon, UpdaterIcon } from "@components/Icons";
+import { AttachmentIcon, BackupRestoreIcon, ClockIcon, CloudDownloadIcon, CloudIcon, ColorPaletteIcon, ComponentsIcon, EyeIcon, FolderIcon, HammerAndChiselIcon, HeadphonesIcon, LogIcon, LogsIcon, MagnifyingGlassIcon, MainSettingsIcon, PaintbrushIcon, PatchHelperIcon, PluginIcon, PluginsIcon, SafetyIcon, ShieldIcon, SkullIcon, UpdaterIcon, WebsiteIcon } from "@components/Icons";
 import {
     BackupAndRestoreTab,
     ChangelogTab,
@@ -16,6 +16,9 @@ import {
     UpdaterTab,
     VencordTab,
 } from "@components/settings";
+import { ComingSoon } from "@components/settings/esharq/ComingSoon";
+import { SECTION_ORDER } from "@components/settings/esharq/tokens";
+import { SETTINGS_TREE } from "@components/settings/esharq/tree";
 import { gitHashShort } from "@shared/vencordUserAgent";
 import { Devs } from "@utils/constants";
 import { initArabicFont } from "@utils/esharqFont";
@@ -64,14 +67,6 @@ const enum SectionType {
     CUSTOM = "CUSTOM"
 }
 
-type SettingsLocation =
-    | "top"
-    | "aboveNitro"
-    | "belowNitro"
-    | "aboveActivity"
-    | "belowActivity"
-    | "bottom";
-
 interface SettingsLayoutNode {
     type: LayoutType;
     key?: string;
@@ -98,22 +93,13 @@ interface SettingsLayoutBuilder {
     buildLayout(): SettingsLayoutNode[];
 }
 
+// 🔴 `settingsLocation` حُذف عمداً: التصميم الجديد يضع أقسام إشراق **بعد
+// تسجيل الخروج** دائماً (قرار المالك)، فلم يعد للمكان خيار. إبقاء القائمة
+// المنسدلة كان يعني ضابطاً يحرّكه المستخدم فلا يحدث شيء.
 const settings = definePluginSettings({
-    settingsLocation: {
-        type: OptionType.SELECT,
-        description: "Where to display the Equicord settings section",
-        options: [
-            { label: t("في الأعلى تماماً", "At the very top"), value: "top" },
-            { label: t("فوق قسم الفوترة", "Above Billing section"), value: "aboveNitro", default: true },
-            { label: t("أسفل قسم الفوترة", "Below Billing section"), value: "belowNitro" },
-            { label: t("فوق إعدادات الألعاب والتطبيقات", "Above Games & Apps Settings"), value: "aboveActivity" },
-            { label: t("أسفل إعدادات الألعاب والتطبيقات", "Below Games & Apps Settings"), value: "belowActivity" },
-            { label: t("في الأسفل تماماً", "At the very bottom"), value: "bottom" },
-        ] as { label: string; value: SettingsLocation; default?: boolean; }[]
-    },
     includeVencordInfoWhenCopying: {
         type: OptionType.BOOLEAN,
-        description: "Also copy Equicord info (Equicord, Electron, Chromium) when clicking the version info in the bottom left area of the Settings page",
+        description: "Also copy Esharq info (Esharq, Electron, Chromium) when clicking the version info in the bottom left area of the Settings page",
         default: true
     }
 });
@@ -196,93 +182,104 @@ export default definePlugin({
         const layout = originalLayoutBuilder.buildLayout();
         if (originalLayoutBuilder.key !== "$Root") return layout;
         if (!Array.isArray(layout)) return layout;
-        if (layout.some(s => s?.key === "equicord_section")) return layout;
+        if (layout.some(s => typeof s?.key === "string" && s.key.startsWith("esharq_section_"))) return layout;
 
         const { buildEntry } = this;
 
-        const equicordEntries: SettingsLayoutNode[] = [
-            buildEntry({
-                key: "equicord_main",
-                title: t("اشراق", "Esharq"),
-                panelTitle: t("اشراق", "Esharq"),
-                Component: VencordTab,
-                Icon: MainSettingsIcon
-            }),
-            buildEntry({
-                key: "equicord_plugins",
-                title: t("الإضافات", "Plugins"),
-                Component: PluginsTab,
-                Icon: PluginsIcon
-            }),
-            buildEntry({
-                key: "equicord_themes",
-                title: t("القوالب", "Themes"),
-                Component: ThemesTab,
-                Icon: PaintbrushIcon
-            }),
-            !IS_UPDATER_DISABLED && UpdaterTab && buildEntry({
-                key: "equicord_updater",
-                title: t("المُحدِّث", "Updater"),
-                panelTitle: t("مُحدِّث اشراق", "Esharq Updater"),
-                Component: UpdaterTab,
-                Icon: UpdaterIcon
-            }),
-            buildEntry({
-                key: "equicord_changelog",
-                title: t("سجلّ التغييرات", "Changelog"),
-                Component: ChangelogTab,
-                Icon: LogIcon,
-            }),
-            buildEntry({
-                key: "equicord_cloud",
-                title: t("السحابة", "Cloud"),
-                panelTitle: t("سحابة اشراق", "Esharq Cloud"),
-                Component: CloudTab,
-                Icon: CloudIcon
-            }),
-            buildEntry({
-                key: "equicord_backup_restore",
-                title: t("النسخ الاحتياطي والاستعادة", "Backup & Restore"),
-                Component: BackupAndRestoreTab,
-                Icon: BackupRestoreIcon
-            }),
-            !IS_STANDALONE && PatchHelperTab && buildEntry({
-                key: "equicord_patch_helper",
-                title: t("مساعد الترقيع", "Patch Helper"),
-                Component: PatchHelperTab,
-                Icon: PatchHelperIcon
-            }),
-            ...this.customEntries.map(buildEntry)
-        ].filter(isTruthy);
-
-        const equicordSection: SettingsLayoutNode = {
-            key: "equicord_section",
-            type: LayoutTypes.SECTION,
-            useTitle: () => t("اشراق", "Esharq"),
-            buildLayout: () => equicordEntries
+        // التصميم الجديد: 5 أقسام لا قسم واحد. كل صفحة جاهزة تُوصَل بمكوّنها
+        // القائم، وكل مخطَّطة تعرض «قيد البناء». المصدر الوحيد `SETTINGS_TREE`.
+        const componentFor: Record<string, ComponentType | null> = {
+            VencordTab, PluginsTab, ThemesTab, UpdaterTab,
+            ChangelogTab, CloudTab, BackupAndRestoreTab
+        };
+        // أيقونة مميّزة لكل صفحة — لا ترس واحد للكلّ (قرار المالك).
+        const iconFor: Record<string, ComponentType<IconProps>> = {
+            // الأساسيات
+            "overview": MainSettingsIcon, "plugins": PluginsIcon, "themes": PaintbrushIcon,
+            "theme-creator": ColorPaletteIcon, "theme-library": FolderIcon,
+            // الأمان والصحّة
+            "privacy-security": ShieldIcon, "plugin-permissions": SafetyIcon,
+            "client-health": LogsIcon, "compatibility-matrix": ComponentsIcon,
+            "crash-bisect": SkullIcon, "performance-budgets": HammerAndChiselIcon,
+            "surveillance": EyeIcon,
+            // التحديثات والمجتمع
+            "updater": UpdaterIcon, "release-channels": CloudDownloadIcon,
+            "community-plugins": PluginIcon, "changelog": LogIcon,
+            // الأدوات
+            "voice-lab": HeadphonesIcon, "startup-timings": ClockIcon,
+            "language": WebsiteIcon, "icon-finder": MagnifyingGlassIcon,
+            // البيانات والدعم
+            "sync": CloudIcon, "backup-restore": BackupRestoreIcon,
+            "support-bundle": AttachmentIcon
         };
 
-        const { settingsLocation } = settings.store;
+        const esharqSections: SettingsLayoutNode[] = [...SETTINGS_TREE]
+            // الترتيب من رموز التصميم — نفس مصدر بقيّة الهوية.
+            .sort((a, b) => (SECTION_ORDER[a.id] ?? 0) - (SECTION_ORDER[b.id] ?? 0))
+            .map(section => {
+                const entries = section.pages.map(page => {
+                    // `equicord_updater` يُخفى حين يُعطَّل المُحدِّث؛ نبقي القاعدة.
+                    if (page.key === "updater" && (IS_UPDATER_DISABLED || !UpdaterTab)) return false;
 
-        const places: Record<SettingsLocation, string> = {
-            top: "user_section",
-            aboveNitro: "billing_section",
-            belowNitro: "billing_section",
-            aboveActivity: "games_and_apps_section",
-            belowActivity: "games_and_apps_section",
-            bottom: "utility_section"
-        };
+                    const mapped = page.existing !== undefined ? componentFor[page.existing] : undefined;
+                    const Component: ComponentType = mapped
+                        ?? (() => <ComingSoon title={t(page.title.ar, page.title.en)} />);
 
-        const key = places[settingsLocation] ?? places.top;
-        let idx = layout.findIndex(s => typeof s?.key === "string" && s.key === key);
+                    return buildEntry({
+                        key: `esharq_${page.key}`,
+                        title: t(page.title.ar, page.title.en),
+                        Component,
+                        Icon: iconFor[page.key] ?? MainSettingsIcon
+                    });
+                }).filter(isTruthy);
 
-        if (idx === -1) {
-            idx = 2;
-        } else if (settingsLocation.startsWith("below")) {
-            idx += 1;
+                return {
+                    key: `esharq_section_${section.id}`,
+                    type: LayoutTypes.SECTION,
+                    useTitle: () => t(section.title.ar, section.title.en),
+                    buildLayout: () => entries
+                } as SettingsLayoutNode;
+            });
+
+        // الإضافات المخصّصة تبقى في قسمها القديم حتى تُدمَج في التصميم لاحقاً.
+        const customEntries = this.customEntries.map(buildEntry).filter(isTruthy);
+        if (customEntries.length > 0 || !IS_STANDALONE && PatchHelperTab) {
+            const extras: SettingsLayoutNode[] = [...customEntries];
+            if (!IS_STANDALONE && PatchHelperTab) {
+                extras.push(buildEntry({
+                    key: "esharq_patch_helper",
+                    title: t("مساعد الترقيع", "Patch Helper"),
+                    Component: PatchHelperTab,
+                    Icon: PatchHelperIcon
+                }));
+            }
+            esharqSections.push({
+                key: "esharq_section_developer",
+                type: LayoutTypes.SECTION,
+                useTitle: () => t("المطوّر", "Developer"),
+                buildLayout: () => extras
+            } as SettingsLayoutNode);
         }
 
-        layout.splice(idx, 0, equicordSection);
+        // 🔴 قرار المالك: أقسام إشراق **تحت تسجيل الخروج** — أي في ذيل
+        // القائمة بعد كل أقسام ديسكورد. نبحث عن القسم الذي يحوي «تسجيل
+        // الخروج» ونضع بعده؛ وإن لم نجده (تغيّر بنية ديسكورد) نُلحق بالذيل.
+        const isLogout = (node: any): boolean => {
+            const key = typeof node?.key === "string" ? node.key.toLowerCase() : "";
+            if (key.includes("logout") || key.includes("log_out")) return true;
+            try {
+                const sub = node?.buildLayout?.();
+                return Array.isArray(sub) && sub.some((child: any) =>
+                    typeof child?.key === "string" && /log[_-]?out/i.test(child.key));
+            } catch {
+                return false;
+            }
+        };
+
+        const logoutIdx = layout.findIndex(isLogout);
+        const idx = logoutIdx === -1 ? layout.length : logoutIdx + 1;
+
+        layout.splice(idx, 0, ...esharqSections);
 
         return layout;
     },
@@ -324,7 +321,7 @@ export default definePlugin({
     getInfoRows() {
         const { electronVersion, chromiumVersion, getVersionInfo } = this;
 
-        const rows = [`Equicord ${gitHashShort}${getVersionInfo()}`];
+        const rows = [`Esharq ${gitHashShort}${getVersionInfo()}`];
 
         if (electronVersion) rows.push(`Electron ${electronVersion}`);
         if (chromiumVersion) rows.push(`Chromium ${chromiumVersion}`);

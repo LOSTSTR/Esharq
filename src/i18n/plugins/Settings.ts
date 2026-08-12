@@ -12,13 +12,9 @@ export default definePluginI18n({
         "en": "Adds a settings UI and diagnostic information."
     },
     "options": {
-        "settingsLocation": {
-            "ar": "مكان عرض قسم إعدادات Equicord في الإعدادات",
-            "en": "Where to display the Equicord settings section."
-        },
         "includeVencordInfoWhenCopying": {
-            "ar": "نسخ معلومات Vencord (Vencord، Electron، Chromium) أيضاً عند النقر على معلومات الإصدار في صفحة الإعدادات",
-            "en": "Also copy Vencord info (Vencord, Electron, Chromium) when clicking the version info in the bottom-left corner of the settings page."
+            "ar": "نسخ معلومات إشراق (إشراق، Electron، Chromium) أيضاً عند النقر على معلومات الإصدار في صفحة الإعدادات",
+            "en": "Also copy Esharq info (Esharq, Electron, Chromium) when clicking the version info in the bottom-left corner of the settings page."
         }
     }
 });
