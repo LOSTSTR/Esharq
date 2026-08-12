@@ -61,6 +61,21 @@ function fail(message) {
 }
 
 /**
+ * 🔴 ديسكورد يمسك `app.asar` ما دام يعمل، فأي حذف أو إعادة تسمية تفشل
+ * بـEPERM. تُترجَم إلى جملة يفهمها القارئ بدل أثر مكدّس خام.
+ */
+function guarded(action) {
+    try {
+        action();
+    } catch (error) {
+        if (error.code === "EPERM" || error.code === "EBUSY") {
+            fail("ديسكورد يعمل ويمسك app.asar — أغلقه تماماً ثمّ أعد المحاولة.");
+        }
+        throw error;
+    }
+}
+
+/**
  * أحدث مجلد نسخة — **بمقارنة رقمية لا نصّية**.
  * نصّياً `app-1.0.9999 > app-1.0.10000`، فيُحقَن مجلد قديم ويبدو أن
  * المُثبِّت «لم يفعل شيئاً».
@@ -127,8 +142,10 @@ if (uninstall) {
     if (!isOurs()) fail("app.asar الحالي ليس أرشيفنا — لا نلمس ما لا نملك");
     if (!existsSync(BACKUP)) fail("_app.asar مفقود — لا يمكن التراجع بأمان");
 
-    unlinkSync(APP);
-    renameSync(BACKUP, APP);
+    guarded(() => {
+        unlinkSync(APP);
+        renameSync(BACKUP, APP);
+    });
     console.log(`✔ أُلغي التثبيت وأُعيد app.asar الأصلي — ${RESOURCES}`);
     console.log(`  الحمولة باقية في ${PAYLOAD}، احذفها يدوياً إن أردت.`);
     process.exit(0);
@@ -146,16 +163,6 @@ if (existsSync(BACKUP) && !isOurs()) {
 mkdirSync(PAYLOAD_DIR, { recursive: true });
 copyFileSync(BUILT, PAYLOAD);
 
-// إعادة التسمية **مرّة واحدة**: لو كرّرناها على تثبيتنا لصار `_app.asar`
-// هو أرشيفنا الصغير وضاع ديسكورد الأصلي نهائياً.
-if (!existsSync(BACKUP)) {
-    renameSync(APP, BACKUP);
-    console.log("  أُعيد تسمية app.asar ← _app.asar");
-} else {
-    console.log("  _app.asar موجود سلفاً (إعادة تثبيت) — الأصل محفوظ");
-    if (existsSync(APP)) rmSync(APP, { recursive: true, force: true });
-}
-
 const indexJs = `// مُولَّد بواسطة إشراق — لا تُحرّره.
 require(${JSON.stringify(PAYLOAD)});
 `;
@@ -166,7 +173,38 @@ const packageJson = JSON.stringify({
     [MARKER]: { installedAt: new Date().toISOString() }
 }, null, 2);
 
-writeFileSync(APP, packAsar({ "package.json": packageJson, "index.js": indexJs }));
+const bridge = packAsar({ "package.json": packageJson, "index.js": indexJs });
+
+/** هل الجسر القائم يُحمّل نفس الحمولة؟ عندها كتابته من جديد لا تُغيّر شيئاً. */
+function bridgeIsCurrent() {
+    if (!isOurs()) return false;
+    const raw = readAsarFile(APP, "index.js");
+    return raw !== undefined && raw.toString("utf8").includes(JSON.stringify(PAYLOAD));
+}
+
+// إعادة التسمية **مرّة واحدة**: لو كرّرناها على تثبيتنا لصار `_app.asar`
+// هو أرشيفنا الصغير وضاع ديسكورد الأصلي نهائياً.
+if (!existsSync(BACKUP)) {
+    guarded(() => {
+        renameSync(APP, BACKUP);
+        writeFileSync(APP, bridge);
+    });
+    console.log("  أُعيد تسمية app.asar ← _app.asar");
+} else {
+    console.log("  _app.asar موجود سلفاً (إعادة تثبيت) — الأصل محفوظ");
+
+    // الحمولة وحدها هي ما يتغيّر بين بناء وآخر؛ الجسر ثابت ما دام مساره
+    // نفسه. فلا نحذف ملفاً ونعيد كتابته بنفس المعنى — كان ذلك يُفشل كل
+    // إعادة تثبيت وديسكورد يعمل، بلا أي فائدة مقابل الفشل.
+    if (bridgeIsCurrent()) {
+        console.log("  الجسر مطابق سلفاً — حُدِّثت الحمولة وحدها");
+    } else {
+        guarded(() => {
+            if (existsSync(APP)) rmSync(APP, { recursive: true, force: true });
+            writeFileSync(APP, bridge);
+        });
+    }
+}
 
 console.log(`✔ ثُبِّت إشراق في ${RESOURCES}`);
 console.log(`  app.asar  : أرشيفنا (${statSync(APP).size} بايت)`);
