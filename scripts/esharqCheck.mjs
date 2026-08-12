@@ -6,11 +6,14 @@
 
 // esharqCheck — quality gate for the Esharq layer (src/userplugins + i18n overlays).
 //
-// 1. DiscordArabicizer dictionary validation (HARD FAIL):
+// 1. Arabic dictionary validation (HARD FAIL). The dictionary is no longer read
+//    at runtime — buildArabicTable.mjs parses it line by line to compile the
+//    shipped table, so a malformed line is silently skipped and its translation
+//    never ships. That parser is what these rules protect:
 //    - malformed entry lines: every entry MUST be a single `"key": "value",` line
-//      (enforced format — the collision tooling and this checker both assume it)
-//    - duplicate keys AFTER the engine's normalize() (curly → straight quotes),
-//      which `no-dupe-keys` cannot see
+//    - duplicate keys after normalizing curly quotes to straight ones, which
+//      `no-dupe-keys` cannot see — two entries differing only by quote shape are
+//      one English string, and the second silently wins
 //    - empty Arabic values
 //    - {placeholder} tokens present in the Arabic value but absent from the
 //      English key (they would render literally, untranslated)
@@ -34,7 +37,8 @@ let warnings = 0;
 const err = m => { errors++; console.error(`  ✖ ${m}`); };
 const warn = m => { warnings++; console.warn(`  ⚠ ${m}`); };
 
-// Same normalization as the DiscordArabicizer engine (index.tsx normalize()).
+// Curly quotes normalized to straight ones: Discord writes both shapes for the
+// same string, so two entries differing only by quote shape are a duplicate.
 const normalize = s => s.replace(/[‘’‛]/g, "'").replace(/[“”]/g, '"');
 const placeholders = s => (s.match(/\{[^{}]+\}/g) ?? []).sort();
 

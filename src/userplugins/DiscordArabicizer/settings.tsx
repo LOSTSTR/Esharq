@@ -1,10 +1,8 @@
 /*
- * DiscordArabicizer — تعريب واجهة ديسكورد إلى العربية
+ * DiscordArabicizer — كاشف تغطية التعريب
  * Copyright (c) 2026 LOSTSTR
  *
- * مبنية على Equicord المرخّصة GPL-3.0-or-later وتخضع لنفس الرخصة. تعترض دوال
- * i18n.intl لترجمة نصوص واجهة ديسكورد إلى العربية، مع الإبقاء على الأسماء
- * العَلَم (الألعاب والثيمات وأسماء المستخدمين) بلغتها الأصلية.
+ * مبنية على Equicord المرخّصة GPL-3.0-or-later وتخضع لنفس الرخصة.
  *
  * «اشراق / Esharq» وشعاراته وشاراته علامات محفوظة لصاحبها، ولا تشملها رخصة GPL.
  *
@@ -17,81 +15,88 @@ import { applyArabicFont } from "@utils/esharqFont";
 import { t } from "@utils/esharqI18n";
 import { OptionType } from "@utils/types";
 import { saveFile } from "@utils/web";
-import { Button, useEffect, useState } from "@webpack/common";
+import { Button, useState } from "@webpack/common";
 
-import { clearMissing, getMissing, sessionStats } from "./collector";
-import { startDomFallback, stopDomFallback } from "./domFallback";
-import { translations } from "./translations";
+import { type CoverageReport, scanCoverage } from "./coverageScan";
 
-// يبني ملف JSON من المفقودات ويطلب حفظه (أنسب من الحافظة للقوائم الكبيرة).
-function downloadMissing() {
-    const list = getMissing();
-    const date = new Date().toISOString().slice(0, 10);
-    saveFile(new File(
-        [JSON.stringify(list, null, 2)],
-        `arabicizer-missing-${date}.json`,
-        { type: "application/json" }
-    ));
-}
+const muted: React.CSSProperties = { color: "var(--text-muted)", fontSize: 13 };
 
-function StatsAndTools() {
-    // إنعاش دوري خفيف أثناء فتح الصفحة فقط — تتحدّث الأرقام حيّاً بلا أي عمل خلفي دائم.
-    const [, setTick] = useState(0);
-    useEffect(() => {
-        const id = setInterval(() => setTick(n => n + 1), 2000);
-        return () => clearInterval(id);
-    }, []);
+function CoveragePanel() {
+    // 🔴 لا فحص عند الرسم: لا يجري شيء حتى تُضغط الزرّ. لا مؤقّت ولا خطّاف.
+    const [report, setReport] = useState<CoverageReport | null>(null);
 
-    const missing = getMissing();
-    const total = Object.keys(translations).length;
-    const { hits, misses } = sessionStats;
-    const passed = hits + misses;
-    const pct = passed > 0 ? Math.round((hits / passed) * 100) : null;
+    const missing = report === null ? 0 : Object.keys(report.untranslated).length;
+    const percent = report === null || report.liveKeys === 0
+        ? null
+        : Math.round((report.translated / report.liveKeys) * 100);
+
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <div style={{ color: "var(--text-muted)", fontSize: 13 }}>
-                🟢 مُترجَم في القاموس: <b>{total}</b>　·　🔴 غير مُترجَم (هذه الجلسة): <b>{missing.length}</b>
+            <div style={muted}>
+                {t(
+                    "يقيس ما يعرضه ديسكورد أمامك الآن — الشاشات التي لم تفتحها لم تُحمَّل بعد، فالرقم يرتفع كلّما تجوّلت.",
+                    "Measures what Discord has actually loaded in front of you — screens you have not opened yet are not counted, so the number grows as you browse."
+                )}
             </div>
-            <div style={{ color: "var(--text-muted)", fontSize: 13 }}>
-                📊 {t("تغطية الجلسة الفعلية:", "Live session coverage:")}{" "}
-                {pct === null
-                    ? t("لا نصوص مرّت بعد", "no strings passed yet")
-                    : <>‏<b>{pct}%</b> — {t(`تُرجم ${hits.toLocaleString()} من ${passed.toLocaleString()} نصّاً مرّ بالمحرّك`, `${hits.toLocaleString()} of ${passed.toLocaleString()} strings translated`)}</>}
-            </div>
-            <div style={{ color: "var(--text-muted)", fontSize: 12 }}>
-                ℹ️ {t("الجمع يبدأ فقط عند تشغيل «الوضع التشخيصي» أعلاه — لا تلقائياً.", "Collection starts only when “Diagnostic mode” above is on — never automatically.")}
-            </div>
-            <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-                <Button
-                    onClick={() => copyWithToast(
-                        JSON.stringify(getMissing(), null, 2),
-                        `نُسخ ${getMissing().length} نصّاً غير مترجَم إلى الحافظة`
+
+            {report !== null && (
+                <div style={muted}>
+                    📊 <b>{report.liveKeys.toLocaleString()}</b> {t("مفتاحاً حيّاً في", "live keys across")}{" "}
+                    <b>{report.tables}</b> {t("جدولاً", "tables")}　·
+                    🟢 {t("مُعرَّب", "translated")}: <b>{report.translated.toLocaleString()}</b>
+                    {percent !== null && <> ({percent}%)</>}　·
+                    🔴 {t("باقٍ", "remaining")}: <b>{missing.toLocaleString()}</b>
+                </div>
+            )}
+
+            {report !== null && report.translated === 0 && report.liveKeys > 0 && (
+                <div style={{ ...muted, color: "var(--text-danger)" }}>
+                    {t(
+                        "لم يُطابَق أي مفتاح — الجدول العربي غير مُثبَّت. هذا خلل في النواة لا في هذه الإضافة.",
+                        "No key matched — the Arabic table is not installed. That is a core fault, not this plugin's."
                     )}
-                >
-                    انسخ النصوص غير المترجَمة ({missing.length})
+                </div>
+            )}
+
+            <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                <Button onClick={() => setReport(scanCoverage())}>
+                    {t("افحص التغطية الآن", "Scan coverage now")}
                 </Button>
-                <Button
-                    color={Button.Colors.PRIMARY}
-                    onClick={downloadMissing}
-                >
-                    {t("تنزيل كملف JSON", "Download as JSON")}
-                </Button>
-                <Button
-                    look={Button.Looks.LINK}
-                    color={Button.Colors.PRIMARY}
-                    onClick={() => clearMissing()}
-                >
-                    تصفير القائمة
-                </Button>
+
+                {report !== null && missing > 0 && (
+                    <>
+                        <Button
+                            color={Button.Colors.PRIMARY}
+                            onClick={() => copyWithToast(
+                                JSON.stringify(report.untranslated, null, 2),
+                                t(`نُسخ ${missing} مفتاحاً غير مُعرَّب`, `Copied ${missing} untranslated keys`)
+                            )}
+                        >
+                            {t("انسخ ما لم يُعرَّب", "Copy untranslated")}
+                        </Button>
+                        <Button
+                            look={Button.Looks.LINK}
+                            color={Button.Colors.PRIMARY}
+                            onClick={() => saveFile(new File(
+                                [JSON.stringify(report.untranslated, null, 2)],
+                                `esharq-untranslated-${new Date().toISOString().slice(0, 10)}.json`,
+                                { type: "application/json" }
+                            ))}
+                        >
+                            {t("تنزيل كملف JSON", "Download as JSON")}
+                        </Button>
+                    </>
+                )}
             </div>
         </div>
     );
 }
 
 export const settings = definePluginSettings({
-    // ── تعريب واجهة اشراق نفسها (كان مفتاحاً في لوحة إعدادات اشراق: Settings.arabicMode) ──
-    // يعمل هذا الخيار سواءً كانت الإضافة مُفعّلة أم لا: هو يخصّ لغة أسماء الإضافات ولوحة
-    // اشراق، لا تعريب واجهة ديسكورد. يقرؤه esharqPrefs مباشرةً من مخزن الإعدادات.
+    // ── تفضيلا التعريب ──────────────────────────────────────────────────
+    // 🔴 يعملان **سواءً كانت الإضافة مُفعَّلة أم لا**: يقرؤهما `esharqPrefs`
+    // من مخزن الإعدادات مباشرةً. ولذلك لا يُعاد تسمية مفتاح منهما ولا اسم
+    // الإضافة — إعادة التسمية تفقد تفضيل المستخدم بصمت.
     pluginsArabic: {
         type: OptionType.BOOLEAN,
         description: t(
@@ -120,60 +125,12 @@ export const settings = definePluginSettings({
             applyArabicFont(value);
         }
     },
-    enabled: {
-        type: OptionType.BOOLEAN,
-        description: t(
-            "🧪 تجريبي: تفعيل تعريب نصوص واجهة ديسكورد نفسها (يتطلّب إعادة التشغيل)",
-            "🧪 Experimental: enable Arabizing Discord's own UI strings (requires restart)"
-        ),
-        default: true,
-        // إعادة تشغيل يدوية واحدة عبر شريط ديسكورد: يُطبَّق الترقيع من بداية الجلسة فيثبت
-        // التعريب (يكفي وحده؛ لا حاجة لإعادة تلقائية فورية بعد الترقيع اللاصق وطبقة DOM).
-        restartNeeded: true
-    },
-    diagnosticMode: {
-        type: OptionType.BOOLEAN,
-        description: t(
-            "🔬 الوضع التشخيصي (للمطوّر): يضع 🟢 أمام كل نصّ مُترجَم و🔴 أمام غير المترجَم، ويبدأ جمع النصوص غير المترجَمة للحصاد. لا جمع تلقائياً قبل تشغيله — أطفئه عند الاستخدام العادي.",
-            "🔬 Diagnostic mode (dev): prefixes 🟢 to every translated string and 🔴 to untranslated ones, and starts collecting untranslated strings for harvest. No collection happens until it's on — turn off for normal use."
-        ),
-        default: false
-    },
-    logMissingKeys: {
-        type: OptionType.BOOLEAN,
-        description: t(
-            "تسجيل النصوص غير المترجَمة في الكونسول (اختياري — للتطوير)",
-            "Log untranslated strings to the console (optional — dev)"
-        ),
-        default: false
-    },
-    logErrors: {
-        type: OptionType.BOOLEAN,
-        description: t(
-            "🛠️ تسجيل أخطاء محرّك الترجمة في الكونسول للصيانة — مُطفأ افتراضياً، لا يُضعِف الأمان.",
-            "🛠️ Log translation-engine errors to the console for maintenance — off by default, does not weaken safety."
-        ),
-        default: false
-    },
-    domFallback: {
-        type: OptionType.BOOLEAN,
-        description: t(
-            "طبقة احتياطية للنصوص العنيدة التي تتجاوز محرّك الترجمة فقط (مثل «أنماط الرتب المحسّنة») — قائمة محدودة تُستبدَل بعد الرسم، لا تمسّ بقية النصوص.",
-            "Fallback only for stubborn strings that bypass the translation engine (e.g. “Enhanced Role Styles”) — a small fixed whitelist replaced after render, never touching any other text."
-        ),
-        default: true,
-        onChange(value: boolean) {
-            // تشغيل/إيقاف فوري (لا يحتاج إعادة تشغيل) — يبدأ فقط إن كانت الإضافة مُفعّلة.
-            if (value && settings.store.enabled) startDomFallback();
-            else stopDomFallback();
-        }
-    },
-    tools: {
+    coverage: {
         type: OptionType.COMPONENT,
         description: t(
-            "تنقّل في ديسكورد ثم انسخ النصوص غير المترجَمة دفعةً واحدة:",
-            "Browse Discord, then copy all untranslated strings at once:"
+            "قِس ما لم يُعرَّب بعد من نصوص ديسكورد المحمَّلة، وأخرجه طابور عمل:",
+            "Measure which of Discord's loaded strings are still untranslated, and export the work queue:"
         ),
-        component: StatsAndTools
+        component: CoveragePanel
     }
 });
