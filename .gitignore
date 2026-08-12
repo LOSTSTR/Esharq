@@ -60,3 +60,12 @@ ExtensionCache/
 
 *.tmp
 _claude_memory/
+.work/
+
+# أداة كشف المنشأ — خاصة، لا تُرفَع
+scripts/esharq/.provenance-scan.mjs
+
+# مخرجات التغطية القابلة لإعادة التوليد. اللقطة `discord-keys.json` وحدها
+# تُلتزَم لأنها **مرجع المحرس**: بدونها لا يعرف أحد ما الذي أضافه ديسكورد.
+src/userplugins/DiscordArabicizer/coverage/untranslated.json
+src/userplugins/DiscordArabicizer/coverage/placeholder-mismatch.json

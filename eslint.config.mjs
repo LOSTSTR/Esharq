@@ -66,7 +66,7 @@ export default defineConfig(
             "simple-header/header": [
                 "error",
                 {
-                    "files": [`${import.meta.dirname}/scripts/header-new.txt`, `${import.meta.dirname}/scripts/header-old.txt`],
+                    "files": [`${import.meta.dirname}/scripts/header-esharq.txt`, `${import.meta.dirname}/scripts/header-new.txt`, `${import.meta.dirname}/scripts/header-old.txt`],
                     "templates": { "author": [".*", "Vendicated and contributors"] }
                 }
             ],
