@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, sep } from "node:path";
 
 const ROOT = new URL("..", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
@@ -12,7 +12,11 @@ const HASH_RE = /["'`]\s*\.([A-Za-z][A-Za-z0-9+/]{5})\b/g;
 const tracked = execFileSync("git", ["ls-files", "src"], { cwd: ROOT, encoding: "utf8" })
     .split("\n")
     .filter(p => /\.(ts|tsx|js|jsx|mjs)$/.test(p))
-    .map(p => p.replace(/\//g, sep));
+    .map(p => p.replace(/\//g, sep))
+    // `git ls-files` يسرد **الفهرس**: ملف حُذف من القرص ولم يُلتزَم حذفه بعد
+    // يبقى مسروداً. بلا هذا الحارس ينهار اللينت برسالة ENOENT غامضة بدل أن
+    // يفحص ما تبقّى — وهو ما حدث فعلاً بعد حذف إضافات القياس.
+    .filter(p => existsSync(join(ROOT, p)));
 
 let errors = 0;
 let warnings = 0;
