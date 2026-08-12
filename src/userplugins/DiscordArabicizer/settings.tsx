@@ -150,8 +150,8 @@ export const settings = definePluginSettings({
     logErrors: {
         type: OptionType.BOOLEAN,
         description: t(
-            "🛠️ تسجيل أخطاء محرّك الترجمة في الكونسول (يُلتقَط عبر ConsoleWatcher للصيانة) — مُطفأ افتراضياً، لا يُضعِف الأمان.",
-            "🛠️ Log translation-engine errors to the console (captured by ConsoleWatcher for maintenance) — off by default, does not weaken safety."
+            "🛠️ تسجيل أخطاء محرّك الترجمة في الكونسول للصيانة — مُطفأ افتراضياً، لا يُضعِف الأمان.",
+            "🛠️ Log translation-engine errors to the console for maintenance — off by default, does not weaken safety."
         ),
         default: false
     },

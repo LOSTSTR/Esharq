@@ -657,7 +657,7 @@ function makeWrapper(origRaw: (...a: any[]) => any, name: string, kind: "string"
         wrapper = function (this: any, msg: any, values?: any) {
             const boundOrig: StrFn = (m, v) => origRaw.call(this, m, v); // this الفعلي (يدعم المشتقّات)
             try {
-                // خطّاف تشخيص اختياري: يعمل فقط أثناء تسجيل EsharqDiagnostics (الخطّاف العام
+                // خطّاف تشخيص اختياري: لا يعمل إلا حين يُركّب مُسجّل خارجي (الخطّاف العام
                 // موجود)، وإلا فالمسار مطابق تماماً للأصل عدا قراءة خاصّية واحدة — صفر تكلفة فعلياً.
                 const prof = (globalThis as any).__esharqProf;
                 if (prof) {

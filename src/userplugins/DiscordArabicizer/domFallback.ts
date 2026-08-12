@@ -148,7 +148,7 @@ function scanElement(el: Element): void {
 }
 
 function onMutations(records: MutationRecord[]): void {
-    // قياس تشخيصي اختياري (أثناء تسجيل EsharqDiagnostics فقط) — كم مرّة يُطلَق المراقِب وكم يستغرق.
+    // قياس تشخيصي اختياري (يعمل فقط حين يُركّب مُسجّل خارجي) — كم مرّة يُطلَق المراقِب وكم يستغرق.
     const prof = (globalThis as any).__esharqProf;
     const t0 = prof ? performance.now() : 0;
     try {
