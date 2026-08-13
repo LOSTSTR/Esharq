@@ -28,6 +28,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { HeadingTertiary } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import { SettingsTab } from "@components/settings";
+import { PluginsHeader } from "@components/settings/esharq/PluginsHeader";
 import { debounce } from "@shared/debounce";
 import { ChangeList } from "@utils/ChangeList";
 import { classNameFactory } from "@utils/css";
@@ -45,7 +46,6 @@ import Plugins, { ExcludedPlugins, PluginMeta } from "~plugins";
 
 import { FORK_EXCLUSIVE_PLUGINS, PluginCard } from "./PluginCard";
 import { openWarningModal } from "./PluginModal";
-import { StockPluginsCard, UserPluginsCard } from "./PluginStatCards";
 import { UIElementsButton } from "./UIElements";
 
 export const cl = classNameFactory("vc-plugins-");
@@ -62,47 +62,29 @@ function showErrorToast(message: string) {
     });
 }
 
-function ReloadRequiredCard({ required, enabledPlugins, openWarningModal, resetCheckAndDo }) {
+/**
+ * بطاقة «إعادة التشغيل» — **تظهر عند الحاجة فقط**.
+ *
+ * كانت تحمل أيضاً عنوان الصفحة وشرحها وزرّ التعطيل الشامل حين لا حاجة
+ * لإعادة تشغيل، أي أنها كانت بطاقة تحذير في حال ورأس صفحة في حال أخرى.
+ * انتقل ذلك كلّه إلى `PluginsHeader`، فبقي لها عملها الواحد: أن تقول إن
+ * تغييراً لن يسري قبل إعادة التشغيل. وتحذير يظهر دائماً لا يُقرأ.
+ */
+function ReloadRequiredCard({ required }: { required: boolean; }) {
+    if (!required) return null;
+
     return (
-        <Card className={classes(cl("info-card"), required && "vc-warning-card")}>
-            {required ? (
-                <>
-                    <HeadingTertiary>{t("إعادة تشغيل مطلوبة!", "Restart Required!")}</HeadingTertiary>
-                    <Paragraph className={cl("dep-text")}>
-                        {t(
-                            "أعد التشغيل الآن لتطبيق الإضافات الجديدة وإعداداتها",
-                            "Restart now to apply the new plugins and their settings"
-                        )}
-                    </Paragraph>
-                    <Button variant="primary" className={cl("restart-button")} onClick={() => location.reload()}>
-                        {t("إعادة التشغيل", "Restart")}
-                    </Button>
-                </>
-            ) : (
-                <>
-                    <HeadingTertiary>{t("إدارة الإضافات", "Manage Plugins")}</HeadingTertiary>
-                    <Paragraph>{t(
-                        "اضغط على أيقونة الإعدادات أو المعلومات للاطلاع على تفاصيل الإضافة",
-                        "Click the settings or info icon to see plugin details"
-                    )}</Paragraph>
-                    <Paragraph>{t(
-                        "الإضافات ذات أيقونة التروس تحتوي على إعدادات قابلة للتخصيص!",
-                        "Plugins with a gear icon have configurable settings!"
-                    )}</Paragraph>
-                </>
-            )}
-            {enabledPlugins.length > 0 && !required && (
-                <Button
-                    variant="secondary"
-                    size="small"
-                    className={"vc-plugins-disable-warning vc-modal-align-reset"}
-                    onClick={() => {
-                        return openWarningModal(null, undefined, false, enabledPlugins.length, resetCheckAndDo);
-                    }}
-                >
-                    {t("تعطيل كل الإضافات", "Disable All Plugins")}
-                </Button>
-            )}
+        <Card className={classes(cl("info-card"), "vc-warning-card")}>
+            <HeadingTertiary>{t("إعادة تشغيل مطلوبة!", "Restart Required!")}</HeadingTertiary>
+            <Paragraph className={cl("dep-text")}>
+                {t(
+                    "أعد التشغيل الآن لتطبيق الإضافات الجديدة وإعداداتها",
+                    "Restart now to apply the new plugins and their settings"
+                )}
+            </Paragraph>
+            <Button variant="primary" className={cl("restart-button")} onClick={() => location.reload()}>
+                {t("إعادة التشغيل", "Restart")}
+            </Button>
         </Card>
     );
 }
@@ -380,17 +362,21 @@ export default function PluginSettings() {
         }
     }
 
-    const { totalStockPlugins, totalUserPlugins, enabledStockPlugins, enabledUserPlugins, enabledPlugins } = useMemo(() => {
+    const { totalStockPlugins, totalUserPlugins, totalEsharqPlugins, enabledStockPlugins, enabledUserPlugins, enabledPlugins } = useMemo(() => {
         const isApiPlugin = (plugin: string) => plugin.endsWith("API") || Plugins[plugin].required;
 
         const totalPlugins = Object.keys(Plugins).filter(p => !isApiPlugin(p));
         const enabledPlugins = Object.keys(Plugins).filter(p => isPluginEnabled(p) && !isApiPlugin(p));
 
+        // إضافات إشراق: تُعرف بمجلدها لا باسمها — نفس مصدر شارة الفرع.
+        const totalEsharqPlugins = totalPlugins.filter(p =>
+            PluginMeta[p].folderName?.startsWith("src/esharqplugins/") && !Plugins[p].hidden).length;
+
         const totalStockPlugins = totalPlugins.filter(p => !PluginMeta[p].userPlugin && !Plugins[p].hidden).length;
         const totalUserPlugins = totalPlugins.filter(p => PluginMeta[p].userPlugin).length;
         const enabledStockPlugins = enabledPlugins.filter(p => !PluginMeta[p].userPlugin).length;
         const enabledUserPlugins = enabledPlugins.filter(p => PluginMeta[p].userPlugin).length;
-        return { totalStockPlugins, totalUserPlugins, enabledStockPlugins, enabledUserPlugins, enabledPlugins };
+        return { totalStockPlugins, totalUserPlugins, totalEsharqPlugins, enabledStockPlugins, enabledUserPlugins, enabledPlugins };
     }, [settings.plugins]);
 
     const pluginsToLoad = Math.min(36, plugins.length);
@@ -412,18 +398,15 @@ export default function PluginSettings() {
 
     return (
         <SettingsTab>
-            <ReloadRequiredCard required={changes.hasChanges} enabledPlugins={enabledPlugins} openWarningModal={openWarningModal} resetCheckAndDo={resetCheckAndDo} />
+            <ReloadRequiredCard required={changes.hasChanges} />
 
-            <div className={cl("stats-container")}>
-                <StockPluginsCard
-                    totalStockPlugins={totalStockPlugins}
-                    enabledStockPlugins={enabledStockPlugins}
-                />
-                <UserPluginsCard
-                    totalUserPlugins={totalUserPlugins}
-                    enabledUserPlugins={enabledUserPlugins}
-                />
-            </div>
+            <PluginsHeader
+                total={totalStockPlugins + totalUserPlugins}
+                enabled={enabledStockPlugins + enabledUserPlugins}
+                esharq={totalEsharqPlugins}
+                userPlugins={totalUserPlugins}
+                onDisableAll={() => openWarningModal(null, undefined, false, enabledPlugins.length, resetCheckAndDo)}
+            />
 
             <div className={cl("ui-elements")}>
                 <UIElementsButton />
