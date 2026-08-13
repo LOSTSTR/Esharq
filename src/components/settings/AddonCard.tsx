@@ -21,6 +21,7 @@ import "./esharq/cardState.css";
 
 import { Badge } from "@components/Badge";
 import { BaseText } from "@components/BaseText";
+import { categoryColor } from "@components/settings/esharq/CategoryFilter";
 import { Switch } from "@components/Switch";
 import { classNameFactory } from "@utils/css";
 import { Tooltip, useRef } from "@webpack/common";
@@ -40,12 +41,15 @@ interface Props {
     onMouseEnter?: MouseEventHandler<HTMLDivElement>;
     onMouseLeave?: MouseEventHandler<HTMLDivElement>;
 
+    /** فئات الإضافة — تُعرض شارات على البطاقة نفسها. */
+    tags?: readonly string[];
+
     infoButton?: ReactNode;
     footer?: ReactNode;
     author?: ReactNode;
 }
 
-export function AddonCard({ disabled, isNew, sourceBadge, tooltip, name, infoButton, footer, author, enabled, setEnabled, description, onMouseEnter, onMouseLeave }: Props) {
+export function AddonCard({ disabled, isNew, sourceBadge, tooltip, name, tags, infoButton, footer, author, enabled, setEnabled, description, onMouseEnter, onMouseLeave }: Props) {
     const titleRef = useRef<HTMLDivElement>(null);
     const titleContainerRef = useRef<HTMLDivElement>(null);
 
@@ -109,6 +113,18 @@ export function AddonCard({ disabled, isNew, sourceBadge, tooltip, name, infoBut
                     disabled={disabled}
                 />
             </div>
+
+            {/* 🔴 الفئات على البطاقة لا في المرشِّح وحده: يعرف القارئ نوع
+                الإضافة قبل أن يقرأ وصفها، ويجد شبيهاتها بنظرة. */}
+            {tags !== undefined && tags.length > 0 && (
+                <div className={cl("tags")}>
+                    {tags.map(tag => (
+                        <span key={tag} className={cl("tag")} style={{ ["--esharq-tag" as any]: categoryColor(tag) }}>
+                            {tag}
+                        </span>
+                    ))}
+                </div>
+            )}
 
             <div
                 className={cl("note")}

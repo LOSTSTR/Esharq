@@ -152,6 +152,7 @@ export function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, on
             sourceBadge={sourceBadge}
             tooltip={tooltip}
             description={displayDescription}
+            tags={plugin.tags}
             isNew={isNew}
             enabled={isEnabled()}
             setEnabled={toggleEnabled}

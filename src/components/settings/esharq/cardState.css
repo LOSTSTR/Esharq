@@ -46,3 +46,24 @@
         transition: none;
     }
 }
+
+/* شارات الفئة على البطاقة — صغيرة وباهتة، فلا تنافس اسم الإضافة.
+   اللون يأتي من متغيّر تُحدّده الشارة نفسها، فيبقى ثابتاً لكل فئة. */
+.vc-addon-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 6px 0 2px;
+}
+
+.vc-addon-tag {
+    padding: 1px 6px;
+    border: 1px solid color-mix(in srgb, var(--esharq-tag) 45%, transparent);
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--esharq-tag) 14%, transparent);
+    color: var(--esharq-tag);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}

@@ -28,6 +28,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { HeadingTertiary } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import { SettingsTab } from "@components/settings";
+import { CategoryFilter } from "@components/settings/esharq/CategoryFilter";
 import { PluginsHeader } from "@components/settings/esharq/PluginsHeader";
 import { debounce } from "@shared/debounce";
 import { ChangeList } from "@utils/ChangeList";
@@ -39,7 +40,7 @@ import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
 import { useAwaiter, useCleanupEffect, useIntersection } from "@utils/react";
 import { PluginTag, PluginTags } from "@utils/types";
-import { Alerts, ConfirmModal, lodash, openModal, Parser, React, SearchableSelect, Select, TextInput, Toasts, Tooltip, useCallback, useMemo, useRef, useState } from "@webpack/common";
+import { Alerts, ConfirmModal, lodash, openModal, Parser, React, Select, TextInput, Toasts, Tooltip, useCallback, useMemo, useRef, useState } from "@webpack/common";
 import { JSX } from "react";
 
 import Plugins, { ExcludedPlugins, PluginMeta } from "~plugins";
@@ -444,6 +445,15 @@ export default function PluginSettings() {
         return { totalStockPlugins, totalUserPlugins, totalEsharqPlugins, enabledStockPlugins, enabledUserPlugins, enabledPlugins };
     }, [settings.plugins]);
 
+    /** كم إضافة في كل فئة — يُحسب مرّة، فاللوحة تعرضه بلا مرور جديد. */
+    const categoryCounts = useMemo(() => {
+        const out: Record<string, number> = {};
+        for (const name in Plugins) {
+            for (const tag of Plugins[name].tags ?? []) out[tag] = (out[tag] ?? 0) + 1;
+        }
+        return out;
+    }, []);
+
     const pluginsToLoad = Math.min(36, plugins.length);
     const [visibleCount, setVisibleCount] = React.useState(pluginsToLoad);
     const loadMore = React.useCallback(() => {
@@ -520,13 +530,12 @@ export default function PluginSettings() {
                         closeOnSelect={true}
                         placeholder={t("المصدر والحالة", "Source and state")}
                     />
-                    <SearchableSelect
-                        options={PluginTags.map(tag => ({ label: tag, value: tag }))}
-                        value={searchValue.tags}
-                        onChange={tags => setSearchValue(prev => ({ ...prev, tags }))}
-                        closeOnSelect={false}
-                        placeholder={t("الفئة", "Category")}
-                        multi
+                    <CategoryFilter
+                        categories={PluginTags}
+                        counts={categoryCounts}
+                        selected={searchValue.tags}
+                        onChange={tags => setSearchValue(prev => ({ ...prev, tags: tags as PluginTag[] }))}
+                        label={tag => tag}
                     />
                 </div>
             </ErrorBoundary>
