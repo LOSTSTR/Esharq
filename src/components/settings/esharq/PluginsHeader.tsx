@@ -68,6 +68,7 @@ interface Props {
     esharq: number;
     userPlugins: number;
     onDisableAll(): void;
+    onRestoreDefaults(): void;
 }
 
 function Tile({ value, label, hint, highlight, index }: {
@@ -100,7 +101,7 @@ function Tile({ value, label, hint, highlight, index }: {
     );
 }
 
-export function PluginsHeader({ total, enabled, esharq, userPlugins, onDisableAll }: Props) {
+export function PluginsHeader({ total, enabled, esharq, userPlugins, onDisableAll, onRestoreDefaults }: Props) {
     const percent = total === 0 ? 0 : Math.round((enabled / total) * 100);
 
     return (
@@ -130,9 +131,14 @@ export function PluginsHeader({ total, enabled, esharq, userPlugins, onDisableAl
                     </div>
                 </div>
 
-                <Button className="esharq-press" variant="secondary" size="small" onClick={onDisableAll}>
-                    {t("تعطيل كل الإضافات", "Disable all plugins")}
-                </Button>
+                <div style={{ display: "flex", gap: UNIT, flexWrap: "wrap" }}>
+                    <Button className="esharq-press" variant="secondary" size="small" onClick={onRestoreDefaults}>
+                        {t("إعادة الضبط الافتراضي", "Restore defaults")}
+                    </Button>
+                    <Button className="esharq-press" variant="secondary" size="small" onClick={onDisableAll}>
+                        {t("تعطيل كل الإضافات", "Disable all plugins")}
+                    </Button>
+                </div>
             </div>
 
             <div style={{ display: "flex", gap: UNIT * 1.5, flexWrap: "wrap" }}>

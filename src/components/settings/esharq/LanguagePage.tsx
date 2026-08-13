@@ -20,7 +20,7 @@ import { ACCENT, RADIUS, SURFACE, UNIT } from "./tokens";
  * صفحة **اللغة** — كل ما يخصّ لغة العميل في موضع واحد:
  *
  *   1. لغة ديسكورد نفسه   — العربية التي تعرضها نواة إشراق
- *   2. لغة الإضافات       — أسماء الإضافات وأوصافها ولوحة إشراق
+ *   2. لغة الإضافات       — أوصاف الإضافات وإعداداتها ولوحة إشراق
  *   3. الخطّ العربي        — خطّ كل نصّ عربي في العميل
  *
  * 🔴 **التخزين في `Settings.esharq`، والقراءة عبر `esharqPrefs` وحده**:
@@ -106,8 +106,8 @@ export function LanguagePage() {
                 index={1}
                 title={t("لغة الإضافات", "Plugins language")}
                 subtitle={t(
-                    "أسماء الإضافات وأوصافها ولوحة إشراق. مستقلّة عن لغة ديسكورد: تستطيع إبقاء ديسكورد إنجليزياً ولوحة إشراق عربية، أو العكس.",
-                    "Plugin names, descriptions and the Esharq panel. Independent of Discord's language: you can keep Discord in English and Esharq in Arabic, or the reverse."
+                    "أوصاف الإضافات وإعداداتها ولوحة إشراق. 🔴 أمّا أسماء الإضافات فتبقى إنجليزية دائماً — بها يبحث المستخدمون ويسأل بعضهم بعضاً، وتعريبها يُضيّعهم. ومستقلّة عن لغة ديسكورد: تستطيع إبقاء ديسكورد إنجليزياً ولوحة إشراق عربية، أو العكس.",
+                    "Plugin descriptions, their settings, and the Esharq panel. 🔴 Plugin names always stay in English — that is what people search for and ask each other about, and translating them strands them. Independent of Discord's language: you can keep Discord in English and Esharq in Arabic, or the reverse."
                 )}
             >
                 <FormSwitch
@@ -116,7 +116,7 @@ export function LanguagePage() {
                         writeEsharqPref("pluginsArabic", value);
                         setPluginsArabic(value);
                     }}
-                    title={t("عرّب أسماء الإضافات ولوحة إشراق", "Localize plugin names and the Esharq panel")}
+                    title={t("عرّب أوصاف الإضافات وإعداداتها", "Localize plugin descriptions and settings")}
                     description={t(
                         "يتطلّب إعادة تشغيل ليُعاد رسم كل النصوص باللغة المختارة.",
                         "Requires a restart so every string re-renders in the chosen language."

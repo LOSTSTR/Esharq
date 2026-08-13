@@ -10,6 +10,7 @@ import { chooseFile, saveFile } from "@utils/web";
 import { moment, Toasts } from "@webpack/common";
 
 import { DataStore } from "..";
+import { redactSecrets } from "./redact";
 
 type BackupType = "all" | "plugins" | "css" | "datastore";
 
@@ -105,8 +106,20 @@ export async function importSettings(data: string, type: BackupType = "all", clo
     }
 }
 
+/** آخر تصدير: ما نُقّي منه — تقرؤه الواجهة فتُخبر المستخدم بما عليه إعادة إدخاله. */
+export let lastRedactedKeys: string[] = [];
+
 export async function exportSettings({ syncDataStore = true, type = "all", minify }: { syncDataStore?: boolean; type?: BackupType; minify?: boolean; }) {
-    const settings = VencordNative.settings.get();
+    // 🔴 النسخة تُشارَك — في محادثة دعم أو مشكلة على GitHub. وإعدادات
+    // الإضافات تحوي مفاتيح خدمات حقيقية، فتُنقّى قبل أن تغادر الجهاز.
+    // الأصل في المخزن لا يُمَسّ: التنقية للملف وحده.
+    const raw = VencordNative.settings.get();
+    const redaction = redactSecrets(raw);
+    const settings = redaction.value;
+    lastRedactedKeys = redaction.redacted;
+    if (redaction.redacted.length > 0) {
+        logger.info(`نُقّي ${redaction.redacted.length} مفتاحاً حسّاساً من النسخة:`, redaction.redacted);
+    }
     const quickCss = await VencordNative.quickCss.get();
     let dataStore: any;
 

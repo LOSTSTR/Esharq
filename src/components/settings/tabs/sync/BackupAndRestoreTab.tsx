@@ -1,124 +1,130 @@
 /*
- * Vencord, a modification for Discord's desktop app
- * Copyright (c) 2022 Vendicated and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ * Esharq, a Discord client mod
+ * Copyright (c) 2026 LOSTSTR
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 
 import { useSettings } from "@api/Settings";
 import { downloadSettingsBackup, uploadSettingsBackup } from "@api/SettingsSync/offline";
 import { Button } from "@components/Button";
-import { Divider } from "@components/Divider";
-import { Flex } from "@components/Flex";
-import { Heading } from "@components/Heading";
-import { Notice } from "@components/Notice";
-import { Paragraph } from "@components/Paragraph";
+import { Card, NoticeStrip } from "@components/settings/esharq/Card";
+import { SURFACE, UNIT } from "@components/settings/esharq/tokens";
 import { SettingsTab, wrapTab } from "@components/settings/tabs/BaseTab";
 import { t } from "@utils/esharqI18n";
-import { Margins } from "@utils/margins";
+import { React } from "@webpack/common";
+
+/**
+ * النسخ والاستعادة — بتصميم بطاقات إشراق.
+ *
+ * 🔴 **الشريط يقول ما يفعله الكود فعلاً**: التصدير يُنقّي المفاتيح الحسّاسة
+ * (`api/SettingsSync/redact`) قبل أن يغادر الملف الجهاز. لو لم يكن يفعل
+ * لَما كُتب الشريط — وعدٌ بالأمان لا يفي به الكود أسوأ من لا وعد، لأنه
+ * يدفع المستخدم إلى مشاركة الملف باطمئنان.
+ */
+
+/** أنواع المحتوى في النسخة — الشارات وأزرار الاستيراد والتصدير تقرأ منها. */
+const PARTS = [
+    { key: "plugins", ar: "إعدادات الإضافات", en: "Plugin settings" },
+    { key: "css", ar: "CSS المخصّص", en: "Custom CSS" },
+    { key: "datastore", ar: "بيانات المخزن", en: "DataStore data" }
+] as const;
+
+function Chip({ children }: { children: React.ReactNode; }) {
+    return (
+        <span style={{
+            fontSize: 12,
+            padding: `4px ${UNIT * 1.5}px`,
+            borderRadius: 6,
+            background: SURFACE[2],
+            color: "var(--text-muted)"
+        }}>
+            {children}
+        </span>
+    );
+}
+
+function Row({ children }: { children: React.ReactNode; }) {
+    return <div style={{ display: "flex", gap: UNIT, flexWrap: "wrap" }}>{children}</div>;
+}
 
 function BackupAndRestoreTab() {
     useSettings(["plugins.Settings.arabicMode"]);
 
     return (
         <SettingsTab>
-            <Heading className={Margins.top16}>{t("النسخ الاحتياطي والاستعادة", "Backup & Restore")}</Heading>
-            <Paragraph className={Margins.bottom20}>
-                {t("استيراد وتصدير إعدادات Esharq كملف JSON.", "Import and export your Esharq settings as a JSON file.")}
-            </Paragraph>
+            <Card
+                index={0}
+                title={t("النسخ والاستعادة", "Backup & Restore")}
+                subtitle={t(
+                    "انقل إعدادات إشراق بين أجهزتك، أو احتفظ بنسخة تعود إليها.",
+                    "Move your Esharq settings between devices, or keep a copy you can return to."
+                )}
+                badge={t("ملف JSON محلّي", "Local JSON")}
+            />
 
-            <Notice.Warning className={Margins.bottom20}>
-                {t("استيراد ملف الإعدادات سيُستبدل إعداداتك الحالية. تأكد من تصدير نسخة احتياطية أولاً", "Importing a settings file will replace your current settings. Make sure to export a backup first.")}
-            </Notice.Warning>
+            <NoticeStrip>
+                {t(
+                    "المفاتيح الحسّاسة (مفاتيح الخدمات والرموز وعناوين الخطّافات) تُستثنى من كل تصدير تلقائياً — تُستبدل قيمتها ويبقى اسمها لتعرف ما عليك إعادة إدخاله بعد الاستعادة.",
+                    "Sensitive values — service keys, tokens, webhook URLs — are excluded from every export automatically. The value is replaced and the name kept, so you know what to re-enter after restoring."
+                )}
+            </NoticeStrip>
 
-            <Heading>{t("ما يتضمنه النسخ الاحتياطي", "What's included in the backup")}</Heading>
-            <Paragraph className={Margins.bottom20}>
-                • {t("CSS مخصص", "Custom CSS")}<br />
-                • {t("روابط القوالب", "Theme links")}<br />
-                • {t("إعدادات الإضافات", "Plugin settings")}<br />
-                • {t("بيانات المخزن", "Datastore data")}
-            </Paragraph>
+            <Card
+                index={1}
+                title={t("محتوى النسخة", "What a backup holds")}
+                subtitle={t(
+                    "تستطيع أخذ نسخة كاملة، أو جزءاً بعينه.",
+                    "Take a complete copy, or just one part of it."
+                )}
+            >
+                <Row>{PARTS.map(part => <Chip key={part.key}>{t(part.ar, part.en)}</Chip>)}</Row>
+            </Card>
 
-            <Divider className={Margins.bottom20} />
+            <Card
+                index={2}
+                title={t("الاستيراد", "Import")}
+                subtitle={t(
+                    "اختر ملفاً صدّرته سابقاً لاستعادة إعداداتك منه.",
+                    "Choose a file you exported earlier to restore your settings from it."
+                )}
+            >
+                <NoticeStrip tone="danger">
+                    {t(
+                        "الاستيراد يستبدل الأجزاء المختارة من إعداداتك الحالية. صدّر نسخة أوّلاً إن كنت قد تحتاج الرجوع.",
+                        "Importing replaces the selected parts of your current settings. Export a copy first if you might need to go back."
+                    )}
+                </NoticeStrip>
+                <Row>
+                    <Button className="esharq-press" variant="secondary" size="small" onClick={() => uploadSettingsBackup("all")}>
+                        {t("استيراد الكل", "Import everything")}
+                    </Button>
+                    {PARTS.map(part => (
+                        <Button key={part.key} className="esharq-press" size="small" onClick={() => uploadSettingsBackup(part.key)}>
+                            {t(part.ar, part.en)}
+                        </Button>
+                    ))}
+                </Row>
+            </Card>
 
-            <Heading>{t("استيراد الإعدادات", "Import Settings")}</Heading>
-            <Paragraph className={Margins.bottom16}>
-                {t("اختر ملف إعدادات مُصدَّر مسبقاً لاستعادة إعداداتك.", "Choose a previously exported settings file to restore your settings.")}
-            </Paragraph>
-
-            <Flex gap="8px" className={Margins.bottom20} style={{ flexWrap: "wrap" }}>
-                <Button
-                    onClick={() => uploadSettingsBackup("all")}
-                    size="small"
-                    variant="secondary"
-                >
-                    {t("استيراد كل الإعدادات", "Import All Settings")}
-                </Button>
-                <Button
-                    onClick={() => uploadSettingsBackup("plugins")}
-                    size="small"
-                >
-                    {t("استيراد الإضافات", "Import Plugins")}
-                </Button>
-                <Button
-                    onClick={() => uploadSettingsBackup("css")}
-                    size="small"
-                >
-                    {t("استيراد QuickCSS", "Import QuickCSS")}
-                </Button>
-                <Button
-                    onClick={() => uploadSettingsBackup("datastore")}
-                    size="small"
-                >
-                    {t("استيراد المخزن", "Import Datastore")}
-                </Button>
-            </Flex>
-
-            <Divider className={Margins.bottom20} />
-
-            <Heading>{t("تصدير الإعدادات", "Export Settings")}</Heading>
-            <Paragraph className={Margins.bottom16}>
-                {t("نزّل إعداداتك الحالية كملف نسخ احتياطية. يمكنك تصدير كل شيء دفعةً واحدة، أو اختيار تصدير أجزاء معينة فقط من إعداداتك.", "Download your current settings as a backup file. You can export everything at once or choose to export only specific parts of your settings.")}
-            </Paragraph>
-
-            <Flex gap="8px" style={{ flexWrap: "wrap" }}>
-                <Button
-                    onClick={() => downloadSettingsBackup("all")}
-                    size="small"
-                    variant="secondary"
-                >
-                    {t("تصدير كل الإعدادات", "Export All Settings")}
-                </Button>
-                <Button
-                    onClick={() => downloadSettingsBackup("plugins")}
-                    size="small"
-                >
-                    {t("تصدير الإضافات", "Export Plugins")}
-                </Button>
-                <Button
-                    onClick={() => downloadSettingsBackup("css")}
-                    size="small"
-                >
-                    {t("تصدير QuickCSS", "Export QuickCSS")}
-                </Button>
-                <Button
-                    onClick={() => downloadSettingsBackup("datastore")}
-                    size="small"
-                >
-                    {t("تصدير المخزن", "Export Datastore")}
-                </Button>
-            </Flex>
+            <Card
+                index={3}
+                title={t("التصدير", "Export")}
+                subtitle={t(
+                    "نزّل إعداداتك الحالية ملفاً واحداً — منقّىً من المفاتيح الحسّاسة.",
+                    "Download your current settings as a single file, with sensitive values stripped."
+                )}
+            >
+                <Row>
+                    <Button className="esharq-press" variant="secondary" size="small" onClick={() => downloadSettingsBackup("all")}>
+                        {t("تصدير الكل", "Export everything")}
+                    </Button>
+                    {PARTS.map(part => (
+                        <Button key={part.key} className="esharq-press" size="small" onClick={() => downloadSettingsBackup(part.key)}>
+                            {t(part.ar, part.en)}
+                        </Button>
+                    ))}
+                </Row>
+            </Card>
         </SettingsTab>
     );
 }

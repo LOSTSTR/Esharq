@@ -39,7 +39,7 @@
         "test": "pnpm buildStandalone && pnpm testTsc && pnpm lint:fix && pnpm lint-styles && pnpm lint:intl && pnpm lint:patches && pnpm generatePluginJson",
         "testWeb": "pnpm lint:fix && pnpm buildWeb && pnpm testTsc",
         "testTsc": "tsc --noEmit",
-        "testEsharq": "node scripts/esharqCheck.mjs && pnpm testCoverage && pnpm testPrefs && node scripts/esharqSecurityAudit.mjs && tsc --noEmit -p tsconfig.esharq.json && stylelint \"src/esharqplugins/**/*.css\"",
+        "testEsharq": "node scripts/esharqCheck.mjs && pnpm testCoverage && pnpm testPrefs && pnpm testRedact && node scripts/esharqSecurityAudit.mjs && tsc --noEmit -p tsconfig.esharq.json && stylelint \"src/esharqplugins/**/*.css\"",
         "securityAudit": "node scripts/esharqSecurityAudit.mjs",
         "inject:canary": "node scripts/esharqInject.mjs --branch canary",
         "uninject:canary": "node scripts/esharqInject.mjs --branch canary --uninstall",
@@ -47,7 +47,8 @@
         "intl:accept": "node scripts/esharq/harvestIntl.mjs --accept",
         "intl:build": "node scripts/esharq/buildArabicTable.mjs",
         "testCoverage": "tsx scripts/esharq/coverageSelfTest.ts",
-        "testPrefs": "tsx scripts/esharq/prefsSelfTest.ts"
+        "testPrefs": "tsx scripts/esharq/prefsSelfTest.ts",
+        "testRedact": "tsx scripts/esharq/redactSelfTest.ts"
     },
     "dependencies": {
         "@ffmpeg/ffmpeg": "^0.12.10",

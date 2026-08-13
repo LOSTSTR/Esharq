@@ -365,6 +365,68 @@ export default function PluginSettings() {
         }
     }
 
+    /**
+     * إعادة الضبط الافتراضي — **إلى ما تُشحن به إشراق، لا إلى الفراغ**.
+     *
+     * «عطّل الكل» يترك المستخدم بعميل خامد؛ وهذا يُعيده إلى نقطة معروفة:
+     * ما كان مُفعَّلاً يوم ثبّت.
+     *
+     * 🔴 **لا يمسّ إعدادات الإضافات نفسها**: يُعيد ما هو مُفعَّل فقط. محو
+     * ما ضبطه المستخدم داخل كل إضافة خسارة لا رجعة فيها، ولم يطلبها من
+     * ضغط زرّاً اسمه «الضبط الافتراضي».
+     *
+     * ويُطلَب التأكيد صراحةً: فعل يُغيّر عشرات الإضافات دفعة واحدة لا يقع
+     * بنقرة واحدة.
+     */
+    function restoreDefaultConfiguration() {
+        const changed = Object.keys(Plugins).filter(name => {
+            const wanted = Boolean(Plugins[name].required || Plugins[name].enabledByDefault);
+            return isPluginEnabled(name) !== wanted;
+        });
+
+        if (changed.length === 0) {
+            Toasts.show({
+                message: t("إعداداتك مطابقة للافتراضي أصلاً.", "Your setup already matches the defaults."),
+                type: Toasts.Type.MESSAGE,
+                id: Toasts.genId(),
+                options: { position: Toasts.Position.BOTTOM }
+            });
+            return;
+        }
+
+        Alerts.show({
+            title: t("إعادة الضبط الافتراضي", "Restore default configuration"),
+            body: (
+                <>
+                    <p style={{ textAlign: "center" }}>
+                        {t(`سيتغيّر تفعيل ${changed.length} إضافة لتعود إلى ما تُشحن به إشراق.`,
+                            `${changed.length} plugins will change state to match what Esharq ships with.`)}
+                    </p>
+                    <p style={{ textAlign: "center" }}>
+                        {t("إعداداتك داخل كل إضافة تبقى كما هي.", "Your settings inside each plugin are left untouched.")}
+                    </p>
+                </>
+            ),
+            confirmText: t("أعِد الضبط", "Restore"),
+            cancelText: t("إلغاء", "Cancel"),
+            onConfirm: () => {
+                for (const name of changed) {
+                    settings.plugins[name].enabled = Boolean(Plugins[name].required || Plugins[name].enabledByDefault);
+                    changes.handleChange(name);
+                }
+                Alerts.show({
+                    title: t("إعادة تشغيل مطلوبة", "Restart required"),
+                    body: <p style={{ textAlign: "center" }}>
+                        {t("يسري التغيير بعد إعادة التشغيل.", "The change applies after a restart.")}
+                    </p>,
+                    confirmText: t("إعادة التشغيل الآن", "Restart now"),
+                    cancelText: t("لاحقاً", "Later"),
+                    onConfirm: () => location.reload()
+                });
+            }
+        });
+    }
+
     const { totalStockPlugins, totalUserPlugins, totalEsharqPlugins, enabledStockPlugins, enabledUserPlugins, enabledPlugins } = useMemo(() => {
         const isApiPlugin = (plugin: string) => plugin.endsWith("API") || Plugins[plugin].required;
 
@@ -409,6 +471,7 @@ export default function PluginSettings() {
                 esharq={totalEsharqPlugins}
                 userPlugins={totalUserPlugins}
                 onDisableAll={() => openWarningModal(null, undefined, false, enabledPlugins.length, resetCheckAndDo)}
+                onRestoreDefaults={restoreDefaultConfiguration}
             />
 
             <div className={cl("ui-elements")}>
