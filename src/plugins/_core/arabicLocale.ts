@@ -5,10 +5,9 @@
  */
 
 import {
-    ARABIC_TABLE_GLOBAL, type ArabicMessageTable,
-ENABLE_ARABIC_PATTERN, ENABLE_ARABIC_REPLACEMENT,
-    installArabicTable, LANGUAGE_TABLE_ANCHOR, MESSAGE_LOADER_ANCHOR,
-    MESSAGE_LOADER_PATTERN, MESSAGE_LOADER_REPLACEMENT } from "@utils/esharqLocale";
+    ARABIC_TABLE_GLOBAL, type ArabicMessageTable, installArabicTable,
+    MESSAGE_LOADER_ANCHOR, MESSAGE_LOADER_PATTERN,
+    MESSAGE_LOADER_REPLACEMENT } from "@utils/esharqLocale";
 import definePlugin from "@utils/types";
 
 // 🔴 البادئة `_` ليست تجميلاً: مُولِّد سجلّ الإضافات يستورد **كل مدخل** في
@@ -39,8 +38,8 @@ installArabicTable(arabicMessages as unknown as ArabicMessageTable);
  * لا يلفّ دالّة واحدة ولا يترجم عند العرض: محرّك ديسكورد نفسه يعرض
  * العربية ⇒ **صفر تكلفة تشغيل، وبلا وميض إنجليزي**.
  *
- * 🔴 **الإتاحة ليست التفعيل**: العربية تظهر في قائمة لغات ديسكورد،
- * والمستخدم يختارها. لا تبديل تلقائي لأحد.
+ * 🔴 **العربية لا تظهر في قائمة لغات ديسكورد**: مكانها صفحة اللغة عندنا،
+ * ومنها وحدها تُفعَّل. ولا تبديل تلقائي لأحد.
  */
 export default definePlugin({
     name: "EsharqArabicLocale",
@@ -51,17 +50,10 @@ export default definePlugin({
     required: true,
 
     patches: [
-        {
-            // إتاحة العربية: ديسكورد يعرفها ويعطّلها، والتفاوض يُرشّح
-            // المُعطَّلة فتسقط. جدولان — أحدهما بحقول إضافية — لذلك النمط
-            // يقبل ما بينهما ولا يُثبّت ترتيباً.
-            find: LANGUAGE_TABLE_ANCHOR,
-            all: true,
-            replacement: {
-                match: ENABLE_ARABIC_PATTERN,
-                replace: ENABLE_ARABIC_REPLACEMENT
-            }
-        },
+        // 🔴 **جدول لغات ديسكورد لا يُمَسّ** — قرار المالك: العربية إضافتنا،
+        // فمكانها صفحة «الأدوات ← اللغة» عندنا لا قائمة لغات ديسكورد الرسمية.
+        // ولذلك لا نقلب `enabled:false → true` هناك؛ يبقى المُدخل مُعطَّلاً في
+        // قائمته، ونحن نضبط اللغة من صفحتنا مباشرةً.
         {
             // محمّل الرسائل: نُلحق `ar` يُرجع جدولنا من الذاكرة بلا شبكة.
             // المرساة **نهاية الخريطة** لا بدايتها (البداية تطابق جزءاً
