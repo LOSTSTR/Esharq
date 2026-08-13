@@ -106,7 +106,7 @@ export const SETTINGS_TREE: readonly SettingsSection[] = [
         pages: [
             page("voice-lab", "مختبر الصوت", "Voice Lab", "tools", "planned"),
             page("startup-timings", "أزمنة الإقلاع", "Startup Timings", "tools", "planned"),
-            page("language", "اللغة", "Language", "tools", "planned"),
+            page("language", "اللغة", "Language", "tools", "ready", "LanguagePage"),
             page("icon-finder", "باحث الأيقونات", "Icon Finder", "tools", "planned")
         ]
     },

@@ -47,6 +47,21 @@ export const FONT_LABELS: Record<string, string> = Object.fromEntries(
     Object.entries(FONTS).map(([k, v]) => [k, v.family])
 );
 
+/**
+ * قائمة الاختيار كما تُعرَض للمستخدم — **مصدر واحد** لأي واجهة تعرض الخطوط.
+ * كانت مكرّرة في إعدادات الإضافة، فكان تعديل خطّ يوجب تذكّر موضعين.
+ * الترتيب مقصود: الافتراضي أوّلاً و«بدون» آخراً.
+ */
+export const ARABIC_FONTS: readonly { key: EsharqFontKey; labelAr: string; labelEn: string; }[] = [
+    { key: "tajawal", labelAr: "Tajawal — عصري متوازن (الافتراضي)", labelEn: "Tajawal — modern and balanced (default)" },
+    { key: "cairo", labelAr: "Cairo — عصري واسع الانتشار", labelEn: "Cairo — popular modern sans" },
+    { key: "almarai", labelAr: "Almarai — خليجي نظيف عالي الوضوح", labelEn: "Almarai — clean, highly legible" },
+    { key: "changa", labelAr: "Changa — عناوين عربية مميّزة", labelEn: "Changa — distinctive display face" },
+    { key: "elMessiri", labelAr: "El Messiri — أنيق بلمسة كلاسيكية", labelEn: "El Messiri — elegant, classic touch" },
+    { key: "saudi", labelAr: "Saudi — الخطّ السعودي الرسمي", labelEn: "Saudi — the official Saudi typeface" },
+    { key: "off", labelAr: "بدون — خطّ ديسكورد الافتراضي", labelEn: "None — keep Discord's default font" }
+];
+
 // خطوط Discord المعروفة (احتياط إن لم تُقرأ المتغيّرات بعد). لا نلمس أحادي المسافة.
 const FALLBACK_FAMILIES = ["gg sans", "ABC Ginto Nord", "ABC Ginto Normal", "Noto Sans"];
 const GENERIC = /^(inherit|initial|unset|sans-serif|serif|monospace|system-ui|ui-sans-serif|-apple-system|BlinkMacSystemFont|Helvetica Neue|Helvetica|Arial|helvetica|arial|Segoe UI|Roboto|emoji)$/i;

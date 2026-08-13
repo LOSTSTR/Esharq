@@ -11,7 +11,6 @@
 
 import { definePluginSettings } from "@api/Settings";
 import { copyWithToast } from "@utils/discord";
-import { applyArabicFont } from "@utils/esharqFont";
 import { t } from "@utils/esharqI18n";
 import { OptionType } from "@utils/types";
 import { saveFile } from "@utils/web";
@@ -92,39 +91,12 @@ function CoveragePanel() {
     );
 }
 
+// 🔴 `pluginsArabic` و`arabicFont` **لم تعودا معروضتين هنا**: واجهتهما انتقلت
+// إلى صفحة «الأدوات ← اللغة» حيث تجتمع لغة ديسكورد ولغة الإضافات والخطّ.
+// أمّا **مكان تخزينهما فلم يتغيّر** ويبقى تحت اسم هذه الإضافة، لأن
+// `esharqPrefs` يقرؤهما من هناك مباشرةً — ونقل المخزن بلا ترحيل يمحو تفضيل
+// المستخدم بصمت. ولذلك أيضاً **لا يُعاد تسمية هذه الإضافة**.
 export const settings = definePluginSettings({
-    // ── تفضيلا التعريب ──────────────────────────────────────────────────
-    // 🔴 يعملان **سواءً كانت الإضافة مُفعَّلة أم لا**: يقرؤهما `esharqPrefs`
-    // من مخزن الإعدادات مباشرةً. ولذلك لا يُعاد تسمية مفتاح منهما ولا اسم
-    // الإضافة — إعادة التسمية تفقد تفضيل المستخدم بصمت.
-    pluginsArabic: {
-        type: OptionType.BOOLEAN,
-        description: t(
-            "🌐 تفعيل تعريب الإضافات — عرض أسماء الإضافات وأوصافها وإعدادات اشراق بالعربية. أطفئه للإنجليزية. اختياري تماماً، ويتطلّب إعادة التشغيل ليُعاد رسم كل النصوص باللغة المختارة.",
-            "🌐 Enable plugin localization — show plugin names, descriptions, and the Esharq panel in Arabic. Turn off for English. Fully optional; requires a restart so every string re-renders in the chosen language."
-        ),
-        default: false,
-        restartNeeded: true
-    },
-    arabicFont: {
-        type: OptionType.SELECT,
-        description: t(
-            "🔤 خطّ النصوص العربية — يوحّد خطّ كلّ نصّ عربي (واجهة ديسكورد ولوحة اشراق والإضافات). يُطبَّق فوراً بلا إعادة تشغيل، ويمسّ المحارف العربية فقط دون اللاتيني والأكواد.",
-            "🔤 Arabic text font — unifies the font of all Arabic text (Discord UI, the Esharq panel, and plugins). Applies instantly, no restart; only Arabic glyphs are affected, Latin and code stay untouched."
-        ),
-        options: [
-            { label: t("Tajawal — عصري متوازن (الافتراضي)", "Tajawal — modern and balanced (default)"), value: "tajawal", default: true },
-            { label: t("Cairo — عصري واسع الانتشار", "Cairo — popular modern sans"), value: "cairo" },
-            { label: t("Almarai — خليجي نظيف عالي الوضوح", "Almarai — clean, highly legible"), value: "almarai" },
-            { label: t("Changa — عناوين عربية مميّزة", "Changa — distinctive display face"), value: "changa" },
-            { label: t("El Messiri — أنيق بلمسة كلاسيكية", "El Messiri — elegant, classic touch"), value: "elMessiri" },
-            { label: t("Saudi — الخطّ السعودي الرسمي", "Saudi — the official Saudi typeface"), value: "saudi" },
-            { label: t("بدون — خطّ ديسكورد الافتراضي", "None — keep Discord's default font"), value: "off" }
-        ],
-        onChange(value: string) {
-            applyArabicFont(value);
-        }
-    },
     coverage: {
         type: OptionType.COMPONENT,
         description: t(

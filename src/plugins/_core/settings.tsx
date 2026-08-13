@@ -17,6 +17,7 @@ import {
     VencordTab,
 } from "@components/settings";
 import { ComingSoon } from "@components/settings/esharq/ComingSoon";
+import { LanguagePage } from "@components/settings/esharq/LanguagePage";
 import { SECTION_ORDER } from "@components/settings/esharq/tokens";
 import { SETTINGS_TREE } from "@components/settings/esharq/tree";
 import { gitHashShort } from "@shared/vencordUserAgent";
@@ -190,7 +191,9 @@ export default definePlugin({
         // القائم، وكل مخطَّطة تعرض «قيد البناء». المصدر الوحيد `SETTINGS_TREE`.
         const componentFor: Record<string, ComponentType | null> = {
             VencordTab, PluginsTab, ThemesTab, UpdaterTab,
-            ChangelogTab, CloudTab, BackupAndRestoreTab
+            ChangelogTab, CloudTab, BackupAndRestoreTab,
+            // صفحات بناها إشراق — لا تُشتقّ من الأصل.
+            LanguagePage
         };
         // أيقونة مميّزة لكل صفحة — لا ترس واحد للكلّ (قرار المالك).
         const iconFor: Record<string, ComponentType<IconProps>> = {
