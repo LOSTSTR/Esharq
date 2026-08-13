@@ -12,23 +12,24 @@ import { Flex } from "@components/Flex";
 import { FormSwitch } from "@components/FormSwitch";
 import { Heading } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
+import { Card } from "@components/settings/esharq/Card";
 import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { identity } from "@utils/misc";
 import { Modal, openModal, Select, Slider } from "@webpack/common";
 
-export function NotificationSection() {
+export function NotificationSection({ index = 0 }: { index?: number; }) {
     const { plugins: { Settings: { arabicMode } } } = useSettings(["plugins.Settings.arabicMode"]);
     void arabicMode;
     return (
-        <section className={Margins.top16}>
-            <Heading>{t("الإشعارات", "Notifications")}</Heading>
-            <Paragraph className={Margins.bottom8}>
-                {t(
-                    "إعدادات الإشعارات الصادرة من Esharq. لا تشمل إشعارات Discord العادية (الرسائل وغيرها)",
-                    "Settings for Esharq notifications. This does not include regular Discord notifications (messages, etc.)"
-                )}
-            </Paragraph>
+        <Card
+            index={index}
+            title={t("الإشعارات", "Notifications")}
+            subtitle={t(
+                "إعدادات الإشعارات الصادرة من Esharq. لا تشمل إشعارات Discord العادية (الرسائل وغيرها)",
+                "Settings for Esharq notifications. This does not include regular Discord notifications (messages, etc.)"
+            )}
+        >
             <Flex>
                 <Button onClick={openNotificationSettingsModal}>
                     {t("إعدادات الإشعارات", "Notification Settings")}
@@ -37,7 +38,7 @@ export function NotificationSection() {
                     {t("عرض سجل الإشعارات", "View Notification Log")}
                 </Button>
             </Flex>
-        </section>
+        </Card>
     );
 }
 

@@ -9,32 +9,29 @@ import "./VencordTab.css";
 import { openNotificationLogModal } from "@api/Notifications/notificationLog";
 import { useSettings } from "@api/Settings";
 import { Button } from "@components/Button";
-import { Divider } from "@components/Divider";
 import { FormSwitch } from "@components/FormSwitch";
-import { Heading } from "@components/Heading";
 import { FolderIcon, GithubIcon, LogIcon, PaintbrushIcon, RestartIcon } from "@components/Icons";
 import { Notice } from "@components/Notice";
-import { Paragraph } from "@components/Paragraph";
 import { openContributorModal, SettingsTab, wrapTab } from "@components/settings";
+import { Card } from "@components/settings/esharq/Card";
 import { ESHARQ_LOGO } from "@components/settings/esharqLogo";
-import { QuickAction, QuickActionCard } from "@components/settings/QuickAction";
+import { QuickAction } from "@components/settings/QuickAction";
 import { SpecialCard } from "@components/settings/SpecialCard";
 import BadgeAPI from "@plugins/_api/badges";
 import { gitRemote } from "@shared/vencordUserAgent";
 import { IS_WINDOWS, VC_DONOR_ROLE_ID, VC_GUILD_ID } from "@utils/constants";
-import { classNameFactory } from "@utils/css";
 import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { isAnyPluginDev, isEsharqContributor } from "@utils/misc";
 import { relaunch } from "@utils/native";
 import { Alerts, GuildMemberStore, React, UserStore } from "@webpack/common";
 
+import gitHash from "~git-hash";
+
 import { DonateButtonComponent } from "./DonateButton";
 import { MacOSVibrancySettings } from "./MacVibrancySettings";
 import { NotificationSection } from "./NotificationSettings";
 import { WindowsMaterialSettings } from "./WindowsMaterialSettings";
-
-const cl = classNameFactory("vc-vencord-tab-");
 
 type KeysOfType<Object, Type> = {
     [K in keyof Object]: Object[K] extends Type ? K : never;
@@ -159,6 +156,19 @@ function EquicordSettings() {
 
     return (
         <SettingsTab>
+            {/* بطاقة الرأس — نفس بنية صفحة المُحدِّث: عنوان ووصف وشارة حال.
+                والشارة **بصمة الالتزام مقصوصة إلى سبعة**: الكاملة أربعون محرفاً
+                تلتفّ على سطرين وتُفسد الصفّ، ولا يقرأ أحد ما بعد السابع منها. */}
+            <Card
+                index={0}
+                title={t("نظرة عامة", "Overview")}
+                subtitle={t(
+                    "تحكّم في العميل ومظهره وإشعاراته من مكان واحد.",
+                    "Manage the client, its appearance, and its notifications from one place."
+                )}
+                badge={gitHash.slice(0, 7)}
+            />
+
             {(isEsharqDonor(user?.id) || isVencordDonor(user?.id)) ? (
                 <SpecialCard
                     title={t("التبرعات", "Donations")}
@@ -221,59 +231,54 @@ function EquicordSettings() {
                 </SpecialCard>
             )}
 
-            <Heading className={Margins.top16}>{t("إجراءات سريعة", "Quick Actions")}</Heading>
-            <Paragraph className={Margins.bottom16}>
-                {t(
-                    "إجراءات شائعة الاستخدام. توفر هذه الاختصارات وصولاً سريعاً للميزات الأكثر استخداماً دون التنقل عبر القوائم.",
-                    "Common actions. These shortcuts provide quick access to the most used features without navigating through menus."
+            <Card
+                index={1}
+                title={t("إجراءات سريعة", "Quick Actions")}
+                subtitle={t(
+                    "افتح الأدوات التي تستعملها أكثر من غيرها دون مغادرة هذه الصفحة.",
+                    "Open the tools you use most without leaving this page."
                 )}
-            </Paragraph>
-
-            <QuickActionCard>
-                <QuickAction
-                    Icon={LogIcon}
-                    text={t("سجل الإشعارات", "Notification Log")}
-                    action={openNotificationLogModal}
-                />
-                <QuickAction
-                    Icon={PaintbrushIcon}
-                    text={t("تعديل QuickCSS", "Edit QuickCSS")}
-                    action={() => VencordNative.quickCss.openEditor()}
-                />
-                {!IS_WEB && (
+            >
+                {/* الأزرار على سطح البطاقة مباشرةً لا داخل بطاقة ثانية:
+                    `QuickActionCard` يحمل خلفيته الخاصّة، فتركيبه هنا يُنتج
+                    إطاراً داخل إطار — وهو ما يكسر وحدة الشكل مع بقيّة الصفحات. */}
+                <div className="esharq-quick-actions">
                     <QuickAction
-                        Icon={RestartIcon}
-                        text={t("إعادة تشغيل ديسكورد", "Restart Discord")}
-                        action={relaunch}
+                        Icon={LogIcon}
+                        text={t("سجل الإشعارات", "Notification Log")}
+                        action={openNotificationLogModal}
                     />
-                )}
-                {!IS_WEB && (
                     <QuickAction
-                        Icon={FolderIcon}
-                        text={t("فتح مجلد الإعدادات", "Open Settings Folder")}
-                        action={() => VencordNative.settings.openFolder()}
+                        Icon={PaintbrushIcon}
+                        text={t("تعديل QuickCSS", "Edit QuickCSS")}
+                        action={() => VencordNative.quickCss.openEditor()}
                     />
-                )}
-                <QuickAction
-                    Icon={GithubIcon}
-                    text={t("عرض الكود المصدري", "View Source Code")}
-                    action={() =>
-                        VencordNative.native.openExternal(
-                            "https://github.com/" + gitRemote,
-                        )
-                    }
-                />
-            </QuickActionCard>
+                    {!IS_WEB && (
+                        <QuickAction
+                            Icon={RestartIcon}
+                            text={t("إعادة تشغيل ديسكورد", "Restart Discord")}
+                            action={relaunch}
+                        />
+                    )}
+                    {!IS_WEB && (
+                        <QuickAction
+                            Icon={FolderIcon}
+                            text={t("فتح مجلد الإعدادات", "Open Settings Folder")}
+                            action={() => VencordNative.settings.openFolder()}
+                        />
+                    )}
+                    <QuickAction
+                        Icon={GithubIcon}
+                        text={t("عرض الكود المصدري", "View Source Code")}
+                        action={() =>
+                            VencordNative.native.openExternal(
+                                "https://github.com/" + gitRemote,
+                            )
+                        }
+                    />
+                </div>
+            </Card>
 
-            <Divider className={Margins.top20} />
-
-            <Heading className={Margins.top20}>{t("إعدادات العميل", "Client Settings")}</Heading>
-            <Paragraph className={Margins.bottom16}>
-                {t(
-                    "اضبط كيفية عمل Esharq مع ديسكورد. تؤثر هذه الإعدادات على مظهر وسلوك تطبيق ديسكورد.",
-                    "Configure how Esharq works with Discord. These settings affect the appearance and behavior of the Discord app."
-                )}
-            </Paragraph>
             {/* 🔴 حُذف إشعاران كانا هنا، وكلاهما صار يكذب على القارئ:
                 - «يمكنك تخصيص موضع قسم الإعدادات»: الخيار نفسه أُزيل حين صار
                   التصميم يضع أقسام إشراق تحت «تسجيل الخروج» دائماً.
@@ -281,50 +286,60 @@ function EquicordSettings() {
                   بعدها إلى صفحة «الأدوات ← اللغة»، فصار الإشعار يدلّ على
                   مكان خطأ — وهو أسوأ من ألّا يدلّ على شيء.
                 إشعار الانتقال يُحذف حين ينتهي معناه، وإلّا صار أثراً دائماً. */}
+            <Card
+                index={2}
+                title={t("إعدادات العميل", "Client Settings")}
+                subtitle={t(
+                    "اضبط كيفية عمل Esharq مع ديسكورد. تؤثر هذه الإعدادات على مظهر وسلوك تطبيق ديسكورد.",
+                    "Configure how Esharq works with Discord. These settings affect the appearance and behavior of the Discord app."
+                )}
+            >
+                {switches.filter((s): s is Exclude<typeof s, false> => !!s).map(
+                    s => (
+                        <FormSwitch
+                            key={s.key}
+                            value={settings[s.key]}
+                            onChange={v => {
+                                settings[s.key] = v;
 
-            {switches.filter((s): s is Exclude<typeof s, false> => !!s).map(
-                s => (
-                    <FormSwitch
-                        key={s.key}
-                        value={settings[s.key]}
-                        onChange={v => {
-                            settings[s.key] = v;
-
-                            if (s.restartRequired) {
-                                Alerts.show({
-                                    title: t("إعادة تشغيل مطلوبة", "Restart Required"),
-                                    body: t(
-                                        "يلزم إعادة تشغيل ديسكورد لتطبيق هذا التغيير",
-                                        "A Discord restart is required to apply this change"
-                                    ),
-                                    confirmText: t("إعادة التشغيل الآن", "Restart Now"),
-                                    cancelText: t("لاحقاً", "Later"),
-                                    onConfirm: relaunch
-                                });
+                                if (s.restartRequired) {
+                                    Alerts.show({
+                                        title: t("إعادة تشغيل مطلوبة", "Restart Required"),
+                                        body: t(
+                                            "يلزم إعادة تشغيل ديسكورد لتطبيق هذا التغيير",
+                                            "A Discord restart is required to apply this change"
+                                        ),
+                                        confirmText: t("إعادة التشغيل الآن", "Restart Now"),
+                                        cancelText: t("لاحقاً", "Later"),
+                                        onConfirm: relaunch
+                                    });
+                                }
+                            }}
+                            title={s.title}
+                            description={
+                                s.warning ? (
+                                    <>
+                                        {s.description}
+                                        <Notice.Warning className={Margins.top8} style={{ width: "100%" }}>
+                                            {s.warning}
+                                        </Notice.Warning>
+                                    </>
+                                ) : (
+                                    s.description
+                                )
                             }
-                        }}
-                        title={s.title}
-                        description={
-                            s.warning ? (
-                                <>
-                                    {s.description}
-                                    <Notice.Warning className={Margins.top8} style={{ width: "100%" }}>
-                                        {s.warning}
-                                    </Notice.Warning>
-                                </>
-                            ) : (
-                                s.description
-                            )
-                        }
-                        hideBorder
-                    />
-                ),
-            )}
+                            hideBorder
+                        />
+                    ),
+                )}
+            </Card>
 
-            <MacOSVibrancySettings />
-            <WindowsMaterialSettings />
+            {/* كلٌّ من هذه يحمل بطاقته بنفسه: شرط ظهوره عنده لا عندنا، ولو
+                لُفّ من الخارج لظهرت بطاقة فارغة على كل نظام لا يدعمه. */}
+            <MacOSVibrancySettings index={3} />
+            <WindowsMaterialSettings index={3} />
 
-            <NotificationSection />
+            <NotificationSection index={4} />
         </SettingsTab>
     );
 }
