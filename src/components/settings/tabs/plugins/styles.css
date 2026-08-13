@@ -270,7 +270,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    /* 🔴 الفجوة صفر وهي مطويّة: الغلاف الصفريّ العرض يبقى عنصراً مرناً،
+       فتُحسَب الفجوة بينه وبين الأيقونة وتُزيحها نصفَها عن مركز الدائرة. */
+    gap: 0;
 }
 
 .vc-plugins-source {
@@ -309,7 +311,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    /* 🔴 الفجوة صفر وهي مطويّة: الغلاف الصفريّ العرض يبقى عنصراً مرناً،
+       فتُحسَب الفجوة بينه وبين الأيقونة وتُزيحها نصفَها عن مركز الدائرة. */
+    gap: 0;
     inline-size: 40px;
     block-size: 40px;
     margin-inline: auto;
@@ -328,10 +332,13 @@
 .esharq-search:focus-within {
     inline-size: 360px;
     justify-content: flex-start;
+    gap: 8px;
     padding-inline: 12px;
 }
 
 .esharq-search-icon {
+    /* `block` يُلغي فراغ خطّ الأساس تحت الأيقونة السطرية، وهو ما يرفعها قليلاً. */
+    display: block;
     flex: 0 0 auto;
     color: var(--text-muted);
 }
@@ -345,8 +352,11 @@
     box-shadow: none;
 }
 
+/* 🔴 لا نموّ وهي مطويّة: `flex-grow` يجعل الغلاف الصفريّ يتمدّد ليملأ
+   الدائرة فيدفع العدسة إلى طرفها — وهو سبب خروجها عن المركز. */
 .esharq-search > div {
-    flex: 1 1 auto;
+    flex-grow: 0;
+    flex-shrink: 1;
     min-inline-size: 0;
 }
 
@@ -359,7 +369,10 @@
     box-shadow: none;
 }
 
+/* 🔴 لا نموّ وهي مطويّة: `flex-grow` يجعل الغلاف الصفريّ يتمدّد ليملأ
+   الدائرة فيدفع العدسة إلى طرفها — وهو سبب خروجها عن المركز. */
 .esharq-search > div {
+    flex-grow: 0;
     /* غلاف حقل ديسكورد يحمل خلفيته وحدّه — وبقاؤهما يُظهر «عقبَ» صغيراً
        بجوار العدسة وهي مطويّة، فيبدو الصندوق مكسوراً لا دائرياً. */
     background: transparent;
@@ -371,6 +384,7 @@
 
 .esharq-search:hover > div,
 .esharq-search:focus-within > div {
+    flex-grow: 1;
     inline-size: 100%;
 }
 
