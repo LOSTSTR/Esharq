@@ -29,7 +29,7 @@ import { computeCoverage } from "../../src/userplugins/DiscordArabicizer/coverag
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const SNAPSHOT = join(ROOT, "src/userplugins/DiscordArabicizer/coverage/discord-keys.json");
-const TABLE = join(ROOT, "src/plugins/_core/arabicMessages.json");
+const TABLE = join(ROOT, "src/plugins/_core/_arabicMessages.json");
 
 const snapshot = JSON.parse(readFileSync(SNAPSHOT, "utf8")) as { messages: Record<string, string>; };
 const arabic = JSON.parse(readFileSync(TABLE, "utf8")) as Record<string, unknown>;

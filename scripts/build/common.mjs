@@ -163,7 +163,14 @@ export const globPlugins = kind => ({
                     const fileName = file.name;
                     if (fileName.startsWith("_") || fileName.startsWith(".")) continue;
                     if (fileName === "index.ts") continue;
-                    if (/\.(zip|rar|7z|tar|gz|bz2)/.test(fileName)) continue;
+
+                    // 🔴 إضافة = مجلد أو ملف TypeScript. أي شيء آخر (بيانات
+                    // JSON بجوار إضافة مثلاً) كان يُستورَد ويُسجَّل بمفتاح
+                    // `undefined` لأن لا `name` له — ثم تنهار صفحة الإضافات
+                    // عند `a.name.localeCompare(b.name)` **ومعها العميل كلّه**.
+                    // كان الفحص سابقاً قائمة امتدادات ممنوعة؛ والقائمة
+                    // المسموحة هي الصحيحة: لا تُحصى إلّا ما هو إضافة فعلاً.
+                    if (!file.isDirectory() && !/\.tsx?$/.test(fileName)) continue;
 
                     const target = getPluginTarget(fileName);
 

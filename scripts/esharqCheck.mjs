@@ -119,6 +119,36 @@ for (const dir of readdirSync(USERPLUGINS)) {
 console.log(`  ${covered} plugins localized (overlay or inline t)`);
 for (const dir of uncovered) warn(`src/userplugins/${dir} has no i18n overlay and no inline t() — Arabic users see English only`);
 
+// ── 3. plugin directories contain only plugins (HARD FAIL) ───────────────────
+//
+// The registry generator imports every entry of these directories and keys it by
+// `module.name`. A data file dropped beside a plugin therefore registers as
+// `undefined`, and the plugins page dies on `a.name.localeCompare(b.name)` —
+// taking the whole client down with it. That actually shipped once: an Arabic
+// message table sat in plugins/_core. A plugin is a directory or a .ts/.tsx
+// file; anything else belongs elsewhere, or must be prefixed with `_` to be
+// skipped by both the generator and this check.
+console.log("── plugin directories ──");
+const PLUGIN_DIRS = [
+    "src/plugins/_api", "src/plugins/_core", "src/plugins",
+    "src/equicordplugins/_api", "src/equicordplugins/_core", "src/equicordplugins",
+    "src/userplugins"
+];
+let strays = 0;
+for (const rel of PLUGIN_DIRS) {
+    const dir = join(ROOT, rel);
+    let entries;
+    try { entries = readdirSync(dir, { withFileTypes: true }); } catch { continue; }
+    for (const entry of entries) {
+        const name = entry.name;
+        if (name.startsWith("_") || name.startsWith(".") || name === "index.ts") continue;
+        if (entry.isDirectory() || /\.tsx?$/.test(name)) continue;
+        strays++;
+        err(`${rel}/${name} is neither a plugin directory nor a .ts/.tsx file — it would register as a plugin named "undefined"`);
+    }
+}
+if (strays === 0) console.log(`  ${PLUGIN_DIRS.length} directories hold plugins only`);
+
 // ── result ───────────────────────────────────────────────────────────────────
 console.log("──────────────────────────────────");
 console.log(`esharqCheck: ${errors} error(s), ${warnings} warning(s)`);

@@ -11,7 +11,10 @@ ENABLE_ARABIC_PATTERN, ENABLE_ARABIC_REPLACEMENT,
     MESSAGE_LOADER_PATTERN, MESSAGE_LOADER_REPLACEMENT } from "@utils/esharqLocale";
 import definePlugin from "@utils/types";
 
-import arabicMessages from "./arabicMessages.json";
+// 🔴 البادئة `_` ليست تجميلاً: مُولِّد سجلّ الإضافات يستورد **كل مدخل** في
+// هذا المجلد ويُسجّله بـ`module.name`. وبلا البادئة سُجّل هذا الجدول إضافةً
+// اسمها `undefined`، فانهارت صفحة الإضافات ومعها العميل.
+import arabicMessages from "./_arabicMessages.json";
 
 /**
  * تعريب إشراق — يجعل **العربية لغةً يعرفها ديسكورد** ويمدّه بجدولها.

@@ -38,7 +38,9 @@ const SNAPSHOT = join(PLUGIN, "coverage", "discord-keys.json");
 // 🔴 يُكتب **مباشرةً في الملف المشحون** الذي تستورده `arabicLocale.ts`، لا في
 // نسخة وسيطة تُنقل يدوياً: نسخة وسيطة تعني أن إعادة البناء تترك الجدول
 // المشحون قديماً **بلا شكوى من أحد** — يعمل البناء، ويشحن المستخدم القديم.
-const OUT = join(ROOT, "src", "plugins", "_core", "arabicMessages.json");
+// والبادئة `_` شرط لا تسمية: مُولِّد السجلّ يستورد كل مدخل في مجلد الإضافات،
+// فملف بيانات بلا بادئة يُسجَّل إضافةً اسمها `undefined` ويُسقط صفحة الإضافات.
+const OUT = join(ROOT, "src", "plugins", "_core", "_arabicMessages.json");
 
 if (!existsSync(SNAPSHOT)) {
     console.error("✖ لا لقطة مفاتيح — شغّل `pnpm intl:harvest` أوّلاً");
