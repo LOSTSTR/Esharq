@@ -1,0 +1,82 @@
+/*
+ * Esharq, a Discord client mod
+ * Copyright (c) 2026 LOSTSTR
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * حركة إشراق — `transform` و`opacity` فقط، فلا إعادة تخطيط في أي إطار.
+ * القيم مشتقّة من `motion.ts`؛ وأي تعديل يجب أن يقع في الاثنين معاً.
+ */
+
+/* دخول متتابع: يصعد قليلاً ويظهر. `backwards` تُبقيه مخفيّاً أثناء تأخيره،
+   وبدونها يومض العنصر ظاهراً ثم يختفي ثم يدخل. */
+@keyframes esharq-rise {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.985);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.esharq-rise {
+    animation: esharq-rise 220ms cubic-bezier(0.22, 1.2, 0.36, 1) backwards;
+}
+
+/* نبض هادئ لعلامة الصفحة قيد البناء — يقول «حيّ» لا «انتظر». */
+@keyframes esharq-breathe {
+    0%,
+    100% {
+        opacity: 0.55;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.08);
+    }
+}
+
+.esharq-breathe {
+    animation: esharq-breathe 2600ms ease-in-out infinite;
+}
+
+/* رفع خفيف عند المرور. `will-change` مقصورة على ما يُحرَّك فعلاً: وضعها
+   على كل شيء يحجز طبقات مُركِّب بلا داعٍ ويأكل ذاكرة الرسوميات. */
+.esharq-lift {
+    transition:
+        transform 140ms cubic-bezier(0.22, 1.2, 0.36, 1),
+        box-shadow 140ms cubic-bezier(0.33, 1, 0.68, 1);
+    will-change: transform;
+}
+
+.esharq-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgb(0 0 0 / 22%);
+}
+
+/* ضغطة تُحسّ: تنكمش قليلاً تحت الإصبع فيعرف أن النقرة وقعت. */
+.esharq-press:active {
+    transform: scale(0.985);
+}
+
+/*
+ * 🔴 تُلغى الحركة لمن طلب ذلك في نظامه — لا تُخفَّف.
+ * الحركة تُسبّب دواراً حقيقياً لبعض الناس، و«حركة أبطأ» تبقى حركة.
+ */
+@media (prefers-reduced-motion: reduce) {
+    .esharq-rise,
+    .esharq-breathe,
+    .esharq-lift,
+    .esharq-press {
+        animation: none;
+        transition: none;
+    }
+
+    .esharq-lift:hover,
+    .esharq-press:active {
+        transform: none;
+    }
+}

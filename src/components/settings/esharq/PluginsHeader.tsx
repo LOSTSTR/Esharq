@@ -4,11 +4,46 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import "./motion.css";
+
 import { Button } from "@components/Button";
 import { t } from "@utils/esharqI18n";
-import { React } from "@webpack/common";
+import { React, useEffect, useState } from "@webpack/common";
 
+import { countUpFrames, stagger } from "./motion";
 import { ACCENT, ACCENT_SOFT, RADIUS, SURFACE, TRANSITION_MS, UNIT } from "./tokens";
+
+/**
+ * رقم يتسلّق إلى قيمته مرّة واحدة عند الظهور.
+ *
+ * 🔴 لا يتسلّق عند كل تغيّر: تفعيل إضافة يزيد العدّاد واحداً، وتسلّق من 74
+ * إلى 75 حركة بلا معنى. الهدف إبراز الرقم حين تُفتح الصفحة، لا الاحتفال
+ * بكل نقرة.
+ */
+function CountUp({ value }: { value: number; }) {
+    const [shown, setShown] = useState(value);
+
+    useEffect(() => {
+        const frames = countUpFrames(value);
+        if (frames.length <= 1) return setShown(value);
+
+        let index = 0;
+        setShown(frames[0]);
+        const id = setInterval(() => {
+            index++;
+            if (index >= frames.length) {
+                clearInterval(id);
+                return setShown(value);
+            }
+            setShown(frames[index]);
+        }, 16);
+
+        return () => clearInterval(id);
+        // مرّة واحدة عند التركيب — انظر التعليق أعلاه.
+    }, []);
+
+    return <>{shown.toLocaleString()}</>;
+}
 
 /**
  * رأس صفحة الإضافات — **عنوان وفعل واحد، ثم ثلاثة أرقام**.
@@ -35,11 +70,12 @@ interface Props {
     onDisableAll(): void;
 }
 
-function Tile({ value, label, hint, highlight }: {
-    value: React.ReactNode; label: string; hint?: string; highlight?: boolean;
+function Tile({ value, label, hint, highlight, index }: {
+    value: React.ReactNode; label: string; hint?: string; highlight?: boolean; index: number;
 }) {
     return (
-        <div style={{
+        <div className="esharq-rise esharq-lift" style={{
+            ...stagger(index),
             flex: 1,
             minWidth: 128,
             padding: `${UNIT * 2}px ${UNIT * 2.5}px`,
@@ -94,26 +130,28 @@ export function PluginsHeader({ total, enabled, esharq, userPlugins, onDisableAl
                     </div>
                 </div>
 
-                <Button variant="secondary" size="small" onClick={onDisableAll}>
+                <Button className="esharq-press" variant="secondary" size="small" onClick={onDisableAll}>
                     {t("تعطيل كل الإضافات", "Disable all plugins")}
                 </Button>
             </div>
 
             <div style={{ display: "flex", gap: UNIT * 1.5, flexWrap: "wrap" }}>
-                <Tile value={total.toLocaleString()} label={t("إجمالي الإضافات", "Plugins in total")} />
+                <Tile index={0} value={<CountUp value={total} />} label={t("إجمالي الإضافات", "Plugins in total")} />
                 <Tile
-                    value={<>{enabled.toLocaleString()} <span style={{ fontSize: 15, opacity: 0.75 }}>({percent}%)</span></>}
+                    index={1}
+                    value={<><CountUp value={enabled} /> <span style={{ fontSize: 15, opacity: 0.75 }}>({percent}%)</span></>}
                     label={t("مُفعَّلة الآن", "Enabled right now")}
                     highlight
                 />
                 <Tile
-                    value={esharq.toLocaleString()}
+                    index={2}
+                    value={<CountUp value={esharq} />}
                     label={t("من إشراق", "Built by Esharq")}
                     hint={t("لا توجد في المشروع الأصل", "not found upstream")}
                 />
                 {/* تظهر لمن كتب إضافةً بنفسه فقط — وإلّا فهي خانة تقول «صفر» دائماً. */}
                 {userPlugins > 0 && (
-                    <Tile value={userPlugins.toLocaleString()} label={t("إضافاتك أنت", "Yours")} />
+                    <Tile index={3} value={<CountUp value={userPlugins} />} label={t("إضافاتك أنت", "Yours")} />
                 )}
             </div>
         </div>

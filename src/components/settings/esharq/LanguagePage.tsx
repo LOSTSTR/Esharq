@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import "./motion.css";
+
 import { FormSwitch } from "@components/FormSwitch";
 import { applyArabicFont, ARABIC_FONTS } from "@utils/esharqFont";
 import { t } from "@utils/esharqI18n";
@@ -11,6 +13,7 @@ import { ARABIC_LOCALE, arabicTableSize } from "@utils/esharqLocale";
 import { readArabicFont, readPluginsArabic, writeEsharqPref } from "@utils/esharqPrefs";
 import { Forms, Select, UserSettingsActionCreators, useState } from "@webpack/common";
 
+import { stagger } from "./motion";
 import { ACCENT, RADIUS, SURFACE, UNIT } from "./tokens";
 
 /**
@@ -45,11 +48,12 @@ async function setLocale(locale: string): Promise<void> {
         .updateAsync("localization", (settings: any) => { settings.locale.value = locale; }, 0);
 }
 
-function Card({ title, subtitle, children }: {
-    title: string; subtitle: string; children: React.ReactNode;
+function Card({ title, subtitle, children, index }: {
+    title: string; subtitle: string; children: React.ReactNode; index: number;
 }) {
     return (
-        <div style={{
+        <div className="esharq-rise" style={{
+            ...stagger(index),
             background: SURFACE[1],
             borderRadius: RADIUS,
             padding: UNIT * 3,
@@ -73,6 +77,7 @@ export function LanguagePage() {
     return (
         <div>
             <Card
+                index={0}
                 title={t("لغة ديسكورد", "Discord's language")}
                 subtitle={t(
                     `العربية لغة أصيلة في هذا العميل: يعرضها محرّك ديسكورد نفسه من جدول مُصرَّف فيه ${translated.toLocaleString()} رسالة — بلا غلاف وبلا تكلفة تشغيل. وما لم يُترجَم بعد يبقى إنجليزياً.`,
@@ -98,6 +103,7 @@ export function LanguagePage() {
             </Card>
 
             <Card
+                index={1}
                 title={t("لغة الإضافات", "Plugins language")}
                 subtitle={t(
                     "أسماء الإضافات وأوصافها ولوحة إشراق. مستقلّة عن لغة ديسكورد: تستطيع إبقاء ديسكورد إنجليزياً ولوحة إشراق عربية، أو العكس.",
@@ -120,6 +126,7 @@ export function LanguagePage() {
             </Card>
 
             <Card
+                index={2}
                 title={t("الخطّ العربي", "Arabic font")}
                 subtitle={t(
                     "يوحّد خطّ كل نصّ عربي في العميل. يُطبَّق فوراً بلا إعادة تشغيل، ولا يمسّ إلا المحارف العربية — يبقى اللاتيني والأكواد على خطّ ديسكورد.",

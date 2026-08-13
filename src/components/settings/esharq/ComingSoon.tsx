@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import "./motion.css";
+
 import { t } from "@utils/esharqI18n";
 import { React } from "@webpack/common";
 
@@ -18,7 +20,7 @@ import { ACCENT, RADIUS, SURFACE, UNIT } from "./tokens";
  */
 export function ComingSoon({ title }: { title: string; }) {
     return (
-        <div style={{
+        <div className="esharq-rise" style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -30,7 +32,7 @@ export function ComingSoon({ title }: { title: string; }) {
             background: SURFACE[1],
             textAlign: "center"
         }}>
-            <div style={{ fontSize: 34, color: ACCENT }}>✦</div>
+            <div className="esharq-breathe" style={{ fontSize: 34, color: ACCENT }}>✦</div>
             <div style={{ fontSize: 18, fontWeight: 600 }}>{title}</div>
             <div style={{ opacity: 0.6, maxWidth: 360 }}>
                 {t("هذه الصفحة قيد البناء ضمن تصميم إشراق الجديد.",
