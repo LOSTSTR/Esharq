@@ -18,13 +18,14 @@
 
 import { useSettings } from "@api/Settings";
 import { Button } from "@components/Button";
-import { Card } from "@components/Card";
-import { Divider } from "@components/Divider";
+import { Card as PlainCard } from "@components/Card";
 import { Flex } from "@components/Flex";
 import { FormSwitch } from "@components/FormSwitch";
-import { Heading, HeadingSecondary } from "@components/Heading";
+import { HeadingSecondary } from "@components/Heading";
 import { Link } from "@components/Link";
 import { Paragraph } from "@components/Paragraph";
+import { Card, StatRow, StatusRow } from "@components/settings/esharq/Card";
+import { UNIT } from "@components/settings/esharq/tokens";
 import { SettingsTab, wrapTab } from "@components/settings/tabs/BaseTab";
 import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
@@ -48,23 +49,23 @@ function EquibopSection() {
 
     return (
         <Flex className={Margins.bottom20} flexDirection="column" gap="1em">
-            <Card variant="brand">
+            <PlainCard variant="brand">
                 <HeadingSecondary>Equibop & Equicord</HeadingSecondary>
                 <Paragraph>{t("Equibop و Equicord شيئان منفصلان. هذا المُحدِّث خاصّ بـ Equicord.", "Equibop and Equicord are two separate things. This updater is for Equicord.")}</Paragraph>
                 <Paragraph className={Margins.top8}>
                     {t("تصلك نوافذ منفصلة لتحديثات Equibop، ويمكنك أيضاً تحديثه يدوياً بتثبيت ", "You receive separate popups for Equibop updates. You can also manually update by installing the ")}
                     <Link href="https://equibop.org/install">{t("أحدث إصدار", "latest version")}</Link>.
                 </Paragraph>
-            </Card>
+            </PlainCard>
 
             {isEquibopOutdated && (
-                <Card variant="warning">
+                <PlainCard variant="warning">
                     <HeadingSecondary>{t("إصدار Equibop قديم", "Equibop Outdated")}</HeadingSecondary>
                     <Flex flexDirection="column" gap="0.5em">
                         <Paragraph>{t("إصدارك من Equibop قديم!", "Your version of Equibop is outdated!")}</Paragraph>
                         <Button variant="link" onClick={() => VesktopNative.app.openUpdater()}>{t("افتح مُحدِّث Equibop", "Open Equibop Updater")}</Button>
                     </Flex>
-                </Card>
+                </PlainCard>
             )}
         </Flex>
     );
@@ -85,54 +86,111 @@ function Updater() {
         repoPending
     };
 
+    const repoBroken = !repoPending && err !== undefined && err !== null;
+    const repoName = repoPending || repoBroken ? repo : repo.split("/").slice(-2).join("/");
+
     return (
         <SettingsTab>
             <EquibopSection />
-            <Heading className={Margins.top16}>{t("تفضيلات التحديث", "Update Preferences")}</Heading>
-            <Paragraph className={Margins.bottom20}>
-                {t("تحكم في كيفية تحديث Esharq تلقائياً.", "Control how Esharq updates automatically.")}
-            </Paragraph>
 
-            <FormSwitch
-                title={t("تحديث تلقائي", "Auto Update")}
-                description={t("عند التفعيل، يقوم Esharq بتنزيل التحديثات وتثبيتها في الخلفية دون طلب تأكيد. ستحتاج إلى إعادة تشغيل ديسكورد لتطبيق التغييرات.", "When enabled, Esharq will download and install updates in the background without prompting. A Discord restart is required to apply changes.")}
-                value={settings.autoUpdate}
-                onChange={(v: boolean) => settings.autoUpdate = v}
-                hideBorder
-            />
-            <FormSwitch
-                value={settings.autoUpdateNotification}
-                onChange={(v: boolean) => settings.autoUpdateNotification = v}
-                title={t("إشعار عند اكتمال التحديث التلقائي", "Notify on Auto-Update Completion")}
-                description={t("تلقّ إشعاراً عندما ينتهي Esharq من تنزيل تحديث في الخلفية", "Receive a notification when Esharq finishes downloading an update in the background")}
-                disabled={!settings.autoUpdate}
-                hideBorder
+            <Card
+                index={0}
+                title={t("مُحدِّث إشراق", "Esharq Updater")}
+                subtitle={t(
+                    "يجلب إشراق تحديثاته من مستودعه ويُثبّتها عند طلبك، أو في الخلفية إن أذنت له.",
+                    "Esharq pulls its updates from its repository and installs them on request, or in the background if you allow it."
+                )}
+                badge={isNewer
+                    ? t("إصدار أحدث من المستودع", "Ahead of the repository")
+                    : t("جاهز", "Ready")}
             />
 
-            <Divider className={Margins.top20} />
+            <Card
+                index={1}
+                title={t("حالة الإصدار", "Release status")}
+                subtitle={t(
+                    "الإصدار المُثبَّت ومن أين يأتي.",
+                    "The installed release and where it comes from."
+                )}
+            >
+                <StatRow items={[
+                    { label: t("الإصدار الحالي", "Current version"), value: gitHash },
+                    { label: t("المستودع", "Repository"), value: repoName },
+                    {
+                        label: t("التحديث التلقائي", "Auto update"),
+                        value: settings.autoUpdate ? t("مُفعَّل", "On") : t("مُعطَّل", "Off")
+                    }
+                ]} />
 
-            <Heading className={Margins.top20}>{t("المستودع", "Repository")}</Heading>
-            <Paragraph className={Margins.bottom8}>
-                {t("هذا هو مستودع GitHub الذي يسحب Esharq منه التحديثات.", "This is the GitHub repository Esharq pulls updates from.")}
-            </Paragraph>
-            <Paragraph color="text-subtle">
-                {repoPending
-                    ? repo
-                    : err
-                        ? t("تعذّر الجلب — راجع الكونسول", "Failed to retrieve - check console")
-                        : (
-                            <Link href={repo}>
-                                {repo.split("/").slice(-2).join("/")}
-                            </Link>
-                        )
-                }
-                {" "}(<HashLink hash={gitHash} repo={repo} disabled={repoPending} />)
-            </Paragraph>
+                <div style={{ marginTop: UNIT * 2 }}>
+                    <StatusRow
+                        index={0}
+                        title={t("مصدر التحديثات", "Update source")}
+                        detail={repoBroken
+                            ? t("تعذّر الجلب — راجع الكونسول", "Failed to retrieve — check the console")
+                            : undefined}
+                        state={repoPending
+                            ? { text: t("جارٍ الفحص", "Checking"), tone: "idle" }
+                            : repoBroken
+                                ? { text: t("غير متاح", "Unavailable"), tone: "warn" }
+                                : { text: t("متّصل", "Reachable"), tone: "ok" }}
+                    />
+                    <StatusRow
+                        index={1}
+                        title={t("الالتزام المُثبَّت", "Installed commit")}
+                        state={{ text: gitHash, tone: "idle" }}
+                    />
+                </div>
 
-            <Divider className={Margins.top20} />
+                {!repoPending && !repoBroken && (
+                    <Paragraph className={Margins.top16} color="text-subtle">
+                        <Link href={repo}>{repoName}</Link>
+                        {" "}(<HashLink hash={gitHash} repo={repo} disabled={repoPending} />)
+                    </Paragraph>
+                )}
+            </Card>
 
-            <Heading className={Margins.top20}>Updates</Heading>
-            {isNewer ? <Newer {...commonProps} /> : <Updatable {...commonProps} />}
+            <Card
+                index={2}
+                title={t("أدوات التحكّم", "Update controls")}
+                subtitle={t(
+                    "افحص التحديثات وطبّقها. لا يُعاد تشغيل ديسكورد إلّا حين تطلب ذلك.",
+                    "Check for updates and apply them. Discord restarts only when you ask it to."
+                )}
+            >
+                {isNewer ? <Newer {...commonProps} /> : <Updatable {...commonProps} />}
+            </Card>
+
+            <Card
+                index={3}
+                title={t("تفضيلات التحديث", "Update preferences")}
+                subtitle={t(
+                    "تحكّم في كيفية تحديث إشراق نفسه.",
+                    "Control how Esharq updates itself."
+                )}
+            >
+                <FormSwitch
+                    title={t("تحديث تلقائي", "Auto update")}
+                    description={t(
+                        "ينزّل إشراق التحديثات ويثبّتها في الخلفية بلا سؤال. وتظهر التغييرات بعد إعادة تشغيل ديسكورد.",
+                        "Esharq downloads and installs updates in the background without asking. The changes appear after Discord restarts."
+                    )}
+                    value={settings.autoUpdate}
+                    onChange={(v: boolean) => settings.autoUpdate = v}
+                    hideBorder
+                />
+                <FormSwitch
+                    value={settings.autoUpdateNotification}
+                    onChange={(v: boolean) => settings.autoUpdateNotification = v}
+                    title={t("إشعار عند اكتمال التحديث", "Notify when an update finishes")}
+                    description={t(
+                        "يصلك إشعار حين ينتهي تنزيل تحديث في الخلفية.",
+                        "You get a notification when a background update finishes downloading."
+                    )}
+                    disabled={!settings.autoUpdate}
+                    hideBorder
+                />
+            </Card>
         </SettingsTab>
     );
 }

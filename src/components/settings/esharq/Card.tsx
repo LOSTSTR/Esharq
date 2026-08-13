@@ -62,6 +62,81 @@ export function Card({ title, subtitle, badge, index = 0, children }: {
 }
 
 /**
+ * صفّ لوحات أرقام — قيمة كبيرة فوق تسمية صغيرة.
+ *
+ * يُستعمل حيث تُلخّص الصفحة حالتها في أرقام قليلة قبل التفاصيل: القارئ يرى
+ * الجواب أوّلاً، ثم يقرأ إن أراد. و`minmax` تمنع اللوحة من الانكماش تحت
+ * نصّها فينكسر السطر في نافذة ضيّقة.
+ */
+export function StatRow({ items }: { items: readonly { label: string; value: string; }[]; }) {
+    return (
+        <div style={{
+            display: "grid",
+            gridTemplateColumns: `repeat(auto-fit, minmax(${UNIT * 20}px, 1fr))`,
+            gap: UNIT * 1.5
+        }}>
+            {items.map(item => (
+                <div key={item.label} style={{
+                    background: SURFACE[2],
+                    borderRadius: RADIUS / 1.5,
+                    padding: `${UNIT * 1.5}px ${UNIT * 2}px`
+                }}>
+                    <div style={{ fontSize: 15, fontWeight: 600, wordBreak: "break-word" }}>{item.value}</div>
+                    <div style={{ fontSize: 11, opacity: 0.55, marginTop: 2 }}>{item.label}</div>
+                </div>
+            ))}
+        </div>
+    );
+}
+
+/**
+ * سطر حالة: تسمية ووصف على جهة، وشارة ملوّنة على الأخرى.
+ *
+ * اللون يحمل المعنى، والنصّ يحمله أيضاً — فمن لا يميّز الألوان يقرأ الحال
+ * نفسه مكتوباً.
+ */
+export function StatusRow({ title, detail, state, index = 0 }: {
+    title: string;
+    detail?: string;
+    state: { text: string; tone: "ok" | "warn" | "idle"; };
+    index?: number;
+}) {
+    const color = state.tone === "ok"
+        ? "var(--status-positive, #23a55a)"
+        : state.tone === "warn" ? ACCENT : "var(--text-muted)";
+
+    return (
+        <div style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: UNIT * 2,
+            paddingTop: index === 0 ? 0 : UNIT * 1.5,
+            marginTop: index === 0 ? 0 : UNIT * 1.5,
+            borderTop: index === 0 ? undefined : `1px solid ${SURFACE[2]}`
+        }}>
+            <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 14 }}>{title}</div>
+                {detail !== undefined && (
+                    <div style={{ fontSize: 12, opacity: 0.55, marginTop: 2, wordBreak: "break-word" }}>{detail}</div>
+                )}
+            </div>
+            <span style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: UNIT,
+                fontSize: 12,
+                whiteSpace: "nowrap",
+                color
+            }}>
+                <span style={{ width: 7, height: 7, borderRadius: 999, background: color }} />
+                {state.text}
+            </span>
+        </div>
+    );
+}
+
+/**
  * شريط تنبيه — حدّه على **بداية السطر** لا يساره، فينقلب مع العربية.
  *
  * `tone` يميّز «اعلم هذا» من «هذا يُتلف شيئاً»: توحيدهما يجعل القارئ

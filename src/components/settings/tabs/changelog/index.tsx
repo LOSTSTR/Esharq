@@ -15,6 +15,7 @@ import { Heading } from "@components/Heading";
 import { DeleteIcon } from "@components/Icons";
 import { Link } from "@components/Link";
 import { Paragraph } from "@components/Paragraph";
+import { Card as EsharqCard } from "@components/settings/esharq/Card";
 import { SettingsTab, wrapTab } from "@components/settings/tabs/BaseTab";
 import { HashLink } from "@components/settings/tabs/updater/Components";
 import { t } from "@utils/esharqI18n";
@@ -496,11 +497,15 @@ function ChangelogContent() {
 
     return (
         <>
-            <Heading className={Margins.top16}>{t("جلب التغييرات", "Fetch Changes")}</Heading>
-            <Paragraph className={Margins.bottom16}>
-                {t("تحقق من المستودع بحثاً عن إيداعات جديدة وتحديثات الإضافات وتغييرات الكود. سيقارن هذا نسختك الحالية بأحدث إصدار متاح ويعرض لك المستجدات.", "Check the repository for new commits, plugin updates, and code changes. This compares your current version with the latest available release and shows you what's new.")}
-            </Paragraph>
-
+            <EsharqCard
+                index={0}
+                title={t("جلب التغييرات", "Fetch changes")}
+                subtitle={t(
+                    "يقارن نسختك بأحدث ما في المستودع ويعرض ما استُجدّ من إيداعات وتحديثات إضافات.",
+                    "Compares your version with the latest in the repository and shows the new commits and plugin updates."
+                )}
+                badge={recentlyChecked ? t("محدَّث", "Up to date") : undefined}
+            >
             <div className="vc-changelog-controls">
                 <Button
                     size="small"
@@ -567,12 +572,16 @@ function ChangelogContent() {
                 </ErrorCard>
             )}
 
-            <Divider className={Margins.top20} />
+            </EsharqCard>
 
-            <Heading className={Margins.top20}>{t("المستودع", "Repository")}</Heading>
-            <Paragraph className={Margins.bottom8}>
-                {t("مستودع GitHub الذي يجلب منه Esharq التحديثات.", "The GitHub repository Esharq fetches updates from.")}
-            </Paragraph>
+            <EsharqCard
+                index={1}
+                title={t("المستودع", "Repository")}
+                subtitle={t(
+                    "المستودع الذي يجلب منه إشراق تحديثاته.",
+                    "The repository Esharq fetches its updates from."
+                )}
+            >
             <Paragraph color="text-subtle">
                 {repoPending ? (
                     repo
@@ -586,15 +595,17 @@ function ChangelogContent() {
                 {" "}(<HashLink repo={repo} hash={gitHash} disabled={repoPending} />)
             </Paragraph>
 
+            </EsharqCard>
+
             {hasCurrentChanges && (
-                <>
-                    <Divider className={Margins.top20} />
-
-                    <Heading className={Margins.top20}>{t("التغييرات الأخيرة", "Recent Changes")}</Heading>
-                    <Paragraph className={Margins.bottom16}>
-                        {t("هذه هي الإيداعات الجديدة وتحديثات الإضافات منذ إصدارك السابق. يمكنك رؤية الميزات المضافة والأخطاء المُصلَحة والإضافات التي تلقت تحديثات.", "These are the new commits and plugin updates since your previous version. You can see added features, fixed bugs, and plugins that received updates.")}
-                    </Paragraph>
-
+                <EsharqCard
+                    index={2}
+                    title={t("التغييرات الأخيرة", "Recent changes")}
+                    subtitle={t(
+                        "ما استُجدّ منذ إصدارك السابق: إيداعات، وإضافات جديدة، وأخرى تلقّت تحديثاً.",
+                        "What is new since your previous version: commits, new plugins, and plugins that received an update."
+                    )}
+                >
                     {newPlugins.length > 0 && (
                         <div className={Margins.bottom16}>
                             <NewPluginsSection
@@ -630,32 +641,31 @@ function ChangelogContent() {
                             </div>
                         </div>
                     )}
-                </>
+                </EsharqCard>
             )}
 
             {!hasCurrentChanges && !isLoading && !error && (
-                <>
-                    <Divider className={Margins.top20} />
-                    <Heading className={Margins.top20}>{t("التغييرات الأخيرة", "Recent Changes")}</Heading>
-                    <Paragraph color="text-subtle" className={Margins.bottom16}>
-                        {t("نسختك محدَّثة. فيما يلي آخر التغييرات في المستودع.", "Your version is up to date. Here are the latest changes in the repository.")}
-                    </Paragraph>
-                </>
-            )}
-
-            {recentCommits.length > 0 && !hasCurrentChanges && !isLoading && (
-                <div>
-                    <div className="vc-changelog-commits-list">
-                        {recentCommits.map(entry => (
-                            <ChangelogCard
-                                key={entry.hash}
-                                entry={entry}
-                                repo={repo}
-                                repoPending={repoPending}
-                            />
-                        ))}
-                    </div>
-                </div>
+                <EsharqCard
+                    index={2}
+                    title={t("التغييرات الأخيرة", "Recent changes")}
+                    subtitle={t(
+                        "نسختك محدَّثة، وهذه آخر التغييرات في المستودع.",
+                        "Your version is up to date; these are the latest changes in the repository."
+                    )}
+                >
+                    {recentCommits.length > 0 && (
+                        <div className="vc-changelog-commits-list">
+                            {recentCommits.map(entry => (
+                                <ChangelogCard
+                                    key={entry.hash}
+                                    entry={entry}
+                                    repo={repo}
+                                    repoPending={repoPending}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </EsharqCard>
             )}
 
             {showHistory && changelogHistory.length > 0 && (
