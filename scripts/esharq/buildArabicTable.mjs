@@ -30,6 +30,8 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { readDictionary } from "./intlDictionary.mjs";
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, "..", "..");
 const PLUGIN = join(ROOT, "src", "esharqplugins", "DiscordArabicizer");
@@ -45,20 +47,6 @@ const OUT = join(ROOT, "src", "plugins", "_core", "_arabicMessages.json");
 if (!existsSync(SNAPSHOT)) {
     console.error("✖ لا لقطة مفاتيح — شغّل `pnpm intl:harvest` أوّلاً");
     process.exit(2);
-}
-
-/** قاموسنا: إنجليزي → عربي، مقروء نصّياً من ملف TypeScript. */
-function readDictionary() {
-    const source = readFileSync(join(PLUGIN, "translations.ts"), "utf8");
-    const unescape = value => value.replace(/\\"/g, "\"").replace(/\\\\/g, "\\");
-
-    const dictionary = new Map();
-    for (const match of source.matchAll(/"((?:[^"\\\n]|\\.)+)"\s*:\s*"((?:[^"\\\n]|\\.)*)"/g)) {
-        const english = unescape(match[1]);
-        const arabic = unescape(match[2]);
-        if (arabic.length > 0) dictionary.set(english, arabic);
-    }
-    return dictionary;
 }
 
 /** أسماء المتغيّرات داخل نصّ بصيغة `{name}`. */
@@ -82,7 +70,7 @@ function toParts(text) {
 }
 
 const snapshot = JSON.parse(readFileSync(SNAPSHOT, "utf8"));
-const dictionary = readDictionary();
+const dictionary = readDictionary(PLUGIN);
 
 const table = {};
 let matched = 0;
@@ -104,6 +92,20 @@ for (const [key, english] of Object.entries(snapshot.messages)) {
 
     table[key] = toParts(arabic);
     matched++;
+}
+
+// 🔴 فحص الشكل قبل الكتابة: الجدول يُستورَد في `arabicLocale.ts` بتحويل عبر
+// `unknown` (لأن JSON المستورَد لا يُستنتَج صفوفاً ثنائية)، والتحويل يُسكِت
+// المُترجِم — فلو خرج جزءٌ بشكل آخر لمرّ إلى ديسكورد بلا اعتراض من أحد.
+for (const [key, parts] of Object.entries(table)) {
+    for (const part of parts) {
+        if (typeof part === "string") continue;
+        const ok = Array.isArray(part) && part.length === 2 && part[0] === 1 && typeof part[1] === "string";
+        if (!ok) {
+            console.error(`✖ جزء بشكل غير متوقّع في ${key}: ${JSON.stringify(part)}`);
+            process.exit(1);
+        }
+    }
 }
 
 writeFileSync(OUT, JSON.stringify(table), "utf8");
