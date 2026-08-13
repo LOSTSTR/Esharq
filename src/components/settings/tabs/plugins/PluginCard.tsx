@@ -10,7 +10,6 @@ import { Settings, useSettings } from "@api/Settings";
 import { CogWheel, InfoIcon } from "@components/Icons";
 import { AddonCard } from "@components/settings/AddonCard";
 import { classNameFactory } from "@utils/css";
-import { t } from "@utils/esharqI18n";
 import { resolvePluginDescription } from "@utils/i18n";
 import { Logger } from "@utils/Logger";
 import { Plugin } from "@utils/types";
@@ -115,10 +114,13 @@ export function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, on
             title: "Modified Vencord Plugin"
         },
         {
+            // 🔴 الاسم إنجليزي دائماً كأخواته («Equicord Plugin» و«Vencord
+            // Plugin»): هذه أسماء مشاريع لا عبارات تُترجَم، وتعريب واحدة
+            // منها وحدها يجعل الثلاثة تبدو ثلاثة أنظمة لا صفّاً واحداً.
             condition: isForkBranded,
             src: USERPLUGINS_ICON_URI,
-            alt: t("اشراق", "Esharq"),
-            title: t("حصري لاشراق", "Esharq Exclusive")
+            alt: "Esharq",
+            title: "Esharq Plugin"
         },
         {
             condition: isEquicordPlugin,
