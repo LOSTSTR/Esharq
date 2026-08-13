@@ -17,16 +17,34 @@
 */
 
 import { app } from "electron";
-import { copyFileSync, existsSync, readFileSync, writeFileSync } from "fs";
-import { join } from "path";
+import { copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { join, sep } from "path";
 
 const suffix = IS_DEV ? "dev" : "";
 
-export const DATA_DIR = process.env.EQUICORD_USER_DATA_DIR ?? (
-    process.env.DISCORD_USER_DATA_DIR
-        ? join(process.env.DISCORD_USER_DATA_DIR, "..", "EquicordData", suffix)
-        : join(app.getPath("userData"), "..", "Equicord", suffix)
-);
+/**
+ * مجلد بيانات المستخدم — الإعدادات والثيمات وCSS المخصص.
+ *
+ * كان باسم المشروع الأصل، فيرى مستخدم إشراق مجلداً باسم غيره حين يفتح
+ * «مجلد الثيمات»، وتتفرّق بياناته عن حمولته في `%APPDATA%\Esharq`.
+ *
+ * 🔴 **المتغيّر القديم يبقى مقروءاً**: من ضبط `EQUICORD_USER_DATA_DIR`
+ * صراحةً قصد مساراً بعينه، وتجاهله يُخفي بياناته عنه بلا إنذار.
+ */
+const legacyDataDir = process.env.DISCORD_USER_DATA_DIR
+    ? join(process.env.DISCORD_USER_DATA_DIR, "..", "EquicordData", suffix)
+    : join(app.getPath("userData"), "..", "Equicord", suffix);
+
+export const DATA_DIR = process.env.ESHARQ_USER_DATA_DIR
+    ?? process.env.EQUICORD_USER_DATA_DIR
+    ?? (
+        process.env.DISCORD_USER_DATA_DIR
+            ? join(process.env.DISCORD_USER_DATA_DIR, "..", "EsharqData", suffix)
+            : join(app.getPath("userData"), "..", "Esharq", suffix)
+    );
+
+/** المجلد القديم — يُقرأ مرّة للترحيل فقط، ولا يُحذف. */
+export const LEGACY_DATA_DIR = legacyDataDir;
 
 export const SETTINGS_DIR = join(DATA_DIR, "settings");
 export const THEMES_DIR = join(DATA_DIR, "themes");
@@ -47,6 +65,57 @@ export const ALLOWED_PROTOCOLS = [
 ];
 
 export const IS_VANILLA = /* @__PURE__ */ process.argv.includes("--vanilla");
+
+/**
+ * ترحيل بيانات المستخدم من مجلد الأصل — **مرّة واحدة، ونسخاً لا نقلاً**.
+ *
+ * ## القواعد التي يقوم عليها
+ *
+ * 1. **لا يُحذف القديم أبداً.** النسخ يُبقي للمستخدم طريق رجوع لو أخطأنا،
+ *    ولو نقلنا لَما بقي لنسخة أقدم من إشراق شيء تقرؤه.
+ * 2. **لا يُطمَس شيء في الجديد** (`force: false`): لو كان قد بدأ استعماله
+ *    فملفه أحدث من القديم.
+ * 3. **العلامة تُكتب أخيراً**، وهي وحدها ما يمنع التكرار. لو انقطع النسخ
+ *    في منتصفه فلا علامة ⇒ يُعاد في الإقلاع التالي ويُكمل ما نقص. ولو
+ *    اعتمدنا وجود `settings.json` دليلاً لَعُدّ نسخٌ ناقص نجاحاً.
+ * 4. **يُتخطّى إن ضُبط المسار يدوياً**: من ضبط متغيّر بيئة قصد مكاناً بعينه.
+ * 5. **بيانات المستخدم وحدها**: لا تُنسخ حمولة المُعدِّل الأصل (`*.asar`)
+ *    ولا الذواكر المؤقّتة. نسخها يضاعف مئات الميغابايت بلا فائدة، ويضع
+ *    حمولة مشروع آخر داخل مجلد إشراق فيُربك من يفتحه.
+ *
+ * صامت عند عدم وجود قديم — وهي حال كل مستخدم جديد.
+ */
+const NOT_USER_DATA = /^(ExtensionCache|DawnGraphiteCache|DawnWebGPUCache|GPUCache|Cache|Code Cache)$/;
+
+function migrateLegacyData(): void {
+    const marker = join(DATA_DIR, ".migrated-from-upstream");
+
+    if (DATA_DIR === LEGACY_DATA_DIR) return;
+    if (process.env.ESHARQ_USER_DATA_DIR || process.env.EQUICORD_USER_DATA_DIR) return;
+    if (existsSync(marker)) return;
+    if (!existsSync(LEGACY_DATA_DIR)) return;
+
+    try {
+        cpSync(LEGACY_DATA_DIR, DATA_DIR, {
+            recursive: true,
+            force: false,
+            errorOnExist: false,
+            filter: source => {
+                const name = source.slice(source.lastIndexOf(sep) + 1);
+                return !name.endsWith(".asar") && !NOT_USER_DATA.test(name);
+            }
+        });
+        mkdirSync(DATA_DIR, { recursive: true });
+        writeFileSync(marker, new Date().toISOString());
+        console.log(`[Esharq] نُسخت بيانات المستخدم من ${LEGACY_DATA_DIR} — والقديم باقٍ كما هو.`);
+    } catch (err) {
+        // لا نُوقف الإقلاع: بلا ترحيل يبدأ المستخدم بإعدادات افتراضية،
+        // وبإيقاف الإقلاع لا يبدأ أصلاً. والقديم سليم في الحالتين.
+        console.error("[Esharq] تعذّر ترحيل بيانات المستخدم:", err);
+    }
+}
+
+migrateLegacyData();
 
 if (IS_DEV) {
     const prodDir = join(DATA_DIR, "..");
