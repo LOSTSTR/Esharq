@@ -106,8 +106,8 @@ export function LanguagePage() {
                 index={1}
                 title={t("لغة الإضافات", "Plugins language")}
                 subtitle={t(
-                    "أوصاف الإضافات وإعداداتها ولوحة إشراق. 🔴 أمّا أسماء الإضافات فتبقى إنجليزية دائماً — بها يبحث المستخدمون ويسأل بعضهم بعضاً، وتعريبها يُضيّعهم. ومستقلّة عن لغة ديسكورد: تستطيع إبقاء ديسكورد إنجليزياً ولوحة إشراق عربية، أو العكس.",
-                    "Plugin descriptions, their settings, and the Esharq panel. 🔴 Plugin names always stay in English — that is what people search for and ask each other about, and translating them strands them. Independent of Discord's language: you can keep Discord in English and Esharq in Arabic, or the reverse."
+                    "يُعرّب وصف الإضافات مع إعداداتها. وهي منفصلة عن لغة ديسكورد: تستطيع إبقاء ديسكورد إنجليزياً ولوحة إشراق عربية، أو العكس.",
+                    "Localizes plugin descriptions along with their settings. Independent of Discord's language: you can keep Discord in English and the Esharq panel in Arabic, or the reverse."
                 )}
             >
                 <FormSwitch

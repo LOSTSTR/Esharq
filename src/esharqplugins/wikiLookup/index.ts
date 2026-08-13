@@ -12,6 +12,7 @@ export default definePlugin({
     name: "WikiLookup",
     description: "/wiki pulls a short Wikipedia summary for anything (sent only to you).",
     authors: [{ name: "Sharp", id: 0n }],
+    tags: ["Commands", "Utility"],
     dependencies: ["CommandsAPI"],
     commands: [
         {

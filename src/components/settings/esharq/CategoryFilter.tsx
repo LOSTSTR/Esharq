@@ -64,6 +64,10 @@ export function CategoryFilter({ categories, counts, selected, onChange, label }
 
     return (
         <div ref={root} style={{ position: "relative" }}>
+            {/* 🔴 الشكل مأخوذ من صندوق ديسكورد المجاور بقياس حقيقي لا بتقدير:
+                ارتفاع 40 · خلفية سوداء بشفافية 12% · حدّ 1px بشفافية 20% ·
+                نصف قطر 8 · خطّ 16. صندوقان متجاوران بشكلين مختلفين يبدو
+                أحدهما معطّلاً — وهو ما حدث: بدت «الفئات» كأنها مخفيّة. */}
             <button
                 onClick={() => setOpen(v => !v)}
                 style={{
@@ -75,17 +79,35 @@ export function CategoryFilter({ categories, counts, selected, onChange, label }
                     justifyContent: "space-between",
                     gap: UNIT,
                     width: "100%",
-                    padding: `${UNIT}px ${UNIT * 1.5}px`,
-                    borderRadius: RADIUS / 2,
-                    background: SURFACE[2],
-                    border: `1px solid ${open ? ACCENT : "transparent"}`,
-                    fontSize: 14
+                    height: 40,
+                    padding: `0 ${UNIT * 1.5}px`,
+                    borderRadius: 8,
+                    background: "rgb(0 0 0 / 12%)",
+                    border: `1px solid ${open ? ACCENT : "rgb(160 168 178 / 20%)"}`,
+                    fontSize: 16,
+                    color: "var(--text-normal)"
                 }}
             >
-                <span>{t("الفئات", "Categories")}</span>
-                <span style={{ color: "var(--text-muted)", fontSize: 12 }}>
-                    {selected.length === 0 ? t("الكل", "All") : selected.length}
+                <span>
+                    {t("الفئات", "Categories")}
+                    {selected.length > 0 && (
+                        <span style={{
+                            marginInlineStart: UNIT,
+                            fontSize: 12,
+                            padding: "1px 7px",
+                            borderRadius: 999,
+                            background: ACCENT,
+                            color: "#000"
+                        }}>
+                            {selected.length}
+                        </span>
+                    )}
                 </span>
+                {/* سهم كسهم الصندوق المجاور، ينقلب عند الفتح فيقول إن اللوحة مفتوحة. */}
+                <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"
+                    style={{ transition: "transform 140ms", transform: open ? "rotate(180deg)" : "none", opacity: 0.6 }}>
+                    <path fill="currentColor" d="M5.3 8.3a1 1 0 0 1 1.4 0l5.3 5.3 5.3-5.3a1 1 0 1 1 1.4 1.4l-6 6a1 1 0 0 1-1.4 0l-6-6a1 1 0 0 1 0-1.4Z" />
+                </svg>
             </button>
 
             {open && (

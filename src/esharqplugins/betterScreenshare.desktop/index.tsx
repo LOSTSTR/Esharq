@@ -30,6 +30,7 @@ export default definePlugin({
     name: "BetterScreenshare",
     description: "Fully customise your screen share: resolution, framerate, bitrate, keyframe interval, HDR and audio — with saveable profiles, in a redesigned Esharq panel.",
     authors: [EquicordDevs.LOSTSTR, { name: "philhk", id: 305288513941667851n }],
+    tags: ["Voice", "Media"],
     dependencies: ["PhilsPluginLibrary"],
     patches: [
         {

@@ -24,6 +24,7 @@ export default definePlugin({
     name: "VibeCheck",
     description: "Adds /vibe to drop a random vaporwave mood into chat.",
     authors: [{ name: "Sharp", id: 0n }],
+    tags: ["Commands", "Fun"],
     dependencies: ["CommandsAPI"],
     commands: [
         {

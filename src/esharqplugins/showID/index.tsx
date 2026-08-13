@@ -86,6 +86,7 @@ export default definePlugin({
     name: "ShowID",
     description: "Shows the user ID in Discord profiles, below the 'Member Since' section.",
     authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
+    tags: ["Developers", "Utility"],
 
     patches: [
         {

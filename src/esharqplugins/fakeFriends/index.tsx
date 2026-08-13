@@ -368,6 +368,7 @@ export default definePlugin({
     name: "FakeFriends",
     description: "Locally simulate Discord friends and friend requests from the right-click menu. In-memory only (resets on restart); nothing is ever sent to Discord.",
     authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
+    tags: ["Fun", "Friends"],
     dependencies: ["ContextMenuAPI"],
 
     start() {

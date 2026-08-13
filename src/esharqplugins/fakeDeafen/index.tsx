@@ -292,6 +292,7 @@ function setupKeybindListener() {
 
 export default definePlugin({
     name: "FakeDeafen",
+    tags: ["Voice", "Fun"],
     description: "Appear as deafened to others while still being able to hear.",
     dependencies: ["PhilsPluginLibrary"],
     authors: [EquicordDevs.LOSTSTR],

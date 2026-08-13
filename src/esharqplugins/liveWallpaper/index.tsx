@@ -337,6 +337,7 @@ export default definePlugin({
     name: "LiveWallpaper",
     description: "Global wallpaper for the entire Discord interface (image, gif, video). Compatible with ChannelWallpaper.",
     authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
+    tags: ["Appearance", "Customisation"],
     settings,
 
     start() {

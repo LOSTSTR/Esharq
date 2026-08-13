@@ -33,6 +33,7 @@ export default definePlugin({
     name: "SmoothMessages",
     description: "Makes new messages slide in smoothly from the left instead of appearing sharply.",
     authors: [{ name: "x2b", id: 0n }],
+    tags: ["Appearance", "Chat"],
     settings,
 
     start() {

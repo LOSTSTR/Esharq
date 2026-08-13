@@ -49,15 +49,28 @@
 
 /* شارات الفئة على البطاقة — صغيرة وباهتة، فلا تنافس اسم الإضافة.
    اللون يأتي من متغيّر تُحدّده الشارة نفسها، فيبقى ثابتاً لكل فئة. */
+
+/* 🔴 مساحة محجوزة حتى للبطاقات بلا فئات (`min-height`): بدونها يبدأ وصف
+   كل بطاقة على ارتفاع مختلف عن جارتها، فتبدو الشبكة مهتزّة. والفراغ أسفلها
+   أوسع من أعلاها: الشارات تخصّ الاسم فوقها لا الوصف تحتها. */
 .vc-addon-tags {
     display: flex;
+    align-items: center;
     flex-wrap: wrap;
-    gap: 4px;
-    margin: 6px 0 2px;
+    gap: 5px;
+    min-height: 20px;
+    margin: 2px 0 10px;
 }
 
+/* 🔴 `inline-flex` + `align-items: center` + `line-height: 1`: الشارة كانت
+   عنصراً يتمدّد بارتفاع الصفّ فيعلق نصّها في أعلاها ويبدو مرتفعاً. الثلاثة
+   معاً تُثبّت الحرف في وسط الشارة مهما كان ارتفاع الصفّ. */
 .vc-addon-tag {
-    padding: 1px 6px;
+    display: inline-flex;
+    height: 18px;
+    align-items: center;
+    padding: 0 7px;
+    line-height: 1;
     border: 1px solid color-mix(in srgb, var(--esharq-tag) 45%, transparent);
     border-radius: 4px;
     background: color-mix(in srgb, var(--esharq-tag) 14%, transparent);
@@ -66,4 +79,16 @@
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
+}
+
+/* 🔴 محاذاة موحّدة داخل البطاقة: كان العنوان والشارات على جهة والوصف على
+   الجهة المقابلة، لأن النصّ العربي يُحاذي نفسه. `start` تجعل الثلاثة على
+   حافة واحدة مهما كان اتّجاه الواجهة. */
+.vc-addon-note,
+.vc-addon-tags {
+    text-align: start;
+}
+
+.vc-addon-note {
+    unicode-bidi: plaintext;
 }

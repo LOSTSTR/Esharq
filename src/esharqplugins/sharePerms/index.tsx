@@ -1340,6 +1340,7 @@ function AboutWarning() {
 
 export default definePlugin({
     name: "SharePerms",
+    tags: ["Servers", "Roles"],
     description: "Multi-user permission sharing with interactive UI. ⚠️ Lets authorized users run moderation actions through your account — high abuse risk, use only with fully trusted people.",
     authors: [{ name: "Nightcord", id: 0n }],
     settings,

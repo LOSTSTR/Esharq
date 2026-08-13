@@ -297,6 +297,7 @@ export default definePlugin({
     name: "VoiceChannelSearch",
     description: "Search and join any voice channel across all your servers.",
     authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
+    tags: ["Voice", "Utility"],
     dependencies: ["HeaderBarAPI"],
 
     start() {

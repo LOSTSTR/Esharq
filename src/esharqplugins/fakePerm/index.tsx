@@ -505,6 +505,7 @@ export default definePlugin({
     name: "FakePerm",
     description: "Visually simulates moderation options in the right-click menu. No real action. Turn off ShowHiddenThings to use the permission part, since both rewrite the same checks.",
     authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
+    tags: ["Fun", "Roles"],
     dependencies: ["ContextMenuAPI"],
     requiresRestart: false,
     settings,

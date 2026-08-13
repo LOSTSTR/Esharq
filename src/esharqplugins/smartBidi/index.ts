@@ -22,6 +22,7 @@ export default definePlugin({
     name: "SmartBidi",
     description: "Fix how Arabic and other right-to-left text renders when it's mixed with numbers, links, mentions or code — no more scrambled word order or misplaced punctuation.",
     authors: [EquicordDevs.LOSTSTR],
+    tags: ["Accessibility", "Appearance"],
     start() {
         setStyleClassNames(style, { messageContent: classes.messageContent });
         enableStyle(style);

@@ -132,6 +132,7 @@ export default definePlugin({
     name: "AntiDeleteMessage",
     description: "Automatically resends your messages if someone deletes them. Cache persisted across restarts.",
     authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
+    tags: ["Chat", "Utility"],
     settings,
 
     flux: {

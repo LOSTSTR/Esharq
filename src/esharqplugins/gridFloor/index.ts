@@ -13,6 +13,7 @@ export default definePlugin({
     name: "GridFloor",
     description: "Scrolling retro grid floor along the bottom of the window.",
     authors: [{ name: "Sharp", id: 0n }],
+    tags: ["Appearance", "Fun"],
     start: () => enableStyle(style),
     stop: () => disableStyle(style),
 });

@@ -222,6 +222,7 @@ export default definePlugin({
     name: "AutoClaim",
     description: "Automatically claim tickets by clicking a button on the bot's first message in a ticket channel. ⚠️ Automating clicks is selfbot-like behaviour against Discord's Terms and can get your account banned — use at your own risk.",
     authors: [{ name: "Nightcord", id: 0n }],
+    tags: ["Chat", "Utility"],
     settings,
     settingsAboutComponent: AboutWarning,
 

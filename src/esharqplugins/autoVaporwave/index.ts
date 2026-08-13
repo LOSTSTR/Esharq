@@ -18,6 +18,7 @@ export default definePlugin({
     name: "AutoVaporwave",
     description: "Turn every message you send into ｆｕｌｌｗｉｄｔｈ text automatically.",
     authors: [{ name: "Sharp", id: 0n }],
+    tags: ["Chat", "Fun"],
     start() {
         this.pre = addMessagePreSendListener((_, msg) => {
             if (msg.content) msg.content = toFullwidth(msg.content);

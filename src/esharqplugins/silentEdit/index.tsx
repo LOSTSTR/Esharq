@@ -124,6 +124,7 @@ export default definePlugin({
     name: "SilentEdit",
     description: "\"Silently\" edit a message without showing the edit tag and bypass Vencord's message logger.",
     authors: [{ name: "Aurick", id: 1348025017233047634n }],
+    tags: ["Chat", "Privacy"],
     dependencies: ["MessagePopoverAPI"],
     settings,
     contextMenus: {

@@ -23,6 +23,7 @@ export default definePlugin({
     name: "GlassPanels",
     description: "Frosted-glass blur on the sidebar and member list.",
     authors: [{ name: "Sharp", id: 0n }],
+    tags: ["Appearance", "Customisation"],
     start() {
         setStyleClassNames(style, {
             sidebar: classes.sidebar,

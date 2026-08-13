@@ -13,6 +13,7 @@ export default definePlugin({
     name: "Starfield",
     description: "A faint twinkling starfield drifting behind everything.",
     authors: [{ name: "Sharp", id: 0n }],
+    tags: ["Appearance", "Fun"],
     start: () => enableStyle(style),
     stop: () => disableStyle(style),
 });

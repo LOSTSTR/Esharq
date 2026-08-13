@@ -216,6 +216,7 @@ export default definePlugin({
     name: "SmoothType",
     description: "Replaces the text caret with a smoothly animated one, with customizable transition, easing and color.",
     authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
+    tags: ["Appearance", "Chat"],
     settings,
 
     start() {

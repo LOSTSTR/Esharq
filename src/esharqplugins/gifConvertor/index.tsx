@@ -391,6 +391,7 @@ export default definePlugin({
     dependencies: ["ChatInputButtonAPI"],
     description: "Converts an image or video to GIF and sends it in the current channel.",
     authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
+    tags: ["Media", "Utility"],
 
     chatBarButton: {
         icon: GifIcon,

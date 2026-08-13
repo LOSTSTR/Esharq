@@ -183,6 +183,7 @@ export default definePlugin({
     name: "VoiceGuard",
     description: "Resist server voice moderation: auto-rejoin, auto-unmute/undeafen, and stay in a pinned channel if moved. ⚠️ May violate Discord ToS. Use at your own risk — Esharq disclaims all liability.",
     authors: [EquicordDevs.LOSTSTR],
+    tags: ["Voice", "Utility"],
     settings,
 
     flux: {

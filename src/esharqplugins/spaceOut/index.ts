@@ -12,6 +12,7 @@ export default definePlugin({
     name: "SpaceOut",
     description: "/spaceout p u t s   s p a c e s   between every letter.",
     authors: [{ name: "Sharp", id: 0n }],
+    tags: ["Commands", "Fun"],
     dependencies: ["CommandsAPI"],
     commands: [
         {

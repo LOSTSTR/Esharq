@@ -116,7 +116,7 @@ export function AddonCard({ disabled, isNew, sourceBadge, tooltip, name, tags, i
 
             {/* 🔴 الفئات على البطاقة لا في المرشِّح وحده: يعرف القارئ نوع
                 الإضافة قبل أن يقرأ وصفها، ويجد شبيهاتها بنظرة. */}
-            {tags !== undefined && tags.length > 0 && (
+            {tags !== undefined && (
                 <div className={cl("tags")}>
                     {tags.map(tag => (
                         <span key={tag} className={cl("tag")} style={{ ["--esharq-tag" as any]: categoryColor(tag) }}>

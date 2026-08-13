@@ -45,6 +45,7 @@ export default definePlugin({
         "Arabic coverage detector — measures which of Discord's loaded strings are still untranslated. The localization itself lives in the Esharq core."
     ),
     authors: [EquicordDevs.LOSTSTR],
+    tags: ["Accessibility", "Utility"],
     settings
 
     // لا `patches` ولا `start`: الفحص لا يجري إلّا بضغطة في الإعدادات،

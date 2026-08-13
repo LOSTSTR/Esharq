@@ -752,6 +752,7 @@ function parseKeybind(str: string) {
 
 export default definePlugin({
     name: "PasscodeLock",
+    tags: ["Privacy", "Utility"],
     description: "Protect Discord with a passcode.",
     authors: [{ name: "arg0NNY", id: 0n }],
     settings,

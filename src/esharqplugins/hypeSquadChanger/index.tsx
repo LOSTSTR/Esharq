@@ -141,6 +141,7 @@ export function HypeSquadSelectComponent() {
 
 export default definePlugin({
     name: "HypeSquadChanger",
+    tags: ["Customisation", "Utility"],
     description: "Change your HypeSquad house (Bravery, Brilliance, Balance) or leave HypeSquad, from the plugin settings. Uses Discord's own endpoint through the authenticated RestAPI — your token is never read.",
     authors: [Devs.Ven],
     settingsAboutComponent: HypeSquadSelectComponent

@@ -51,6 +51,7 @@ export default definePlugin({
     name: "AntiNickname",
     description: "Automatically resets any nickname forcefully assigned to you in a server (your own profile only).",
     authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
+    tags: ["Servers", "Utility"],
     settings,
 
     flux: {

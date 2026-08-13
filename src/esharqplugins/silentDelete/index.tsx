@@ -133,6 +133,7 @@ export default definePlugin({
         { name: "Aurick", id: 1348025017233047634n },
         { name: "appleflyer", id: 1209096766075703368n }
     ],
+    tags: ["Chat", "Privacy"],
     dependencies: ["MessagePopoverAPI", "CommandsAPI"],
     settings,
     contextMenus: {

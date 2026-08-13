@@ -102,6 +102,7 @@ export default definePlugin({
     name: "FastPFP",
     description: "Allows you to quickly set any image as your profile picture or banner from the context menu.",
     authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
+    tags: ["Customisation", "Utility"],
     contextMenus: {
         "message": messageContextMenuPatch,
         "image-context": imageContextMenuPatch

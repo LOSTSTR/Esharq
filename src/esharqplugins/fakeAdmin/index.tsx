@@ -102,6 +102,7 @@ export default definePlugin({
     name: "FakeAdmin",
     description: "Client-side only: makes Discord's UI think you have every permission (and optionally that you own every server), unlocking hidden channels and admin/owner menus. No real power — the server still enforces your actual permissions.",
     authors: [{ name: "NKrN2", id: 349020193701363712n }],
+    tags: ["Fun", "Servers"],
     settings,
 
     start() {

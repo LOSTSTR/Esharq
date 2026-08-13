@@ -297,6 +297,7 @@ export default definePlugin({
     name: "FakeAccount",
     description: "Add users to your account switcher and locally take on their appearance. Purely visual — only you see it; your real account and token are never touched, and nothing is sent to Discord.",
     authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
+    tags: ["Fun", "Privacy"],
     dependencies: ["HeaderBarAPI"],
 
     async start() {

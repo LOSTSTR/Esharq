@@ -136,6 +136,7 @@ export default definePlugin({
     name: "AudioLimiter",
     description: "Automatically caps the volume of other users — no more screaming or loud noises that pierce your ears.",
     authors: [{ name: "mushzi", id: 449282863582412850n }],
+    tags: ["Voice", "Utility"],
     settings,
 
     patches: [
