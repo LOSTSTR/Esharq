@@ -7,7 +7,6 @@
 import "./VencordTab.css";
 
 import { openNotificationLogModal } from "@api/Notifications/notificationLog";
-import { plugins } from "@api/PluginManager";
 import { useSettings } from "@api/Settings";
 import { Button } from "@components/Button";
 import { Divider } from "@components/Divider";
@@ -16,7 +15,7 @@ import { Heading } from "@components/Heading";
 import { FolderIcon, GithubIcon, LogIcon, PaintbrushIcon, RestartIcon } from "@components/Icons";
 import { Notice } from "@components/Notice";
 import { Paragraph } from "@components/Paragraph";
-import { openContributorModal, openPluginModal, SettingsTab, wrapTab } from "@components/settings";
+import { openContributorModal, SettingsTab, wrapTab } from "@components/settings";
 import { ESHARQ_LOGO } from "@components/settings/esharqLogo";
 import { QuickAction, QuickActionCard } from "@components/settings/QuickAction";
 import { SpecialCard } from "@components/settings/SpecialCard";
@@ -43,9 +42,6 @@ type KeysOfType<Object, Type> = {
 
 function EquicordSettings() {
     const settings = useSettings();
-
-    // إضافة التعريب اختيارية وقد لا تكون مضمّنة في كل نسخة — نقرأها بحذر لا بافتراض.
-    const arabicizerPlugin = plugins.DiscordArabicizer;
 
     const user = UserStore?.getCurrentUser();
 
@@ -278,38 +274,13 @@ function EquicordSettings() {
                     "Configure how Esharq works with Discord. These settings affect the appearance and behavior of the Discord app."
                 )}
             </Paragraph>
-            <Notice.Info className={Margins.bottom20} style={{ width: "100%" }}>
-                {t(
-                    "يمكنك تخصيص موضع قسم الإعدادات هذا في قائمة إعدادات ديسكورد عبر ",
-                    "You can customize the position of this settings section in Discord settings via "
-                )}
-                <a
-                    role="button"
-                    onClick={() => openPluginModal(plugins.Settings)}
-                    style={{ cursor: "pointer", color: "var(--text-link)" }}
-                >
-                    {t("إضافة الإعدادات", "the Settings plugin")}
-                </a>.
-            </Notice.Info>
-
-            {/* انتقل مفتاحا التعريب (لغة الإضافات + خطّ العربية) إلى إضافة DiscordArabicizer
-                ليجتمع كلّ ما يخصّ التعريب في مكان واحد. نُبقي مؤشّراً هنا كي لا يضيعا عن
-                من اعتاد مكانهما — ويظهر فقط إن كانت الإضافة موجودة فعلاً في هذه النسخة. */}
-            {arabicizerPlugin != null && (
-                <Notice.Info className={Margins.bottom20} style={{ width: "100%" }}>
-                    {t(
-                        "انتقلت خيارات التعريب (تفعيل تعريب الإضافات، وخطّ النصوص العربية) إلى ",
-                        "The localization options (plugin localization and the Arabic font) moved to "
-                    )}
-                    <a
-                        role="button"
-                        onClick={() => openPluginModal(arabicizerPlugin)}
-                        style={{ cursor: "pointer", color: "var(--text-link)" }}
-                    >
-                        {t("إضافة DiscordArabicizer", "the DiscordArabicizer plugin")}
-                    </a>.
-                </Notice.Info>
-            )}
+            {/* 🔴 حُذف إشعاران كانا هنا، وكلاهما صار يكذب على القارئ:
+                - «يمكنك تخصيص موضع قسم الإعدادات»: الخيار نفسه أُزيل حين صار
+                  التصميم يضع أقسام إشراق تحت «تسجيل الخروج» دائماً.
+                - «انتقلت خيارات التعريب إلى إضافة DiscordArabicizer»: انتقلت
+                  بعدها إلى صفحة «الأدوات ← اللغة»، فصار الإشعار يدلّ على
+                  مكان خطأ — وهو أسوأ من ألّا يدلّ على شيء.
+                إشعار الانتقال يُحذف حين ينتهي معناه، وإلّا صار أثراً دائماً. */}
 
             {switches.filter((s): s is Exclude<typeof s, false> => !!s).map(
                 s => (
