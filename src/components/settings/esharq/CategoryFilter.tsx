@@ -113,12 +113,16 @@ export function CategoryFilter({ categories, counts, selected, onChange, label }
             {open && (
                 <div className="esharq-rise" style={{
                     position: "absolute",
-                    insetInlineStart: 0,
+                    // 🔴 مُثبَّتة بطرف الزرّ لا ببدايته: اللوحة أعرض من زرّها
+                    // بكثير، فتثبيتها بالبداية يدفعها خارج حافّة النافذة. وهي
+                    // بالخاصّية المنطقية فتنقلب مع العربية بلا حساب ثانٍ.
+                    insetInlineEnd: 0,
                     top: "calc(100% + 6px)",
                     zIndex: 10,
-                    width: "max(100%, 520px)",
-                    maxHeight: 340,
-                    overflowY: "auto",
+                    // بلا تمرير داخلي: الفئات معدودة وتُرى كلّها دفعةً واحدة —
+                    // وقائمةٌ تُمرَّر داخل قائمة تُخفي نصف الخيارات عن القارئ.
+                    width: "max(100%, 720px)",
+                    maxWidth: "calc(100vw - 96px)",
                     padding: UNIT * 2,
                     borderRadius: RADIUS,
                     background: SURFACE[1],
@@ -133,17 +137,28 @@ export function CategoryFilter({ categories, counts, selected, onChange, label }
                                     "Shows plugins belonging to any of the selected categories.")}
                             </div>
                         </div>
-                        {selected.length > 0 && (
-                            <button
-                                onClick={() => onChange([])}
-                                style={{ all: "unset", cursor: "pointer", fontSize: 12, color: "var(--text-muted)" }}
-                            >
-                                {t("مسح", "Clear")}
-                            </button>
-                        )}
+                        {/* تبقى ظاهرة دائماً: زرٌّ يظهر ويختفي يُزيح ما حوله
+                            ويجعل القارئ يبحث عنه في كل مرّة. */}
+                        <button
+                            onClick={() => onChange([])}
+                            disabled={selected.length === 0}
+                            style={{
+                                all: "unset",
+                                cursor: selected.length === 0 ? "default" : "pointer",
+                                fontSize: 12,
+                                color: "var(--text-muted)",
+                                opacity: selected.length === 0 ? 0.35 : 1
+                            }}
+                        >
+                            {t("مسح", "Clear")}
+                        </button>
                     </div>
 
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: `${UNIT / 2}px ${UNIT}px` }}>
+                    <div style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+                        gap: `${UNIT / 2}px ${UNIT * 1.5}px`
+                    }}>
                         {categories.map(name => {
                             const on = selected.includes(name);
                             return (
