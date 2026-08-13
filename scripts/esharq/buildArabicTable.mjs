@@ -21,15 +21,22 @@
  *
  * ## 🔴 الفحص الذي لا يُتنازَل عنه
  *
- * **تطابق أسماء المتغيّرات بين الإنجليزية والعربية.** ترجمة تُسقط متغيّراً
- * أو تُعيد تسميته تُنتج نصّاً ناقصاً عند المستخدم **ولا يشتكي شيء** —
- * المفتاح موجود والقيمة «صالحة». فتُرفَض هنا وتُحصى، لا تُشحن.
+ * **تطابق البنية بين الإنجليزية والعربية**: المتغيّرات وأنواعها، وأسماء
+ * الوسوم، وأطراف الاختيار. ترجمة تُسقط متغيّراً أو تُعيد تسميته تُنتج نصّاً
+ * ناقصاً عند المستخدم **ولا يشتكي شيء** — المفتاح موجود والقيمة «صالحة».
+ * فتُرفَض هنا وتُحصى، لا تُشحن.
+ *
+ * 🔑 **وصيغ الجمع مستثناة من التطابق قصداً**: الإنجليزية فرعان
+ * (`one`/`other`) والعربية ستّة (`zero` … `other`). اشتراط تطابقها يرفض كل
+ * ترجمة عربية صحيحة — وهذا بالضبط ما يجعل «12 صديقاً مشتركاً» تُصاغ صياغةً
+ * عربية سليمة **يختارها مُنسِّق ديسكورد** بلا سطر كود عندنا.
  */
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { astToSource, NODE, sourceToAst, validateTranslation } from "./intlAst.mjs";
 import { readDictionary } from "./intlDictionary.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -49,62 +56,51 @@ if (!existsSync(SNAPSHOT)) {
     process.exit(2);
 }
 
-/** أسماء المتغيّرات داخل نصّ بصيغة `{name}`. */
-function placeholdersOf(text) {
-    return [...text.matchAll(/\{([A-Za-z0-9_]+)\}/g)].map(match => match[1]);
-}
-
-/** نصّ ⇒ شجرة أجزاء: نصوص حرفية و`[1,"اسم"]`. */
-function toParts(text) {
-    const parts = [];
-    let last = 0;
-
-    for (const match of text.matchAll(/\{([A-Za-z0-9_]+)\}/g)) {
-        if (match.index > last) parts.push(text.slice(last, match.index));
-        parts.push([1, match[1]]);
-        last = match.index + match[0].length;
-    }
-    if (last < text.length) parts.push(text.slice(last));
-
-    return parts.length === 0 ? [""] : parts;
-}
-
 const snapshot = JSON.parse(readFileSync(SNAPSHOT, "utf8"));
 const dictionary = readDictionary(PLUGIN);
 
 const table = {};
 let matched = 0;
 let missing = 0;
+let withStructure = 0;
 const rejected = [];
 
 for (const [key, english] of Object.entries(snapshot.messages)) {
     const arabic = dictionary.get(english);
     if (arabic === undefined) { missing++; continue; }
 
-    const wanted = placeholdersOf(english).sort().join(",");
-    const got = placeholdersOf(arabic).sort().join(",");
-
-    if (wanted !== got) {
+    const problem = validateTranslation(english, arabic);
+    if (problem !== null) {
         // 🔴 نصّ ناقص عند المستخدم بلا شكوى من أحد — يُرفَض ويُحصى.
-        rejected.push({ key, en: english, ar: arabic, wanted, got });
+        rejected.push({ key, en: english, ar: arabic, problem });
         continue;
     }
 
-    table[key] = toParts(arabic);
+    const parts = sourceToAst(arabic);
+    table[key] = parts;
     matched++;
+    if (parts.some(part => Array.isArray(part) && part[0] !== NODE.ARGUMENT)) withStructure++;
 }
 
-// 🔴 فحص الشكل قبل الكتابة: الجدول يُستورَد في `arabicLocale.ts` بتحويل عبر
-// `unknown` (لأن JSON المستورَد لا يُستنتَج صفوفاً ثنائية)، والتحويل يُسكِت
-// المُترجِم — فلو خرج جزءٌ بشكل آخر لمرّ إلى ديسكورد بلا اعتراض من أحد.
+// 🔴 فحص قبل الكتابة: الجدول يُستورَد في `arabicLocale.ts` بتحويل عبر
+// `unknown` (لأن JSON المستورَد لا يُستنتَج صفوفاً)، والتحويل يُسكِت المُترجِم
+// — فلو خرجت شجرةٌ بشكل آخر لمرّت إلى ديسكورد بلا اعتراض من أحد.
+//
+// والمِحكّ **دورة كاملة لا قائمة أشكال مسموحة**: تسلسلُ ما بنيناه يجب أن
+// يُعيد نصّ الترجمة حرفاً بحرف. قائمة الأشكال تنسى نوعاً يُضاف لاحقاً؛
+// والدورة تكشف أي انحراف مهما كان نوعه.
 for (const [key, parts] of Object.entries(table)) {
-    for (const part of parts) {
-        if (typeof part === "string") continue;
-        const ok = Array.isArray(part) && part.length === 2 && part[0] === 1 && typeof part[1] === "string";
-        if (!ok) {
-            console.error(`✖ جزء بشكل غير متوقّع في ${key}: ${JSON.stringify(part)}`);
-            process.exit(1);
-        }
+    const arabic = dictionary.get(snapshot.messages[key]);
+    let again;
+    try {
+        again = astToSource(parts);
+    } catch (error) {
+        console.error(`✖ شجرة لا تُسلسَل في ${key}: ${error.message}`);
+        process.exit(1);
+    }
+    if (again !== arabic) {
+        console.error(`✖ دورة غير مغلقة في ${key}:\n    ترجمة: ${JSON.stringify(arabic)}\n    عائد : ${JSON.stringify(again)}`);
+        process.exit(1);
     }
 }
 
@@ -113,13 +109,14 @@ writeFileSync(OUT, JSON.stringify(table), "utf8");
 const total = Object.keys(snapshot.messages).length;
 console.log(`مفاتيح اللقطة        : ${total}`);
 console.log(`مُصرَّف إلى العربية    : ${matched} (${((matched / total) * 100).toFixed(1)}%)`);
+console.log(`  منها ذات بنى ICU   : ${withStructure} (جمع · وسوم · تواريخ)`);
 console.log(`بلا ترجمة            : ${missing}`);
-console.log(`مرفوض (متغيّرات)      : ${rejected.length}`);
+console.log(`مرفوض (بنية)         : ${rejected.length}`);
 console.log(`الحجم                : ${(readFileSync(OUT).length / 1024).toFixed(0)}KB`);
 console.log(`المخرج               : ${OUT}`);
 
 for (const item of rejected.slice(0, 5)) {
-    console.log(`  ✖ ${item.key}: يريد [${item.wanted}] ووجد [${item.got}]`);
+    console.log(`  ✖ ${item.key}: ${item.problem}`);
 }
 
 if (rejected.length > 0) {

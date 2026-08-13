@@ -83,8 +83,35 @@ export const MESSAGE_LOADER_REPLACEMENT =
 /** المُحدِّد الذي يختار وحدات محمّلات الرسائل. */
 export const MESSAGE_LOADER_ANCHOR = "makeMessagesProxy";
 
-/** جزء من رسالة: نصّ حرفيّ أو موضع إدراج `[1, "اسم"]`. */
-export type MessagePart = string | readonly [1, string];
+/**
+ * جزء من رسالة، بالأنواع التسعة التي يرقّمها ديسكورد.
+ *
+ * 🔴 النوع كان `string | [1, string]` وحده، وهو ما جعل **3,892 مفتاحاً**
+ * خارج التعريب: كل ما فيه جمعٌ أو نصٌّ منسّق أو تاريخ. وتلك بالضبط النصوص
+ * التي كانت الإضافة القديمة تُطاردها بطبقة تشغيل. توسيعُ النوع هنا مع
+ * `intlAst.mjs` يجعل **مُنسِّق ديسكورد** يختار صيغة الجمع العربية ويُدرج
+ * العدد — بلا سطر كود يعمل عند المستخدم.
+ */
+export type MessagePart =
+    | string
+    /** `{name}` — موضع إدراج. */
+    | readonly [1, string]
+    /** `{name, number}` — عدد مُنسَّق. */
+    | readonly [2, string]
+    /** `{name, date, style}` · `{name, time, style}`. */
+    | readonly [3 | 4, string, string]
+    /** `{name, select, …}` — تفريع على قيمة. */
+    | readonly [5, string, MessageBranches]
+    /** `{name, plural, …}` — تفريع على عدد، بإزاحة ونوع. */
+    | readonly [6, string, MessageBranches, number, string]
+    /** `#` — العدد داخل فرع الجمع. */
+    | readonly [7]
+    /** `<tag>…</tag>` بأبنائه، ووسيطه إن كان له وسيط. */
+    | readonly [8, string, readonly MessagePart[]]
+    | readonly [8, string, readonly MessagePart[], readonly MessagePart[]];
+
+/** فروع الجمع أو الاختيار: اسم الفرع ← أجزاؤه. */
+export type MessageBranches = Readonly<Record<string, readonly MessagePart[]>>;
 
 /** الجدول كما يفهمه ديسكورد: مفتاح مُجزَّأ ← شجرة أجزاء. */
 export type ArabicMessageTable = Readonly<Record<string, readonly MessagePart[]>>;

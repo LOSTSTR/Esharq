@@ -14,8 +14,9 @@
  *
  * 1. **مفتاح إنجليزي ليس في اللقطة** — حرفٌ واحد زائد في النصّ المصدر يجعل
  *    الترجمة لا تطابق شيئاً **أبداً**. أخطر خلل في كتابة الدفعات يدوياً.
- * 2. **اختلال المتغيّرات** — `{name}` سقط أو أُعيدت تسميته ⇒ نصّ ناقص عند
- *    المستخدم. (البنّاء يرفضه أيضاً، لكن الرفض بعد الترجمة إهدار.)
+ * 2. **اختلال البنية** — `{name}` سقط أو أُعيدت تسميته، أو وسمٌ لم يُغلَق،
+ *    أو صيغة جمع بلا فرع `other` ⇒ نصّ ناقص عند المستخدم. (البنّاء يرفضه
+ *    أيضاً، لكن الرفض بعد الترجمة إهدار.)
  * 3. **قيمة فارغة** — سطر لم يُملأ.
  * 4. **تكرار بين الدفعات** — نصّ واحد في ملفّين: الأخير يغلب صامتاً.
  * 5. **قيمة بلا حرف عربي** — قد تكون مقصودة (اسم منتج/لعبة/رمز) فتُعرَض
@@ -26,6 +27,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { validateTranslation } from "./intlAst.mjs";
 import { readDictionaryBatches, readKeepEnglish } from "./intlDictionary.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -41,7 +43,6 @@ if (!existsSync(SNAPSHOT)) {
 const snapshot = JSON.parse(readFileSync(SNAPSHOT, "utf8"));
 const known = new Set(Object.values(snapshot.messages));
 
-const placeholders = text => [...text.matchAll(/\{([A-Za-z0-9_]+)\}/g)].map(m => m[1]).sort().join(",");
 const hasArabic = text => /[؀-ۿ]/.test(text);
 
 const batches = readDictionaryBatches(PLUGIN);
@@ -71,9 +72,13 @@ for (const { name, entries: table } of batches) {
         // اسمٌ عُرِّب: خطأ يبدو صحيحاً على الشاشة، فلا يكشفه إلّا فحص كهذا.
         if (keepEnglish.has(english)) errors.push(`اسم لا يُعرَّب: ${where} ⇒ ${JSON.stringify(arabic)}`);
 
-        const want = placeholders(english);
-        const got = placeholders(arabic);
-        if (want !== got) errors.push(`متغيّرات: ${where} — يريد [${want}] ووجد [${got}]`);
+        // 🔴 البنية تُفحَص على النصّ الذي في اللقطة **لا على المفتاح المكتوب**:
+        // مفتاحٌ ليس في اللقطة سبق الإبلاغ عنه، وفحص بنيته يُنتج ضجيجاً يُغرق
+        // الخطأ الأصلي.
+        if (known.has(english)) {
+            const problem = validateTranslation(english, arabic);
+            if (problem !== null) errors.push(`بنية: ${where} — ${problem}`);
+        }
 
         if (!hasArabic(arabic)) notes.push(`بلا حرف عربي: ${where} ⇒ ${JSON.stringify(arabic)}`);
     }

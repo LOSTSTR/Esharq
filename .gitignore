@@ -65,7 +65,14 @@ _claude_memory/
 # أداة كشف المنشأ — خاصة، لا تُرفَع
 scripts/esharq/.provenance-scan.mjs
 
-# مخرجات التغطية القابلة لإعادة التوليد. اللقطة `discord-keys.json` وحدها
-# تُلتزَم لأنها **مرجع المحرس**: بدونها لا يعرف أحد ما الذي أضافه ديسكورد.
-src/userplugins/DiscordArabicizer/coverage/untranslated.json
-src/userplugins/DiscordArabicizer/coverage/placeholder-mismatch.json
+# مخرجات التغطية القابلة لإعادة التوليد. تُلتزَم منها اثنتان فقط لأنهما
+# **مرجعان لا مخرجان**: `discord-keys.json` (مرجع المحرس — بدونه لا يعرف أحد
+# ما الذي أضافه ديسكورد) و`discord-icu.json` (أشجار ICU الحقيقية التي يبرهن
+# عليها `testIntlAst` بلا عميل حيّ).
+#
+# 🔴 المسار كان `src/userplugins/…` وبقي كذلك بعد نقل الإضافات إلى
+# `src/esharqplugins/`، فصارت القاعدة لا تطابق شيئاً وظلّ الطابور (1.4MB
+# يُعاد توليده كل حصاد) مُتتبَّعاً يُلوّث كل فرق. مرجعٌ معلّق بعد نقلٍ لا
+# يُخطئ ولا يشتكي — يكفّ عن العمل بصمت.
+src/esharqplugins/DiscordArabicizer/coverage/untranslated.json
+src/esharqplugins/DiscordArabicizer/coverage/placeholder-mismatch.json

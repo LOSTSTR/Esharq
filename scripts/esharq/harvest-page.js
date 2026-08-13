@@ -6,30 +6,23 @@
  * إصدار وآخر. ونقرأ **المُنفَّذ سلفاً** فقط، فلا ننفّذ وحدة واحدة زيادة.
  *
  * شكل المفتاح مرصود من حزمة رسائل حقيقية: ستّة محارف base64 بأبجدية
- * تشمل `/` و`+`. والقيمة **شجرة أجزاء** لا نصّ: عناصرها نصوص حرفية
- * و`[1,"اسم"]` لمواضع الإدراج.
+ * تشمل `/` و`+`. والقيمة **شجرة أجزاء** لا نصّ.
+ *
+ * 🔴 **الشجرة تُعاد خاماً كما هي، ولا تُترجم هنا إلى نصّ.**
+ * كانت هذه الصفحة تُسطّح الشجرة بنفسها فتُسقط كل ما لم يكن نصّاً أو
+ * `[1,"اسم"]` — **3,892 مفتاحاً** فيها الجمع وتنسيق النصّ والتواريخ. وحتى
+ * لو عُلِّمت البنى هنا لصار للمُسلسِل نسختان: واحدة تعمل داخل ديسكورد
+ * وأخرى في `intlAst.mjs` تقرأ العربية — ونسختان تفترقان بلا أن يلاحظ أحد.
+ * فالتسلسل كلّه في وحدة واحدة عند Node، وهذه الصفحة تجمع لا غير.
  */
 (() => {
     const KEY = /^[A-Za-z0-9+/]{6}$/;
     const wreq = globalThis.Vencord?.Webpack?.wreq;
     if (wreq?.c == null) return JSON.stringify({ error: "لا وصول إلى ذاكرة webpack" });
 
-    /** يُعيد تركيب النصّ الإنجليزي من الشجرة، ويُبقي مواضع الإدراج معلَّمة. */
-    const plain = parts => {
-        if (typeof parts === "string") return parts;
-        if (!Array.isArray(parts)) return null;
-
-        let text = "";
-        for (const part of parts) {
-            if (typeof part === "string") text += part;
-            else if (Array.isArray(part) && part[0] === 1 && typeof part[1] === "string") text += `{${part[1]}}`;
-            else return null; // شكل لم نره — لا نخمّنه
-        }
-        return text;
-    };
-
     const messages = {};
     let scanned = 0;
+    let callables = 0;
 
     for (const id of Object.keys(wreq.c)) {
         let exports;
@@ -56,11 +49,21 @@
                 if (!KEY.test(key) || messages[key] !== undefined) continue;
                 let value;
                 try { value = candidate[key]; } catch { continue; }
-                const text = plain(value);
-                if (text !== null && text.length > 0) messages[key] = text;
+                if (value == null) continue;
+
+                // قيمة دالّة = مُنسِّق يكتبه ديسكورد بيده لا رسالة بيانات،
+                // فلا نصّ فيها يُترجَم. رُصدت 28 منها ويُصرَّح بعددها.
+                if (typeof value === "function") { callables++; continue; }
+
+                messages[key] = value;
             }
         }
     }
 
-    return JSON.stringify({ tables: scanned, keys: Object.keys(messages).length, messages });
+    return JSON.stringify({
+        tables: scanned,
+        keys: Object.keys(messages).length,
+        callables,
+        messages
+    });
 })()
