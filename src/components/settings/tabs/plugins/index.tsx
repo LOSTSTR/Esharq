@@ -253,7 +253,10 @@ export default function PluginSettings() {
             plugin.name.toLowerCase().includes(search.replace(/\s+/g, "")) ||
             plugin.name.match(/[A-Z]/g)?.join("").toLowerCase().includes(search) ||
             plugin.description.toLowerCase().includes(search) ||
-            plugin.searchTerms?.some(t => t.toLowerCase().includes(search))
+            plugin.searchTerms?.some(t => t.toLowerCase().includes(search)) ||
+            // بالمؤلّف أيضاً: مع 458 إضافة يصير «ما الذي كتبه فلان؟» سؤالاً
+            // حقيقياً، وكان جوابه قبل ذلك فتح البطاقات واحدة واحدة.
+            plugin.authors?.some(author => author.name.toLowerCase().includes(search))
         );
     }, [searchValue, search]);
 
@@ -412,14 +415,21 @@ export default function PluginSettings() {
                 <UIElementsButton />
             </div>
 
-            <HeadingTertiary className={classes(Margins.top20, Margins.bottom8)}>
-                {t("الفلاتر", "Filters")}
-            </HeadingTertiary>
+            <div className={classes(Margins.top20, Margins.bottom8)}
+                style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
+                <HeadingTertiary>{t("الفلاتر", "Filters")}</HeadingTertiary>
+                {/* 🔴 عدّاد النتيجة: بدونه لا يعرف من ضيّق البحث إن كان الترشيح
+                    وقع أصلاً أم أن ما يراه هو كل شيء. */}
+                <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                    {t(`${plugins.length} ظاهرة من ${totalStockPlugins + totalUserPlugins}`,
+                        `${plugins.length} shown of ${totalStockPlugins + totalUserPlugins}`)}
+                </span>
+            </div>
 
             <ErrorBoundary noop>
                 <TextInput
                     inputClassName={cl("filter-control")}
-                    placeholder={t("ابحث عن إضافة...", "Search for a plugin...")}
+                    placeholder={t("ابحث بالاسم أو الوصف أو المؤلّف…", "Search by name, description or author…")}
                     value={searchValue.value}
                     onChange={onSearch}
                     autoFocus
@@ -445,14 +455,14 @@ export default function PluginSettings() {
                         select={status => setSearchValue(prev => ({ ...prev, status }))}
                         isSelected={v => v === searchValue.status}
                         closeOnSelect={true}
-                        placeholder={t("تصفية حسب النوع", "Filter by type")}
+                        placeholder={t("المصدر والحالة", "Source and state")}
                     />
                     <SearchableSelect
                         options={PluginTags.map(tag => ({ label: tag, value: tag }))}
                         value={searchValue.tags}
                         onChange={tags => setSearchValue(prev => ({ ...prev, tags }))}
                         closeOnSelect={false}
-                        placeholder={t("تصفية حسب الوسوم", "Filter by tags")}
+                        placeholder={t("الفئة", "Category")}
                         multi
                     />
                 </div>

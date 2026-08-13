@@ -17,6 +17,7 @@
 */
 
 import "./AddonCard.css";
+import "./esharq/cardState.css";
 
 import { Badge } from "@components/Badge";
 import { BaseText } from "@components/BaseText";
@@ -50,7 +51,13 @@ export function AddonCard({ disabled, isNew, sourceBadge, tooltip, name, infoBut
 
     return (
         <div
-            className={cl("card", { "card-disabled": disabled })}
+            // حالة الإضافة تُعرَض لوناً أيضاً لا مفتاحاً وحده — انظر cardState.css.
+            className={cl("card", {
+                "card-disabled": disabled,
+                "card-locked": disabled,
+                "card-on": !disabled && enabled,
+                "card-off": !disabled && !enabled
+            })}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
         >

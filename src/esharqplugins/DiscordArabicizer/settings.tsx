@@ -9,18 +9,29 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import "@components/settings/esharq/motion.css";
+
+import { CoverageRing } from "@components/settings/esharq/CoverageRing";
 import { definePluginSettings } from "@api/Settings";
 import { copyWithToast } from "@utils/discord";
 import { t } from "@utils/esharqI18n";
 import { OptionType } from "@utils/types";
 import { saveFile } from "@utils/web";
-import { Button, useState } from "@webpack/common";
+import { Button, useEffect, useState } from "@webpack/common";
 
 import { type CoverageReport, scanCoverage } from "./coverageScan";
 
 const muted: React.CSSProperties = { color: "var(--text-muted)", fontSize: 13 };
 
 function CoveragePanel() {
+    // 🔴 حالة النسخ تعود تلقائياً: زرّ يبقى «تمّ» إلى الأبد يكذب بعد ثانية.
+    const [copied, setCopied] = useState(false);
+    useEffect(() => {
+        if (!copied) return;
+        const id = setTimeout(() => setCopied(false), 1800);
+        return () => clearTimeout(id);
+    }, [copied]);
+
     // 🔴 لا فحص عند الرسم: لا يجري شيء حتى تُضغط الزرّ. لا مؤقّت ولا خطّاف.
     const [report, setReport] = useState<CoverageReport | null>(null);
 
@@ -39,12 +50,15 @@ function CoveragePanel() {
             </div>
 
             {report !== null && (
-                <div style={muted}>
+                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                    <CoverageRing percent={percent ?? 0} />
+                    <div style={muted}>
                     📊 <b>{report.liveKeys.toLocaleString()}</b> {t("مفتاحاً حيّاً في", "live keys across")}{" "}
                     <b>{report.tables}</b> {t("جدولاً", "tables")}　·
                     🟢 {t("مُعرَّب", "translated")}: <b>{report.translated.toLocaleString()}</b>
                     {percent !== null && <> ({percent}%)</>}　·
-                    🔴 {t("باقٍ", "remaining")}: <b>{missing.toLocaleString()}</b>
+                        🔴 {t("باقٍ", "remaining")}: <b>{missing.toLocaleString()}</b>
+                    </div>
                 </div>
             )}
 
@@ -66,12 +80,17 @@ function CoveragePanel() {
                     <>
                         <Button
                             color={Button.Colors.PRIMARY}
-                            onClick={() => copyWithToast(
-                                JSON.stringify(report.untranslated, null, 2),
-                                t(`نُسخ ${missing} مفتاحاً غير مُعرَّب`, `Copied ${missing} untranslated keys`)
-                            )}
+                            onClick={() => {
+                                copyWithToast(
+                                    JSON.stringify(report.untranslated, null, 2),
+                                    t(`نُسخ ${missing} مفتاحاً غير مُعرَّب`, `Copied ${missing} untranslated keys`)
+                                );
+                                setCopied(true);
+                            }}
                         >
-                            {t("انسخ ما لم يُعرَّب", "Copy untranslated")}
+                            <span key={String(copied)} className="esharq-pop">
+                                {copied ? t("✓ نُسخ", "✓ Copied") : t("انسخ ما لم يُعرَّب", "Copy untranslated")}
+                            </span>
                         </Button>
                         <Button
                             look={Button.Looks.LINK}

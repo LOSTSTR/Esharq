@@ -80,3 +80,59 @@
         transform: none;
     }
 }
+
+/* حلقة تقدّم: يتحرّك طول الشرطة لا العرض، فلا إعادة تخطيط.
+   المنحنى يتجاوز هدفه قليلاً ثم يستقرّ — يُحسّ حيّاً لا آلياً. */
+.esharq-ring circle {
+    transition: stroke-dashoffset 900ms cubic-bezier(0.22, 1.2, 0.36, 1);
+}
+
+/* وميض ماسح فوق هيكل التحميل: يقول «قادم» بدل فراغ يقول «انتهى». */
+@keyframes esharq-shimmer {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(200%);
+    }
+}
+
+.esharq-shimmer {
+    position: relative;
+    overflow: hidden;
+}
+
+.esharq-shimmer::after {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 7%), transparent);
+    animation: esharq-shimmer 1400ms ease-in-out infinite;
+    content: "";
+}
+
+/* تبديل الأيقونة: الخارجة تتلاشى صاعدة، والداخلة تستقرّ. */
+@keyframes esharq-pop {
+    from {
+        opacity: 0;
+        transform: scale(0.7);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.esharq-pop {
+    animation: esharq-pop 220ms cubic-bezier(0.22, 1.2, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .esharq-ring circle,
+    .esharq-shimmer::after,
+    .esharq-pop {
+        animation: none;
+        transition: none;
+    }
+}

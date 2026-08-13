@@ -1,0 +1,48 @@
+/*
+ * Esharq, a Discord client mod
+ * Copyright (c) 2026 LOSTSTR
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * حالة الإضافة تُرى قبل أن تُقرأ: أخضر تعمل، أحمر متوقّفة.
+ *
+ * مع 458 بطاقة صار المفتاح الصغير في زاويتها هو الدليل الوحيد على حالتها،
+ * فيضطرّ القارئ إلى فحص كل بطاقة على حدة. واللون يُجيب عن «ما الذي يعمل؟»
+ * بنظرة واحدة على الشبكة كلّها.
+ *
+ * 🔴 **`border-inline-start` لا `border-left`**: واجهة إشراق تنقلب إلى RTL
+ * مع العربية، و`left` تُبقي الشريط على الجهة الخطأ — يصير على نهاية البطاقة
+ * لا بدايتها.
+ *
+ * 🔴 **واللون ليس الدليل الوحيد**: المفتاح باقٍ كما هو. من لا يميّز الأحمر
+ * من الأخضر (وهم كثير) يقرأ الحالة من المفتاح، واللون زيادة لا بديل.
+ */
+
+.vc-addon-card {
+    border-inline-start: 3px solid transparent;
+    transition:
+        border-color 140ms cubic-bezier(0.33, 1, 0.68, 1),
+        background-color 140ms cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.vc-addon-card-on {
+    border-inline-start-color: var(--status-positive, #23a55a);
+    background-color: rgb(35 165 90 / 7%);
+}
+
+.vc-addon-card-off {
+    border-inline-start-color: var(--status-danger, #f23f43);
+    background-color: rgb(242 63 67 / 5%);
+}
+
+/* الإضافات المطلوبة لا تُطفأ أصلاً، فتلوينها بالأحمر يوهم بعطل.
+   تأخذ لون التمييز: «قائمة دائماً» لا «متوقّفة». */
+.vc-addon-card-locked {
+    border-inline-start-color: #c9a227;
+    background-color: rgb(201 162 39 / 6%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vc-addon-card {
+        transition: none;
+    }
+}
