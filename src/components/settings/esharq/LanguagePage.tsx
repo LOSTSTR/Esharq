@@ -4,12 +4,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Settings } from "@api/Settings";
 import { FormSwitch } from "@components/FormSwitch";
 import { applyArabicFont, ARABIC_FONTS } from "@utils/esharqFont";
 import { t } from "@utils/esharqI18n";
 import { ARABIC_LOCALE, arabicTableSize } from "@utils/esharqLocale";
-import { readArabicFont, readPluginsArabic } from "@utils/esharqPrefs";
+import { readArabicFont, readPluginsArabic, writeEsharqPref } from "@utils/esharqPrefs";
 import { Forms, Select, UserSettingsActionCreators, useState } from "@webpack/common";
 
 import { ACCENT, RADIUS, SURFACE, UNIT } from "./tokens";
@@ -21,13 +20,11 @@ import { ACCENT, RADIUS, SURFACE, UNIT } from "./tokens";
  *   2. لغة الإضافات       — أسماء الإضافات وأوصافها ولوحة إشراق
  *   3. الخطّ العربي        — خطّ كل نصّ عربي في العميل
  *
- * 🔴 **الواجهة انتقلت، والتخزين لم ينتقل**: القيمتان تبقيان في مفتاحَي
- * `DiscordArabicizer.pluginsArabic` و`.arabicFont` لأن `esharqPrefs` يقرؤهما
- * من هناك مباشرةً. نقل مكان التخزين بلا ترحيل **يمحو تفضيل المستخدم بصمت**:
- * يعمل كل شيء، ويعود الإعداد إلى افتراضيّه بلا خطأ يشتكي.
+ * 🔴 **التخزين في `Settings.esharq`، والقراءة عبر `esharqPrefs` وحده**:
+ * لا تُقرأ هذه القيم من هنا مباشرةً. `esharqPrefs` يعرف المواضع القديمة
+ * ويُرحّل منها مرّة واحدة؛ وقراءةٌ مباشرة تتخطّاه تُرجع الافتراضي لمن لم
+ * يُرحَّل بعد — أي **تمحو تفضيله في نظره** وإن كان محفوظاً.
  */
-
-const PLUGIN = "DiscordArabicizer";
 
 /** لغة ديسكورد الحالية، مقروءة من إعداداته هو لا من عندنا. */
 function currentLocale(): string {
@@ -110,7 +107,7 @@ export function LanguagePage() {
                 <FormSwitch
                     value={pluginsArabic}
                     onChange={(value: boolean) => {
-                        Settings.plugins[PLUGIN].pluginsArabic = value;
+                        writeEsharqPref("pluginsArabic", value);
                         setPluginsArabic(value);
                     }}
                     title={t("عرّب أسماء الإضافات ولوحة إشراق", "Localize plugin names and the Esharq panel")}
@@ -137,7 +134,7 @@ export function LanguagePage() {
                     isSelected={(value: string) => value === font}
                     serialize={(value: string) => value}
                     select={(value: string) => {
-                        Settings.plugins[PLUGIN].arabicFont = value;
+                        writeEsharqPref("arabicFont", value);
                         applyArabicFont(value);
                         setFont(value);
                     }}

@@ -103,6 +103,26 @@ export interface Settings {
         settingsSyncVersion: number;
     };
 
+    /**
+     * تفضيلات إشراق التي لا تخصّ إضافةً بعينها — تسكن هنا لا داخل إضافة.
+     * كانت تحت `plugins.DiscordArabicizer` حين كانت واجهتها هناك؛ ويُرحّلها
+     * `esharqPrefs` مرّة واحدة.
+     *
+     * 🔴 **`migrated` ليست زينة**: `mergeDefaults` يكتب الافتراضيات في المخزن
+     * عند الإقلاع، فقيم هذه المجموعة تصير «محدَّدة» قبل أن يقرأها أحد. ولذلك
+     * لا يصلح غياب القيمة دليلاً على أن المستخدم لم يختر بعد — والعلامة هي
+     * الدليل الوحيد الصادق. بلا هذا وقع الترحيل خطأً في أوّل تجربة حيّة:
+     * قُرئت `false` بينما محفوظ المستخدم `true`، بلا خطأ يشتكي.
+     */
+    esharq: {
+        /** هل نُقلت التفضيلات من مواضعها القديمة؟ تُكتب مرّة واحدة. */
+        migrated: boolean;
+        /** لغة أسماء الإضافات وأوصافها ولوحة إشراق. */
+        pluginsArabic: boolean;
+        /** مفتاح الخطّ العربي المختار (`tajawal` … `off`). */
+        arabicFont: string;
+    };
+
     ignoreResetWarning: boolean;
 }
 
@@ -149,6 +169,12 @@ const DefaultSettings: Settings = {
         url: "https://cloud.equicord.org/",
         settingsSync: false,
         settingsSyncVersion: 0
+    },
+
+    esharq: {
+        migrated: false,
+        pluginsArabic: false,
+        arabicFont: "tajawal"
     },
 
     ignoreResetWarning: false,
