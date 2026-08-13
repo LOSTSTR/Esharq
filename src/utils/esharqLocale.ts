@@ -64,8 +64,21 @@ export const LANGUAGE_TABLE_ANCHOR = "\"englishName\":\"Arabic\"";
 export const MESSAGE_LOADER_PATTERN =
     /("en-US":\(\)=>([A-Za-z_$][\w$]*)\.e\("\d+"\)\.then\(\2\.bind\(\2,\d+\)\))\}/g;
 
+/**
+ * الحمولة **مرآة حيّة** لا لقطة.
+ *
+ * 🔴 السبب مقيس لا مُفترَض: `??{}` كانت تُجمّد كائناً فارغاً إن سبق تحميلُ
+ * اللغة تثبيتَ الجدول، وديسكورد يحفظ ما يُعطى في `messages.ar` فلا يسأل
+ * مرّة أخرى — فتبقى الواجهة إنجليزية بلا خطأ في أي سجلّ. الوسيط يقرأ من
+ * الكائن العام **عند كل استعلام**، فيصحّ الترتيب أو لا يصحّ ولا فرق.
+ */
 export const MESSAGE_LOADER_REPLACEMENT =
-    `$1,${ARABIC_LOCALE}:()=>Promise.resolve({default:globalThis.${ARABIC_TABLE_GLOBAL}??{}})}`;
+    `$1,${ARABIC_LOCALE}:()=>Promise.resolve({default:new Proxy({},{` +
+    `get:(t,k)=>(globalThis.${ARABIC_TABLE_GLOBAL}||{})[k],` +
+    `has:(t,k)=>k in (globalThis.${ARABIC_TABLE_GLOBAL}||{}),` +
+    `ownKeys:()=>Reflect.ownKeys(globalThis.${ARABIC_TABLE_GLOBAL}||{}),` +
+    `getOwnPropertyDescriptor:(t,k)=>({configurable:true,enumerable:true,` +
+    `value:(globalThis.${ARABIC_TABLE_GLOBAL}||{})[k]})})})}`;
 
 /** المُحدِّد الذي يختار وحدات محمّلات الرسائل. */
 export const MESSAGE_LOADER_ANCHOR = "makeMessagesProxy";
