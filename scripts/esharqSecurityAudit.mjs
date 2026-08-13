@@ -18,7 +18,7 @@ import { readdirSync, readFileSync, statSync } from "fs";
 import { join, relative, sep } from "path";
 
 const ROOT = process.cwd();
-const SCAN_DIRS = ["src/userplugins"];
+const SCAN_DIRS = ["src/esharqplugins", "src/userplugins"];
 const SOURCE_EXT = /\.(ts|tsx|js|jsx|mjs|cjs)$/;
 
 // ── Hosts a plugin is allowed to reference ────────────────────────────────────
@@ -91,7 +91,7 @@ const NON_CONTACT_HOSTS = new Set(["www.w3.org", "www.gnu.org", "example.com"]);
 //
 // Each entry must state WHAT makes it safe, in terms a reviewer can re-verify.
 const REVIEWED_EXCEPTIONS = new Map([
-    ["src/userplugins/MicPro/native.ts:native-exec",
+    ["src/esharqplugins/MicPro/native.ts:native-exec",
         "Stereo needs Discord's own discord_voice.node patched in memory (it downmixes to "
         + "mono and caps Opus bitrate, overriding channels:2). The patcher is pinned to "
         + "immutable release asset ids from the upstream project, SHA-256 verified before "
@@ -174,7 +174,8 @@ function walk(dir, out = []) {
 
 function pluginOf(file) {
     const rel = relative(ROOT, file).split(sep);
-    const i = rel.indexOf("userplugins");
+    // `rel` is path segments, not a string — findIndex, not a regex search.
+    const i = rel.findIndex(segment => segment === "esharqplugins" || segment === "userplugins");
     return i >= 0 && rel[i + 1] ? rel[i + 1] : rel.join("/");
 }
 

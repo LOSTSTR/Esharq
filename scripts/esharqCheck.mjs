@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-// esharqCheck — quality gate for the Esharq layer (src/userplugins + i18n overlays).
+// esharqCheck — quality gate for the Esharq layer (src/esharqplugins + i18n overlays).
 //
 // 1. Arabic dictionary validation (HARD FAIL). The dictionary is no longer read
 //    at runtime — buildArabicTable.mjs parses it line by line to compile the
@@ -17,7 +17,7 @@
 //    - empty Arabic values
 //    - {placeholder} tokens present in the Arabic value but absent from the
 //      English key (they would render literally, untranslated)
-// 2. i18n coverage report for userplugins (WARN ONLY): a plugin counts as
+// 2. i18n coverage report for Esharq's plugins (WARN ONLY): a plugin counts as
 //    localized if it has an overlay in src/i18n/plugins/ or uses inline t()
 //    from @utils/esharqI18n. Warnings don't fail the build — some plugins are
 //    legitimately English-only (e.g. pure-CSS with an overlay-less alias).
@@ -28,8 +28,8 @@ import { readdirSync, readFileSync, statSync } from "fs";
 import { join } from "path";
 
 const ROOT = new URL("..", import.meta.url).pathname.replace(/^\/(\w:)/, "$1");
-const DICT = join(ROOT, "src/userplugins/DiscordArabicizer/translations.ts");
-const USERPLUGINS = join(ROOT, "src/userplugins");
+const DICT = join(ROOT, "src/esharqplugins/DiscordArabicizer/translations.ts");
+const ESHARQPLUGINS = join(ROOT, "src/esharqplugins");
 const OVERLAYS = join(ROOT, "src/i18n/plugins");
 
 let errors = 0;
@@ -83,7 +83,7 @@ src.split("\n").forEach((line, i) => {
 console.log(`  ${entries} entries parsed, ${seen.size} unique normalized keys`);
 
 // ── 2. userplugins i18n coverage (warn only) ─────────────────────────────────
-console.log("── userplugins i18n coverage ──");
+console.log("── esharqplugins i18n coverage ──");
 let overlaySet;
 try {
     overlaySet = new Set(readdirSync(OVERLAYS).filter(f => f.endsWith(".ts")).map(f => f.slice(0, -3)));
@@ -102,9 +102,9 @@ const readAll = dir => {
 };
 
 let covered = 0, uncovered = [];
-for (const dir of readdirSync(USERPLUGINS)) {
+for (const dir of readdirSync(ESHARQPLUGINS)) {
     if (dir.startsWith("_") || dir.startsWith(".")) continue;
-    const p = join(USERPLUGINS, dir);
+    const p = join(ESHARQPLUGINS, dir);
     if (!statSync(p).isDirectory()) continue;
 
     const code = readAll(p);
@@ -117,7 +117,7 @@ for (const dir of readdirSync(USERPLUGINS)) {
     else uncovered.push(dir);
 }
 console.log(`  ${covered} plugins localized (overlay or inline t)`);
-for (const dir of uncovered) warn(`src/userplugins/${dir} has no i18n overlay and no inline t() — Arabic users see English only`);
+for (const dir of uncovered) warn(`src/esharqplugins/${dir} has no i18n overlay and no inline t() — Arabic users see English only`);
 
 // ── 3. plugin directories contain only plugins (HARD FAIL) ───────────────────
 //
@@ -132,7 +132,7 @@ console.log("── plugin directories ──");
 const PLUGIN_DIRS = [
     "src/plugins/_api", "src/plugins/_core", "src/plugins",
     "src/equicordplugins/_api", "src/equicordplugins/_core", "src/equicordplugins",
-    "src/userplugins"
+    "src/esharqplugins", "src/userplugins"
 ];
 let strays = 0;
 for (const rel of PLUGIN_DIRS) {
@@ -143,6 +143,9 @@ for (const rel of PLUGIN_DIRS) {
         const name = entry.name;
         if (name.startsWith("_") || name.startsWith(".") || name === "index.ts") continue;
         if (entry.isDirectory() || /\.tsx?$/.test(name)) continue;
+        // Markdown is documentation for whoever opens the folder; the generator
+        // skips it for the same reason this check does — it is not a plugin.
+        if (/\.md$/i.test(name)) continue;
         strays++;
         err(`${rel}/${name} is neither a plugin directory nor a .ts/.tsx file — it would register as a plugin named "undefined"`);
     }

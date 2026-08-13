@@ -245,7 +245,9 @@ export default function PluginSettings() {
             case SearchStatus.ESHARQ:
                 // Esharq-branded plugins only — same predicate that shows the EA badge
                 // in PluginCard (isForkBranded = fork-exclusive OR userplugin).
-                if (!FORK_EXCLUSIVE_PLUGINS.has(plugin.name) && !PluginMeta[plugin.name].folderName.startsWith("src/userplugins/")) return false;
+                if (!FORK_EXCLUSIVE_PLUGINS.has(plugin.name)
+                    && !PluginMeta[plugin.name].folderName.startsWith("src/userplugins/")
+                    && !PluginMeta[plugin.name].folderName.startsWith("src/esharqplugins/")) return false;
                 break;
             case SearchStatus.VENCORD:
                 if (!PluginMeta[plugin.name].folderName.startsWith("src/plugins/")) return false;

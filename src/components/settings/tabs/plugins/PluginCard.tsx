@@ -49,9 +49,11 @@ export function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, on
     const isEquicordPlugin = folderName.startsWith("src/equicordplugins/");
     const isVencordPlugin = folderName.startsWith("src/plugins/");
     const isUserPlugin = folderName.startsWith("src/userplugins/");
+    // إضافات إشراق نفسها: تحمل الشارة كإضافات الفرع، ولا تُحسب «شخصية».
+    const isEsharqPlugin = folderName.startsWith("src/esharqplugins/");
     const isModifiedPlugin = plugin.isModified ?? false;
     const isForkExclusive = FORK_EXCLUSIVE_PLUGINS.has(plugin.name);
-    const isForkBranded = isForkExclusive || isUserPlugin;
+    const isForkBranded = isForkExclusive || isUserPlugin || isEsharqPlugin;
 
     const isEnabled = () => isPluginEnabled(plugin.name);
 

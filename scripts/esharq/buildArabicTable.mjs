@@ -32,7 +32,7 @@ import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, "..", "..");
-const PLUGIN = join(ROOT, "src", "userplugins", "DiscordArabicizer");
+const PLUGIN = join(ROOT, "src", "esharqplugins", "DiscordArabicizer");
 const SNAPSHOT = join(PLUGIN, "coverage", "discord-keys.json");
 
 // 🔴 يُكتب **مباشرةً في الملف المشحون** الذي تستورده `arabicLocale.ts`، لا في

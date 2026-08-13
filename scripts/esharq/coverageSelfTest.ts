@@ -25,10 +25,10 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { computeCoverage } from "../../src/userplugins/DiscordArabicizer/coverageCompare";
+import { computeCoverage } from "../../src/esharqplugins/DiscordArabicizer/coverageCompare";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const SNAPSHOT = join(ROOT, "src/userplugins/DiscordArabicizer/coverage/discord-keys.json");
+const SNAPSHOT = join(ROOT, "src/esharqplugins/DiscordArabicizer/coverage/discord-keys.json");
 const TABLE = join(ROOT, "src/plugins/_core/_arabicMessages.json");
 
 const snapshot = JSON.parse(readFileSync(SNAPSHOT, "utf8")) as { messages: Record<string, string>; };

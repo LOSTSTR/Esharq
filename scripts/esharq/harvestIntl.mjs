@@ -29,7 +29,7 @@ import { attachToDiscord } from "./cdp.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, "..", "..");
-const SNAPSHOT_DIR = join(ROOT, "src", "userplugins", "DiscordArabicizer", "coverage");
+const SNAPSHOT_DIR = join(ROOT, "src", "esharqplugins", "DiscordArabicizer", "coverage");
 const SNAPSHOT = join(SNAPSHOT_DIR, "discord-keys.json");
 const MISSING = join(SNAPSHOT_DIR, "untranslated.json");
 
@@ -38,7 +38,7 @@ const accept = process.argv.includes("--accept");
 /** قاموسنا: نصّ إنجليزي → عربي. نقرأه نصّياً فهو ملف TypeScript. */
 function readDictionary() {
     const source = readFileSync(
-        join(ROOT, "src", "userplugins", "DiscordArabicizer", "translations.ts"), "utf8");
+        join(ROOT, "src", "esharqplugins", "DiscordArabicizer", "translations.ts"), "utf8");
 
     const dictionary = new Set();
     // "نصّ إنجليزي": "نصّ عربي"  — نأخذ المفتاح وحده.

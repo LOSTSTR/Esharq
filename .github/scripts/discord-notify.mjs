@@ -186,7 +186,7 @@ const deletedFiles = gitInRange(b => `git diff --name-only --diff-filter=D ${b} 
     .split("\n").filter(Boolean);
 
 const PLUGIN_INDEX_RE =
-    /^src\/(equicordplugins|userplugins)\/(?!_core\/)([^/]+)\/index\.(tsx?|jsx?)$/;
+    /^src\/(equicordplugins|esharqplugins|userplugins)\/(?!_core\/)([^/]+)\/index\.(tsx?|jsx?)$/;
 
 const newPluginFiles = addedFiles.filter(f => PLUGIN_INDEX_RE.test(f));
 const deletedPluginFiles = deletedFiles.filter(f => PLUGIN_INDEX_RE.test(f));
@@ -289,7 +289,7 @@ function extractPluginInfo(filePath) {
     const defIdx = src.search(/definePlugin\s*\(/);
     const defSrc = defIdx >= 0 ? src.slice(defIdx) : src;
     const name = sanitise(readString(defSrc, String.raw`\bname:`), 80);
-    const dirName = (filePath.match(/\/(equicordplugins|userplugins)\/([^/]+)\//) ?? [])[2] ?? filePath;
+    const dirName = (filePath.match(/\/(equicordplugins|esharqplugins|userplugins)\/([^/]+)\//) ?? [])[2] ?? filePath;
     const resolvedName = name || sanitise(dirName, 80);
 
     // Two sanctioned description forms: inline t("ar", "en"), or a plain English string
@@ -437,7 +437,7 @@ async function main() {
     const removedNames = deletedPluginFiles.map(f => {
         // Folder name is the fallback, but announce the real plugin name when we can get
         // it — the folder often differs (e.g. folder "laisse" held the plugin "Leash").
-        let name = (f.match(/\/(equicordplugins|userplugins)\/([^/]+)\//) ?? [])[2] ?? f;
+        let name = (f.match(/\/(equicordplugins|esharqplugins|userplugins)\/([^/]+)\//) ?? [])[2] ?? f;
         // Reason: the in-range commit that deleted this file, if it carries trailers.
         let ar = "", en = "";
         try {

@@ -37,7 +37,11 @@
             ],
             "@plugins/*": [
                 "./src/plugins/*",
+                "./src/esharqplugins/*",
                 "./src/userplugins/*"
+            ],
+            "@esharqplugins/*": [
+                "./src/esharqplugins/*"
             ],
             "@userplugins/*": [
                 "./src/userplugins/*"
