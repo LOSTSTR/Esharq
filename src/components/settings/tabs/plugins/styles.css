@@ -294,3 +294,104 @@
 .vc-plugins-ui-elements {
     margin-top: 16px;
 }
+
+/*
+ * صندوق البحث المطويّ — دائرة فيها عدسة، تتمدّد عند التحويم أو التركيز.
+ *
+ * 🔴 **صفٌّ مرن لا تراكب**: أوّل محاولة وضعت الأيقونة فوق الحقل بالإزاحة
+ * المطلقة، فرسمها حقلُ ديسكورد فوقها واختفت — والحقل نفسه اختفى حين أُخفي
+ * نصّه البديل. في الصفّ المرن لكلٍّ مكانه، فلا يحجب أحدهما الآخر.
+ *
+ * 🔴 و`autoFocus` أُزيل من الحقل عمداً: التركيز التلقائي يعني `focus-within`
+ * دائماً، فيُولَد الصندوق مفتوحاً ولا يُطوى أبداً.
+ */
+.esharq-search {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    inline-size: 40px;
+    block-size: 40px;
+    margin-inline: auto;
+    padding-inline: 0;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--background-base-lowest, #131317);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 6%);
+    cursor: text;
+    transition:
+        inline-size 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+        padding-inline 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.esharq-search:hover,
+.esharq-search:focus-within {
+    inline-size: 360px;
+    justify-content: flex-start;
+    padding-inline: 12px;
+}
+
+.esharq-search-icon {
+    flex: 0 0 auto;
+    color: var(--text-muted);
+}
+
+/* غلاف حقل ديسكورد: يأخذ ما بقي، و`min-inline-size` تمنعه من رفض الانكماش. */
+/* 🔴 كل الأغلفة لا الأوّل وحده: `TextInput` يُركّب أكثر من طبقة، وتنظيف
+   الطبقة الخارجية وحدها يترك «عقبَ» الطبقة الداخلية ظاهراً بجوار العدسة. */
+.esharq-search div {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.esharq-search > div {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+}
+
+/* العرض صفر وهي مطويّة: الشفافية وحدها تُبقي مؤشّر الكتابة ظاهراً كخيط. */
+/* 🔴 كل الأغلفة لا الأوّل وحده: `TextInput` يُركّب أكثر من طبقة، وتنظيف
+   الطبقة الخارجية وحدها يترك «عقبَ» الطبقة الداخلية ظاهراً بجوار العدسة. */
+.esharq-search div {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.esharq-search > div {
+    /* غلاف حقل ديسكورد يحمل خلفيته وحدّه — وبقاؤهما يُظهر «عقبَ» صغيراً
+       بجوار العدسة وهي مطويّة، فيبدو الصندوق مكسوراً لا دائرياً. */
+    background: transparent;
+    border: none;
+    overflow: hidden;
+    inline-size: 0;
+    transition: inline-size 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.esharq-search:hover > div,
+.esharq-search:focus-within > div {
+    inline-size: 100%;
+}
+
+.esharq-search .vc-plugins-filter-control {
+    inline-size: 100%;
+    block-size: 40px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.esharq-search:hover .vc-plugins-filter-control,
+.esharq-search:focus-within .vc-plugins-filter-control {
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .esharq-search,
+    .esharq-search .vc-plugins-filter-control {
+        transition: none;
+    }
+}

@@ -500,13 +500,19 @@ export default function PluginSettings() {
             </div>
 
             <ErrorBoundary noop>
-                <TextInput
-                    inputClassName={cl("filter-control")}
-                    placeholder={t("ابحث بالاسم أو الوصف أو المؤلّف…", "Search by name, description or author…")}
-                    value={searchValue.value}
-                    onChange={onSearch}
-                    autoFocus
-                />
+                {/* الغلاف `label` كي يفتح النقرُ على الأيقونة الحقلَ ويُركّزه —
+                    وإلّا صارت مساحة الأيقونة ميتة في الحالة المطويّة. */}
+                <label className="esharq-search">
+                    <svg className="esharq-search-icon" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill="currentColor" d="M21.707 20.293 16.314 14.9a8.019 8.019 0 1 0-1.414 1.414l5.393 5.393a1 1 0 0 0 1.414-1.414ZM10 16a6 6 0 1 1 6-6 6.007 6.007 0 0 1-6 6Z" />
+                    </svg>
+                    <TextInput
+                        inputClassName={cl("filter-control")}
+                        placeholder={t("ابحث بالاسم أو الوصف أو المؤلّف…", "Search by name, description or author…")}
+                        value={searchValue.value}
+                        onChange={onSearch}
+                    />
+                </label>
             </ErrorBoundary>
 
             <ErrorBoundary noop>
