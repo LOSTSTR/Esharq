@@ -77,7 +77,7 @@ export const MESSAGE_LOADER_REPLACEMENT =
     `get:(t,k)=>(globalThis.${ARABIC_TABLE_GLOBAL}||{})[k],` +
     `has:(t,k)=>k in (globalThis.${ARABIC_TABLE_GLOBAL}||{}),` +
     `ownKeys:()=>Reflect.ownKeys(globalThis.${ARABIC_TABLE_GLOBAL}||{}),` +
-    `getOwnPropertyDescriptor:(t,k)=>({configurable:true,enumerable:true,` +
+    "getOwnPropertyDescriptor:(t,k)=>({configurable:true,enumerable:true," +
     `value:(globalThis.${ARABIC_TABLE_GLOBAL}||{})[k]})})})}`;
 
 /** المُحدِّد الذي يختار وحدات محمّلات الرسائل. */
