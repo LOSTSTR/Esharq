@@ -20,7 +20,7 @@ import { getBuildNumber, patches } from "@webpack/patcher";
 import gitHash from "~git-hash";
 
 import { Card, NoticeStrip, StatRow, StatusRow } from "./Card";
-import { UNIT } from "./tokens";
+import { RADIUS, SURFACE, UNIT } from "./tokens";
 
 /**
  * صحّة العميل — **ما يمكن قياسه فعلاً في بناءٍ مشحون**.
@@ -52,6 +52,8 @@ interface PluginState {
     enabled: boolean;
     started: boolean;
     required: boolean;
+    /** واجهة تخدم غيرها ولا تفعل شيئاً وحدها. */
+    api: boolean;
     patchCount: number;
 }
 
@@ -65,8 +67,36 @@ function readPlugins(): PluginState[] {
         enabled: plugin.required === true || settings[plugin.name]?.enabled === true,
         started: plugin.started === true,
         required: plugin.required === true,
+        // اللاحقة `API` اصطلاح ثابت في هذا المستودع (15 إضافة تحمله).
+        api: plugin.name.endsWith("API"),
         patchCount: plugin.patches?.length ?? 0
     }));
+}
+
+/**
+ * أسماء المجموعة كرقائق.
+ *
+ * 🔴 الرقم وحده لا يكفي: «99 تعمل» لا يقول **أيّها**، والمستخدم الذي يسأل
+ * «ما هذه التسعة والتسعون؟» لا يجد في الصفحة جواباً. والتقسيم ثلاثةً هو
+ * الجواب الحقيقي: **عشرٌ لا خيار فيها، وخمس عشرة آلةٌ تخدم غيرها، والباقي
+ * ما اخترته أنت** — وهو وحده ما يُسأل عنه فعلاً.
+ */
+function NameGrid({ names }: { names: readonly string[]; }) {
+    return (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: UNIT, marginTop: UNIT }}>
+            {names.map(name => (
+                <span key={name} style={{
+                    fontSize: 12,
+                    padding: `2px ${UNIT}px`,
+                    borderRadius: RADIUS / 2,
+                    background: SURFACE[2],
+                    color: "var(--text-muted)"
+                }}>
+                    {name}
+                </span>
+            ))}
+        </div>
+    );
 }
 
 export function ClientHealthPage() {
@@ -82,6 +112,10 @@ export function ClientHealthPage() {
     // 🔴 الإشارة الأهمّ: مُفعَّلة في الإعدادات ولم تبدأ ⇒ `start()` انفجر.
     // ولا تُحتسب التي لا `start` لها: تلك «بدأت» بلا عمل تفعله.
     const stalled = enabled.filter(p => !p.started);
+    const running = enabled.filter(p => p.started);
+    const requiredRunning = running.filter(p => p.required);
+    const apiRunning = running.filter(p => !p.required && p.api);
+    const chosenRunning = running.filter(p => !p.required && !p.api);
     const patchedPlugins = enabled.filter(p => p.patchCount > 0);
     const declaredPatches = patchedPlugins.reduce((sum, p) => sum + p.patchCount, 0);
 
@@ -187,6 +221,49 @@ export function ClientHealthPage() {
 
             <Card
                 index={3}
+                title={t("ما الذي يعمل", "What is running")}
+                subtitle={t(
+                    "الرقم أعلاه مفتوحاً: عشرٌ لا خيار لك فيها، وواجهاتٌ تخدم غيرها، وما اخترته أنت.",
+                    "The figure above, opened up: ten you have no say in, the interfaces that serve the rest, and what you chose yourself."
+                )}
+                badge={String(running.length)}
+            >
+                <StatusRow
+                    index={0}
+                    title={t("ضرورية", "Required")}
+                    detail={t(
+                        "أساس إشراق — تُشغَّل دائماً ولا يمكن تعطيلها.",
+                        "Esharq's own foundation — always started, cannot be disabled."
+                    )}
+                    state={{ text: String(requiredRunning.length), tone: "idle" }}
+                />
+                <NameGrid names={requiredRunning.map(p => p.name)} />
+
+                <StatusRow
+                    index={1}
+                    title={t("واجهات", "Interfaces")}
+                    detail={t(
+                        "لا تفعل شيئاً وحدها؛ غيرها يبني عليها. تُفعَّل تلقائياً حين تحتاجها إضافة.",
+                        "They do nothing on their own; others build on them. Enabled automatically when a plugin needs one."
+                    )}
+                    state={{ text: String(apiRunning.length), tone: "idle" }}
+                />
+                <NameGrid names={apiRunning.map(p => p.name)} />
+
+                <StatusRow
+                    index={2}
+                    title={t("اخترتَها أنت", "Chosen by you")}
+                    detail={t(
+                        "هذه وحدها ما يُسأل عنه فعلاً — وتعطيل أيّها من صفحة الإضافات.",
+                        "These are the only ones actually worth asking about — disable any of them from the Plugins page."
+                    )}
+                    state={{ text: String(chosenRunning.length), tone: "ok" }}
+                />
+                <NameGrid names={chosenRunning.map(p => p.name)} />
+            </Card>
+
+            <Card
+                index={4}
                 title={t("الفحوص", "Checks")}
                 subtitle={t(
                     "كل سطر يُقرأ من حالة حيّة، لا من إعداد محفوظ.",
@@ -242,7 +319,7 @@ export function ClientHealthPage() {
             </Card>
 
             <Card
-                index={4}
+                index={5}
                 title={t("البيئة", "Environment")}
                 subtitle={t(
                     "انسخ هذا حين تطلب المساعدة — يختصر أسئلةً كثيرة.",
