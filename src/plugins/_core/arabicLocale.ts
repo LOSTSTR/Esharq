@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { EquicordDevs } from "@utils/constants";
 import {
     ARABIC_TABLE_GLOBAL, type ArabicMessageTable, installArabicTable,
     MESSAGE_LOADER_ANCHOR, MESSAGE_LOADER_PATTERN,
@@ -43,10 +44,16 @@ installArabicTable(arabicMessages as unknown as ArabicMessageTable);
  */
 export default definePlugin({
     name: "EsharqArabicLocale",
-    description:
-        "يجعل العربية لغةً أصيلة في ديسكورد بجدول رسائل مُصرَّف — بلا غلاف وبلا تكلفة تشغيل. " +
-        "Makes Arabic a native Discord locale via a compiled message table — no wrapper, no runtime cost.",
-    authors: [{ name: "LOSTSTR", id: 0n }],
+    // 🔴 **نصّ واحد لا نصّان مجموعان**: `scripts/utils.ts` يقرأ الوصف من شجرة
+    // المصدر ويشترطه نصّاً حرفياً، فيرفض أي جمع بـ`+` بـ«description is not a
+    // string literal» — ويسقط بناء التكامل المستمرّ كلّه، ولا يظهر ذلك في
+    // `tsc` ولا في بوّابتنا.
+    description: "يجعل العربية لغةً أصيلة في ديسكورد بجدول رسائل مُصرَّف — بلا غلاف وبلا تكلفة تشغيل. Makes Arabic a native Discord locale via a compiled message table — no wrapper, no runtime cost.",
+    // 🔴 **مرجع لا كائن مكتوب هنا**: المُولِّد يقرأ المؤلّفين من شجرة المصدر
+    // ويشترطهم وصولاً إلى خاصّية، فيرفض `{ name, id }` بـ«authors array
+    // contains non-property access expressions». والمُعرّف الحقيقي في
+    // `constants.ts` — وكتابته `0n` هنا كانت تُسجّل مؤلّفاً بلا هويّة.
+    authors: [EquicordDevs.LOSTSTR],
     required: true,
 
     patches: [
