@@ -4,7 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Channel, Message } from "@vencord/discord-types";
+// `Message` نوعٌ لازم لتعليق `lastMessage` أدناه. حذفه upstream حين استغنى عن
+// التعليق بخروجٍ مبكّر رفضناه، فلا بدّ من إعادته وإلّا سقط `tsc`.
+import type { Channel, Message } from "@vencord/discord-types";
 import { findCssClassesLazy } from "@webpack";
 import { MessageStore, useEffect, UserStore, useState, useStateFromStores } from "@webpack/common";
 
@@ -87,6 +89,17 @@ export function Boo({ channel }: { channel: Channel; }) {
     const { id } = channel;
 
     const currentUserId = useStateFromStores([UserStore], () => UserStore.getCurrentUser()?.id);
+    // 🔴 سطرٌ من upstream رُفض هنا عمداً:
+    //     if (!lastMessage || !currentUserId) return null;
+    //
+    // هذا مكوّن React، والسطر خروجٌ مبكّر **قبل** `useState` أدناه. فقناةٌ بلا
+    // رسائل (محادثة جديدة، أو رسائل لم تُحمَّل بعد) تُنهي الدالّة قبل خطّافاتها،
+    // وحين تصل الرسائل يتغيّر عدد الخطّافات بين رسمتين فينهار React بـ
+    // «Rendered more hooks than during the previous render».
+    //
+    // وما بعده آمن أصلاً ضدّ الفراغ (`lastMessage ? … : 0` و`useEffect` يحرس
+    // بنفسه)، فالسطر يكسر ولا يُصلح. وخطأ الأنواع الذي أراد upstream إسكاته
+    // يكفيه تعليق النوع الصريح أدناه.
     const lastMessage: Message | undefined = useStateFromStores([MessageStore], () =>
         MessageStore.getMessages(id)?.last()
     );
