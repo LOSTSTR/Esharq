@@ -23,11 +23,11 @@ import { isPluginEnabled, stopPlugin } from "@api/PluginManager";
 import { useSettings } from "@api/Settings";
 import { Button } from "@components/Button";
 import { Card } from "@components/Card";
-import { Divider } from "@components/Divider";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { HeadingTertiary } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import { SettingsTab } from "@components/settings";
+import { Card as EsharqCard } from "@components/settings/esharq/Card";
 import { CategoryFilter } from "@components/settings/esharq/CategoryFilter";
 import { PluginsHeader } from "@components/settings/esharq/PluginsHeader";
 import { debounce } from "@shared/debounce";
@@ -488,17 +488,18 @@ export default function PluginSettings() {
                 <UIElementsButton />
             </div>
 
-            <div className={classes(Margins.top20, Margins.bottom8)}
-                style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
-                <HeadingTertiary>{t("الفلاتر", "Filters")}</HeadingTertiary>
-                {/* 🔴 عدّاد النتيجة: بدونه لا يعرف من ضيّق البحث إن كان الترشيح
-                    وقع أصلاً أم أن ما يراه هو كل شيء. */}
-                <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                    {t(`${plugins.length} ظاهرة من ${totalStockPlugins + totalUserPlugins}`,
-                        `${plugins.length} shown of ${totalStockPlugins + totalUserPlugins}`)}
-                </span>
-            </div>
-
+            {/* 🔴 عدّاد النتيجة في شارة البطاقة: بدونه لا يعرف من ضيّق البحث إن
+                كان الترشيح وقع أصلاً أم أن ما يراه هو كل شيء. */}
+            <EsharqCard
+                index={0}
+                title={t("المرشِّحات", "Filters")}
+                subtitle={t(
+                    "ضيّق القائمة بالبحث أو بالمصدر والحالة أو بالفئة.",
+                    "Narrow the list by search, by source and state, or by category."
+                )}
+                badge={t(`${plugins.length} من ${totalStockPlugins + totalUserPlugins}`,
+                    `${plugins.length} of ${totalStockPlugins + totalUserPlugins}`)}
+            >
             <ErrorBoundary noop>
                 {/* الغلاف `label` كي يفتح النقرُ على الأيقونة الحقلَ ويُركّزه —
                     وإلّا صارت مساحة الأيقونة ميتة في الحالة المطويّة. */}
@@ -545,38 +546,43 @@ export default function PluginSettings() {
                     />
                 </div>
             </ErrorBoundary>
+            </EsharqCard>
 
-            <HeadingTertiary className={Margins.top20}>{t("الإضافات", "Plugins")}</HeadingTertiary>
-
-            {plugins.length || requiredPlugins.length
-                ? (
-                    <>
-                        <div className={cl("grid")}>
-                            {visiblePlugins.length
-                                ? visiblePlugins
-                                : <Paragraph>{t("لا توجد إضافات تطابق معايير البحث.", "No plugins match your search criteria.")}</Paragraph>
-                            }
-                        </div>
-                        {visibleCount < plugins.length && (
-                            <div ref={sentinelRef} style={{ height: 32 }} />
-                        )}
-                    </>
-                )
-                : <ExcludedPluginsList search={search} />
-            }
-
-            <Divider className={Margins.top20} />
-
-            <HeadingTertiary className={classes(Margins.top20, Margins.bottom8)}>
-                {t("الإضافات المطلوبة", "Required Plugins")}
-            </HeadingTertiary>
-
-            <div className={cl("grid")}>
-                {requiredPlugins.length
-                    ? requiredPlugins
-                    : <Paragraph>{t("لا توجد إضافات تطابق معايير البحث.", "No plugins match your search criteria.")}</Paragraph>
+            <EsharqCard index={1} title={t("الإضافات", "Plugins")}>
+                {plugins.length || requiredPlugins.length
+                    ? (
+                        <>
+                            <div className={cl("grid")}>
+                                {visiblePlugins.length
+                                    ? visiblePlugins
+                                    : <Paragraph>{t("لا توجد إضافات تطابق معايير البحث.", "No plugins match your search criteria.")}</Paragraph>
+                                }
+                            </div>
+                            {visibleCount < plugins.length && (
+                                <div ref={sentinelRef} style={{ height: 32 }} />
+                            )}
+                        </>
+                    )
+                    : <ExcludedPluginsList search={search} />
                 }
-            </div>
+            </EsharqCard>
+
+            <EsharqCard
+                index={2}
+                title={t("الإضافات المطلوبة", "Required plugins")}
+                subtitle={t(
+                    "أساس إشراق نفسه. هذه لا تُعطَّل لأن بقيّة الإضافات تقوم عليها.",
+                    "Esharq's own foundation. These cannot be disabled because the rest is built on them."
+                )}
+                badge={String(requiredPlugins.length)}
+            >
+                <div className={cl("grid")}>
+                    {requiredPlugins.length
+                        ? requiredPlugins
+                        : <Paragraph>{t("لا توجد إضافات تطابق معايير البحث.", "No plugins match your search criteria.")}</Paragraph>
+                    }
+                </div>
+            </EsharqCard>
         </SettingsTab >
     );
 }
