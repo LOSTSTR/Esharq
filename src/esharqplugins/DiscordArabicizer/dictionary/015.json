@@ -1,0 +1,19 @@
+{
+ "New Message in the channel I’m currently reading": "رسالة جديدة في القناة التي أقرأها الآن",
+ "Plans start at only {cheapestMonthlyPrice}/month. Cancel anytime": "تبدأ الخطط من {cheapestMonthlyPrice} شهرياً فقط. وألغِ متى شئت",
+ "{numBoosts} Boosts + {percentageOff} off extra Boosts": "{numBoosts} تعزيز + خصم {percentageOff} على التعزيزات الإضافية",
+ "Longer messages up to {maxChars} characters": "رسائل أطول تصل إلى {maxChars} محرف",
+ "Your badge progresses as you gift. Exceptions include when a gift is refunded or when fraud is detected.": "تتقدّم شارتك كلّما أهديت. ويُستثنى من ذلك ردّ قيمة الهدية أو اكتشاف احتيال.",
+ "That’s exciting! Enter it below.": "هذا رائع! أدخله في الأسفل.",
+ "Choose a Soundboard sound to automatically play whenever you join a voice channel. Right-click on a voice channel to join without playing your entrance sound. <$link={helpdeskArticle}>Learn More</$link>.": "اختر صوتاً من لوحة الأصوات يُشغَّل تلقائياً كلّما انضممت إلى قناة صوتية. وانقر بالزرّ الأيمن على القناة لتنضمّ بلا تشغيل صوت دخولك. <$link={helpdeskArticle}>اعرف المزيد</$link>.",
+ "Launch {activityName} in a voice channel": "تشغيل {activityName} في قناة صوتية",
+ "Need help? Check out our <$link={guideURL}>troubleshooting guide</$link>.": "أتحتاج مساعدة؟ راجع <$link={guideURL}>دليل حلّ المشكلات</$link>.",
+ "Control how loud sounds are for you personally. For more info, <$link={helpCenterArticle}>click here</$link>.": "تحكّم بمستوى علوّ الأصوات عندك أنت. وللمزيد <$link={helpCenterArticle}>انقر هنا</$link>.",
+ "Looking for per-server controls? Navigate to the server, select the dropdown menu next to the server name, then select <privacySettingsHook><$b>Privacy Settings</$b></privacySettingsHook>. From there, you can toggle on or off Activity Joining for just that server.": "أتبحث عن تحكّم لكل خادم على حدة؟ اذهب إلى الخادم، وافتح القائمة المنسدلة بجانب اسمه، ثم اختر <privacySettingsHook><$b>إعدادات الخصوصية</$b></privacySettingsHook>. ومن هناك تُفعّل الانضمام إلى النشاط أو تُعطّله لذلك الخادم وحده.",
+ "Hide window in game": "إخفاء النافذة داخل اللعبة",
+ "If Overlay isn’t working as expected, let us know so we can fix it.": "إن كان التراكب لا يعمل كما ينبغي فأخبرنا لنُصلحه.",
+ "Enable {serviceName} integration for <$link={accountUrl}>{accountUrlText}</$link>": "تفعيل تكامل {serviceName} لـ<$link={accountUrl}>{accountUrlText}</$link>",
+ "Members list for {channel} (channel)": "قائمة أعضاء {channel} (قناة)",
+ "this channel": "هذه القناة",
+ "Gives your current device persistent verification codes. If this setting is on, your friends only have to verify your device once, instead of every time you enter a voice call.\" <$link={helpArticle}>Learn more about this setting.</$link>": "يمنح جهازك الحالي رموز تحقّق دائمة. وبتفعيله يكفي أصدقاءك التحقّق من جهازك مرّة واحدة بدل كل مرّة تدخل فيها مكالمة صوتية.\" <$link={helpArticle}>اعرف المزيد عن هذا الإعداد.</$link>"
+}
