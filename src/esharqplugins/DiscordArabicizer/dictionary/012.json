@@ -1,0 +1,10 @@
+{
+ "<tooltipHook>Find or start a conversation</tooltipHook>": "<tooltipHook>ابحث أو ابدأ محادثة</tooltipHook>",
+ "View <termsHook>Terms of Service</termsHook> and <privacyHook>Privacy Policy</privacyHook>": "اعرض <termsHook>شروط الخدمة</termsHook> و<privacyHook>سياسة الخصوصية</privacyHook>",
+ "View <termsHook>Terms of Service</termsHook>": "اعرض <termsHook>شروط الخدمة</termsHook>",
+ "<$link={url}>Terms of Service</$link>": "<$link={url}>شروط الخدمة</$link>",
+ "<$link={url}>Community Guidelines</$link>": "<$link={url}>إرشادات المجتمع</$link>",
+ "Thanks for upholding Discord's <$link={termsOfService}>Terms of Service</$link> and <$link={communityGuidelines}>Community Guidelines</$link>.": "شكراً لالتزامك <$link={termsOfService}>شروط خدمة</$link> ديسكورد و<$link={communityGuidelines}>إرشادات مجتمعه</$link>.",
+ "Thanks for upholding Discord's <$link={termsOfService}>Terms of Service</$link> and <$link={communityGuidelines}>Community Guidelines</$link>. If you break the rules, it will show up here.": "شكراً لالتزامك <$link={termsOfService}>شروط خدمة</$link> ديسكورد و<$link={communityGuidelines}>إرشادات مجتمعه</$link>. وإن خالفت القواعد ظهر ذلك هنا.",
+ "You broke Discord's <$link={termsOfService}>Terms of Service</$link> and <$link={communityGuidelines}>Community Guidelines</$link>.": "خالفت <$link={termsOfService}>شروط خدمة</$link> ديسكورد و<$link={communityGuidelines}>إرشادات مجتمعه</$link>."
+}
