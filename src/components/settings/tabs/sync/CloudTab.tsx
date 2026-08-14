@@ -21,14 +21,11 @@ import { authorizeCloud, deauthorizeCloud } from "@api/SettingsSync/cloudSetup";
 import { deleteCloudSettings, eraseAllCloudData, getCloudSettings, putCloudSettings } from "@api/SettingsSync/cloudSync";
 import { Button } from "@components/Button";
 import { CheckedTextInput } from "@components/CheckedTextInput";
-import { Divider } from "@components/Divider";
 import { Flex } from "@components/Flex";
 import { FormSwitch } from "@components/FormSwitch";
-import { Heading } from "@components/Heading";
 import { CloudDownloadIcon, CloudUploadIcon, SkullIcon } from "@components/Icons";
 import { Link } from "@components/Link";
-import { Notice } from "@components/Notice";
-import { Paragraph } from "@components/Paragraph";
+import { Card, NoticeStrip } from "@components/settings/esharq/Card";
 import { SettingsTab, wrapTab } from "@components/settings/tabs/BaseTab";
 import { isArabicMode, t } from "@utils/esharqI18n";
 import { localStorage } from "@utils/localStorage";
@@ -92,38 +89,47 @@ function CloudTab() {
 
     return (
         <SettingsTab>
-            <Heading className={Margins.top16}>{t("تكامل السحابة", "Cloud Integration")}</Heading>
-            <Paragraph className={Margins.bottom16}>
-                {t("يتيح تكامل سحابة Equicord مزامنة إعداداتك عبر أجهزة متعددة", "Equicord Cloud integration allows you to sync your settings across multiple devices")}
-            </Paragraph>
-
-            <Notice.Info className={Margins.bottom16}>
-                {isArabicMode()
-                    ? <>نستخدم خادمنا الخاص <Link href="https://github.com/Equicord/Equicloud">Equicloud</Link> بمزايا محسّنة. اطلع على <Link href="https://equicord.org/cloud/policy">سياسة الخصوصية</Link> لمعرفة ما نخزّنه وكيف نستخدم بياناتك. Equicloud مرخص بترخيص BSD 3.0، يمكنك استضافته بنفسك إن أردت.</>
-                    : <>We use our own <Link href="https://github.com/Equicord/Equicloud">Equicloud</Link> server with enhanced features. See our <Link href="https://equicord.org/cloud/policy">Privacy Policy</Link> to learn what we store and how we use your data. Equicloud is licensed under BSD 3.0 — you can self-host it if you wish.</>
-                }
-            </Notice.Info>
-
-            <FormSwitch
-                title={t("تفعيل تكامل السحابة", "Enable Cloud Integration")}
-                description={t("الاتصال بالسحابة لمزامنة الإعدادات.", "Connect to the cloud to sync settings.")}
-                value={isAuthenticated}
-                onChange={v => {
-                    if (v)
-                        authorizeCloud();
-                    else
-                        cloud.authenticated = v;
-                }}
-                hideBorder
+            <Card
+                index={0}
+                title={t("المزامنة السحابية", "Cloud sync")}
+                subtitle={t(
+                    "زامن إعداداتك عبر أجهزتك، واختر الخادم الذي تُحفَظ عليه.",
+                    "Sync your settings across your devices, and choose the server they live on."
+                )}
+                badge={isAuthenticated ? t("متّصل", "Connected") : t("غير متّصل", "Not connected")}
             />
 
-            <Divider className={Margins.top20} />
+            <Card
+                index={1}
+                title={t("تكامل السحابة", "Cloud integration")}
+                subtitle={t("يتيح تكامل سحابة Equicord مزامنة إعداداتك عبر أجهزة متعددة", "Equicord Cloud integration allows you to sync your settings across multiple devices")}
+            >
+                <NoticeStrip>
+                    {isArabicMode()
+                        ? <>نستخدم خادمنا الخاص <Link href="https://github.com/Equicord/Equicloud">Equicloud</Link> بمزايا محسّنة. اطلع على <Link href="https://equicord.org/cloud/policy">سياسة الخصوصية</Link> لمعرفة ما نخزّنه وكيف نستخدم بياناتك. Equicloud مرخص بترخيص BSD 3.0، يمكنك استضافته بنفسك إن أردت.</>
+                        : <>We use our own <Link href="https://github.com/Equicord/Equicloud">Equicloud</Link> server with enhanced features. See our <Link href="https://equicord.org/cloud/policy">Privacy Policy</Link> to learn what we store and how we use your data. Equicloud is licensed under BSD 3.0 — you can self-host it if you wish.</>
+                    }
+                </NoticeStrip>
 
-            <Heading className={Margins.top20}>{t("الخادم السحابي", "Cloud Backend")}</Heading>
-            <Paragraph className={Margins.bottom16}>
-                {t("اختر الخادم السحابي المراد استخدامه لحفظ إعداداتك.", "Choose the cloud backend to use for storing your settings.")}
-            </Paragraph>
+                <FormSwitch
+                    title={t("تفعيل تكامل السحابة", "Enable cloud integration")}
+                    description={t("الاتصال بالسحابة لمزامنة الإعدادات.", "Connect to the cloud to sync settings.")}
+                    value={isAuthenticated}
+                    onChange={v => {
+                        if (v)
+                            authorizeCloud();
+                        else
+                            cloud.authenticated = v;
+                    }}
+                    hideBorder
+                />
+            </Card>
 
+            <Card
+                index={2}
+                title={t("الخادم السحابي", "Cloud backend")}
+                subtitle={t("اختر الخادم السحابي المراد استخدامه لحفظ إعداداتك.", "Choose the cloud backend to use for storing your settings.")}
+            >
             <div className={Margins.bottom8}>
                 <SearchableSelect
                     options={cloudBackendOptions}
@@ -161,30 +167,29 @@ function CloudTab() {
                     </Flex>
                 </Button>
             </Flex>
+            </Card>
 
-            <Divider className={Margins.top20} />
+            <Card
+                index={3}
+                title={t("مزامنة الإعدادات", "Settings sync")}
+                subtitle={t("زامن إعدادات Equicord مع السحابة. يتيح ذلك الحفاظ على اتساق إعداداتك عبر أجهزة متعددة دون الحاجة إلى تصدير واستيراد يدوي.", "Sync your Equicord settings with the cloud. This keeps your settings consistent across multiple devices without the need for manual export and import.")}
+                badge={cloud.settingsSync ? t("مُفعَّلة", "On") : t("مُعطَّلة", "Off")}
+            >
+                <FormSwitch
+                    title={t("تفعيل مزامنة الإعدادات", "Enable settings sync")}
+                    description={t("عند التفعيل، يمكن مزامنة إعداداتك مع السحابة وإليها. استخدم الأزرار أدناه للمزامنة اليدوية.", "When enabled, your settings can be synced to and from the cloud. Use the buttons below for manual sync.")}
+                    value={cloud.settingsSync}
+                    onChange={v => { cloud.settingsSync = v; }}
+                    disabled={!isAuthenticated}
+                    hideBorder
+                />
+            </Card>
 
-            <Heading className={Margins.top20}>{t("مزامنة الإعدادات", "Settings Sync")}</Heading>
-            <Paragraph className={Margins.bottom16}>
-                {t("زامن إعدادات Equicord مع السحابة. يتيح ذلك الحفاظ على اتساق إعداداتك عبر أجهزة متعددة دون الحاجة إلى تصدير واستيراد يدوي.", "Sync your Equicord settings with the cloud. This keeps your settings consistent across multiple devices without the need for manual export and import.")}
-            </Paragraph>
-
-            <FormSwitch
-                title={t("تفعيل مزامنة الإعدادات", "Enable Settings Sync")}
-                description={t("عند التفعيل، يمكن مزامنة إعداداتك مع السحابة وإليها. استخدم الأزرار أدناه للمزامنة اليدوية.", "When enabled, your settings can be synced to and from the cloud. Use the buttons below for manual sync.")}
-                value={cloud.settingsSync}
-                onChange={v => { cloud.settingsSync = v; }}
-                disabled={!isAuthenticated}
-                hideBorder
-            />
-
-            <Divider className={Margins.top20} />
-
-            <Heading className={Margins.top20}>{t("قواعد المزامنة لهذا الجهاز", "Sync Rules for This Device")}</Heading>
-            <Paragraph className={Margins.bottom16}>
-                {t("يتحكم هذا الإعداد في كيفية انتقال الإعدادات بين هذا الجهاز والسحابة. يمكنك السماح بتدفق التغييرات في كلا الاتجاهين، أو اختيار مصدر رئيسي واحد.", "This setting controls how settings flow between this device and the cloud. You can allow changes to flow in both directions, or choose a single primary source.")}
-            </Paragraph>
-
+            <Card
+                index={4}
+                title={t("قواعد المزامنة لهذا الجهاز", "Sync rules for this device")}
+                subtitle={t("يتحكم هذا الإعداد في كيفية انتقال الإعدادات بين هذا الجهاز والسحابة. يمكنك السماح بتدفق التغييرات في كلا الاتجاهين، أو اختيار مصدر رئيسي واحد.", "This setting controls how settings flow between this device and the cloud. You can allow changes to flow in both directions, or choose a single primary source.")}
+            >
             <Select
                 options={syncDirectionOptions}
                 isSelected={v => v === (localStorage.Vencord_cloudSyncDirection ?? "both")}
@@ -220,18 +225,21 @@ function CloudTab() {
             </Flex>
 
             {!isAuthenticated && (
-                <Notice.Warning className={Margins.top8}>
-                    {t("فعّل تكامل السحابة أعلاه لاستخدام ميزات مزامنة الإعدادات.", "Enable Cloud Integration above to use the settings sync features.")}
-                </Notice.Warning>
+                <div className={Margins.top16}>
+                    <NoticeStrip tone="danger">
+                        {t("فعّل تكامل السحابة أعلاه لاستخدام ميزات مزامنة الإعدادات.", "Enable cloud integration above to use the settings sync features.")}
+                    </NoticeStrip>
+                </div>
             )}
+            </Card>
 
-            <Divider className={Margins.top20} />
-
-            <Heading className={Margins.top20}>{t("منطقة الخطر", "Danger Zone")}</Heading>
-            <Paragraph className={Margins.bottom16}>
-                {t("احذف جميع بياناتك من السحابة نهائياً. لا يمكن التراجع عن هذا الإجراء وسيُزيل جميع الإعدادات المزامَنة وأي بيانات أخرى مخزّنة على الخادم السحابي.", "Permanently delete all your data from the cloud. This action cannot be undone and will remove all synced settings and any other data stored on the cloud server.")}
-            </Paragraph>
-
+            {/* 🔴 «منطقة الخطر» تُفصَل ببطاقتها وشريط تحذير أحمر: الفعلان هنا
+                لا رجعة فيهما، فلا يجوز أن يبدوا كبقيّة الأزرار. */}
+            <Card
+                index={5}
+                title={t("منطقة الخطر", "Danger zone")}
+                subtitle={t("احذف جميع بياناتك من السحابة نهائياً. لا يمكن التراجع عن هذا الإجراء وسيُزيل جميع الإعدادات المزامَنة وأي بيانات أخرى مخزّنة على الخادم السحابي.", "Permanently delete all your data from the cloud. This action cannot be undone and will remove all synced settings and any other data stored on the cloud server.")}
+            >
             <Flex gap="8px">
                 <Button
                     variant="dangerPrimary"
@@ -263,6 +271,7 @@ function CloudTab() {
                     </Flex>
                 </Button>
             </Flex>
+            </Card>
         </SettingsTab>
     );
 }
