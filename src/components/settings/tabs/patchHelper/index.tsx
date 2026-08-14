@@ -16,14 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Button } from "@components/Button";
 import { CodeBlock } from "@components/CodeBlock";
 import { Flex } from "@components/Flex";
 import { Card } from "@components/settings/esharq/Card";
+import { CopyButton } from "@components/settings/esharq/CopyButton";
 import { SettingsTab, wrapTab } from "@components/settings/tabs/BaseTab";
 import { Span } from "@components/Span";
 import { debounce } from "@shared/debounce";
-import { copyWithToast } from "@utils/discord";
 import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
 import { stripIndent } from "@utils/text";
@@ -183,12 +182,11 @@ function PatchHelper() {
                 <Card index={4} title={t("الكود المُولَّد", "Generated code")}>
                     <CodeBlock lang="js" content={code} />
                     <Flex className={Margins.top8} gap="8px">
-                        <Button size="small" onClick={() => copyWithToast(code)}>
-                            {t("نسخ إلى الحافظة", "Copy to clipboard")}
-                        </Button>
-                        <Button size="small" onClick={() => copyWithToast("```ts\n" + code + "\n```")}>
-                            {t("نسخ ككتلة كود", "Copy as codeblock")}
-                        </Button>
+                        <CopyButton text={code} label={t("نسخ إلى الحافظة", "Copy to clipboard")} />
+                        <CopyButton
+                            text={() => "```ts\n" + code + "\n```"}
+                            label={t("نسخ ككتلة كود", "Copy as codeblock")}
+                        />
                     </Flex>
                 </Card>
             )}

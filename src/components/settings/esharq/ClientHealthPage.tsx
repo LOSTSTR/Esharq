@@ -9,7 +9,6 @@ import { Button } from "@components/Button";
 import { Flex } from "@components/Flex";
 import { Paragraph } from "@components/Paragraph";
 import { SettingsTab } from "@components/settings/tabs/BaseTab";
-import { copyWithToast } from "@utils/discord";
 import { t } from "@utils/esharqI18n";
 import { ARABIC_TABLE_GLOBAL } from "@utils/esharqLocale";
 import { Margins } from "@utils/margins";
@@ -20,6 +19,7 @@ import { getBuildNumber, patches } from "@webpack/patcher";
 import gitHash from "~git-hash";
 
 import { Card, NoticeStrip, StatRow, StatusRow } from "./Card";
+import { CopyButton } from "./CopyButton";
 import { RADIUS, SURFACE, UNIT } from "./tokens";
 
 /**
@@ -334,9 +334,7 @@ export function ClientHealthPage() {
                 ]} />
 
                 <Flex className={Margins.top16} gap={`${UNIT}px`}>
-                    <Button size="small" onClick={() => copyWithToast(report)}>
-                        {t("نسخ تقرير الحالة", "Copy status report")}
-                    </Button>
+                    <CopyButton text={report} label={t("نسخ تقرير الحالة", "Copy status report")} />
                     {!IS_WEB && (
                         <Button size="small" variant="secondary" onClick={relaunch}>
                             {t("إعادة تشغيل ديسكورد", "Restart Discord")}

@@ -76,7 +76,9 @@ export function StatRow({ items }: { items: readonly { label: string; value: str
             gap: UNIT * 1.5
         }}>
             {items.map(item => (
-                <div key={item.label} style={{
+                // `esharq-lift` يرفع اللوحة قليلاً عند التحويم — نفس ما يفعله
+                // رأس صفحة الإضافات، فتُقرأ اللوحات لغةً واحدة عبر الصفحات.
+                <div key={item.label} className="esharq-lift" style={{
                     background: SURFACE[2],
                     borderRadius: RADIUS / 1.5,
                     padding: `${UNIT * 1.5}px ${UNIT * 2}px`
