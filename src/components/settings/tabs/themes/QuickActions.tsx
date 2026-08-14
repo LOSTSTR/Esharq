@@ -6,7 +6,7 @@
 
 import { Settings } from "@api/Settings";
 import { FolderIcon, PaintbrushIcon, PencilIcon, PlusIcon, RestartIcon } from "@components/Icons";
-import { QuickAction, QuickActionCard } from "@components/settings";
+import { QuickAction } from "@components/settings";
 import { openPluginModal } from "@components/settings/tabs/plugins/PluginModal";
 import { t } from "@utils/esharqI18n";
 import { findLazy } from "@webpack";
@@ -31,8 +31,10 @@ export interface QuickActionsSectionProps {
 }
 
 export function QuickActionsSection({ fileInputRef, onFileUpload, refreshLocalThemes }: QuickActionsSectionProps) {
+    // الأزرار على سطح بطاقة إشراق مباشرةً: `QuickActionCard` يحمل خلفيته
+    // وحشوته، فتركيبه داخل بطاقة يرسم إطاراً داخل إطار.
     return (
-        <QuickActionCard>
+        <div className="esharq-quick-actions">
             {IS_WEB ? (
                 <QuickAction
                     text={
@@ -73,6 +75,6 @@ export function QuickActionsSection({ fileInputRef, onFileUpload, refreshLocalTh
                     Icon={PencilIcon}
                 />
             )}
-        </QuickActionCard>
+        </div>
     );
 }

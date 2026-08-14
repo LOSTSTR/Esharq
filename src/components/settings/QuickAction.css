@@ -44,3 +44,22 @@
     height: 24px;
     flex-shrink: 0;
 }
+
+/* أزرار الإجراءات السريعة على سطح بطاقة إشراق مباشرةً — بلا بطاقة ثانية
+   تحتها، فـ`QuickActionCard` يحمل خلفيته وحشوته ويرسم إطاراً داخل إطار.
+
+   🔴 القاعدة هنا لا في CSS صفحةٍ بعينها: كانت في `VencordTab.css` فصارت
+   صفحة القوالب تعتمد على ملفٍّ لا تستورده — يعمل اليوم لأن البناء يدمج
+   الأنماط في ملفّ واحد، ويسقط صامتاً يوم يُقسَّم. ومكانها الصحيح بجانب
+   `QuickAction` نفسه، فأينما شُحن الزرّ شُحنت شبكته. */
+.esharq-quick-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5em;
+}
+
+@media (width <= 1040px) {
+    .esharq-quick-actions {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

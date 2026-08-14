@@ -52,18 +52,3 @@
     color: var(--text-link);
     display: inline-block;
 }
-
-/* أزرار الإجراءات السريعة على سطح بطاقة إشراق مباشرةً — بلا بطاقة ثانية
-   تحتها. الشبكة هنا لا في `QuickActionCard` لأن ذاك يحمل خلفيته وحشوته
-   الخاصّة، فيُنتج داخل بطاقتنا إطاراً في إطار. */
-.esharq-quick-actions {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.5em;
-}
-
-@media (width <= 1040px) {
-    .esharq-quick-actions {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}

@@ -7,10 +7,9 @@
 import "./styles.css";
 
 import { Settings, type ThemeActivationMode, useSettings } from "@api/Settings";
-import { Divider } from "@components/Divider";
-import { Heading } from "@components/Heading";
 import { Link } from "@components/Link";
 import { Paragraph } from "@components/Paragraph";
+import { Card, StatRow } from "@components/settings/esharq/Card";
 import { SettingsTab, wrapTab } from "@components/settings/tabs/BaseTab";
 import { getThemeInfo, UserThemeHeader } from "@main/themes";
 import { classNameFactory } from "@utils/css";
@@ -370,31 +369,35 @@ function ThemesTab() {
 
     return (
         <SettingsTab>
-            <Heading className={Margins.top16}>{t("إدارة القوالب", "Theme Management")}</Heading>
-            <Paragraph className={Margins.bottom16}>
-                {t(
+            <Card
+                index={0}
+                title={t("القوالب", "Themes")}
+                subtitle={t(
                     "خصّص مظهر ديسكورد بالقوالب. أضِف ملفات ‎.css محليّة أو حمّل القوالب مباشرةً من روابط. القوالب التي تحمل أيقونة تِرس لها إعدادات يمكنك تعديلها.",
                     "Customize Discord's appearance with themes. Add local .css files or load themes directly from URLs. Themes with a cog wheel icon have customizable settings you can modify."
                 )}
-            </Paragraph>
+                badge={enabledCount === 0
+                    ? t("لا قالب مُفعَّل", "None enabled")
+                    : t(`${enabledCount} مُفعَّل`, `${enabledCount} enabled`)}
+            />
 
-            <Heading>{t("إجراءات سريعة", "Quick Actions")}</Heading>
-            <Paragraph className={Margins.bottom16}>
-                {t(
+            <Card
+                index={1}
+                title={t("إجراءات سريعة", "Quick actions")}
+                subtitle={t(
                     "اختصارات لإدارة قوالبك. افتح مجلد القوالب لإضافة قوالب جديدة، أو استخدم QuickCSS لتعديلات سريعة على التنسيق، أو أعِد تحميل القوالب بعد إجراء تغييرات.",
                     "Shortcuts for managing your themes. Open your themes folder to add new themes, use QuickCSS for quick style tweaks, or reload themes after making changes."
                 )}
-            </Paragraph>
-
-            <QuickActionsSection
-                fileInputRef={fileInputRef}
-                onFileUpload={onFileUpload}
-                refreshLocalThemes={refreshLocalThemes}
-            />
-
-            <Divider className={Margins.top20} />
+            >
+                <QuickActionsSection
+                    fileInputRef={fileInputRef}
+                    onFileUpload={onFileUpload}
+                    refreshLocalThemes={refreshLocalThemes}
+                />
+            </Card>
 
             <OnlineThemesSection
+                index={2}
                 enableOnlineThemes={settings.enableOnlineThemes ?? true}
                 setEnableOnlineThemes={value => {
                     settings.enableOnlineThemes = value;
@@ -409,24 +412,24 @@ function ThemesTab() {
                 addThemeLink={addThemeLink}
             />
 
-            <Divider className={Margins.top20} />
-
-            <Heading className={Margins.top20}>{t("القوالب المثبَّتة", "Installed Themes")}</Heading>
-            <Paragraph className={Margins.bottom8}>
-                {t(
+            <Card
+                index={3}
+                title={t("القوالب المثبَّتة", "Installed themes")}
+                subtitle={t(
                     "أدِر قوالبك من هنا. القوالب المحليّة تُحمَّل من مجلد القوالب، وقوالب الإنترنت من الروابط. القوالب التي تحمل أيقونة تِرس لها إعدادات قابلة للتخصيص.",
                     "Manage your themes here. Local themes load from your themes folder, online themes from URLs. Themes with a cog wheel icon have customizable settings."
                 )}
-            </Paragraph>
-            <Paragraph color="text-subtle" className={Margins.bottom16}>
-                {/* الإنجليزية تجمع بلاحقة s؛ العربية لا. نبني كل لغة جملةً كاملة بدل ترجمة الأجزاء. */}
-                {t(
-                    `${allThemes.length} قالب مثبَّت (${localCount} محلي، ${onlineCount} عبر الإنترنت) · ${enabledCount} مُفعَّل`,
-                    `${allThemes.length} theme${allThemes.length !== 1 ? "s" : ""} installed (${localCount} local, ${onlineCount} online) · ${enabledCount} enabled`
-                )}
-            </Paragraph>
+            >
+                {/* أرقام لا جملة: الصفحة تُلخّص حالتها أوّلاً كما في المُحدِّث،
+                    وهذا يُغني عن جملة تُبنى لكل لغة على حدة لاختلاف الجمع. */}
+                <StatRow items={[
+                    { label: t("مثبَّت", "Installed"), value: String(allThemes.length) },
+                    { label: t("محلّي", "Local"), value: String(localCount) },
+                    { label: t("عبر الإنترنت", "Online"), value: String(onlineCount) },
+                    { label: t("مُفعَّل", "Enabled"), value: String(enabledCount) }
+                ]} />
 
-            <div className={cl("filter-row")}>
+                <div className={classes(cl("filter-row"), Margins.top16)}>
                 <TextInput
                     placeholder={t("ابحث عن قالب...", "Search for a theme...")}
                     value={searchQuery}
@@ -442,16 +445,27 @@ function ThemesTab() {
                 </div>
             </div>
 
-            {userThemes === null ? (
-                <Paragraph color="text-muted" className={Margins.top16}>Loading themes...</Paragraph>
-            ) : filteredThemes.length === 0 ? (
-                <Paragraph color="text-muted" className={Margins.top16}>
-                    {allThemes.length === 0
-                        ? "No themes installed yet. Add theme files to your themes folder or add an online theme above to get started."
-                        : "No themes match your search or filter criteria."
-                    }
-                </Paragraph>
-            ) : (
+                {/* 🔴 هذه الثلاثة كانت إنجليزية في المصدر بلا `t()` — لا يكشفها
+                    مدقّق أوصاف الإضافات (يقرأ `plugin.options` وحدها) ولا محرّك
+                    التعريب (يُبدّل رسائل ديسكورد لا واجهتنا). */}
+                {userThemes === null ? (
+                    <Paragraph color="text-muted" className={Margins.top16}>
+                        {t("جارٍ تحميل القوالب…", "Loading themes…")}
+                    </Paragraph>
+                ) : filteredThemes.length === 0 ? (
+                    <Paragraph color="text-muted" className={Margins.top16}>
+                        {allThemes.length === 0
+                            ? t(
+                                "لا قوالب مثبَّتة بعد. أضِف ملفات قوالب إلى مجلد القوالب أو أضِف قالباً عبر الإنترنت من الأعلى لتبدأ.",
+                                "No themes installed yet. Add theme files to your themes folder or add an online theme above to get started."
+                            )
+                            : t(
+                                "لا قوالب تطابق بحثك أو المُرشِّح المختار.",
+                                "No themes match your search or filter criteria."
+                            )
+                        }
+                    </Paragraph>
+                ) : (
                 <div className={classes(cl("grid"), Margins.top16)}>
                     {filteredThemes.map(theme => {
                         if (theme.type === "online") {
@@ -513,8 +527,9 @@ function ThemesTab() {
                             />
                         );
                     })}
-                </div>
-            )}
+                    </div>
+                )}
+            </Card>
         </SettingsTab>
     );
 }
@@ -522,15 +537,17 @@ function ThemesTab() {
 function UserscriptThemesTab() {
     return (
         <SettingsTab>
-            <Heading className={Margins.top16}>{t("القوالب غير مدعومة", "Themes Not Supported")}</Heading>
-            <Paragraph className={Margins.bottom8}>
-                {t("القوالب غير متاحة في نسخة Userscript.", "Themes are not available on the Userscript version.")}
-            </Paragraph>
-            <Paragraph color="text-subtle">
-                {t("يمكنك تثبيت القوالب باستخدام ", "You can install themes using the ")}
-                <Link href={getStylusWebStoreUrl()}>{t("إضافة Stylus", "Stylus extension")}</Link>
-                {t(" بدلاً من ذلك.", " instead.")}
-            </Paragraph>
+            <Card
+                index={0}
+                title={t("القوالب غير مدعومة", "Themes not supported")}
+                subtitle={t("القوالب غير متاحة في نسخة Userscript.", "Themes are not available on the Userscript version.")}
+            >
+                <Paragraph color="text-subtle">
+                    {t("يمكنك تثبيت القوالب باستخدام ", "You can install themes using the ")}
+                    <Link href={getStylusWebStoreUrl()}>{t("إضافة Stylus", "Stylus extension")}</Link>
+                    {t(" بدلاً من ذلك.", " instead.")}
+                </Paragraph>
+            </Card>
         </SettingsTab>
     );
 }
