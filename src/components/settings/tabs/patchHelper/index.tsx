@@ -18,10 +18,8 @@
 
 import { Button } from "@components/Button";
 import { CodeBlock } from "@components/CodeBlock";
-import { Divider } from "@components/Divider";
 import { Flex } from "@components/Flex";
-import { Heading } from "@components/Heading";
-import { Paragraph } from "@components/Paragraph";
+import { Card } from "@components/settings/esharq/Card";
 import { SettingsTab, wrapTab } from "@components/settings/tabs/BaseTab";
 import { Span } from "@components/Span";
 import { debounce } from "@shared/debounce";
@@ -109,81 +107,90 @@ function PatchHelper() {
 
     return (
         <SettingsTab>
-            <Heading className={Margins.top16}>{t("مساعد الترقيع", "Patch Helper")}</Heading>
-            <Paragraph className={Margins.bottom16}>
-                {t(
+            <Card
+                index={0}
+                title={t("مساعد الترقيع", "Patch helper")}
+                subtitle={t(
                     "أداة للمطوّرين تساعدك على تجهيز الرقع لإضافات إشراق.",
-                    "A developer tool to help you create patches for Equicord plugins."
+                    "A developer tool to help you create patches for Esharq plugins."
                 )}
-            </Paragraph>
-
-            <Heading className="">{t("الرقعة الكاملة", "Full Patch")}</Heading>
-            <Paragraph className={Margins.bottom8}>
-                {t("الصق رقعة JSON كاملة هنا لتُملأ الحقول تلقائياً", "Paste your full JSON patch here to fill out the fields")}
-            </Paragraph>
-            <FullPatchInput
-                setFind={onFindChange}
-                setParsedFind={setParsedFind}
-                setMatch={onMatchChange}
-                setReplacement={setReplacement}
+                badge={module
+                    ? t("وحدة مطابقة", "Module matched")
+                    : t("لا وحدة بعد", "No module yet")}
             />
 
-            <div className={Margins.top20}>
-                <Heading className="">{t("البحث", "Find")}</Heading>
-                <TextInput
-                    type="text"
-                    value={find}
-                    onChange={onFindChange}
-                    error={findError}
-                />
-            </div>
-            <div className={Margins.top20}>
-                <Heading className="">{t("المطابقة", "Match")}</Heading>
-                <TextInput
-                    type="text"
-                    value={match}
-                    onChange={onMatchChange}
-                    error={matchError}
-                />
-            </div>
-
-            <div className={Margins.top20}>
-                <ReplacementInput
-                    replacement={replacement}
+            <Card
+                index={1}
+                title={t("الرقعة الكاملة", "Full patch")}
+                subtitle={t("الصق رقعة JSON كاملة هنا لتُملأ الحقول تلقائياً", "Paste your full JSON patch here to fill out the fields")}
+            >
+                <FullPatchInput
+                    setFind={onFindChange}
+                    setParsedFind={setParsedFind}
+                    setMatch={onMatchChange}
                     setReplacement={setReplacement}
-                    replacementError={replacementError}
                 />
-            </div>
+            </Card>
+
+            <Card
+                index={2}
+                title={t("الحقول", "Fields")}
+                subtitle={t(
+                    "‏`find` يختار الوحدة، و`match` يعمل على مصدرها بعد الرقع السابقة.",
+                    "`find` selects the module; `match` operates on its source after earlier patches."
+                )}
+            >
+                <div>
+                    <Span size="md" weight="medium" color="text-strong">{t("البحث", "Find")}</Span>
+                    <TextInput
+                        type="text"
+                        value={find}
+                        onChange={onFindChange}
+                        error={findError}
+                    />
+                </div>
+                <div className={Margins.top20}>
+                    <Span size="md" weight="medium" color="text-strong">{t("المطابقة", "Match")}</Span>
+                    <TextInput
+                        type="text"
+                        value={match}
+                        onChange={onMatchChange}
+                        error={matchError}
+                    />
+                </div>
+
+                <div className={Margins.top20}>
+                    <ReplacementInput
+                        replacement={replacement}
+                        setReplacement={setReplacement}
+                        replacementError={replacementError}
+                    />
+                </div>
+            </Card>
 
             {module && (
-                <>
-                    <Divider className={Margins.top16 + " " + Margins.bottom16} />
-                    <Span size="md" weight="medium" color="text-strong">{t("معاينة", "Preview")}</Span>
+                <Card index={3} title={t("معاينة", "Preview")}>
                     <PatchPreview
                         module={module}
                         match={match}
                         replacement={replacement}
                         setReplacementError={setReplacementError}
                     />
-                </>
+                </Card>
             )}
 
             {!!(find && match && replacement) && (
-                <>
-                    <Divider className={Margins.top16 + " " + Margins.bottom16} />
-                    <Span size="md" weight="medium" color="text-strong">{t("الكود المُولَّد", "Generated Code")}</Span>
-                    <div style={{ width: "100%", marginTop: 8 }}>
-                        <CodeBlock lang="js" content={code} />
-                    </div>
+                <Card index={4} title={t("الكود المُولَّد", "Generated code")}>
+                    <CodeBlock lang="js" content={code} />
                     <Flex className={Margins.top8} gap="8px">
                         <Button size="small" onClick={() => copyWithToast(code)}>
-                            {t("نسخ إلى الحافظة", "Copy to Clipboard")}
+                            {t("نسخ إلى الحافظة", "Copy to clipboard")}
                         </Button>
                         <Button size="small" onClick={() => copyWithToast("```ts\n" + code + "\n```")}>
-                            {t("نسخ ككتلة كود", "Copy as Codeblock")}
+                            {t("نسخ ككتلة كود", "Copy as codeblock")}
                         </Button>
                     </Flex>
-                </>
+                </Card>
             )}
         </SettingsTab>
     );
