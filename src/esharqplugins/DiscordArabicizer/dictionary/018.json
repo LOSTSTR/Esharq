@@ -1,0 +1,5 @@
+{
+ "Members of the server must meet the following criteria before they can send messages in text channels or initiate a\ndirect message conversation. If a member has an assigned role and server onboarding is not enabled, this does not apply.\n<$b>We recommend setting a verification level for a Community Server.</$b>": "على أعضاء الخادم استيفاء الشروط التالية قبل أن يرسلوا رسائل في القنوات النصّية أو يبدؤوا محادثة خاصّة. ولا ينطبق هذا على عضوٍ أُسنِدت إليه رتبة ما لم يكن الإعداد التمهيدي مُفعَّلاً. <$b>ونوصي بضبط مستوى توثيق لخادم المجتمع.</$b>",
+ "Members of the server must meet the following criteria before they can send messages. If a member has an assigned role and server onboarding is not enabled, this does not apply.": "على أعضاء الخادم استيفاء الشروط التالية قبل أن يرسلوا رسائل. ولا ينطبق هذا على عضوٍ أُسنِدت إليه رتبة ما لم يكن الإعداد التمهيدي مُفعَّلاً.",
+ "You haven't banned anybody...\nbut if and when you must, do not hesitate!": "لم تحظر أحداً بعد…\nلكن إن اضطُررت يوماً فلا تتردّد!"
+}
