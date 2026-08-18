@@ -234,6 +234,10 @@ export default function PluginSettings() {
                 break;
             case SearchStatus.VENCORD:
                 if (!PluginMeta[plugin.name].folderName.startsWith("src/plugins/")) return false;
+                // ونظير حالة Equicord أعلاه: إضافة إشراق قد تسكن `src/plugins/_core/`
+                // بالضرورة (تُستورَد قبل أي رقعة)، فترشيحُ المسار وحده يُدرجها تحت
+                // Vencord بينما تحمل شارة إشراق — تناقضٌ يراه المستخدم في القائمة نفسها.
+                if (FORK_EXCLUSIVE_PLUGINS.has(plugin.name)) return false;
                 break;
             case SearchStatus.NEW:
                 if (!newPluginsSet?.has(plugin.name)) return false;
