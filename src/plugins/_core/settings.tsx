@@ -21,6 +21,7 @@ import { ComingSoon } from "@components/settings/esharq/ComingSoon";
 import { LanguagePage } from "@components/settings/esharq/LanguagePage";
 import { SECTION_ORDER } from "@components/settings/esharq/tokens";
 import { SETTINGS_TREE } from "@components/settings/esharq/tree";
+import { VoiceLabPage } from "@components/settings/esharq/VoiceLabPage";
 import { gitHashShort } from "@shared/vencordUserAgent";
 import { Devs } from "@utils/constants";
 import { initArabicFont } from "@utils/esharqFont";
@@ -194,7 +195,7 @@ export default definePlugin({
             VencordTab, PluginsTab, ThemesTab, UpdaterTab,
             ChangelogTab, CloudTab, BackupAndRestoreTab,
             // صفحات بناها إشراق — لا تُشتقّ من الأصل.
-            LanguagePage, ClientHealthPage
+            LanguagePage, ClientHealthPage, VoiceLabPage
         };
         // أيقونة مميّزة لكل صفحة — لا ترس واحد للكلّ (قرار المالك).
         const iconFor: Record<string, ComponentType<IconProps>> = {

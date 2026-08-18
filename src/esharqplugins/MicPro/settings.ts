@@ -12,6 +12,14 @@ import { definePluginSettings } from "@api/Settings";
 import { OptionType } from "@utils/types";
 
 export const settings = definePluginSettings({
+    // المفتاح الرئيسي لمختبر الصوت: حين يُطفأ لا نفرض شيئاً على المكالمات
+    // الجديدة وتبقى إعدادات ديسكورد نفسها هي الحاكمة. لا يُخفى من صفحة
+    // الإضافات كي يبقى الإطفاء ممكناً حتى لو لم يفتح المستخدم المختبر.
+    applyToCalls: {
+        type: OptionType.BOOLEAN,
+        default: true,
+        description: "Apply your Voice Lab settings to every call. When off, Discord's own audio settings take over."
+    },
     autoDeafenOnTest: {
         type: OptionType.BOOLEAN,
         default: true,
