@@ -64,13 +64,13 @@ export default definePluginI18n({
             "ar": "استخدام الخطوط الافتراضية لـ Discord للأسماء غير الأساسية بصرف النظر عن خط النيترو المخصص للمستخدم.",
             "en": "Use Discord's default fonts for non-primary names regardless of the user's custom Nitro font."
         },
-        "ignoreGradients": {
-            "ar": "للأسماء غير الأساسية، إذا كان للدور تدرج لوني والإعداد أدناه مضبوطاً على \"Role+-#\"، يُستخدم اللون الأساسي بدلاً من التدرج الكامل، وإذا كان له تأثير نيترو فيُتجاهل كلياً.",
-            "en": "For non-primary names, ignore role gradient colors."
+        "ignoreEffects": {
+            "ar": "للأسماء غير الأساسية، يُستعمل لون الدور الأساسي وحده وتُحذف تأثيرات اسم العرض.",
+            "en": "For non-primary names, use only the primary role color and omit display name effects."
         },
-        "animateGradients": {
-            "ar": "للأسماء غير الأساسية، إذا كان للدور تدرج لوني أو تأثير نيترو فيُحرَّك. يُعطَّل هذا بواسطة \"تجاهل التدرجات\" والحركة المخففة.",
-            "en": "For non-primary names, animate role gradient or Nitro effects."
+        "animateEffects": {
+            "ar": "تحريك تدرّجات الأدوار وتأثيرات اسم العرض على الأسماء غير الأساسية. يُعطّله «تجاهل التأثيرات» وتقليل الحركة.",
+            "en": "Animate role gradients and display name effects on non-primary names. This is disabled by \"Ignore Effects\" and reduced motion."
         },
         "nameSeparator": {
             "ar": "الفاصل المستخدم بين الأسماء. الافتراضي هو مسافة واحدة.",
@@ -84,9 +84,9 @@ export default definePluginI18n({
             "ar": "عرض الأسماء المخصصة فقط في الرسائل المباشرة وليس في الخوادم.",
             "en": "Show custom names only in DMs, not in servers."
         },
-        "alwaysShowEffects": {
-            "ar": "إظهار التأثيرات دائماً كما لو كنت تحوم بالمؤشر.",
-            "en": "Always show name effects as if hovering."
+        "alwaysAnimateEffects": {
+            "ar": "إجبار تأثيرات اسم العرض على الحركة حين تكون ظاهرة أصلاً، بلا حاجة إلى التحويم.",
+            "en": "Force display name effects to animate when they would already be visible, even without hover."
         },
         "includedNames": {
             "ar": "ترتيب عرض أسماء المستخدمين وأسماء العرض والألقاب وأسماء الأصدقاء والأسماء المخصصة. استخدم العناصر النائبة التالية: {user}، {display}، {nick}، {friend}، {custom}. يمكنك تقديم خيارات أسماء متعددة كبدائل إذا لم يكن أحدها متاحاً بفصلها بفواصل هكذا: {custom, friend, nick}. يمكن أن يكون لكل اسم ما يصل إلى ثلاثة بادئات وثلاثة لاحقات.",
@@ -111,6 +111,26 @@ export default definePluginI18n({
         "usernameColor": {
             "ar": "اللون المستخدم لاسم المستخدم إذا لم يكن أول اسم معروض. يقبل أي مدخل CSS صالح. استخدم \"Role\" لمتابعة ألوان أعلى دور للمستخدم أو ألوان تأثير نيترو أو لون IRCColors إذا كان مفعّلاً. استخدم \"Role+-#\" لضبط السطوع بهذه النسبة (مثال: \"Role+15\")",
             "en": "Color used for the username if it is not the first displayed name."
+        },
+        "gradientGlow": {
+            "ar": "يضيف توهّجاً لتدرّجات المستخدم المتحرّكة كما تتوهّج تدرّجات أدوار الخادم.",
+            "en": "Add a glow to animated user gradients the same way server role gradients glow."
+        },
+        "styleDirectMessagesList": {
+            "ar": "يُظهر تأثيرات اسم العرض على المدخلات غير المحدَّدة بلا حاجة إلى التحويم. والمحدَّدة والمُحوَّم عليها تبقى منسّقة عند التعطيل.",
+            "en": "Show display name effects on unselected entries without requiring hover. Selected and hovered entries are still styled when disabled."
+        },
+        "styleDirectMessagesMessages": {
+            "ar": "يُظهر تأثيرات اسم العرض على كاتبي الرسائل بلا حاجة إلى التحويم. والأسماء المُحوَّم عليها تبقى منسّقة عند التعطيل.",
+            "en": "Show display name effects on message authors without requiring hover. Hovered names are still styled when disabled."
+        },
+        "styleFriendsList": {
+            "ar": "يُظهر تأثيرات اسم العرض بلا حاجة إلى التحويم. والمدخلات المُحوَّم عليها تبقى منسّقة عند التعطيل.",
+            "en": "Show display name effects without requiring hover. Hovered entries are still styled when disabled."
+        },
+        "styleActiveNow": {
+            "ar": "يُظهر تأثيرات اسم العرض بلا حاجة إلى التحويم. والمدخلات المُحوَّم عليها تبقى منسّقة عند التعطيل.",
+            "en": "Show display name effects without requiring hover. Hovered entries are still styled when disabled."
         },
         "triggerNameRerender": {
             "ar": "تشغيل إعادة رسم الأسماء عبر تبديل هذا الإعداد.",
