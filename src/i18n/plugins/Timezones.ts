@@ -12,14 +12,6 @@ export default definePluginI18n({
         "en": "Displays users' local time in profiles and message headers."
     },
     "options": {
-        "Show Own Timezone": {
-            "ar": "يعرض منطقتك الزمنية في ملفك الشخصي ورؤوس الرسائل",
-            "en": "Shows your timezone in your profile and message headers"
-        },
-        "24h Time": {
-            "ar": "عرض الوقت بتنسيق 24 ساعة",
-            "en": "Show time in 24-hour format"
-        },
         "showTimezoneInfo": {
             "ar": "عرض معلومات المنطقة الزمنية بجانب الوقت",
             "en": "Show timezone info in profiles."

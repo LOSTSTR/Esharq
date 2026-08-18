@@ -87,6 +87,10 @@ export default definePluginI18n({
         "useSelectionForQuote": {
             "ar": "عند الاقتباس، استخدام النص المحدد إن توفر",
             "en": "When quoting, use selected text if available."
+        },
+        "additionalReactEmojis": {
+            "ar": "إيموجيات إضافية تُضاف عند استخدام إجراء التفاعل (مفصولة بفاصلة أو سطر جديد، بحدّ أقصى 8).",
+            "en": "Additional emojis to add when using React action (comma/newline separated, max 8)"
         }
     }
 });

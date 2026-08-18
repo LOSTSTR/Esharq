@@ -40,10 +40,6 @@ export default definePluginI18n({
             "ar": "إجبار المجلد على الفتح عند الانتقال إلى سيرفر داخله",
             "en": "Force the folder to open when navigating to a server inside it."
         },
-        "enableNestedFolders": {
-            "ar": "السماح بتداخل المجلدات داخل بعضها عبر السحب والإفلات.",
-            "en": "Allow folders to be nested inside each other via drag and drop."
-        },
         "keepIcons": {
             "ar": "الاستمرار في عرض أيقونات السيرفرات في شريط السيرفرات الرئيسي عند فتح الشريط الجانبي لـ BetterFolders",
             "en": "Keep showing server icons in the main server bar when the BetterFolders sidebar is open."

@@ -19,6 +19,10 @@ export default definePluginI18n({
         "notifyOnFail": {
             "ar": "عرض إشعار عند فشل استبدال كود نيترو.",
             "en": "Show a notification when a Nitro code fails to redeem."
+        },
+        "ignoreOwnGiftLinks": {
+            "ar": "لا تستبدل روابط هدايا نيترو الواردة في رسائل أرسلتها أنت.",
+            "en": "Do not redeem Nitro gift links from messages you sent yourself."
         }
     }
 });

@@ -19,6 +19,14 @@ export default definePluginI18n({
         "iconSpacing": {
             "ar": "هامش الأيقونة",
             "en": "Spacing between connection icons."
+        },
+        "showGithubOrgs": {
+            "ar": "عرض منظّمات GitHub التي ينتمي إليها المستخدم.",
+            "en": "Show GitHub organizations the user is a member of"
+        },
+        "showOnModal": {
+            "ar": "عرض الحسابات المرتبطة في نافذة الملفّ الشخصي الكاملة.",
+            "en": "Show connected accounts in the full-size profile modal"
         }
     }
 });

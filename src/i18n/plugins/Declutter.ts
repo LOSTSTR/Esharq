@@ -63,6 +63,18 @@ export default definePluginI18n({
         "removeButtonTooltips": {
             "ar": "إزالة تلميحات الأزرار.",
             "en": "Remove button tooltips."
+        },
+        "removeProfileFrame": {
+            "ar": "إزالة إطارات الملفّ الشخصي.",
+            "en": "Remove profile frames."
+        },
+        "removeLibraryAboveDms": {
+            "ar": "إزالة المكتبة فوق قائمة الرسائل الخاصّة.",
+            "en": "Remove library above DMs list."
+        },
+        "removeFamilyCenterAboveDms": {
+            "ar": "إزالة مركز العائلة فوق قائمة الرسائل الخاصّة.",
+            "en": "Remove family center above DMs list."
         }
     }
 });

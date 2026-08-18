@@ -67,6 +67,14 @@ export default definePluginI18n({
         "showAlbumCover": {
             "ar": "إظهار غلاف الألبوم. تعطيله سيعرض صورة بديلة. مفيد إذا كانت موسيقاك تحتوي على فن غير لائق",
             "en": "Show album cover. Disabling this will display a placeholder. Useful if your music has inappropriate art"
+        },
+        "instanceBaseURL": {
+            "ar": "الرابط الأساسي لخادم ListenBrainz الخاصّ بك.",
+            "en": "The base url of your ListenBrainz instance."
+        },
+        "instanceAPIBaseUrl": {
+            "ar": "الرابط الأساسي لواجهة ListenBrainz البرمجية.",
+            "en": "The base url of your ListenBrainz API."
         }
     }
 });
