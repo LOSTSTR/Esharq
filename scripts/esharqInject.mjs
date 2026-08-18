@@ -27,7 +27,7 @@
  * ولأن إعادة التسمية أكثر تدخّلاً، فالتراجع شرط: `--uninstall` يُعيد الأصل.
  */
 
-import { copyFileSync, existsSync, mkdirSync, readdirSync, renameSync, rmSync, statSync, unlinkSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -102,10 +102,15 @@ function latestVersionDir(base) {
 
 function resolveResources() {
     if (location !== undefined) return location;
-    if (branch === undefined) fail("حدّد --branch [stable|ptb|canary] أو --location <مسار resources>");
 
-    const folder = BRANCHES[branch];
-    if (folder === undefined) fail(`فرع غير معروف: ${branch}`);
+    // 🔴 بلا وسائط ⇒ **stable**، لا رسالة خطأ.
+    // `pnpm inject` هو الأمر الذي يكتبه كل مستخدم أوّل مرّة، وكان يفشل
+    // بـ«حدّد --branch» — فبدا المُثبِّت معطوباً وهو سليم. والفرع المستقرّ
+    // هو ما يريده جمهور المستخدمين؛ ومن أراد غيره يمرّره صراحةً.
+    const chosen = branch ?? "stable";
+
+    const folder = BRANCHES[chosen];
+    if (folder === undefined) fail(`فرع غير معروف: ${chosen} — المتاح: stable | ptb | canary`);
 
     if (process.platform !== "win32") {
         fail("هذا المُثبِّت لويندوز. على غيره مرّر --location صراحةً.");
@@ -128,11 +133,46 @@ const PAYLOAD_DIR = join(process.env.APPDATA ?? process.env.HOME ?? ".", "Esharq
 const PAYLOAD = join(PAYLOAD_DIR, "esharq.asar");
 
 /** هل `app.asar` الحالي أرشيفنا نحن؟ */
+/**
+ * هل النصّ يحيل إلى حمولتنا؟ يُقارَن بالشكلين لأن `index.js` كود جافاسكربت،
+ * فالشرطات المائلة فيه مضاعفة (`C:\\Users\\…`) لا مفردة.
+ */
+function referencesOurPayload(text) {
+    return text.includes(PAYLOAD_DIR) || text.includes(PAYLOAD_DIR.split("\\").join("\\\\"));
+}
+
+/**
+ * هل `app.asar` القائم تثبيتنا؟
+ *
+ * 🔴 **شكلان لا شكل واحد**: أرشيفنا الذي نكتبه، **و مجلداً** يتركه مُحدِّث
+ * ديسكورد بعد كل تحديث — يفكّ أرشيفنا إلى `app.asar/index.js` و
+ * `package.json` **بلا علامتنا** (يُعيد كتابته بنفسه). فالنسخة الأولى كانت
+ * تقرأ العلامة وحدها وترفض المجلد، فتقول «مُعدِّل آخر مثبَّت» عن تثبيتنا
+ * نفسه — إنذار كاذب يتكرّر مع **كل** تحديث لديسكورد ويمنع إعادة الحقن
+ * والتراجع معاً. والدليل الصادق **مسار الحمولة** لا العلامة.
+ */
 function isOurs() {
-    if (!existsSync(APP) || statSync(APP).isDirectory()) return false;
+    if (!existsSync(APP)) return false;
+
+    if (statSync(APP).isDirectory()) {
+        const index = join(APP, "index.js");
+        if (!existsSync(index)) return false;
+        try {
+            return referencesOurPayload(readFileSync(index, "utf8"));
+        } catch {
+            return false;
+        }
+    }
+
     try {
         const raw = readAsarFile(APP, "package.json");
-        return raw !== undefined && JSON.parse(raw.toString("utf8"))[MARKER] !== undefined;
+        if (raw !== undefined && JSON.parse(raw.toString("utf8"))[MARKER] !== undefined) return true;
+    } catch { /* ليس أرشيفاً نقرأه */ }
+
+    // احتياط: أرشيف بلا علامة لكنه يُحمّل حمولتنا (نسخة أقدم من المُثبِّت).
+    try {
+        const raw = readAsarFile(APP, "index.js");
+        return raw !== undefined && referencesOurPayload(raw.toString("utf8"));
     } catch {
         return false;
     }
@@ -143,7 +183,8 @@ if (uninstall) {
     if (!existsSync(BACKUP)) fail("_app.asar مفقود — لا يمكن التراجع بأمان");
 
     guarded(() => {
-        unlinkSync(APP);
+        // المجلد يُحذف تعاوداً؛ `unlinkSync` يفشل عليه بـEPERM/EISDIR.
+        rmSync(APP, { recursive: true, force: true });
         renameSync(BACKUP, APP);
     });
     console.log(`✔ أُلغي التثبيت وأُعيد app.asar الأصلي — ${RESOURCES}`);
@@ -178,8 +219,18 @@ const bridge = packAsar({ "package.json": packageJson, "index.js": indexJs });
 /** هل الجسر القائم يُحمّل نفس الحمولة؟ عندها كتابته من جديد لا تُغيّر شيئاً. */
 function bridgeIsCurrent() {
     if (!isOurs()) return false;
-    const raw = readAsarFile(APP, "index.js");
-    return raw !== undefined && raw.toString("utf8").includes(JSON.stringify(PAYLOAD));
+
+    // 🔴 شكل المجلد **ليس مطابقاً** ولو أشار إلى الحمولة نفسها: يجب أن
+    // يُستبدَل بأرشيفنا، وإلّا بقي ديسكورد يقرأ ما فكّه مُحدِّثه. وقراءته
+    // بـ`readAsarFile` تنفجر بـEISDIR، فيُفحَص النوع أوّلاً.
+    if (statSync(APP).isDirectory()) return false;
+
+    try {
+        const raw = readAsarFile(APP, "index.js");
+        return raw !== undefined && raw.toString("utf8").includes(JSON.stringify(PAYLOAD));
+    } catch {
+        return false;
+    }
 }
 
 // إعادة التسمية **مرّة واحدة**: لو كرّرناها على تثبيتنا لصار `_app.asar`
@@ -207,6 +258,9 @@ if (!existsSync(BACKUP)) {
 }
 
 console.log(`✔ ثُبِّت إشراق في ${RESOURCES}`);
+// يُقال الفرع صراحةً: بلا وسائط يُختار المستقرّ، ومن ظنّ أنه يحقن كناري
+// يرى هنا أنه لم يفعل — بدل أن يكتشفه بعد إعادة تشغيل لا تُغيّر شيئاً.
+console.log(`  الفرع     : ${branch ?? "stable (افتراضي)"}`);
 console.log(`  app.asar  : أرشيفنا (${statSync(APP).size} بايت)`);
 console.log(`  _app.asar : ديسكورد الأصلي (${(statSync(BACKUP).size / 1048576).toFixed(2)} MB)`);
 console.log(`  الحمولة   : ${PAYLOAD} (${(statSync(PAYLOAD).size / 1048576).toFixed(2)} MB)`);
