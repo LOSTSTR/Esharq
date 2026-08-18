@@ -2542,7 +2542,6 @@ export const translations: Record<string, string> = {
     "Create Text Channel": "إنشاء قناة نصّية",
     "Duration": "المدّة",
     "Enter a reason. This will only be visible in the Audit Log and will not be shown to the member.": "أدخِل سبباً. سيظهر هذا في سجلّ التدقيق فقط ولن يُعرَض للعضو.",
-    "Holographic": "هولوغرافي",
     "I'm new here, say hi!": "أنا جديد هنا، رحّبوا بي!",
     "Jump To Reply": "الانتقال إلى الردّ",
     "Keeping Send Messages enabled allows your members to participate in conversations when they're unable to speak, either because of their environment or comfort level.": "إبقاء إذن إرسال الرسائل مفعّلاً يتيح لأعضائك المشاركة في المحادثات حين يتعذّر عليهم التحدّث، سواء بسبب بيئتهم أو مستوى راحتهم.",
