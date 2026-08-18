@@ -63,7 +63,9 @@ export default definePlugin({
     description: "Handles Discord crashes and enables recovery",
     authors: [Devs.Nuckyz],
     tags: ["Utility", "Developers"],
-    enabledByDefault: true,
+    // إشراق: حارس الأعطال لا يُطفأ. `required` يُبقيه مُفعّلاً ويُخفي مفتاحه، ويجعله
+    // أساسيّاً في وضع الأداء تلقائياً (isEssentialPlugin يقرأ `required`).
+    required: true,
     settings,
 
     patches: [
