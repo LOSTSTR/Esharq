@@ -8,6 +8,7 @@ import "./voiceLab.css";
 
 import { isPluginEnabled } from "@api/PluginManager";
 import { FormSwitch } from "@components/FormSwitch";
+import { Switch } from "@components/Switch";
 import { microphoneStore } from "@plugins/_micProEngine/stores";
 import { flushTransmission, transmissionReady } from "@plugins/MicPro";
 import {
@@ -142,9 +143,101 @@ function useLiveLevel(active: boolean): number {
     return level;
 }
 
+/**
+ * حقل رقمي بمفتاح: المفتاح يقرّر «هل نفرض هذه القيمة؟»، والرقم يقرّر «كم».
+ * وأوّل تفعيل يكتب الافتراضي كي لا يُرسَل حقل فارغ إلى محرّك النقل.
+ */
+function NumberField({ label, hint, unit, def, enabled, value, onToggle, onValue }: {
+    label: string; hint: string; unit?: string; def: number;
+    enabled: boolean; value?: number;
+    onToggle: (v: boolean) => void; onValue: (v: number) => void;
+}) {
+    return (
+        <div className="esharq-numcard">
+            <div className="esharq-numhead">
+                <span>{label}</span>
+                <Switch checked={enabled} onChange={v => { onToggle(v); if (v && value == null) onValue(def); }} />
+            </div>
+            <div className="esharq-numinput">
+                <input type="number" disabled={!enabled} value={value ?? ""} placeholder={String(def)}
+                    aria-label={label}
+                    onChange={e => { const n = parseInt(e.currentTarget.value, 10); if (Number.isFinite(n)) onValue(n); }} />
+                {unit !== undefined && <span className="esharq-numunit">{unit}</span>}
+            </div>
+            <span className="esharq-numnote">{hint}</span>
+        </div>
+    );
+}
+
+/**
+ * ملفات الإعدادات: اختيار/حفظ/جديد/نسخ/حذف. المحرّك يحفظها دائماً عبر
+ * `DataStore`، فكل ملف يبقى بعد إعادة تشغيل ديسكورد. الملفات الافتراضية
+ * لا تُحذف ولا يُكتب فوقها — ولهذا يُقاس الاسم عليها قبل الحفظ.
+ */
+function ProfileBar({ st }: { st: any; }) {
+    const [naming, setNaming] = useState(false);
+    const [nameInput, setNameInput] = useState("");
+
+    const name: string = st.currentProfile?.name ?? "";
+    const call = <T,>(fn: () => T, dflt: T): T => { try { return fn(); } catch { return dflt; } };
+    const profiles: { name: string; }[] = call(() => st.getProfiles(true), []);
+    const isDefault = call(() => st.isCurrentProfileADefaultProfile(), false);
+
+    const save = () => {
+        if (!naming) { setNameInput(name); setNaming(true); return; }
+        const nm = nameInput.trim();
+        if (!nm || call(() => st.getDefaultProfiles().some((v: any) => v.name === nm), false)) return;
+        st.saveProfile({ ...st.getCurrentProfile(), name: nm });
+        st.setCurrentProfile(st.getProfile(nm) || { name: "" });
+        setNaming(false);
+        flushTransmission();
+    };
+    const del = () => {
+        st.deleteProfile(st.currentProfile);
+        st.setCurrentProfile(call(() => st.getDefaultProfiles()[0], { name: "" }) ?? { name: "" });
+        flushTransmission();
+    };
+
+    return (
+        <Row label={t("ملف الإعدادات", "Profile")}
+            hint={name
+                ? t(`المحفوظ الحالي: ${name}`, `Currently saved: ${name}`)
+                : t("لم يُحفَظ بعد — احفظه باسم لتعود إليه لاحقاً.", "Not saved yet — save it under a name to come back to it later.")}>
+            <div className="esharq-profrow">
+                {naming ? (
+                    <div className="esharq-numinput">
+                        <input type="text" placeholder={t("اسم الملف…", "Profile name…")} value={nameInput}
+                            aria-label={t("اسم الملف", "Profile name")}
+                            onChange={e => setNameInput(e.currentTarget.value)}
+                            onKeyDown={e => { if (e.key === "Enter") save(); if (e.key === "Escape") setNaming(false); }} />
+                    </div>
+                ) : (
+                    <Select
+                        options={[
+                            ...(name === "" ? [{ label: t("(غير محفوظ)", "(unsaved)"), value: "" }] : []),
+                            ...profiles.map(pr => ({ label: pr.name, value: pr.name }))
+                        ]}
+                        serialize={String}
+                        isSelected={v => v === name}
+                        select={(v: string) => { st.setCurrentProfile(st.getProfile(v) || { name: "" }); flushTransmission(); }}
+                        closeOnSelect
+                    />
+                )}
+                <button type="button" className="esharq-pbtn" title={t("حفظ", "Save")} onClick={save}>{naming ? "✓" : "💾"}</button>
+                <button type="button" className="esharq-pbtn" title={t("جديد", "New")} disabled={naming}
+                    onClick={() => st.setCurrentProfile({ name: "" })}>＋</button>
+                <button type="button" className="esharq-pbtn" title={t("نسخ", "Duplicate")} disabled={naming}
+                    onClick={() => { st.setCurrentProfile({ ...st.getCurrentProfile(), name: "" }); setNameInput(""); setNaming(true); }}>⧉</button>
+                <button type="button" className="esharq-pbtn" title={t("حذف", "Delete")} disabled={naming || isDefault || !name} onClick={del}>🗑</button>
+            </div>
+        </Row>
+    );
+}
+
 function TransmissionCard({ index }: { index: number; }) {
     const st = microphoneStore.use();
     const { currentProfile: p } = st;
+    const simple = st.simpleMode ?? true;
     const stereoOn = isStereoEnabled();
     const engine = stereoEngineState();
 
@@ -158,6 +251,17 @@ function TransmissionCard({ index }: { index: number; }) {
     return (
         <Card index={index} title={t("النقل عالي الجودة", "High-quality transmission")}
             subtitle={t("جودة ما يُرسَل فعلاً إلى الطرف الآخر.", "The quality of what actually reaches the other side.")}>
+            <ProfileBar st={st} />
+
+            <FormSwitch
+                title={t("الوضع المبسّط", "Simple mode")}
+                description={simple
+                    ? t("مفعّل — خيارات سهلة. أطفئه لتظهر الإعدادات المتقدّمة.", "On — easy options. Turn it off to reveal the advanced settings.")
+                    : t("متقدّم — تحكّم كامل بمعاملات النقل.", "Advanced — full control over the transport parameters.")}
+                value={simple}
+                onChange={v => st.setSimpleMode(v)}
+            />
+
             <FormSwitch
                 title={t("ستيريو", "Stereo")}
                 description={t("قناتان بدل واحدة.", "Two channels instead of one.")}
@@ -172,10 +276,47 @@ function TransmissionCard({ index }: { index: number; }) {
                 </NoticeStrip>
             )}
 
-            <Row label={t("جودة الصوت", "Audio quality")}>
-                <Seg options={bitrates} value={p.voiceBitrate ?? 96}
-                    onPick={v => { st.setVoiceBitrate(v); st.setVoiceBitrateEnabled(true); flushTransmission(); }} />
-            </Row>
+            {simple ? (
+                <Row label={t("جودة الصوت", "Audio quality")}>
+                    <Seg options={bitrates} value={p.voiceBitrate ?? 96}
+                        onPick={v => { st.setVoiceBitrate(v); st.setVoiceBitrateEnabled(true); flushTransmission(); }} />
+                </Row>
+            ) : (
+                <>
+                    <Row label={`${t("معدّل البتّ", "Bitrate")} — ${p.voiceBitrate ?? 96} kbps`}>
+                        <input type="range" min={8} max={512} step={8} value={p.voiceBitrate ?? 96} style={{ width: "100%" }}
+                            aria-label={t("معدّل البتّ", "Bitrate")}
+                            onChange={e => { st.setVoiceBitrate(Number(e.currentTarget.value)); st.setVoiceBitrateEnabled(true); flushTransmission(); }} />
+                    </Row>
+                    <div className="esharq-numgrid">
+                        <NumberField label={t("القنوات", "Channels")} hint={t("‎1 = أحادي · 2 = ستيريو", "1 = mono · 2 = stereo")} def={2}
+                            enabled={p.channelsEnabled ?? false} value={p.channels}
+                            onToggle={v => { st.setChannelsEnabled(v); flushTransmission(); }}
+                            onValue={v => { st.setChannels(v); flushTransmission(); }} />
+                        <NumberField label={t("معدّل البيانات", "Sample rate")} hint={t("سرعة الترميز — الأعلى أوضح", "Encode rate — higher is clearer")} unit="Hz" def={48000}
+                            enabled={p.rateEnabled ?? false} value={p.rate}
+                            onToggle={v => { st.setRateEnabled(v); flushTransmission(); }}
+                            onValue={v => { st.setRate(v); flushTransmission(); }} />
+                        <NumberField label={t("تردّد العيّنات", "Frequency")} hint={t("عيّنات/ثانية — الافتراضي 48000", "Samples per second — default 48000")} unit="Hz" def={48000}
+                            enabled={p.freqEnabled ?? false} value={p.freq}
+                            onToggle={v => { st.setFreqEnabled(v); flushTransmission(); }}
+                            onValue={v => { st.setFreq(v); flushTransmission(); }} />
+                        <NumberField label={t("حجم الحزمة", "Packet size")} hint={t("عيّنات لكل حزمة — الافتراضي 960", "Samples per packet — default 960")} def={960}
+                            enabled={p.pacsizeEnabled ?? false} value={p.pacsize}
+                            onToggle={v => { st.setPacsizeEnabled(v); flushTransmission(); }}
+                            onValue={v => { st.setPacsize(v); flushTransmission(); }} />
+                    </div>
+                </>
+            )}
+
+            {/* تبديل الملف يُبدّل عدّة قيَم دفعةً واحدة، فيلزم دفعها كلّها إلى المكالمة الجارية. */}
+            <button type="button" onClick={flushTransmission}
+                style={{
+                    width: "100%", marginTop: UNIT * 2, padding: `${UNIT * 1.2}px`, borderRadius: 9,
+                    border: "none", cursor: "pointer", background: SURFACE[3], color: "var(--text-normal)", fontSize: 13
+                }}>
+                {t("✓ تطبيق على المكالمة الجارية", "✓ Apply to the current call")}
+            </button>
 
             {engine === false && (
                 <NoticeStrip tone="danger">

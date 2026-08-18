@@ -138,3 +138,97 @@
     color: #14140f;
     font-weight: 600;
 }
+
+/* ── شريط ملفات الإعدادات ────────────────────────────────────────────────── */
+.esharq-profrow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.esharq-profrow > :first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.esharq-pbtn {
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 8px;
+    background: #ffffff0d;
+    color: var(--text-normal);
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 140ms ease;
+}
+
+.esharq-pbtn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.esharq-pbtn:hover:not(:disabled) {
+    background: #ffffff1c;
+}
+
+/* ── حقل رقمي بمفتاح ─────────────────────────────────────────────────────── */
+.esharq-numgrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 10px;
+}
+
+.esharq-numcard {
+    background: #ffffff08;
+    border-radius: 9px;
+    padding: 12px 14px;
+}
+
+.esharq-numhead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.esharq-numhead > span {
+    font-size: 13px;
+}
+
+.esharq-numinput {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+}
+
+.esharq-numinput > input {
+    width: 100%;
+    min-width: 0;
+    padding: 6px 9px;
+    border: none;
+    border-radius: 7px;
+    background: #00000038;
+    color: var(--text-normal);
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+}
+
+.esharq-numinput > input:disabled {
+    opacity: 0.4;
+}
+
+.esharq-numunit {
+    font-size: 11px;
+    opacity: 0.5;
+}
+
+.esharq-numnote {
+    display: block;
+    margin-top: 7px;
+    font-size: 11px;
+    opacity: 0.45;
+    line-height: 1.5;
+}
