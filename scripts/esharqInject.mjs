@@ -132,13 +132,34 @@ const BACKUP = join(RESOURCES, "_app.asar");
 const PAYLOAD_DIR = join(process.env.APPDATA ?? process.env.HOME ?? ".", "Esharq");
 const PAYLOAD = join(PAYLOAD_DIR, "esharq.asar");
 
-/** هل `app.asar` الحالي أرشيفنا نحن؟ */
 /**
- * هل النصّ يحيل إلى حمولتنا؟ يُقارَن بالشكلين لأن `index.js` كود جافاسكربت،
- * فالشرطات المائلة فيه مضاعفة (`C:\\Users\\…`) لا مفردة.
+ * مدخل بناء المطوّر داخل المستودع نفسه.
+ *
+ * 🔴 **لماذا مسارٌ لا نسخة**: مُحدِّث إشراق في بناء المطوّر يمرّ عبر git
+ * (`IS_STANDALONE === false` ⇒ `src/main/updater/git.ts`)، وهو يشتقّ مكان
+ * المستودع من `__dirname` وحده: `join(__dirname, "..")` للأوامر و
+ * `join(__dirname, "../../")` لتشغيل البناء. فحين تُنسَخ الحزمة إلى
+ * `%APPDATA%` ينقطع هذا الاشتقاق ويسأل git عن مستودعٍ في مجلد بيانات، فيردّ
+ * `fatal: not a git repository` — وهو ما كان يظهر في صفحة المُحدِّث.
+ *
+ * والتحميل من `dist/desktop/patcher.js` يجعل `__dirname` هو `dist/desktop`،
+ * فيصير مسار git هو `dist` (وgit يصعد إلى أب المستودع فيجده) ومسار البناء هو
+ * جذر المستودع تماماً. وميزةٌ ثانية: `pnpm build` وحده يكفي بعدها — لا إعادة
+ * حقن، لأن ديسكورد يقرأ الملفّ المبنيّ نفسه لا نسخةً منه.
  */
-function referencesOurPayload(text) {
-    return text.includes(PAYLOAD_DIR) || text.includes(PAYLOAD_DIR.split("\\").join("\\\\"));
+const DEV_ENTRY = join(ROOT, "dist", "desktop", "patcher.js");
+
+/**
+ * هل النصّ يحيل إلى ما نُحمّله؟ يُفحص الهدفان معاً — الحزمة المنسوخة ومدخل
+ * المستودع — فيبقى التعرّف على تثبيتنا صحيحاً أيّاً كان الوضع الذي رُكّب به،
+ * وهذا ما يعتمد عليه التراجع ورفض لمس تثبيت مُعدِّلٍ آخر.
+ *
+ * ويُقارَن بالشكلين لأن `index.js` كود جافاسكربت، فالشرطات المائلة فيه
+ * مضاعفة (`C:\\Users\\…`) لا مفردة.
+ */
+function referencesOurLoad(text) {
+    return [PAYLOAD_DIR, DEV_ENTRY].some(path =>
+        text.includes(path) || text.includes(path.split("\\").join("\\\\")));
 }
 
 /**
@@ -158,7 +179,7 @@ function isOurs() {
         const index = join(APP, "index.js");
         if (!existsSync(index)) return false;
         try {
-            return referencesOurPayload(readFileSync(index, "utf8"));
+            return referencesOurLoad(readFileSync(index, "utf8"));
         } catch {
             return false;
         }
@@ -172,7 +193,7 @@ function isOurs() {
     // احتياط: أرشيف بلا علامة لكنه يُحمّل حمولتنا (نسخة أقدم من المُثبِّت).
     try {
         const raw = readAsarFile(APP, "index.js");
-        return raw !== undefined && referencesOurPayload(raw.toString("utf8"));
+        return raw !== undefined && referencesOurLoad(raw.toString("utf8"));
     } catch {
         return false;
     }
@@ -188,24 +209,55 @@ if (uninstall) {
         renameSync(BACKUP, APP);
     });
     console.log(`✔ أُلغي التثبيت وأُعيد app.asar الأصلي — ${RESOURCES}`);
-    console.log(`  الحمولة باقية في ${PAYLOAD}، احذفها يدوياً إن أردت.`);
+    if (existsSync(PAYLOAD)) console.log(`  الحمولة باقية في ${PAYLOAD}، احذفها يدوياً إن أردت.`);
     process.exit(0);
 }
 
 // ── التثبيت ──────────────────────────────────────────────────────────
 const BUILT = join(ROOT, "dist", "desktop.asar");
-if (!existsSync(BUILT)) fail("لا يوجد dist/desktop.asar — شغّل `pnpm build` أوّلاً");
+
+/**
+ * أي بناءٍ في `dist`؟ يُقرأ من ترويسة `patcher.js` نفسها — يكتبها البنّاء
+ * (`banner` في `scripts/build/common.mjs`) في أوّل أربعة أسطر.
+ *
+ * 🔴 **لا رايةً يدوية**: الوضع يتبع ما بُني فعلاً، لأن اختلافهما هو الخطأ
+ * كلّه. `pnpm build` ⇒ بناء مطوّر يُحدَّث بـgit ⇒ يجب تحميله من المستودع.
+ * `pnpm buildStandalone` ⇒ بناء الإصدار العام يُحدَّث عبر HTTP ⇒ حزمةٌ
+ * منسوخة مستقلّة عن أي مستودع. ورايةٌ تُنسى تُنتج تثبيتاً يبدو سليماً
+ * ومُحدِّثه معطوب — وهو ما وقع فعلاً.
+ */
+function builtIsStandalone() {
+    if (!existsSync(DEV_ENTRY)) return undefined;
+    const header = readFileSync(DEV_ENTRY, "utf8").slice(0, 200);
+    const match = header.match(/^\/\/ Standalone: (true|false)$/m);
+    return match === null ? undefined : match[1] === "true";
+}
+
+const standalone = builtIsStandalone();
+if (standalone === undefined) {
+    fail("لا يوجد بناء صالح في dist/desktop — شغّل `pnpm build` (مطوّر) أو `pnpm buildStandalone` (إصدار) أوّلاً");
+}
+
+// وضع الإصدار وحده يحتاج الأرشيف المحزوم؛ وضع المطوّر يُحمّل من `dist` رأساً.
+if (standalone && !existsSync(BUILT)) {
+    fail("لا يوجد dist/desktop.asar — شغّل `pnpm buildStandalone` أوّلاً");
+}
+
+/** ما سيُحمّله ديسكورد فعلاً. */
+const TARGET = standalone ? PAYLOAD : DEV_ENTRY;
 
 // 🔴 تثبيت مُعدِّل آخر: نتوقّف. استبداله يكسر تثبيته ويُلام عليه إشراق.
 if (existsSync(BACKUP) && !isOurs()) {
     fail("_app.asar موجود و app.asar ليس أرشيفنا — مُعدِّل آخر مثبَّت. أزله أوّلاً.");
 }
 
-mkdirSync(PAYLOAD_DIR, { recursive: true });
-copyFileSync(BUILT, PAYLOAD);
+if (standalone) {
+    mkdirSync(PAYLOAD_DIR, { recursive: true });
+    copyFileSync(BUILT, PAYLOAD);
+}
 
 const indexJs = `// مُولَّد بواسطة إشراق — لا تُحرّره.
-require(${JSON.stringify(PAYLOAD)});
+require(${JSON.stringify(TARGET)});
 `;
 
 const packageJson = JSON.stringify({
@@ -227,7 +279,7 @@ function bridgeIsCurrent() {
 
     try {
         const raw = readAsarFile(APP, "index.js");
-        return raw !== undefined && raw.toString("utf8").includes(JSON.stringify(PAYLOAD));
+        return raw !== undefined && raw.toString("utf8").includes(JSON.stringify(TARGET));
     } catch {
         return false;
     }
@@ -261,7 +313,17 @@ console.log(`✔ ثُبِّت إشراق في ${RESOURCES}`);
 // يُقال الفرع صراحةً: بلا وسائط يُختار المستقرّ، ومن ظنّ أنه يحقن كناري
 // يرى هنا أنه لم يفعل — بدل أن يكتشفه بعد إعادة تشغيل لا تُغيّر شيئاً.
 console.log(`  الفرع     : ${branch ?? "stable (افتراضي)"}`);
+console.log(`  الوضع     : ${standalone ? "إصدار عام (standalone) — تحديث عبر HTTP" : "بناء مطوّر — تحديث عبر git من المستودع"}`);
 console.log(`  app.asar  : أرشيفنا (${statSync(APP).size} بايت)`);
 console.log(`  _app.asar : ديسكورد الأصلي (${(statSync(BACKUP).size / 1048576).toFixed(2)} MB)`);
-console.log(`  الحمولة   : ${PAYLOAD} (${(statSync(PAYLOAD).size / 1048576).toFixed(2)} MB)`);
-console.log("\nأعد تشغيل ديسكورد ليسري.");
+console.log(`  يُحمَّل من : ${TARGET} (${(statSync(TARGET).size / 1048576).toFixed(2)} MB)`);
+
+if (standalone) {
+    console.log("\nأعد تشغيل ديسكورد ليسري.");
+} else {
+    // يُقال صراحةً: بناء المطوّر مرتبط بمسار المستودع، فنقله أو حذفه يُعطّل
+    // ديسكورد — وهو ثمن ارتباطٍ يجعل المُحدِّث والبناء يعملان من داخل العميل.
+    console.log(`\n  ⚠ مرتبط بالمستودع في ${ROOT} — نقله أو حذفه يمنع إقلاع ديسكورد.`);
+    console.log("    وبعدها يكفي `pnpm build` + إعادة تشغيل ديسكورد؛ لا إعادة حقن.");
+    console.log("\nأعد تشغيل ديسكورد ليسري.");
+}

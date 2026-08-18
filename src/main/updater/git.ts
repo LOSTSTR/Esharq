@@ -55,7 +55,12 @@ async function calculateGitChanges() {
     const existsOnOrigin = (await git("ls-remote", "origin", branch)).stdout.length > 0;
     if (!existsOnOrigin) return [];
 
-    const res = await git("log", `HEAD...origin/${branch}`, "--pretty=format:%an/%h/%s");
+    // 🔴 نقطتان لا ثلاث: `HEAD...origin/x` فرقٌ **متناظر**، فيسرد ما عندنا
+    // وما عندهم معاً — فمن كان متقدّماً على origin (وهو حال كل من يبني محلياً
+    // قبل الرفع) يرى التزاماته هو معروضةً «تحديثات متاحة»، ثم لا يُغيّر السحب
+    // شيئاً. و`HEAD..origin/x` يسرد ما ينقصنا وحده، وهو المعنى المقصود.
+    // ومن كان متأخّراً فقط — وهو الحال الشائع — يرى الشيء نفسه بلا فرق.
+    const res = await git("log", `HEAD..origin/${branch}`, "--pretty=format:%an/%h/%s");
 
     const commits = res.stdout.trim();
     return commits ? commits.split("\n").map(line => {
