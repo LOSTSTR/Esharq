@@ -6,13 +6,16 @@
 
 import "./motion.css";
 
+import { Button } from "@components/Button";
 import { FormSwitch } from "@components/FormSwitch";
 import { applyArabicFont, ARABIC_FONTS } from "@utils/esharqFont";
 import { t } from "@utils/esharqI18n";
 import { ARABIC_LOCALE, arabicTableSize } from "@utils/esharqLocale";
 import { readArabicFont, readPluginsArabic, writeEsharqPref } from "@utils/esharqPrefs";
-import { Forms, Select, UserSettingsActionCreators, useState } from "@webpack/common";
+import { relaunch } from "@utils/native";
+import { Alerts, Forms, Select, UserSettingsActionCreators, useState } from "@webpack/common";
 
+import { NoticeStrip } from "./Card";
 import { stagger } from "./motion";
 import { ACCENT, RADIUS, SURFACE, UNIT } from "./tokens";
 
@@ -69,6 +72,12 @@ function Card({ title, subtitle, children, index }: {
 export function LanguagePage() {
     const [locale, setLocaleState] = useState(currentLocale());
     const [pluginsArabic, setPluginsArabic] = useState(readPluginsArabic());
+
+    // 🔴 لغة الإضافات **لقطة مجمَّدة** عند الإقلاع: تُقرأ مرّة ثم تُثبَّت،
+    // فتبديلها لا يُغيّر حرفاً على الشاشة حتى يُعاد التشغيل. وكان النصّ
+    // يقول «يتطلّب إعادة تشغيل» ولا يعطي وسيلةً لفعله — فيبدو المفتاح
+    // معطوباً. الآن يُعرَض الفعل نفسه، ويبقى معروضاً إن أُغلق التنبيه.
+    const [restartPending, setRestartPending] = useState(false);
     const [font, setFont] = useState(String(readArabicFont() ?? "tajawal"));
 
     const arabicOn = locale === ARABIC_LOCALE;
@@ -115,6 +124,21 @@ export function LanguagePage() {
                     onChange={(value: boolean) => {
                         writeEsharqPref("pluginsArabic", value);
                         setPluginsArabic(value);
+                        setRestartPending(true);
+
+                        // على الويب لا `relaunch`، فلا يُعرض زرٌّ يكذب.
+                        if (IS_WEB) return;
+
+                        Alerts.show({
+                            title: t("إعادة تشغيل مطلوبة", "Restart required"),
+                            body: t(
+                                "لغة الإضافات تُقرأ مرّة واحدة عند إقلاع العميل، فلن يظهر التغيير قبل إعادة التشغيل.",
+                                "The plugins language is read once at start-up, so the change will not appear until Discord restarts."
+                            ),
+                            confirmText: t("إعادة التشغيل الآن", "Restart now"),
+                            cancelText: t("لاحقاً", "Later"),
+                            onConfirm: relaunch
+                        });
                     }}
                     title={t("عرّب أوصاف الإضافات وإعداداتها", "Localize plugin descriptions and settings")}
                     description={t(
@@ -123,6 +147,31 @@ export function LanguagePage() {
                     )}
                     hideBorder
                 />
+
+                {/* يبقى الفعل معروضاً بعد إغلاق التنبيه: من أجّل إعادة التشغيل
+                    يحتاج طريقاً إليه لاحقاً، لا أن يُبدّل المفتاح مرّتين. */}
+                {restartPending && (
+                    <NoticeStrip>
+                        <div style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            gap: UNIT * 2,
+                            flexWrap: "wrap"
+                        }}>
+                            <span>
+                                {IS_WEB
+                                    ? t("أعد تحميل الصفحة ليسري تغيير لغة الإضافات.", "Reload the page for the plugins-language change to take effect.")
+                                    : t("التغيير محفوظ، ويسري بعد إعادة تشغيل ديسكورد.", "The change is saved and takes effect once Discord restarts.")}
+                            </span>
+                            {!IS_WEB && (
+                                <Button className="esharq-press" size="small" onClick={relaunch}>
+                                    {t("إعادة التشغيل الآن", "Restart now")}
+                                </Button>
+                            )}
+                        </div>
+                    </NoticeStrip>
+                )}
             </Card>
 
             <Card
