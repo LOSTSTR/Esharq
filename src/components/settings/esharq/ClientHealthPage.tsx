@@ -168,6 +168,7 @@ export function ClientHealthPage() {
                 badge={healthy
                     ? t("لا خلل ظاهر", "Nothing wrong")
                     : t(`${stalled.length} إضافة متعثّرة`, `${stalled.length} stalled`)}
+                badgeTone={healthy ? "ok" : "danger"}
             />
 
             {!healthy && (
@@ -179,6 +180,7 @@ export function ClientHealthPage() {
                         "These are enabled in your settings but their start-up threw, so they are doing nothing. The reason is written in the developer console."
                     )}
                     badge={String(stalled.length)}
+                    badgeTone="danger"
                 >
                     <NoticeStrip tone="danger">
                         {t(
@@ -227,6 +229,7 @@ export function ClientHealthPage() {
                     "The figure above, opened up: ten you have no say in, the interfaces that serve the rest, and what you chose yourself."
                 )}
                 badge={String(running.length)}
+                badgeTone="ok"
             >
                 <StatusRow
                     index={0}

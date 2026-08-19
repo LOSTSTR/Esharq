@@ -9,7 +9,7 @@ import "./motion.css";
 import { React } from "@webpack/common";
 
 import { stagger } from "./motion";
-import { ACCENT, RADIUS, SURFACE, UNIT } from "./tokens";
+import { ACCENT, ACCENT_SOFT, RADIUS, SURFACE, UNIT } from "./tokens";
 
 /**
  * بطاقة إشراق — **الوحدة البنائية لكل صفحة**.
@@ -18,14 +18,32 @@ import { ACCENT, RADIUS, SURFACE, UNIT } from "./tokens";
  * ونسخُها مرّةً ثانية يعني أن أي تعديل في الشكل يجب أن يُتذكَّر في موضعين —
  * وهو ما لا يحدث أبداً.
  */
-export function Card({ title, subtitle, badge, index = 0, children }: {
+/**
+ * نبرة الوسم: اللون يحمل المعنى **مع النصّ لا بدلاً منه** — فمن لا يميّز
+ * الألوان يقرأ الحال مكتوباً كما هو.
+ *
+ * `ok` ما يعمل · `danger` ما لا يعمل أو ينقص · `warn` ما يحتاج انتباهاً ·
+ * `info` وصفٌ محايد (اختياري · المنصّة · عدد) — وهو الافتراضي.
+ */
+export type BadgeTone = "ok" | "danger" | "warn" | "info";
+
+const BADGE_TONES: Record<BadgeTone, { fg: string; bg: string; }> = {
+    ok: { fg: "var(--status-positive, #23a55a)", bg: "rgb(35 165 90 / 14%)" },
+    danger: { fg: "var(--status-danger, #f23f43)", bg: "rgb(242 63 67 / 14%)" },
+    warn: { fg: ACCENT, bg: ACCENT_SOFT },
+    info: { fg: "var(--text-muted)", bg: SURFACE[3] }
+};
+
+export function Card({ title, subtitle, badge, badgeTone = "info", index = 0, children }: {
     title: string;
     subtitle?: string;
     /** وسم صغير في زاوية العنوان — لحال أو صيغة. */
     badge?: string;
+    badgeTone?: BadgeTone;
     index?: number;
     children?: React.ReactNode;
 }) {
+    const tone = BADGE_TONES[badgeTone];
     return (
         <div className="esharq-rise" style={{
             ...stagger(index),
@@ -39,10 +57,11 @@ export function Card({ title, subtitle, badge, index = 0, children }: {
                 {badge !== undefined && (
                     <span style={{
                         fontSize: 11,
+                        fontWeight: 600,
                         padding: `2px ${UNIT}px`,
                         borderRadius: 999,
-                        background: SURFACE[3],
-                        color: "var(--text-muted)",
+                        background: tone.bg,
+                        color: tone.fg,
                         whiteSpace: "nowrap"
                     }}>
                         {badge}

@@ -103,6 +103,7 @@ function Updater() {
                 badge={isNewer
                     ? t("إصدار أحدث من المستودع", "Ahead of the repository")
                     : t("جاهز", "Ready")}
+                badgeTone={isNewer ? "warn" : "ok"}
             />
 
             <Card

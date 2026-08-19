@@ -378,7 +378,8 @@ export function VoiceLabPage() {
                 title={t("المفتاح الرئيسي", "Master switch")}
                 subtitle={t("حين يُطفأ، تحكم إعدادات ديسكورد نفسها ولا يُفرَض شيء على مكالماتك.",
                     "When off, Discord's own settings rule and nothing is forced onto your calls.")}
-                badge={s.inCall ? t("في مكالمة", "In a call") : t("خارج مكالمة", "Not in a call")}>
+                badge={s.inCall ? t("في مكالمة", "In a call") : t("خارج مكالمة", "Not in a call")}
+                badgeTone={s.inCall ? "ok" : "info"}>
                 <FormSwitch
                     title={t("تطبيق مختبر الصوت على كل المكالمات", "Apply Voice Lab to every call")}
                     description={t("إعداداتك تُعاد على كل مكالمة تفتحها، لا على الحالية وحدها.",

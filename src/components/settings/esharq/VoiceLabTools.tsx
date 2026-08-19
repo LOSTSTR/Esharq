@@ -132,7 +132,7 @@ export function VoiceLabTools({ index, patchedClients, onChanged }: {
                 title={t("أدوات خارجية", "External tools")}
                 subtitle={t("برامج ليست من إشراق. لا يُنزَّل منها شيء إلّا إن ضغطتَ «تثبيت» بنفسك.",
                     "Programs that are not part of Esharq. Nothing is downloaded unless you press Install yourself.")}
-                badge={t("اختياري", "Optional")}>
+                badge={t("اختياري", "Optional")} badgeTone="warn">
                 <NoticeStrip>
                     {t("إشراق لا يحزم هذه الأدوات ولا يُنزّلها عند تثبيته. وهي تبقى كما يشحنها أصحابها — والمصادر مكتوبة في كل بطاقة لمن أراد قراءتها قبل التثبيت.",
                         "Esharq neither bundles these tools nor downloads them at install time. They stay exactly as their authors ship them, and each card lists its sources so you can read them first.")}
@@ -145,7 +145,8 @@ export function VoiceLabTools({ index, patchedClients, onChanged }: {
                 title={t("ستيريو Stereo Hub", "Stereo Hub")}
                 subtitle={t("أداة مستقلّة تستبدل وحدة صوت ديسكورد بنسخة مُرقَّعة تُلغي المرشّحات وترفع معدّل البتّ.",
                     "A standalone tool that swaps Discord's voice module for a patched build with filters off and a higher bitrate.")}
-                badge={status?.stereoHub.installed === true ? t("مثبَّتة", "Installed") : t("غير مثبَّتة", "Not installed")}>
+                badge={status?.stereoHub.installed === true ? t("مثبَّتة", "Installed") : t("غير مثبَّتة", "Not installed")}
+                badgeTone={status?.stereoHub.installed === true ? "ok" : "danger"}>
 
                 {status?.stereoHub.installed !== true ? (
                     <>
@@ -224,7 +225,8 @@ export function VoiceLabTools({ index, patchedClients, onChanged }: {
                 title={t("مغيّر الصوت VCClient", "VCClient voice changer")}
                 subtitle={t("برنامج مستقلّ يُحوّل صوتك آنيّاً بنماذج ذكاء اصطناعي، ويُدخله ديسكورد عبر جهاز صوت افتراضي.",
                     "A standalone program that converts your voice in real time with AI models; Discord receives it through a virtual audio device.")}
-                badge={status?.vcClient.installed === true ? t("مثبَّت", "Installed") : t("غير مثبَّت", "Not installed")}>
+                badge={status?.vcClient.installed === true ? t("مثبَّت", "Installed") : t("غير مثبَّت", "Not installed")}
+                badgeTone={status?.vcClient.installed === true ? "ok" : "danger"}>
 
                 <NoticeStrip>
                     {t("لماذا برنامج خارجي؟ ديسكورد يلتقط الميكروفون في وحدته الأصلية، ولا تملك أي إضافة باباً تُسلّمه صوتاً مُعالَجاً. فكل مغيّرات الصوت الحيّة — بلا استثناء — تمرّ عبر جهاز صوت افتراضي.",
