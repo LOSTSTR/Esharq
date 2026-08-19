@@ -23,6 +23,12 @@ const Native = IS_DISCORD_DESKTOP
     ? (VencordNative.pluginHelpers.MicPro as PluginNative<typeof import("./native")>)
     : null;
 
+/**
+ * الجسر الأصلي نفسه، مكشوفاً لصفحة المختبر: أدوات القسم الخارجي تعيش في
+ * العملية الرئيسية (تنزيل · تحقّق · تشغيل)، ولا يصحّ أن يُعرَّف الجسر مرّتين.
+ */
+export const MicProNative = Native;
+
 export type NoiseMode = "none" | "standard" | "krisp";
 
 export const DEFAULT_AGC = {

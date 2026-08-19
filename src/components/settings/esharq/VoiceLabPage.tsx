@@ -12,7 +12,7 @@ import { Switch } from "@components/Switch";
 import { microphoneStore } from "@plugins/_micProEngine/stores";
 import { flushTransmission, transmissionReady } from "@plugins/MicPro";
 import {
-    apply, isLoopbackOn, isStereoEnabled, type NoiseMode, openLevelStream,
+    apply, isLoopbackOn, isStereoEnabled, MicProNative, type NoiseMode, openLevelStream,
     readState, setLoopback, stereoEngineState, toggleStereo
 } from "@plugins/MicPro/engine";
 import { settings as micSettings } from "@plugins/MicPro/settings";
@@ -24,6 +24,7 @@ import { FluxDispatcher, MediaEngineStore, React, Select, useEffect, useRef, use
 import { Card, NoticeStrip } from "./Card";
 import { Knob } from "./Knob";
 import { ACCENT, SURFACE, UNIT } from "./tokens";
+import { VoiceLabTools } from "./VoiceLabTools";
 
 /**
  * صفحة **مختبر الصوت** — كل ما يخصّ صوتك الخارج في موضع واحد:
@@ -234,7 +235,7 @@ function ProfileBar({ st }: { st: any; }) {
     );
 }
 
-function TransmissionCard({ index }: { index: number; }) {
+function TransmissionCard({ index, diskPatched }: { index: number; diskPatched: boolean; }) {
     const st = microphoneStore.use();
     const { currentProfile: p } = st;
     const simple = st.simpleMode ?? true;
@@ -264,8 +265,12 @@ function TransmissionCard({ index }: { index: number; }) {
 
             <FormSwitch
                 title={t("ستيريو", "Stereo")}
-                description={t("قناتان بدل واحدة.", "Two channels instead of one.")}
-                value={stereoOn}
+                description={diskPatched
+                    ? t("مُعطَّل: وحدة صوت ديسكورد مُرقَّعة على القرص بأداة خارجية، وهي تستهدف ما يستهدفه ستيريو إشراق.",
+                        "Disabled: Discord's voice module is patched on disk by an external tool, which targets what Esharq's stereo targets.")
+                    : t("قناتان بدل واحدة.", "Two channels instead of one.")}
+                value={stereoOn && !diskPatched}
+                disabled={diskPatched}
                 onChange={v => toggleStereo(st, v, flushTransmission)}
             />
 
@@ -334,6 +339,15 @@ export function VoiceLabPage() {
     const [master, setMaster] = useState(micSettings.store.applyToCalls);
     const level = useLiveLevel(true);
     const engineEnabled = isPluginEnabled("MicPro");
+    // ترقيع القرص يُقاس من **بصمة ملفّ ديسكورد نفسه** لا من وجود الأداة: قد
+    // تُحذف الأداة ويبقى الترقيع، فالحال التي تهمّ هي حال ديسكورد.
+    const [diskPatched, setDiskPatched] = useState(false);
+    const readPatchState = () => {
+        MicProNative?.voicePatchState()
+            .then(r => setDiskPatched(r.patched > 0))
+            .catch(() => setDiskPatched(false));
+    };
+    useEffect(readPatchState, []);
 
     // زامِن الحالة حيّاً: نستمع لتغيّرات محرّك الصوت (بدء/إنهاء مكالمة، تبديل جهاز…)
     // ونُحدّث كل ثانية كشبكة أمان لكشف الدخول/الخروج من المكالمة.
@@ -457,7 +471,7 @@ export function VoiceLabPage() {
                 />
             </Card>
 
-            {engineEnabled && transmissionReady() && <TransmissionCard index={4} />}
+            {engineEnabled && transmissionReady() && <TransmissionCard index={4} diskPatched={diskPatched} />}
 
             <Card index={5} title={t("اختبار الميكروفون", "Microphone test")}
                 subtitle={t("تسمع نفسك كما يسمعك الآخرون — بمرور صوتك في المسار نفسه.",
@@ -476,6 +490,8 @@ export function VoiceLabPage() {
                     {testing ? t("⏹  إيقاف الاختبار", "⏹  Stop test") : t("🎧  اسمع نفسك", "🎧  Hear yourself")}
                 </button>
             </Card>
+
+            <VoiceLabTools index={6} patchedClients={diskPatched ? 1 : 0} onChanged={readPatchState} />
         </>
     );
 }

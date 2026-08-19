@@ -67,9 +67,11 @@
 import { DATA_DIR } from "@main/utils/constants";
 import { downloadToFile } from "@main/utils/http";
 import { VENCORD_USER_AGENT } from "@shared/vencordUserAgent";
+import { spawn, spawnSync } from "child_process";
 import { createHash } from "crypto";
-import { IpcMainInvokeEvent } from "electron";
-import { existsSync, mkdirSync, readFileSync, renameSync, unlinkSync } from "fs";
+import { dialog, IpcMainInvokeEvent, shell } from "electron";
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, unlinkSync, writeFileSync } from "fs";
+import { homedir } from "os";
 import { join } from "path";
 
 const PRELOAD_WORLD_ID = 999;
@@ -183,4 +185,202 @@ export async function applyPatches(_event: IpcMainInvokeEvent) {
 
     if (result == null) throw new Error("Isolated-world execution returned no result");
     return { assetSource: "pinned d849d17", ...result };
+}
+
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * أدوات مختبر الصوت الخارجية — **تُثبَّت بقرار المستخدم وحده**.
+ *
+ * لا شيء هنا يُنزَّل مع إشراق ولا عند تثبيته: كل تنزيل يبدأ بضغطة زرّ صريحة
+ * بعد تحذير مكتوب. والأدوات تبقى **كما يشحنها أصحابها** — لا نُعدّلها ولا
+ * نُعيد كتابتها، فمن أراد قراءة مصدرها وجده كما هو.
+ *
+ * ما نُضيفه نحن هو ما ينقصها: **التثبيت على التزام بعينه والتحقّق بـSHA-256**
+ * قبل أي استعمال. أداة Stereo Hub تُنزّل نفسها من فرع متحرّك بلا أي بصمة،
+ * فنسخة إشراق تأخذ الملفّ من التزام مُجمَّد وتتحقّق من بايتاته.
+ * ───────────────────────────────────────────────────────────────────────────── */
+
+const TOOLS_DIR = join(DATA_DIR, "tools");
+const TOOLS_STATE = join(TOOLS_DIR, "state.json");
+
+/** ملفّ Stereo Hub مثبَّتاً على التزام `5e96ff0` (2026-07-01) ومُتحقَّقاً ببصمته. */
+const STEREO_HUB = {
+    commit: "5e96ff026df45151d90b309cdece9dc82ec2267b",
+    sha256: "bdd071b20e69b1bf6d357eaa96b8cefe07e10437058d582decefa4deb4b12510",
+    size: 66088,
+    url: "https://raw.githubusercontent.com/ProdHallow/Discord-Stereo-Windows-MacOS-Linux/5e96ff026df45151d90b309cdece9dc82ec2267b/STEREO%20HUB/discord_stereo_hub.py",
+    file: join(TOOLS_DIR, "stereo-hub", "discord_stereo_hub.py")
+} as const;
+
+/**
+ * بصمة وحدة الصوت التي يزرعها Stereo Hub (نسخة بناء 1.0.9243 وقد غُيّر فيها
+ * 836 بايتاً). وجودها يعني أن ديسكورد مُرقَّع على القرص — فيتعارض مع ستيريو
+ * MicPro الذي يُرقّع في الذاكرة.
+ */
+const STEREO_HUB_NODE_SHA256 = "dccda1f5770572523429abca88dcb3a5bbbca7b7703e119391ad3751fafb7a42";
+
+interface ToolsState {
+    /** مسار برنامج مغيّر الصوت كما حدّده المستخدم — نحن لا نُنزّله. */
+    vcClientPath?: string;
+}
+
+function readToolsState(): ToolsState {
+    try {
+        return JSON.parse(readFileSync(TOOLS_STATE, "utf8")) as ToolsState;
+    } catch {
+        return {};
+    }
+}
+
+function writeToolsState(state: ToolsState) {
+    mkdirSync(TOOLS_DIR, { recursive: true });
+    writeFileSync(TOOLS_STATE, JSON.stringify(state, null, 2));
+}
+
+/** أوّل أمر بايثون يعمل فعلاً. `py` مُشغّل ويندوز الرسمي و`python3` لبقيّة الأنظمة. */
+function findPython(): string | null {
+    for (const [cmd, args] of [["py", ["-3", "--version"]], ["python3", ["--version"]], ["python", ["--version"]]] as const) {
+        try {
+            const { status } = spawnSync(cmd, args, { timeout: 4000, windowsHide: true });
+            if (status === 0) return cmd;
+        } catch { /* المحاولة التالية */ }
+    }
+    return null;
+}
+
+/** كل مجلدات `discord_voice` لعملاء ديسكورد المثبَّتة على هذا الجهاز. */
+function discordVoiceNodes(): string[] {
+    const roots = process.platform === "win32"
+        ? ["Discord", "DiscordCanary", "DiscordPTB", "DiscordDevelopment"].map(n => join(process.env.LOCALAPPDATA ?? "", n))
+        : [join(homedir(), ".config")];
+
+    const out: string[] = [];
+    for (const root of roots) {
+        if (!existsSync(root)) continue;
+        try {
+            for (const app of readdirSync(root)) {
+                if (!app.startsWith("app-")) continue;
+                const modules = join(root, app, "modules");
+                if (!existsSync(modules)) continue;
+                for (const mod of readdirSync(modules)) {
+                    if (!mod.startsWith("discord_voice")) continue;
+                    const node = join(modules, mod, "discord_voice", "discord_voice.node");
+                    if (existsSync(node)) out.push(node);
+                }
+            }
+        } catch { /* عميل لا نملك قراءته — نتخطّاه */ }
+    }
+    return out;
+}
+
+/**
+ * هل وحدة صوت ديسكورد مُرقَّعة على القرص؟
+ *
+ * الجواب من **بصمة الملفّ نفسه** لا من وجود الأداة: المستخدم قد يحذف الأداة
+ * ويبقى الترقيع، أو يُبقيها بلا ترقيع. والحالة التي تهمّ هي حال ديسكورد.
+ */
+export function voicePatchState(_event: IpcMainInvokeEvent) {
+    const nodes = discordVoiceNodes();
+    let patched = 0;
+    for (const node of nodes) {
+        try {
+            if (sha256(node) === STEREO_HUB_NODE_SHA256) patched++;
+        } catch { /* ملفّ مقفل أثناء التشغيل — يُعدّ غير مُرقَّع */ }
+    }
+    return { clients: nodes.length, patched };
+}
+
+export function toolsStatus(_event: IpcMainInvokeEvent) {
+    const state = readToolsState();
+    const vcPath = state.vcClientPath;
+    return {
+        stereoHub: {
+            installed: existsSync(STEREO_HUB.file) && sha256(STEREO_HUB.file) === STEREO_HUB.sha256,
+            path: STEREO_HUB.file,
+            python: findPython()
+        },
+        vcClient: {
+            installed: vcPath !== undefined && existsSync(vcPath),
+            path: vcPath ?? null
+        }
+    };
+}
+
+/** يُنزّل Stereo Hub كما يشحنه صاحبه، من التزام مُجمَّد، ولا يُقبل إلّا ببصمته. */
+export async function installStereoHub(_event: IpcMainInvokeEvent) {
+    mkdirSync(join(TOOLS_DIR, "stereo-hub"), { recursive: true });
+    const tmp = `${STEREO_HUB.file}.download`;
+    try {
+        await downloadToFile(STEREO_HUB.url, tmp, { headers: { "User-Agent": VENCORD_USER_AGENT } });
+        const actual = sha256(tmp);
+        if (actual !== STEREO_HUB.sha256) {
+            throw new Error(`Stereo Hub failed integrity check: expected ${STEREO_HUB.sha256}, got ${actual}`);
+        }
+        renameSync(tmp, STEREO_HUB.file);
+    } finally {
+        if (existsSync(tmp)) unlinkSync(tmp);
+    }
+    return { path: STEREO_HUB.file, python: findPython() };
+}
+
+export function openStereoHub(_event: IpcMainInvokeEvent) {
+    if (!existsSync(STEREO_HUB.file) || sha256(STEREO_HUB.file) !== STEREO_HUB.sha256) {
+        throw new Error("Stereo Hub is not installed or failed verification");
+    }
+    const python = findPython();
+    if (python == null) throw new Error("No Python interpreter was found");
+
+    const args = python === "py" ? ["-3", STEREO_HUB.file] : [STEREO_HUB.file];
+    // مفتاح الأداة نفسها لإيقاف تحديثها الذاتي: بدونه تُنزّل ملفّها من فرع
+    // متحرّك وتكتب فوق النسخة التي تحقّقنا من بصمتها — فيسقط التثبيت الذي
+    // ضمنّاه. لا نُعدّل الأداة، نستعمل مفتاحها الموثّق.
+    const child = spawn(python, args, {
+        cwd: join(TOOLS_DIR, "stereo-hub"),
+        detached: true,
+        stdio: "ignore",
+        env: { ...process.env, DISCORD_STEREO_SKIP_HUB_SELF_UPDATE: "1" }
+    });
+    child.unref();
+    return { ok: true };
+}
+
+export function removeStereoHub(_event: IpcMainInvokeEvent) {
+    rmSync(join(TOOLS_DIR, "stereo-hub"), { recursive: true, force: true });
+    return { ok: true };
+}
+
+/** يفتح صفحة التنزيل الرسمية — التثبيت فعلُ المستخدم على جهازه، لا فعلُنا. */
+export function openUrl(_event: IpcMainInvokeEvent, url: string) {
+    if (!/^https:\/\//.test(url)) throw new Error("Only https links can be opened");
+    shell.openExternal(url);
+    return { ok: true };
+}
+
+/** يسأل المستخدم عن مكان برنامج مغيّر الصوت بعد أن يُثبّته بنفسه. */
+export async function locateVcClient(_event: IpcMainInvokeEvent) {
+    const result = await dialog.showOpenDialog({
+        title: "VCClient",
+        properties: ["openFile"],
+        filters: process.platform === "win32" ? [{ name: "VCClient", extensions: ["exe", "bat"] }] : []
+    });
+    if (result.canceled || result.filePaths.length === 0) return { path: null };
+
+    const path = result.filePaths[0];
+    writeToolsState({ ...readToolsState(), vcClientPath: path });
+    return { path };
+}
+
+export function openVcClient(_event: IpcMainInvokeEvent) {
+    const path = readToolsState().vcClientPath;
+    if (path === undefined || !existsSync(path)) throw new Error("VCClient was not found at the saved path");
+    const child = spawn(path, [], { cwd: join(path, ".."), detached: true, stdio: "ignore" });
+    child.unref();
+    return { ok: true };
+}
+
+export function forgetVcClient(_event: IpcMainInvokeEvent) {
+    const state = readToolsState();
+    delete state.vcClientPath;
+    writeToolsState(state);
+    return { ok: true };
 }
