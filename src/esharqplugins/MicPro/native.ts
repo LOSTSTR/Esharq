@@ -74,6 +74,8 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, u
 import { homedir } from "os";
 import { join } from "path";
 
+import { applyStereoPatch, forgetStereoPayload, revertStereoPatch, stereoTargets } from "./stereoPatch";
+
 const PRELOAD_WORLD_ID = 999;
 
 /** Pinned to Loukious/DiscordVoicePatcher release `d849d17` (2026-03-21). */
@@ -399,4 +401,25 @@ export function forgetVcClient(_event: IpcMainInvokeEvent) {
     delete state.vcClientPath;
     writeToolsState(state);
     return { ok: true };
+}
+
+
+/* ── ترقيع الستيريو داخل العميل (المنطق في `stereoPatch.ts`) ─────────────────
+ * لا يبدأ شيء منه إلّا بضغطة المستخدم، و`dryRun` يُظهر ما سيجري قبل أن يجري.
+ * ───────────────────────────────────────────────────────────────────────── */
+
+export function stereoStatus(_event: IpcMainInvokeEvent) {
+    return { targets: stereoTargets() };
+}
+
+export function stereoApply(_event: IpcMainInvokeEvent, key: string, dryRun: boolean) {
+    return applyStereoPatch(key, dryRun);
+}
+
+export function stereoRevert(_event: IpcMainInvokeEvent, key: string, dryRun: boolean) {
+    return revertStereoPatch(key, dryRun);
+}
+
+export function stereoForget(_event: IpcMainInvokeEvent) {
+    return forgetStereoPayload();
 }

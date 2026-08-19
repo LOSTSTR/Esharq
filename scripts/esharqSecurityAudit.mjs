@@ -97,6 +97,17 @@ const REVIEWED_EXCEPTIONS = new Map([
         + "immutable release asset ids from the upstream project, SHA-256 verified before "
         + "download is accepted AND again immediately before execution, and only fetched "
         + "when the user has actually enabled stereo. Never change this to a moving tag."],
+    ["src/esharqplugins/MicPro/stereoPatch.ts:native-exec",
+        "In-client stereo patch. Discord keeps discord_voice.node open while it runs, so the "
+        + "swap has to happen from outside the process: we write a PowerShell worker, schedule "
+        + "it with schtasks /RL LIMITED (no elevation — every path is under %LOCALAPPDATA%), and "
+        + "it waits for Discord to exit, replaces each file via write-temp-then-move (never "
+        + "delete-then-copy), relaunches Discord and deletes its own task. Nothing runs unless "
+        + "the user presses the button: the payload is pinned to commit 5e96ff0 and EVERY one of "
+        + "the nine files is SHA-256 + size verified before a single byte is copied, a permanent "
+        + "original backup is taken first (and refused if the module is already patched), and "
+        + "dryRun returns the whole plan without downloading, writing or scheduling anything. "
+        + "Never change the pin to a branch, and never drop a file from the hash table."],
 ]);
 
 // ── Rules ─────────────────────────────────────────────────────────────────────
