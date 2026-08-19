@@ -26,6 +26,15 @@ interface ToolsStatus {
     vcClient: { installed: boolean; path: string | null; };
 }
 
+interface StereoTarget {
+    key: string;
+    label: string;
+    build: string;
+    voiceDir: string;
+    patched: boolean;
+    hasBackup: boolean;
+}
+
 const AI_HUB_INVITE = "https://discord.gg/ai-hub-1159260121998827560";
 const AI_HUB_CHANNEL = "https://discord.com/channels/1159260121998827560/1175430844685484042";
 const STEREO_HUB_REPO = "https://github.com/ProdHallow/Discord-Stereo-Windows-MacOS-Linux";
@@ -97,11 +106,14 @@ export function VoiceLabTools({ index, patchedClients, onChanged }: {
     onChanged: () => void;
 }) {
     const [status, setStatus] = useState<ToolsStatus | null>(null);
+    const [targets, setTargets] = useState<StereoTarget[]>([]);
     const [busy, setBusy] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [done, setDone] = useState<string | null>(null);
 
     const refresh = () => {
         MicProNative?.toolsStatus().then(setStatus).catch(() => setStatus(null));
+        MicProNative?.stereoStatus().then(r => setTargets(r.targets)).catch(() => setTargets([]));
         onChanged();
     };
     useEffect(refresh, []);
@@ -140,11 +152,77 @@ export function VoiceLabTools({ index, patchedClients, onChanged }: {
                 {error !== null && <NoticeStrip tone="danger">{error}</NoticeStrip>}
             </Card>
 
-            {/* ── ستيريو Stereo Hub ─────────────────────────────────────────── */}
+            {/* ── الستيريو المدمج في إشراق ──────────────────────────────────── */}
             <Card index={index + 1}
-                title={t("ستيريو Stereo Hub", "Stereo Hub")}
-                subtitle={t("أداة مستقلّة تستبدل وحدة صوت ديسكورد بنسخة مُرقَّعة تُلغي المرشّحات وترفع معدّل البتّ.",
-                    "A standalone tool that swaps Discord's voice module for a patched build with filters off and a higher bitrate.")}
+                title={t("ستيريو بلا مرشّحات — مدمج في إشراق", "Filterless stereo — built into Esharq")}
+                subtitle={t("يستبدل وحدة صوت ديسكورد بنسخة مُرقَّعة تُطفئ المرشّحات وترفع معدّل البتّ. بلا بايثون وبلا برنامج خارجي.",
+                    "Swaps Discord's voice module for a patched build with the filters off and a higher bitrate. No Python, no external program.")}
+                badge={targets.some(target => target.patched) ? t("مُطبَّق", "Applied") : t("غير مُطبَّق", "Not applied")}
+                badgeTone={targets.some(target => target.patched) ? "ok" : "info"}>
+
+                <NoticeStrip>
+                    {t("ديسكورد يُبقي ملفّ الصوت مفتوحاً ما دام يعمل، فالتبديل يجري بعد إغلاقه: يُجدوَل عاملٌ صغير ينتظر خروجه ثم يُبدّل ويُعيد فتحه ويمحو مهمّته بنفسه. بلا صلاحيات مدير وبلا إنهاء قسريّ لديسكورد.",
+                        "Discord keeps its voice module open while it runs, so the swap happens after it closes: a small scheduled worker waits for it to exit, swaps the files, reopens it and deletes its own task. No admin rights, and Discord is never force-killed.")}
+                </NoticeStrip>
+
+                <NoticeStrip tone="danger">
+                    <b>{t("اقرأ قبل التطبيق:", "Read before applying:")}</b>
+                    <ul style={{ margin: `${UNIT}px 0 0`, paddingInlineStart: UNIT * 2.5 }}>
+                        <li>{t("الوحدة المُرقَّعة مبنية على بناء ديسكورد 1.0.9243 (يوليو 2026). فإن كان بناؤك أحدث، هذا رجوعٌ بوحدة الصوت إلى الوراء.",
+                            "The patched module is built on Discord 1.0.9243 (July 2026). If your build is newer, this steps your voice module backwards.")}</li>
+                        <li>{t("توقيع ديسكورد الرقمي يسقط عن الملفّ المُرقَّع — قد تعترضه مضادّات الفيروسات، وقد يستعيده تحديث ديسكورد القادم.",
+                            "Discord's digital signature no longer matches the patched file — antivirus may flag it, and Discord's next update may restore the original.")}</li>
+                        <li>{t("تعديل ملفّات ديسكورد مخالفٌ لشروطه. نُبقي نسخةً أصلية دائمة وزرَّ رجوع، لكن القرار قرارك.",
+                            "Modifying Discord's files is against its terms. We keep a permanent original backup and a revert button, but the decision is yours.")}</li>
+                        <li>{t("كل ملفّ من التسعة يُنزَّل من التزام مُجمَّد ويُتحقَّق من بصمته (SHA-256) وحجمه قبل نسخ بايت واحد.",
+                            "All nine files come from a frozen commit and are SHA-256 and size verified before a single byte is copied.")}</li>
+                    </ul>
+                </NoticeStrip>
+
+                {targets.length === 0 ? (
+                    <NoticeStrip>{t("لم أجد تثبيت ديسكورد على هذا الجهاز.", "No Discord install was found on this machine.")}</NoticeStrip>
+                ) : targets.map(target => (
+                    <div key={target.key} style={{ marginTop: UNIT * 2 }}>
+                        <Detail items={[
+                            { k: t("العميل", "Client"), v: `${target.label} · ${target.build}` },
+                            { k: t("الحالة", "State"), v: target.patched ? t("مُرقَّع", "Patched") : t("أصليّ", "Original") },
+                            { k: t("نسخة أصلية محفوظة", "Original backed up"), v: target.hasBackup ? t("نعم", "Yes") : t("لا", "No") }
+                        ]} />
+                        <Row>
+                            <Btn tone="accent" label={busy === `apply-${target.key}` ? t("جارٍ…", "Working…") : t("طبّق الستيريو", "Apply stereo")}
+                                disabled={busy !== null || target.patched}
+                                onClick={() => confirm(
+                                    t(`تطبيق الستيريو على ${target.label}`, `Apply stereo to ${target.label}`),
+                                    t("ستُنزَّل 25 ميغابايت وتُتحقَّق بصماتها، ثم تُحفظ نسختك الأصلية، ثم يُغلَق ديسكورد ويُبدَّل الملفّ ويُعاد فتحه. أغلِق ديسكورد بنفسك بعد الضغط ليتمّ التبديل.",
+                                        "25 MB will be downloaded and hash-verified, your original will be backed up, then Discord closes, the files are swapped and it reopens. Close Discord yourself after pressing so the swap can complete."),
+                                    () => void run(`apply-${target.key}`, async () => {
+                                        await native.stereoApply(target.key, false);
+                                        setDone(t("جُدوِل التبديل — أغلِق ديسكورد ليتمّ.", "The swap is scheduled — close Discord to let it finish."));
+                                    })
+                                )} />
+                            <Btn label={t("رجوع إلى الأصل", "Restore original")} tone="danger"
+                                disabled={busy !== null || !target.hasBackup}
+                                onClick={() => confirm(
+                                    t("الرجوع إلى وحدة الصوت الأصلية", "Restore the original voice module"),
+                                    t("ستُعاد نسختك الأصلية المحفوظة. أغلِق ديسكورد بعد الضغط ليتمّ التبديل.",
+                                        "Your saved original will be restored. Close Discord after pressing so the swap can complete."),
+                                    () => void run(`revert-${target.key}`, async () => {
+                                        await native.stereoRevert(target.key, false);
+                                        setDone(t("جُدوِل الرجوع — أغلِق ديسكورد ليتمّ.", "The restore is scheduled — close Discord to let it finish."));
+                                    })
+                                )} />
+                        </Row>
+                    </div>
+                ))}
+
+                {done !== null && <NoticeStrip>{done}</NoticeStrip>}
+            </Card>
+
+            {/* ── الأداة الخارجية Stereo Hub ────────────────────────────────── */}
+            <Card index={index + 2}
+                title={t("الأداة الخارجية Stereo Hub", "Stereo Hub (external tool)")}
+                subtitle={t("الأداة الأصلية التي أخذنا عنها الطريقة — للمقارنة أو إن أردت واجهتها هي. لا تحتاجها إن استعملت الستيريو المدمج أعلاه.",
+                    "The original tool our method is taken from — for comparison, or if you prefer its own interface. You do not need it if you use the built-in stereo above.")}
                 badge={status?.stereoHub.installed === true ? t("مثبَّتة", "Installed") : t("غير مثبَّتة", "Not installed")}
                 badgeTone={status?.stereoHub.installed === true ? "ok" : "danger"}>
 
@@ -159,8 +237,8 @@ export function VoiceLabTools({ index, patchedClients, onChanged }: {
                                     "The original tool verifies no hashes. Esharq downloads it from a frozen commit and verifies its bytes before any use.")}</li>
                                 <li>{t("تحتاج Python 3.8 أو أحدث لتشغيلها، وتحفظ نسخة احتياطية من ملفّك الأصلي وفيها زرّ رجوع.",
                                     "It needs Python 3.8+ to run, keeps a backup of your original module, and has a Revert button.")}</li>
-                                <li>{t("لا تعمل مع ستيريو MicPro في الوقت نفسه — كلاهما يستهدف الملفّ نفسه.",
-                                    "It cannot run alongside MicPro's stereo — both target the same module.")}</li>
+                                <li>{t("لا تُستعمل مع الستيريو المدمج أعلاه في الوقت نفسه — كلاهما يستهدف الملفّ نفسه، فاختر واحداً.",
+                                    "Do not use it together with the built-in stereo above — both target the same module, so pick one.")}</li>
                             </ul>
                         </NoticeStrip>
 
@@ -221,7 +299,7 @@ export function VoiceLabTools({ index, patchedClients, onChanged }: {
             </Card>
 
             {/* ── مغيّر الصوت VCClient ──────────────────────────────────────── */}
-            <Card index={index + 2}
+            <Card index={index + 3}
                 title={t("مغيّر الصوت VCClient", "VCClient voice changer")}
                 subtitle={t("برنامج مستقلّ يُحوّل صوتك آنيّاً بنماذج ذكاء اصطناعي، ويُدخله ديسكورد عبر جهاز صوت افتراضي.",
                     "A standalone program that converts your voice in real time with AI models; Discord receives it through a virtual audio device.")}
@@ -277,7 +355,7 @@ export function VoiceLabTools({ index, patchedClients, onChanged }: {
             </Card>
 
             {/* ── من أين تأتي الأصوات ───────────────────────────────────────── */}
-            <Card index={index + 3}
+            <Card index={index + 4}
                 title={t("من أين تُنزّل الأصوات؟", "Where do the voices come from?")}
                 subtitle={t("نماذج الأصوات لا تأتي مع البرنامج — تُنزَّل من مجتمعات تصنعها وتنشرها.",
                     "Voice models don't ship with the program — they come from communities that build and publish them.")}>

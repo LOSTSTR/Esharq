@@ -6,7 +6,6 @@
 
 import "./voiceLab.css";
 
-import { isPluginEnabled } from "@api/PluginManager";
 import { FormSwitch } from "@components/FormSwitch";
 import { Switch } from "@components/Switch";
 import { microphoneStore } from "@plugins/_micProEngine/stores";
@@ -338,7 +337,6 @@ export function VoiceLabPage() {
     const [testing, setTesting] = useState(isLoopbackOn());
     const [master, setMaster] = useState(micSettings.store.applyToCalls);
     const level = useLiveLevel(true);
-    const engineEnabled = isPluginEnabled("MicPro");
     // ترقيع القرص يُقاس من **بصمة ملفّ ديسكورد نفسه** لا من وجود الأداة: قد
     // تُحذف الأداة ويبقى الترقيع، فالحال التي تهمّ هي حال ديسكورد.
     const [diskPatched, setDiskPatched] = useState(false);
@@ -387,12 +385,6 @@ export function VoiceLabPage() {
                     value={master}
                     onChange={v => { micSettings.store.applyToCalls = v; setMaster(v); }}
                 />
-                {!engineEnabled && (
-                    <NoticeStrip tone="danger">
-                        {t("إضافة MicPro مُعطَّلة، فلن تُطبَّق الإعدادات تلقائياً على المكالمات الجديدة ولا يعمل النقل عالي الجودة. فعّلها من صفحة الإضافات.",
-                            "The MicPro plugin is disabled, so settings won't be re-applied to new calls and high-quality transmission is unavailable. Enable it in the Plugins page.")}
-                    </NoticeStrip>
-                )}
             </Card>
 
             <Card index={1} title={t("الأجهزة", "Devices")}
@@ -472,7 +464,7 @@ export function VoiceLabPage() {
                 />
             </Card>
 
-            {engineEnabled && transmissionReady() && <TransmissionCard index={4} diskPatched={diskPatched} />}
+            {transmissionReady() && <TransmissionCard index={4} diskPatched={diskPatched} />}
 
             <Card index={5} title={t("اختبار الميكروفون", "Microphone test")}
                 subtitle={t("تسمع نفسك كما يسمعك الآخرون — بمرور صوتك في المسار نفسه.",

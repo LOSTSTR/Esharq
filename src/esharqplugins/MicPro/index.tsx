@@ -45,6 +45,16 @@ export default definePlugin({
     tags: ["Voice", "Utility"],
     dependencies: ["PhilsPluginLibrary"],
     settings,
+    // 🔴 لم تعد إضافةً للمستخدم بل **بنية إشراق التحتية للصوت**: واجهتها كلّها
+    // في صفحة «مختبر الصوت»، وهي تحمل الجسر الأصلي الذي يعمل عليه قسم الأدوات
+    // وترقيع الستيريو. و`required` يمنع إطفاءها، و`hidden` يُخرجها من قائمة
+    // الإضافات فلا يرى المستخدم اسمين لشيء واحد.
+    //
+    // ولماذا لم تُحذف: مولّد `~pluginNatives` يجمع `native.ts` من **مجلدات
+    // الإضافات** وحدها (scripts/build/build.mjs)، فحذف المجلد يُلغي
+    // `VencordNative.pluginHelpers.MicPro` ويُسقط معه الأدوات والترقيع.
+    required: true,
+    hidden: true,
     // ضروري للستيريو: يضمن حضور مستمع الاتصال + ترقيع discord_voice من بداية الجلسة قبل أي
     // مكالمة (نفس ما فعله BetterMicrophone الأصلي). بدونه قد لا يُطبَّق الستيريو مطلقاً.
     requiresRestart: true,
