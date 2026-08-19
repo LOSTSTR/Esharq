@@ -26,7 +26,7 @@ export function MacOSVibrancySettings({ index = 0 }: { index?: number; }) {
                     "أسلوب شفافية نافذة macOS.",
                     "The vibrancy style of the macOS window."
                 )}
-                badge={t("يتطلّب إعادة تشغيل", "Restart required")}
+                badge={t("يتطلّب إعادة تشغيل", "Restart required")} badgeTone="warn"
             >
                 <Select
                     placeholder="Window vibrancy style"

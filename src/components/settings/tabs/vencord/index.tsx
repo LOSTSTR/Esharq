@@ -166,7 +166,7 @@ function EquicordSettings() {
                     "تحكّم في العميل ومظهره وإشعاراته من مكان واحد.",
                     "Manage the client, its appearance, and its notifications from one place."
                 )}
-                badge={gitHash.slice(0, 7)}
+                badge={gitHash.slice(0, 7)} badgeTone="info"
             />
 
             {(isEsharqDonor(user?.id) || isVencordDonor(user?.id)) ? (

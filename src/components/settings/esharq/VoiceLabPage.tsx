@@ -23,6 +23,7 @@ import { FluxDispatcher, MediaEngineStore, React, Select, useEffect, useRef, use
 import { Card, NoticeStrip } from "./Card";
 import { Knob } from "./Knob";
 import { ACCENT, SURFACE, UNIT } from "./tokens";
+import { PermanentStereoCard } from "./VoiceLabStereo";
 import { VoiceLabTools } from "./VoiceLabTools";
 
 /**
@@ -263,11 +264,12 @@ function TransmissionCard({ index, diskPatched }: { index: number; diskPatched: 
             />
 
             <FormSwitch
-                title={t("ستيريو", "Stereo")}
+                title={t("ستيريو الجلسة", "Session stereo")}
                 description={diskPatched
-                    ? t("مُعطَّل: وحدة صوت ديسكورد مُرقَّعة على القرص بأداة خارجية، وهي تستهدف ما يستهدفه ستيريو إشراق.",
-                        "Disabled: Discord's voice module is patched on disk by an external tool, which targets what Esharq's stereo targets.")
-                    : t("قناتان بدل واحدة.", "Two channels instead of one.")}
+                    ? t("مُعطَّل الآن لأن «ستيريو دائم» مُفعَّل في البطاقة التالية — وكلاهما يستهدف الملفّ نفسه. عطّل الدائم أوّلاً إن أردت هذا.",
+                        "Disabled right now because “Permanent stereo” is on in the next card — both target the same module. Disable the permanent one first if you want this.")
+                    : t("قناتان بدل واحدة. يُرقَّع في الذاكرة عند كل تشغيل ولا يمسّ أي ملفّ على قرصك، ويزول بإغلاق ديسكورد.",
+                        "Two channels instead of one. Patched in memory on every launch, never touching a file on your disk, and gone when Discord closes.")}
                 value={stereoOn && !diskPatched}
                 disabled={diskPatched}
                 onChange={v => toggleStereo(st, v, flushTransmission)}
@@ -275,8 +277,8 @@ function TransmissionCard({ index, diskPatched }: { index: number; diskPatched: 
 
             {stereoOn && (
                 <NoticeStrip>
-                    {t("لضمان عمل الستيريو أُوقف تلقائياً: إلغاء الضوضاء، وإلغاء الصدى، وAGC — لأنها تُحوّل صوتك إلى أحادي فتُفسده.",
-                        "To keep stereo working, noise suppression, echo cancellation and AGC were turned off automatically — they downmix your mic to mono and break it.")}
+                    {t("لضمان عمل ستيريو الجلسة أُوقف تلقائياً: إلغاء الضوضاء، وإلغاء الصدى، وAGC — لأنها تُحوّل صوتك إلى أحادي فتُفسده.",
+                        "To keep session stereo working, noise suppression, echo cancellation and AGC were turned off automatically — they downmix your mic to mono and break it.")}
                 </NoticeStrip>
             )}
 
@@ -324,8 +326,8 @@ function TransmissionCard({ index, diskPatched }: { index: number; diskPatched: 
 
             {engine === false && (
                 <NoticeStrip tone="danger">
-                    {t("محرّك الستيريو لم يُحمَّل، فلن يُبَثّ الصوت ستيريو فعلياً. أعد تشغيل ديسكورد؛ وإن استمرّ الأمر فتحقّق من اتصالك.",
-                        "The stereo engine didn't load, so audio won't actually transmit in stereo. Restart Discord; if it persists, check your connection.")}
+                    {t("محرّك ستيريو الجلسة لم يُحمَّل، فلن يُبَثّ الصوت ستيريو فعلياً. أعد تشغيل ديسكورد؛ وإن استمرّ الأمر فجرّب «ستيريو دائم» في البطاقة التالية.",
+                        "The session stereo engine didn't load, so audio won't actually transmit in stereo. Restart Discord; if it persists, try “Permanent stereo” in the next card.")}
                 </NoticeStrip>
             )}
         </Card>
@@ -466,7 +468,9 @@ export function VoiceLabPage() {
 
             {transmissionReady() && <TransmissionCard index={4} diskPatched={diskPatched} />}
 
-            <Card index={5} title={t("اختبار الميكروفون", "Microphone test")}
+            <PermanentStereoCard index={5} onChanged={readPatchState} />
+
+            <Card index={6} title={t("اختبار الميكروفون", "Microphone test")}
                 subtitle={t("تسمع نفسك كما يسمعك الآخرون — بمرور صوتك في المسار نفسه.",
                     "Hear yourself as others hear you — your voice goes through the same path.")}>
                 <button type="button"
@@ -484,7 +488,7 @@ export function VoiceLabPage() {
                 </button>
             </Card>
 
-            <VoiceLabTools index={6} patchedClients={diskPatched ? 1 : 0} onChanged={readPatchState} />
+            <VoiceLabTools index={7} onChanged={readPatchState} />
         </>
     );
 }

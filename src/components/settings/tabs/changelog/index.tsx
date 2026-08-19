@@ -505,6 +505,7 @@ function ChangelogContent() {
                     "Compares your version with the latest in the repository and shows the new commits and plugin updates."
                 )}
                 badge={recentlyChecked ? t("محدَّث", "Up to date") : undefined}
+                badgeTone="ok"
             >
             <div className="vc-changelog-controls">
                 <Button

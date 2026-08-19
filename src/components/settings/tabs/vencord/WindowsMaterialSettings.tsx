@@ -22,7 +22,7 @@ export function WindowsMaterialSettings({ index = 0 }: { index?: number; }) {
                 index={index}
                 title={t("مواد الخلفية", "Background Material")}
                 subtitle={t("تأثيرات الخلفية الشفافة لويندوز. يتطلب قالباً يدعم الشفافية وإلا لن يكون له أثر. تستلزم إعادة تشغيل ديسكورد بعد تغيير هذا الإعداد.", "Windows transparent background effects. You need a theme that supports transparency or this will do nothing. A restart is required after changing this setting.")}
-                badge={t("يتطلّب إعادة تشغيل", "Restart required")}
+                badge={t("يتطلّب إعادة تشغيل", "Restart required")} badgeTone="warn"
             >
                 <Select
                     placeholder={t("لا شيء", "None")}

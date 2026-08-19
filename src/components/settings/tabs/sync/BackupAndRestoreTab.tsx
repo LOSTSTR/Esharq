@@ -59,7 +59,7 @@ function BackupAndRestoreTab() {
                     "انقل إعدادات إشراق بين أجهزتك، أو احتفظ بنسخة تعود إليها.",
                     "Move your Esharq settings between devices, or keep a copy you can return to."
                 )}
-                badge={t("ملف JSON محلّي", "Local JSON")}
+                badge={t("ملف JSON محلّي", "Local JSON")} badgeTone="info"
             />
 
             <NoticeStrip>

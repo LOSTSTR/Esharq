@@ -116,6 +116,7 @@ function PatchHelper() {
                 badge={module
                     ? t("وحدة مطابقة", "Module matched")
                     : t("لا وحدة بعد", "No module yet")}
+                badgeTone={module ? "ok" : "warn"}
             />
 
             <Card

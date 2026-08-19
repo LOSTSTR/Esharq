@@ -328,7 +328,7 @@ export function ClientHealthPage() {
                     "انسخ هذا حين تطلب المساعدة — يختصر أسئلةً كثيرة.",
                     "Copy this when you ask for help — it saves a lot of questions."
                 )}
-                badge={platform}
+                badge={platform} badgeTone="info"
             >
                 <StatRow items={[
                     { label: t("إصدار إشراق", "Esharq version"), value: gitHash.slice(0, 7) },

@@ -97,6 +97,7 @@ function CloudTab() {
                     "Sync your settings across your devices, and choose the server they live on."
                 )}
                 badge={isAuthenticated ? t("متّصل", "Connected") : t("غير متّصل", "Not connected")}
+                badgeTone={isAuthenticated ? "ok" : "danger"}
             />
 
             <Card
@@ -174,6 +175,7 @@ function CloudTab() {
                 title={t("مزامنة الإعدادات", "Settings sync")}
                 subtitle={t("زامن إعدادات Equicord مع السحابة. يتيح ذلك الحفاظ على اتساق إعداداتك عبر أجهزة متعددة دون الحاجة إلى تصدير واستيراد يدوي.", "Sync your Equicord settings with the cloud. This keeps your settings consistent across multiple devices without the need for manual export and import.")}
                 badge={cloud.settingsSync ? t("مُفعَّلة", "On") : t("مُعطَّلة", "Off")}
+                badgeTone={cloud.settingsSync ? "ok" : "danger"}
             >
                 <FormSwitch
                     title={t("تفعيل مزامنة الإعدادات", "Enable settings sync")}

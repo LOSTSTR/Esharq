@@ -379,6 +379,7 @@ function ThemesTab() {
                 badge={enabledCount === 0
                     ? t("لا قالب مُفعَّل", "None enabled")
                     : t(`${enabledCount} مُفعَّل`, `${enabledCount} enabled`)}
+                badgeTone={enabledCount === 0 ? "warn" : "ok"}
             />
 
             <Card

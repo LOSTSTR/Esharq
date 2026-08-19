@@ -503,6 +503,7 @@ export default function PluginSettings() {
                 )}
                 badge={t(`${plugins.length} من ${totalStockPlugins + totalUserPlugins}`,
                     `${plugins.length} of ${totalStockPlugins + totalUserPlugins}`)}
+                badgeTone="info"
             >
             <ErrorBoundary noop>
                 {/* الغلاف `label` كي يفتح النقرُ على الأيقونة الحقلَ ويُركّزه —
@@ -578,7 +579,7 @@ export default function PluginSettings() {
                     "أساس إشراق نفسه. هذه لا تُعطَّل لأن بقيّة الإضافات تقوم عليها.",
                     "Esharq's own foundation. These cannot be disabled because the rest is built on them."
                 )}
-                badge={String(requiredPlugins.length)}
+                badge={String(requiredPlugins.length)} badgeTone="info"
             >
                 <div className={cl("grid")}>
                     {requiredPlugins.length

@@ -71,6 +71,7 @@ export function OnlineThemesSection({
                 "Load themes directly from URLs instead of local files. Online themes auto-update when the source changes, so you always have the latest version without manual downloads."
             )}
             badge={enableOnlineThemes ? t("مُفعَّلة", "On") : t("مُعطَّلة", "Off")}
+            badgeTone={enableOnlineThemes ? "ok" : "danger"}
         >
             <FormSwitch
                 title={t("تفعيل القوالب عبر الإنترنت", "Enable online themes")}
