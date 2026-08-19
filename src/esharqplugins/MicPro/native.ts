@@ -344,9 +344,25 @@ export function openStereoHub(_event: IpcMainInvokeEvent) {
     return { ok: true };
 }
 
+/**
+ * إزالة كاملة: ملفّ الأداة **ومجلد بياناتها الذي تُنشئه لنفسها**
+ * (`%LOCALAPPDATA%\DiscordStereoHubSimple`). إزالة الملفّ وحده تترك سجلّها
+ * ونسخها الاحتياطية على الجهاز، فيظنّ المستخدم أنه نظّف وهو لم ينظّف.
+ */
 export function removeStereoHub(_event: IpcMainInvokeEvent) {
     rmSync(join(TOOLS_DIR, "stereo-hub"), { recursive: true, force: true });
-    return { ok: true };
+
+    const own = process.platform === "win32"
+        ? join(process.env.LOCALAPPDATA ?? "", "DiscordStereoHubSimple")
+        : join(homedir(), ".local", "share", "DiscordStereoHubSimple");
+    // نسخة ديسكورد الأصلية تعيش هنا أيضاً: نتركها إن كان ديسكورد مُرقَّعاً،
+    // وإلّا لَحُذف طريق الرجوع الوحيد.
+    const backups = join(own, "backups");
+    if (existsSync(backups) && voicePatchState(_event).patched > 0) {
+        return { ok: true, keptBackups: backups };
+    }
+    rmSync(own, { recursive: true, force: true });
+    return { ok: true, keptBackups: null };
 }
 
 /** يفتح صفحة التنزيل الرسمية — التثبيت فعلُ المستخدم على جهازه، لا فعلُنا. */
