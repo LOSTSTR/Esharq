@@ -23,7 +23,6 @@ import { FluxDispatcher, MediaEngineStore, React, Select, useEffect, useRef, use
 import { Card, NoticeStrip } from "./Card";
 import { Knob } from "./Knob";
 import { ACCENT, SURFACE, UNIT } from "./tokens";
-import { PermanentStereoCard } from "./VoiceLabStereo";
 import { VoiceLabTools } from "./VoiceLabTools";
 
 /**
@@ -266,8 +265,8 @@ function TransmissionCard({ index, diskPatched }: { index: number; diskPatched: 
             <FormSwitch
                 title={t("ستيريو الجلسة", "Session stereo")}
                 description={diskPatched
-                    ? t("مُعطَّل الآن لأن «ستيريو دائم» مُفعَّل في البطاقة التالية — وكلاهما يستهدف الملفّ نفسه. عطّل الدائم أوّلاً إن أردت هذا.",
-                        "Disabled right now because “Permanent stereo” is on in the next card — both target the same module. Disable the permanent one first if you want this.")
+                    ? t("مُعطَّل الآن لأن «ستيريو دائم» مُفعَّل في القسم الاختياري أسفل الصفحة — وكلاهما يستهدف الملفّ نفسه. عطّل الدائم أوّلاً إن أردت هذا.",
+                        "Disabled right now because “Permanent stereo” is on in the optional section at the bottom of this page — both target the same module. Disable the permanent one first if you want this.")
                     : t("قناتان بدل واحدة. يُرقَّع في الذاكرة عند كل تشغيل ولا يمسّ أي ملفّ على قرصك، ويزول بإغلاق ديسكورد.",
                         "Two channels instead of one. Patched in memory on every launch, never touching a file on your disk, and gone when Discord closes.")}
                 value={stereoOn && !diskPatched}
@@ -326,8 +325,8 @@ function TransmissionCard({ index, diskPatched }: { index: number; diskPatched: 
 
             {engine === false && (
                 <NoticeStrip tone="danger">
-                    {t("محرّك ستيريو الجلسة لم يُحمَّل، فلن يُبَثّ الصوت ستيريو فعلياً. أعد تشغيل ديسكورد؛ وإن استمرّ الأمر فجرّب «ستيريو دائم» في البطاقة التالية.",
-                        "The session stereo engine didn't load, so audio won't actually transmit in stereo. Restart Discord; if it persists, try “Permanent stereo” in the next card.")}
+                    {t("محرّك ستيريو الجلسة لم يُحمَّل، فلن يُبَثّ الصوت ستيريو فعلياً. أعد تشغيل ديسكورد؛ وإن استمرّ الأمر فجرّب «ستيريو دائم» في القسم الاختياري أسفل الصفحة.",
+                        "The session stereo engine didn't load, so audio won't actually transmit in stereo. Restart Discord; if it persists, try “Permanent stereo” in the optional section at the bottom of this page.")}
                 </NoticeStrip>
             )}
         </Card>
@@ -468,9 +467,7 @@ export function VoiceLabPage() {
 
             {transmissionReady() && <TransmissionCard index={4} diskPatched={diskPatched} />}
 
-            <PermanentStereoCard index={5} onChanged={readPatchState} />
-
-            <Card index={6} title={t("اختبار الميكروفون", "Microphone test")}
+            <Card index={5} title={t("اختبار الميكروفون", "Microphone test")}
                 subtitle={t("تسمع نفسك كما يسمعك الآخرون — بمرور صوتك في المسار نفسه.",
                     "Hear yourself as others hear you — your voice goes through the same path.")}>
                 <button type="button"
@@ -488,7 +485,7 @@ export function VoiceLabPage() {
                 </button>
             </Card>
 
-            <VoiceLabTools index={7} onChanged={readPatchState} />
+            <VoiceLabTools index={6} onChanged={readPatchState} />
         </>
     );
 }

@@ -12,6 +12,7 @@ import { Alerts, useEffect, useRef, useState } from "@webpack/common";
 import { Card, NoticeStrip } from "./Card";
 import { SlideToUnlock } from "./SlideToUnlock";
 import { ACCENT, RADIUS, SURFACE, UNIT } from "./tokens";
+import { PermanentStereoCard } from "./VoiceLabStereo";
 
 /**
  * **الأدوات الخارجية** — برامج ليست من إشراق، ولا تُشحن معه، ولا يُنزَّل منها
@@ -93,11 +94,15 @@ function confirm(title: string, body: string, onConfirm: () => void) {
 }
 
 /**
- * **بوّابة الأدوات الخارجية.**
+ * **بوّابة القسم الاختياري.**
  *
  * القسم كلّه مقفل حتى يسحب المستخدم الشريط بنفسه. والقفل ليس زينةً: ما وراءه
- * برامج ليست منّا، بعضها يُبدّل ملفّات ديسكورد وبعضها يُحمّل نماذج تُنفّذ كوداً.
- * فمن يفتحه يفتحه وقد قرأ.
+ * ما **يُبدّل ملفّات ديسكورد على القرص** — «ستيريو دائم» من إشراق، وأدوات
+ * ليست منّا إحداها تُحمّل نماذج تُنفّذ كوداً. فمن يفتحه يفتحه وقد قرأ.
+ *
+ * 🔴 والقفل مقياسه **الخطر لا المِلكية**: «ستيريو دائم» بطاقتنا نحن، ومع ذلك
+ * هو داخل البوّابة لأنه يمسّ ملفّاً على قرص المستخدم. ولهذا لم يعد عنوان
+ * القسم «أدوات خارجية» — لأن ما فيه لم يعد كلّه خارجياً.
  *
  * والموافقة تُحفَظ (`externalToolsUnlocked`) فلا تُطلب في كل زيارة، ويبقى زرّ
  * إعادة القفل لمن أراد أن يُغلقها على نفسه أو على من يشاركه جهازه.
@@ -109,29 +114,29 @@ function ToolsGate({ index, onUnlock }: { index: number; onUnlock: () => void; }
 
     return (
         <Card index={index}
-            title={t("أدوات خارجية", "External tools")}
-            subtitle={t("قسم مقفل. اسحب الشريط لتفتحه بعد قراءة التحذير.",
-                "A locked section. Slide to open it once you've read the warning.")}
+            title={t("قسم اختياري", "Optional section")}
+            subtitle={t("«ستيريو دائم» وأدوات خارجية. مقفل — اسحب الشريط لتفتحه بعد قراءة التحذير.",
+                "“Permanent stereo” and external tools. Locked — slide to open it once you've read the warning.")}
             badge={opened ? t("مفتوح", "Unlocked") : t("مقفل", "Locked")}
             badgeTone={opened ? "ok" : "danger"}>
 
             <NoticeStrip tone="danger">
                 <b>{t("اقرأ قبل الفتح:", "Read before opening:")}</b>
                 <ul style={{ margin: `${UNIT}px 0 0`, paddingInlineStart: UNIT * 2.5 }}>
-                    <li>{t("إشراق لا يتحمّل مسؤولية هذه الأدوات ولا ما ينتج عن استعمالها — القرار قرارك وحدك.",
-                        "Esharq takes no responsibility for these tools or for anything that comes of using them — the decision is yours alone.")}</li>
-                    <li>{t("أُضيفت بناءً على طلب الأعضاء، لا لأننا نوصي بها.",
-                        "They were added because members asked for them, not because we recommend them.")}</li>
-                    <li>{t("برامج من طرف ثالث: لا نكتبها ولا نُراجع تحديثاتها، وتبقى كما يشحنها أصحابها. وما نُضيفه هو التثبيت على التزام بعينه والتحقّق من البصمة قبل أي استعمال.",
-                        "Third-party programs: we neither write them nor review their updates, and they stay exactly as their authors ship them. What we add is pinning to a specific commit and verifying the hash before any use.")}</li>
-                    <li>{t("بعضها يُبدّل ملفّات ديسكورد نفسها، وتعديل ملفّاته مخالف لشروطه، ويُسقط توقيعه الرقمي — وقد تعترضه مضادّات الفيروسات.",
-                        "Some of them replace Discord's own files. Modifying those files is against its terms, it breaks the digital signature, and antivirus software may flag the result.")}</li>
+                    <li>{t("إشراق لا يتحمّل مسؤولية ما في هذا القسم ولا ما ينتج عن استعماله — القرار قرارك وحدك.",
+                        "Esharq takes no responsibility for what is in this section, or for anything that comes of using it — the decision is yours alone.")}</li>
+                    <li>{t("أُضيف بناءً على طلب الأعضاء، لا لأننا نوصي به.",
+                        "It was added because members asked for it, not because we recommend it.")}</li>
+                    <li>{t("«ستيريو دائم» من إشراق، لكنه يُبدّل ملفّ صوت ديسكورد على قرصك: يُسقط توقيعه الرقمي، وتعديل ملفّات ديسكورد مخالف لشروطه، وقد يعترضه مضادّ الفيروسات أو يستعيده تحديثٌ قادم. نحفظ نسختك الأصلية وفيه زرّ رجوع.",
+                        "“Permanent stereo” is Esharq's own, but it replaces Discord's voice module on your disk: it breaks the digital signature, modifying Discord's files is against its terms, and antivirus may flag it or a future update may restore the original. We keep your original and it has a revert button.")}</li>
+                    <li>{t("الأدوات الخارجية ليست من إشراق: لا نكتبها ولا نُراجع تحديثاتها، وتبقى كما يشحنها أصحابها. وما نُضيفه هو التثبيت على التزام بعينه والتحقّق من البصمة قبل أي استعمال.",
+                        "The external tools are not Esharq's: we neither write them nor review their updates, and they stay exactly as their authors ship them. What we add is pinning to a specific commit and verifying the hash before any use.")}</li>
                     <li>{t("🔴 نماذج الأصوات بصيغة ‎.pth‎ تُنفّذ كوداً لحظة تحميلها. لا تأخذ نموذجاً إلّا من مصدر تثق به.",
                         "🔴 Voice models in .pth format execute code the moment they load. Only take a model from a source you trust.")}</li>
-                    <li>{t("لا يبدأ تنزيل ولا تثبيت إلّا بضغطة صريحة منك بعد فتح القسم — فتحُه وحده لا يُنزّل شيئاً.",
-                        "No download or install starts without an explicit press from you after opening — opening alone downloads nothing.")}</li>
-                    <li>{t("أعطال هذه الأدوات تُراجَع عند أصحابها؛ ليس لإشراق يدٌ فيها ولا دعمٌ لها.",
-                        "Problems with these tools go to their own authors; Esharq has no hand in them and offers no support for them.")}</li>
+                    <li>{t("لا يبدأ تنزيل ولا ترقيع ولا تثبيت إلّا بضغطة صريحة منك بعد فتح القسم — فتحُه وحده لا يفعل شيئاً.",
+                        "No download, patch or install starts without an explicit press from you after opening — opening alone does nothing.")}</li>
+                    <li>{t("أعطال الأدوات الخارجية تُراجَع عند أصحابها؛ ليس لإشراق يدٌ فيها ولا دعمٌ لها.",
+                        "Problems with the external tools go to their own authors; Esharq has no hand in them and offers no support for them.")}</li>
                 </ul>
             </NoticeStrip>
 
@@ -196,13 +201,13 @@ export function VoiceLabTools({ index, onChanged }: { index: number; onChanged: 
     return (
         <>
             <Card index={index}
-                title={t("أدوات خارجية", "External tools")}
-                subtitle={t("برامج ليست من إشراق. لا يُنزَّل منها شيء إلّا إن ضغطتَ «تثبيت» بنفسك.",
-                    "Programs that are not part of Esharq. Nothing is downloaded unless you press Install yourself.")}
-                badge={t("اختياري", "Optional")} badgeTone="warn">
+                title={t("قسم اختياري", "Optional section")}
+                subtitle={t("فتحتَه بنفسك بعد التحذير. لا يُنزَّل ولا يُرقَّع شيء إلّا بضغطة منك.",
+                    "You opened it yourself after the warning. Nothing is downloaded or patched without a press from you.")}
+                badge={t("مفتوح", "Unlocked")} badgeTone="ok">
                 <NoticeStrip>
-                    {t("إشراق لا يحزم هذه الأدوات ولا يُنزّلها عند تثبيته. وهي تبقى كما يشحنها أصحابها — والمصادر مكتوبة في كل بطاقة لمن أراد قراءتها قبل التثبيت.",
-                        "Esharq neither bundles these tools nor downloads them at install time. They stay exactly as their authors ship them, and each card lists its sources so you can read them first.")}
+                    {t("«ستيريو دائم» من إشراق ويُبدّل ملفّ صوت ديسكورد على قرصك، ومعه نسخة أصلية وزرّ رجوع. أمّا الأدوات الخارجية فليست من إشراق ولا يحزمها ولا يُنزّلها عند تثبيته — تبقى كما يشحنها أصحابها، والمصادر مكتوبة في كل بطاقة لمن أراد قراءتها قبل التثبيت.",
+                        "“Permanent stereo” is Esharq's own and replaces Discord's voice module on your disk, with an original backup and a revert button. The external tools are not Esharq's: it neither bundles nor downloads them at install time — they stay exactly as their authors ship them, and each card lists its sources so you can read them first.")}
                 </NoticeStrip>
                 {error !== null && <NoticeStrip tone="danger">{error}</NoticeStrip>}
 
@@ -216,8 +221,11 @@ export function VoiceLabTools({ index, onChanged }: { index: number; onChanged: 
                 </Row>
             </Card>
 
+            {/* ── ستيريو دائم — من إشراق، لكنه خلف البوّابة لأنه يمسّ ملفّاً ── */}
+            <PermanentStereoCard index={index + 1} onChanged={onChanged} />
+
             {/* ── الأداة الخارجية Stereo Hub ────────────────────────────────── */}
-            <Card index={index + 1}
+            <Card index={index + 2}
                 title={t("الأداة الخارجية Stereo Hub", "Stereo Hub (external tool)")}
                 subtitle={t("الأداة الأصلية التي أخذنا عنها الطريقة — للمقارنة أو إن أردت واجهتها هي. لا تحتاجها إن فعّلت «ستيريو دائم».",
                     "The original tool our method is taken from — for comparison, or if you prefer its own interface. You do not need it if “Permanent stereo” is enabled.")}
@@ -294,7 +302,7 @@ export function VoiceLabTools({ index, onChanged }: { index: number; onChanged: 
             </Card>
 
             {/* ── مغيّر الصوت VCClient ──────────────────────────────────────── */}
-            <Card index={index + 2}
+            <Card index={index + 3}
                 title={t("مغيّر الصوت VCClient", "VCClient voice changer")}
                 subtitle={t("برنامج مستقلّ يُحوّل صوتك آنيّاً بنماذج ذكاء اصطناعي، ويُدخله ديسكورد عبر جهاز صوت افتراضي.",
                     "A standalone program that converts your voice in real time with AI models; Discord receives it through a virtual audio device.")}
@@ -350,7 +358,7 @@ export function VoiceLabTools({ index, onChanged }: { index: number; onChanged: 
             </Card>
 
             {/* ── من أين تأتي الأصوات ───────────────────────────────────────── */}
-            <Card index={index + 3}
+            <Card index={index + 4}
                 title={t("من أين تُنزّل الأصوات؟", "Where do the voices come from?")}
                 subtitle={t("نماذج الأصوات لا تأتي مع البرنامج — تُنزَّل من مجتمعات تصنعها وتنشرها.",
                     "Voice models don't ship with the program — they come from communities that build and publish them.")}>
