@@ -5,10 +5,12 @@
  */
 
 import { MicProNative } from "@plugins/MicPro/engine";
+import { settings as micSettings } from "@plugins/MicPro/settings";
 import { t } from "@utils/esharqI18n";
-import { Alerts, useEffect, useState } from "@webpack/common";
+import { Alerts, useEffect, useRef, useState } from "@webpack/common";
 
 import { Card, NoticeStrip } from "./Card";
+import { SlideToUnlock } from "./SlideToUnlock";
 import { ACCENT, RADIUS, SURFACE, UNIT } from "./tokens";
 
 /**
@@ -90,10 +92,71 @@ function confirm(title: string, body: string, onConfirm: () => void) {
     });
 }
 
+/**
+ * **بوّابة الأدوات الخارجية.**
+ *
+ * القسم كلّه مقفل حتى يسحب المستخدم الشريط بنفسه. والقفل ليس زينةً: ما وراءه
+ * برامج ليست منّا، بعضها يُبدّل ملفّات ديسكورد وبعضها يُحمّل نماذج تُنفّذ كوداً.
+ * فمن يفتحه يفتحه وقد قرأ.
+ *
+ * والموافقة تُحفَظ (`externalToolsUnlocked`) فلا تُطلب في كل زيارة، ويبقى زرّ
+ * إعادة القفل لمن أراد أن يُغلقها على نفسه أو على من يشاركه جهازه.
+ */
+function ToolsGate({ index, onUnlock }: { index: number; onUnlock: () => void; }) {
+    const [opened, setOpened] = useState(false);
+    const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    useEffect(() => () => { if (timer.current !== null) clearTimeout(timer.current); }, []);
+
+    return (
+        <Card index={index}
+            title={t("أدوات خارجية", "External tools")}
+            subtitle={t("قسم مقفل. اسحب الشريط لتفتحه بعد قراءة التحذير.",
+                "A locked section. Slide to open it once you've read the warning.")}
+            badge={opened ? t("مفتوح", "Unlocked") : t("مقفل", "Locked")}
+            badgeTone={opened ? "ok" : "danger"}>
+
+            <NoticeStrip tone="danger">
+                <b>{t("اقرأ قبل الفتح:", "Read before opening:")}</b>
+                <ul style={{ margin: `${UNIT}px 0 0`, paddingInlineStart: UNIT * 2.5 }}>
+                    <li>{t("إشراق لا يتحمّل مسؤولية هذه الأدوات ولا ما ينتج عن استعمالها — القرار قرارك وحدك.",
+                        "Esharq takes no responsibility for these tools or for anything that comes of using them — the decision is yours alone.")}</li>
+                    <li>{t("أُضيفت بناءً على طلب الأعضاء، لا لأننا نوصي بها.",
+                        "They were added because members asked for them, not because we recommend them.")}</li>
+                    <li>{t("برامج من طرف ثالث: لا نكتبها ولا نُراجع تحديثاتها، وتبقى كما يشحنها أصحابها. وما نُضيفه هو التثبيت على التزام بعينه والتحقّق من البصمة قبل أي استعمال.",
+                        "Third-party programs: we neither write them nor review their updates, and they stay exactly as their authors ship them. What we add is pinning to a specific commit and verifying the hash before any use.")}</li>
+                    <li>{t("بعضها يُبدّل ملفّات ديسكورد نفسها، وتعديل ملفّاته مخالف لشروطه، ويُسقط توقيعه الرقمي — وقد تعترضه مضادّات الفيروسات.",
+                        "Some of them replace Discord's own files. Modifying those files is against its terms, it breaks the digital signature, and antivirus software may flag the result.")}</li>
+                    <li>{t("🔴 نماذج الأصوات بصيغة ‎.pth‎ تُنفّذ كوداً لحظة تحميلها. لا تأخذ نموذجاً إلّا من مصدر تثق به.",
+                        "🔴 Voice models in .pth format execute code the moment they load. Only take a model from a source you trust.")}</li>
+                    <li>{t("لا يبدأ تنزيل ولا تثبيت إلّا بضغطة صريحة منك بعد فتح القسم — فتحُه وحده لا يُنزّل شيئاً.",
+                        "No download or install starts without an explicit press from you after opening — opening alone downloads nothing.")}</li>
+                    <li>{t("أعطال هذه الأدوات تُراجَع عند أصحابها؛ ليس لإشراق يدٌ فيها ولا دعمٌ لها.",
+                        "Problems with these tools go to their own authors; Esharq has no hand in them and offers no support for them.")}</li>
+                </ul>
+            </NoticeStrip>
+
+            <SlideToUnlock
+                label={t("اسحب لفتح القسم", "Slide to open the section")}
+                unlockedLabel={t("مفتوح", "Unlocked")}
+                unlocked={opened}
+                onUnlock={() => {
+                    setOpened(true);
+                    // يستقرّ النابض ويُقرأ «مفتوح» قبل أن يظهر القسم: الكشف
+                    // اللحظيّ يبتلع الحركة التي تُخبر المستخدم أن سحبه نجح.
+                    timer.current = setTimeout(onUnlock, 420);
+                }}
+            />
+        </Card>
+    );
+}
+
 export function VoiceLabTools({ index, onChanged }: { index: number; onChanged: () => void; }) {
     const [status, setStatus] = useState<ToolsStatus | null>(null);
     const [busy, setBusy] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    // 🔴 مع بقيّة الـhooks وقبل أي خروج مبكر: الخروج فوق نداء hook يُغيّر ترتيب
+    // النداءات بين تصييرين فيكسر React.
+    const [unlocked, setUnlocked] = useState(() => micSettings.store.externalToolsUnlocked === true);
 
     const refresh = () => {
         MicProNative?.toolsStatus().then(setStatus).catch(() => setStatus(null));
@@ -105,6 +168,15 @@ export function VoiceLabTools({ index, onChanged }: { index: number; onChanged: 
     // النوع مضموناً داخل كل الإغلاقات أدناه بلا تأكيدات.
     const native = MicProNative;
     if (native == null) return null;
+
+    if (!unlocked) {
+        return (
+            <ToolsGate index={index} onUnlock={() => {
+                micSettings.store.externalToolsUnlocked = true;
+                setUnlocked(true);
+            }} />
+        );
+    }
 
     const run = async (id: string, fn: () => Promise<unknown>) => {
         setBusy(id);
@@ -133,6 +205,15 @@ export function VoiceLabTools({ index, onChanged }: { index: number; onChanged: 
                         "Esharq neither bundles these tools nor downloads them at install time. They stay exactly as their authors ship them, and each card lists its sources so you can read them first.")}
                 </NoticeStrip>
                 {error !== null && <NoticeStrip tone="danger">{error}</NoticeStrip>}
+
+                {/* إعادة القفل تُخفي القسم ولا تمسّ ما ثُبِّت — لمن يشارك جهازه. */}
+                <Row>
+                    <Btn label={t("أعد قفل القسم", "Lock the section again")}
+                        onClick={() => {
+                            micSettings.store.externalToolsUnlocked = false;
+                            setUnlocked(false);
+                        }} />
+                </Row>
             </Card>
 
             {/* ── الأداة الخارجية Stereo Hub ────────────────────────────────── */}

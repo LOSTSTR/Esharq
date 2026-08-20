@@ -25,6 +25,14 @@ export const settings = definePluginSettings({
         default: true,
         description: "Self-deafen while the loopback mic test is active (so you don't hear the channel doubled)"
     },
+    // Whether the user has slid the "external tools" gate open. Persisted so the
+    // warning is read once, not on every visit; OptionType.CUSTOM keeps it out of
+    // the settings page — it is a record of consent, not a knob to flip there.
+    externalToolsUnlocked: {
+        type: OptionType.CUSTOM,
+        description: "",
+        default: false
+    },
     // Persisted processing intent (echo / AGC / noise / VAD threshold). Hidden from the
     // settings page (OptionType.CUSTOM) — it's driven by the panel, not the settings UI.
     // MicPro owns this because Discord's per-connection audio setters don't update the
