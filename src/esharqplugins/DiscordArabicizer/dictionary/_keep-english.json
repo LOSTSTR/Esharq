@@ -172,7 +172,8 @@
         "Terracotta",
         "Sidekick",
         "Bloop",
-        "BoooOOOOooOo0o!"
+        "BoooOOOOooOo0o!",
+        "cal, VALORANT admin"
     ],
     "أسماء أصوات ومقاطع (لوحة الصوت والمتجر)": [
         "<$i>Record Scratch</$i>",
@@ -222,7 +223,10 @@
         "{username}: {message}",
         "{value, number}",
         "· {guildName}",
-        "<leaderboardNameHook>{leaderboardName}</leaderboardNameHook> · {timeLeft}"
+        "<leaderboardNameHook>{leaderboardName}</leaderboardNameHook> · {timeLeft}",
+        "Nitro Basic: {accessibilityLabel}",
+        "Roblox • {subgameName}",
+        "Team Fortress 2"
     ],
     "أسماء عناصر ومجموعات المتجر": [
         "Wumpus Box",
@@ -232,7 +236,10 @@
         "Wumpus' Favorite",
         "Coruscant Guard Outfit",
         "Coruscant's Pride Wrap",
-        "Golden Wumpus Club"
+        "Golden Wumpus Club",
+        "Wumpus Snow Globe",
+        "Wumpus and Locke",
+        "When I'm 64"
     ],
     "عبارات مُعلِّق الألعاب": [
         "Triple Kill",
@@ -243,6 +250,10 @@
     ],
     "عناوين ومعرّفات مثال": [
         "123 Discord Drive",
-        "Discord the Movie"
+        "Discord the Movie",
+        "Lorem, ipsum dolor"
+    ],
+    "أسماء مؤثّرات الملفّ": [
+        "Rest in Peace"
     ]
 }
