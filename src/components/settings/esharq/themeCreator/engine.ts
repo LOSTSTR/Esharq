@@ -148,7 +148,10 @@ export const VAR_ID = {
     ramp: "esharq-tc-ramp",
     glass: "esharq-tc-glass",
     background: "esharq-tc-bg",
-    text: "esharq-tc-text"
+    text: "esharq-tc-text",
+    gradient: "esharq-tc-gradient",
+    glow: "esharq-tc-glow",
+    fonts: "esharq-tc-fonts"
 } as const;
 
 /**
@@ -340,14 +343,235 @@ export interface TextTarget {
 
 export const TEXT_TARGETS: readonly TextTarget[] = [
     { key: "default", variable: "--text-default", ar: "النصّ الأساسي", en: "Primary text" },
+    { key: "strong", variable: "--text-strong", ar: "العناوين", en: "Headings" },
+    { key: "subtle", variable: "--text-subtle", ar: "النصّ الثانوي", en: "Secondary text" },
     { key: "muted", variable: "--text-muted", ar: "النصّ الخافت", en: "Muted text" },
     { key: "link", variable: "--text-link", ar: "الروابط", en: "Links" },
-    { key: "brand", variable: "--text-brand", ar: "لون العلامة", en: "Brand accent" }
+    { key: "brand", variable: "--text-brand", ar: "المؤشّرات", en: "Indicators" }
 ];
 
 export function buildTextCss(overrides: Record<string, string>): string {
     const lines = TEXT_TARGETS
         .filter(target => parseHex(overrides[target.key] ?? "") !== null)
         .map(target => `    ${target.variable}: #${parseHex(overrides[target.key])} !important;`);
+    return lines.length > 0 ? `:root {\n${lines.join("\n")}\n}` : "";
+}
+
+/* ── التدرّج والتوهّج ────────────────────────────────────────────────────── */
+
+/**
+ * أهداف التدرّج والتوهّج.
+ *
+ * 🔴 ستّة **مقيسة**، لا تسعة عشر منقولة عن لقطة. لكل هدفٍ هنا محدّدٌ جُرّب على
+ * عميل حيّ وعُدَّت مطابقاته: `username_` (54) · `markup_` (18) · `name_` (78) ·
+ * `title_` (6) · `anchor_` (25) · `timestamp_` (18).
+ *
+ * وما لم يُقَس لم يُدرَج. مِقبضٌ باسمٍ جميل لا يُطابق شيئاً أسوأ من غيابه:
+ * صاحبه يظنّ أنه لوّن شيئاً، ثم يبحث عن العطل في مكانٍ آخر.
+ */
+export interface PaintTarget {
+    key: string;
+    ar: string;
+    en: string;
+    selector: string;
+}
+
+export const PAINT_TARGETS: readonly PaintTarget[] = [
+    { key: "usernames", ar: "أسماء المستخدمين", en: "Display names", selector: '[class^="username_"], [class*=" username_"]' },
+    { key: "messages", ar: "نصّ الرسائل", en: "Message text", selector: '[class^="markup_"], [class*=" markup_"]' },
+    { key: "channels", ar: "أسماء القنوات", en: "Channel names", selector: '[class^="name_"], [class*=" name_"]' },
+    { key: "headings", ar: "العناوين", en: "Headings", selector: 'h1, h2, h3, [class^="title_"], [class*=" title_"]' },
+    { key: "links", ar: "الروابط", en: "Links", selector: '[class^="anchor_"], [class*=" anchor_"]' },
+    { key: "timestamps", ar: "الأوقات", en: "Timestamps", selector: '[class^="timestamp_"], [class*=" timestamp_"]' }
+];
+
+export type Direction = "to right" | "to left" | "to bottom" | "135deg" | "45deg";
+
+export const DIRECTIONS: readonly { key: Direction; ar: string; en: string; }[] = [
+    { key: "to right", ar: "أفقي", en: "Horizontal" },
+    { key: "to left", ar: "أفقي معكوس", en: "Reversed" },
+    { key: "to bottom", ar: "رأسي", en: "Vertical" },
+    { key: "135deg", ar: "مائل نازل", en: "Diagonal down" },
+    { key: "45deg", ar: "مائل صاعد", en: "Diagonal up" }
+];
+
+export interface GradientOptions {
+    enabled: boolean;
+    targets: string[];
+    start: string;
+    end: string;
+    direction: Direction;
+    motion: boolean;
+    speed: number;
+    fps: number;
+}
+
+export interface GlowOptions {
+    enabled: boolean;
+    targets: string[];
+    color: string;
+    strength: number;
+    blur: number;
+    motion: boolean;
+    speed: number;
+    fps: number;
+}
+
+const ANIM_GRADIENT = "esharq-tc-gradient-shift";
+const ANIM_GLOW = "esharq-tc-glow-pulse";
+
+/**
+ * سقفُ الإطارات يُنفَّذ بـ`steps()`.
+ *
+ * وهذا ليس حيلة: `steps(n)` تُقسّم الحركة إلى n قفزة على مدى الدورة، فتصير
+ * التحديثات المرئية `n ÷ المدّة` في الثانية بالضبط. فمن اختار 24 إطاراً حصل
+ * على 24 لا على ستّين تُرسَم ثم تُهدَر.
+ */
+function timing(fps: number, seconds: number): string {
+    const frames = Math.max(1, Math.round(fps * seconds));
+    return `steps(${frames}, end)`;
+}
+
+function selectorsFor(targets: string[]): string {
+    return PAINT_TARGETS
+        .filter(target => targets.includes(target.key))
+        .map(target => target.selector)
+        .join(",\n");
+}
+
+/**
+ * تدرّجٌ على النصّ.
+ *
+ * `background-clip: text` مع `text-fill-color: transparent` هو الطريق الوحيد
+ * لتلوين الحروف بتدرّج. و`color: transparent` مكتوبةٌ معها للمتصفّحات التي لا
+ * تعرف البادئة — بدونها يظهر النصّ بلونه الأصلي فوق التدرّج فيختفي التأثير.
+ *
+ * ⚠️ والحركة تُلغى لمن طلب تقليلها: `prefers-reduced-motion` ليس ذوقاً، بل
+ * إعدادُ وصولٍ تُسبّب مخالفتُه دواراً حقيقياً لبعض الناس.
+ */
+export function buildGradientCss(options: GradientOptions): string {
+    if (!options.enabled || options.targets.length === 0) return "";
+
+    const start = parseHex(options.start);
+    const end = parseHex(options.end);
+    if (start === null || end === null) return "";
+
+    const selector = selectorsFor(options.targets);
+    if (selector === "") return "";
+
+    const lines = [
+        `    background-image: linear-gradient(${options.direction}, #${start}, #${end}) !important;`,
+        "    -webkit-background-clip: text !important;",
+        "    background-clip: text !important;",
+        "    -webkit-text-fill-color: transparent !important;",
+        "    color: transparent !important;"
+    ];
+
+    if (options.motion) {
+        lines.push("    background-size: 250% 250% !important;");
+        lines.push(`    animation: ${ANIM_GRADIENT} ${options.speed}s ${timing(options.fps, options.speed)} infinite !important;`);
+    }
+
+    const blocks = [`${selector} {\n${lines.join("\n")}\n}`];
+
+    if (options.motion) {
+        blocks.push(
+            `@keyframes ${ANIM_GRADIENT} {\n`
+            + "    0% { background-position: 0% 50%; }\n"
+            + "    50% { background-position: 100% 50%; }\n"
+            + "    100% { background-position: 0% 50%; }\n}"
+        );
+        blocks.push(
+            "@media (prefers-reduced-motion: reduce) {\n"
+            + selector + " {\n        animation: none !important;\n    }\n}"
+        );
+    }
+
+    return blocks.join("\n\n");
+}
+
+/**
+ * توهّجٌ حول الحروف.
+ *
+ * `text-shadow` مكرّرةً ثلاثاً بأنصاف أقطار متزايدة: ظلٌّ واحد يُنتج هالةً
+ * مسطّحة، والثلاثة تُعطي تدرّجاً يُشبه الضوء. والقوّة تضبط الشفافية لا الحجم،
+ * كي لا يزحف التوهّج على الحرف المجاور فيلتصق النصّ.
+ */
+export function buildGlowCss(options: GlowOptions): string {
+    if (!options.enabled || options.targets.length === 0) return "";
+
+    const color = parseHex(options.color);
+    if (color === null) return "";
+
+    const selector = selectorsFor(options.targets);
+    if (selector === "") return "";
+
+    const alpha = Math.max(0, Math.min(100, options.strength)) / 100;
+    const shadow = [
+        `0 0 ${options.blur}px ${withAlpha("#" + color, alpha)}`,
+        `0 0 ${options.blur * 2}px ${withAlpha("#" + color, alpha * 0.6)}`,
+        `0 0 ${Math.round(options.blur * 3.5)}px ${withAlpha("#" + color, alpha * 0.3)}`
+    ].join(", ");
+
+    const lines = [`    text-shadow: ${shadow} !important;`];
+    if (options.motion) {
+        lines.push(`    animation: ${ANIM_GLOW} ${options.speed}s ${timing(options.fps, options.speed)} infinite !important;`);
+    }
+
+    const blocks = [`${selector} {\n${lines.join("\n")}\n}`];
+
+    if (options.motion) {
+        blocks.push(
+            `@keyframes ${ANIM_GLOW} {\n`
+            + "    0%, 100% { opacity: 1; }\n"
+            + "    50% { opacity: 0.72; }\n}"
+        );
+        blocks.push(
+            "@media (prefers-reduced-motion: reduce) {\n"
+            + selector + " {\n        animation: none !important;\n    }\n}"
+        );
+    }
+
+    return blocks.join("\n\n");
+}
+
+/* ── الطباعة ─────────────────────────────────────────────────────────────── */
+
+/**
+ * خطوطٌ من النظام وحده — **لا تُنزَّل أبداً**.
+ *
+ * 🔴 `queryLocalFonts()` موجودةٌ في هذا البناء لكنها تُرجع **صفر خطّاً** (الإذن
+ * غير ممنوح)، فتعداد خطوط الجهاز غير ممكن. والقائمة هنا خطوطٌ تُشحن مع ويندوز،
+ * **كلٌّ منها يُتحقَّق من وجوده** بـ`document.fonts.check` قبل أن يُعرَض — فلا
+ * يختار أحدٌ خطّاً لا يملكه ثم يرى الافتراضي ولا يفهم لماذا.
+ *
+ * ولا يمسّ هذا الخطَّ العربي: ذاك في صفحة «اللغة»، ويبقى أوّلَ السلسلة هنا
+ * لأنه يعرف المحارف العربية وحدها فلا يُغيّر اللاتيني.
+ */
+export const INTERFACE_FONTS: readonly string[] = [
+    "Segoe UI", "Segoe UI Variable Text", "Calibri", "Tahoma", "Verdana",
+    "Arial", "Georgia", "Times New Roman", "Trebuchet MS"
+];
+
+export const MONO_FONTS: readonly string[] = [
+    "Consolas", "Cascadia Code", "Cascadia Mono", "Courier New", "Lucida Console"
+];
+
+/** أيّ هذه الخطوط موجودٌ فعلاً على هذا الجهاز؟ */
+export function availableFonts(candidates: readonly string[]): string[] {
+    try {
+        return candidates.filter(family => document.fonts.check(`12px "${family}"`));
+    } catch {
+        return [];
+    }
+}
+
+export function buildFontCss(interfaceFont: string, monoFont: string): string {
+    const lines: string[] = [];
+    if (interfaceFont !== "") {
+        lines.push(`    --font-primary: "${interfaceFont}", sans-serif;`);
+        lines.push(`    --font-display: "${interfaceFont}", sans-serif;`);
+    }
+    if (monoFont !== "") lines.push(`    --font-code: "${monoFont}", monospace;`);
     return lines.length > 0 ? `:root {\n${lines.join("\n")}\n}` : "";
 }

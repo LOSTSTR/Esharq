@@ -17,9 +17,14 @@ import { PlainSettings, Settings } from "@api/Settings";
 import {
     BackgroundOptions,
     buildBackgroundCss,
+    buildFontCss,
     buildGlassCss,
+    buildGlowCss,
+    buildGradientCss,
     buildRampCss,
     buildTextCss,
+    GlowOptions,
+    GradientOptions,
     NeutralMap,
     parseHex,
     parseNeutrals,
@@ -33,6 +38,14 @@ export interface ThemeCreatorState {
     enabled: boolean;
     /** بلا `#`. */
     color: string;
+    /**
+     * الوضع الزجاجي مفتاحٌ واحد فوق كل المقابض.
+     *
+     * 🔴 بلا هذا المفتاح، من ضبط سبعة مقابض ثم أراد رؤية شكله بدونها اضطرّ
+     * إلى تصفيرها كلّها — ثم إعادة ضبطها واحداً واحداً ليعود. والمفتاح يُطفئ
+     * ويُعيد **بلا فقد قيمة**.
+     */
+    glass: boolean;
     surfaces: SurfaceValues;
     panelBlur: number;
     background: {
@@ -43,15 +56,40 @@ export interface ThemeCreatorState {
         dim: number;
     };
     text: Record<string, string>;
+    gradient: GradientOptions;
+    glow: GlowOptions;
+    fonts: { interface: string; mono: string; };
 }
 
 export const DEFAULT_STATE: ThemeCreatorState = {
     enabled: false,
     color: "1e1f22",
+    glass: false,
     surfaces: {},
     panelBlur: 0,
     background: { enabled: false, fit: "cover", position: "center", blur: 0, dim: 25 },
-    text: {}
+    text: {},
+    gradient: {
+        enabled: false,
+        targets: ["usernames"],
+        start: "c9a227",
+        end: "e3c25a",
+        direction: "to right",
+        motion: false,
+        speed: 8,
+        fps: 30
+    },
+    glow: {
+        enabled: false,
+        targets: ["usernames"],
+        color: "c9a227",
+        strength: 55,
+        blur: 12,
+        motion: false,
+        speed: 8,
+        fps: 30
+    },
+    fonts: { interface: "", mono: "" }
 };
 
 /** ألوانٌ صالحة للوضع الداكن — كلّها تحت عتبة التباين، فلا تُنتج تحذيراً. */
@@ -78,7 +116,10 @@ export function readState(): ThemeCreatorState {
         ...raw,
         surfaces: { ...(raw.surfaces ?? {}) },
         background: { ...DEFAULT_STATE.background, ...(raw.background ?? {}) },
-        text: { ...(raw.text ?? {}) }
+        text: { ...(raw.text ?? {}) },
+        gradient: { ...DEFAULT_STATE.gradient, ...(raw.gradient ?? {}) },
+        glow: { ...DEFAULT_STATE.glow, ...(raw.glow ?? {}) },
+        fonts: { ...DEFAULT_STATE.fonts, ...(raw.fonts ?? {}) }
     };
 }
 
@@ -167,11 +208,27 @@ export function applyTheme({ state, neutrals, backgroundDataUrl }: ApplyInput): 
     const hex = parseHex(state.color) ?? DEFAULT_STATE.color;
 
     setStyle(VAR_ID.ramp, neutrals.size > 0 ? buildRampCss(neutrals, hex) : "");
-    setStyle(VAR_ID.glass, buildGlassCss(state.surfaces, state.panelBlur, resolveSurfaceColor));
+
+    // 🔴 يُزال زجاج المرّة السابقة **قبل** قراءة ألوان الأسطح.
+    //
+    // بدونه تقرأ `resolveSurfaceColor` مُخرَجاتنا نحن لا لون ديسكورد، فتُضرب
+    // الشفافية في نفسها مع كل تغيير حتى يذوب السطح. قِيس حيّاً: 45% صارت
+    // 33.75% في التطبيق الثاني (0.45 × 0.75) — تسرّبٌ صامت لا رسالة له،
+    // ويزداد سوءاً كلّما حرّك صاحبه المِقبض.
+    //
+    // والإزالة أوّلاً تُعيد اللون إلى ما يرسمه ديسكورد **بسلّمنا الجديد** —
+    // وهو ما نريد بالضبط: زجاجٌ فوق لونك لا فوق زجاجك.
+    document.getElementById(VAR_ID.glass)?.remove();
+    setStyle(VAR_ID.glass, state.glass
+        ? buildGlassCss(state.surfaces, state.panelBlur, resolveSurfaceColor)
+        : "");
     setStyle(VAR_ID.text, buildTextCss(state.text));
     setStyle(VAR_ID.background, state.background.enabled && backgroundDataUrl
         ? buildBackgroundCss({ dataUrl: backgroundDataUrl, ...state.background })
         : "");
+    setStyle(VAR_ID.gradient, buildGradientCss(state.gradient));
+    setStyle(VAR_ID.glow, buildGlowCss(state.glow));
+    setStyle(VAR_ID.fonts, buildFontCss(state.fonts.interface, state.fonts.mono));
 }
 
 export function removeTheme(): void {
@@ -225,7 +282,7 @@ export function exportCss(state: ThemeCreatorState, name: string, author: string
     const hex = parseHex(state.color) ?? DEFAULT_STATE.color;
     const neutrals = neutralCache ?? new Map();
 
-    const surfaceLines = SURFACES
+    const surfaceLines = (state.glass ? SURFACES : [])
         .map(s => ({ s, v: state.surfaces[s.key] ?? 0 }))
         .filter(({ v }) => v > 0)
         .map(({ s, v }) => ` * ${s.ar} · ${s.en}: ${v}%`);
@@ -251,8 +308,11 @@ export function exportCss(state: ThemeCreatorState, name: string, author: string
     const blocks = [
         header.join("\n"),
         neutrals.size > 0 ? buildRampCss(neutrals, hex) : "",
-        buildGlassCss(state.surfaces, state.panelBlur, resolveSurfaceColor),
-        buildTextCss(state.text)
+        state.glass ? buildGlassCss(state.surfaces, state.panelBlur, resolveSurfaceColor) : "",
+        buildTextCss(state.text),
+        buildGradientCss(state.gradient),
+        buildGlowCss(state.glow),
+        buildFontCss(state.fonts.interface, state.fonts.mono)
     ].filter(block => block !== "");
 
     return blocks.join("\n\n") + "\n";

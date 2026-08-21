@@ -332,3 +332,187 @@
         transition: none;
     }
 }
+
+/* ── المظهر الأساس ───────────────────────────────────────────────────────── */
+
+.esharq-tc-modes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.esharq-tc-mode {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 0;
+    text-align: start;
+    background: #17171b;
+    box-shadow: inset 0 0 0 1px #ffffff0a;
+    color: inherit;
+    cursor: pointer;
+    transition: background 0.16s ease, box-shadow 0.16s ease;
+}
+
+.esharq-tc-mode:hover {
+    background: #1d1d23;
+}
+
+.esharq-tc-mode.on {
+    background: rgb(201 162 39 / 8%);
+    box-shadow: inset 0 0 0 1px rgb(201 162 39 / 45%);
+}
+
+.esharq-tc-mode-swatch {
+    inline-size: 34px;
+    block-size: 34px;
+    flex: 0 0 auto;
+    border-radius: 9px;
+    box-shadow: inset 0 0 0 1px #ffffff26;
+}
+
+.esharq-tc-mode-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-inline-size: 0;
+}
+
+.esharq-tc-mode-text b {
+    font-size: 14px;
+}
+
+.esharq-tc-mode-text span {
+    font-size: 11.5px;
+    opacity: 0.55;
+}
+
+/* ── فحص المظهر ─────────────────────────────────────────────────────────── */
+
+/* التحذير يحمل حلَّه بجواره: تحذيرٌ بلا زرٍّ يترك صاحبه يبحث عن الإعداد. */
+.esharq-tc-warn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+    padding: 13px 16px;
+    border-radius: 10px;
+    background: rgb(242 63 67 / 8%);
+    border-inline-start: 3px solid var(--status-danger, #f23f43);
+}
+
+.esharq-tc-warn-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1 1 240px;
+    min-inline-size: 0;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.esharq-tc-warn-text b {
+    color: #ff9a9d;
+}
+
+/* ── الأهداف ─────────────────────────────────────────────────────────────── */
+
+.esharq-tc-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin: 4px 0 8px;
+}
+
+.esharq-tc-chip {
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: 0;
+    font-size: 12.5px;
+    background: #17171b;
+    box-shadow: inset 0 0 0 1px #ffffff0f;
+    color: inherit;
+    cursor: pointer;
+    transition: background 0.14s ease, box-shadow 0.14s ease;
+}
+
+.esharq-tc-chip:hover {
+    background: #1d1d23;
+}
+
+.esharq-tc-chip.on {
+    background: rgb(201 162 39 / 14%);
+    box-shadow: inset 0 0 0 1px rgb(201 162 39 / 50%);
+    color: #ecd384;
+}
+
+.esharq-tc-chip.all {
+    font-weight: 700;
+}
+
+.esharq-tc-chip:focus-visible,
+.esharq-tc-choice:focus-visible,
+.esharq-tc-mode:focus-visible,
+.esharq-tc-quick-btn:focus-visible {
+    outline: 2px solid #c9a227;
+    outline-offset: 2px;
+}
+
+/* ── معاينة ونماذج ──────────────────────────────────────────────────────── */
+
+.esharq-tc-quick-btn.on {
+    background: rgb(201 162 39 / 10%);
+    box-shadow: inset 0 0 0 1px rgb(201 162 39 / 40%);
+}
+
+.esharq-tc-preview {
+    margin-top: 16px;
+    padding: 22px 18px;
+    border-radius: 12px;
+    background: #101014;
+    box-shadow: inset 0 0 0 1px #ffffff0a;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+/* المعاينة تُري التدرّج على الحروف نفسها كما سيظهر، لا مستطيلاً ملوّناً. */
+.esharq-tc-preview.gradient {
+    background-color: #101014;
+
+    /* كروميوم 120+ يفهم غير المسبوقة، وهذا البناء أحدث منها بكثير.
+       أمّا `-webkit-text-fill-color` فلا مقابل قياسيّاً لها. */
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+.esharq-tc-colour-pair {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    justify-content: flex-end;
+}
+
+.esharq-tc-code {
+    font-family: var(--font-code, monospace);
+    font-size: 11.5px;
+    opacity: 0.6;
+    direction: ltr;
+}
+
+.esharq-tc-select {
+    inline-size: 100%;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-medium, #ffffff1f);
+    background: var(--input-background, #1e1f22);
+    color: var(--text-default, #f2f3f5);
+    font-size: 13.5px;
+    cursor: pointer;
+}
