@@ -1,0 +1,138 @@
+/*
+ * Esharq, a Discord client mod
+ * Copyright (c) 2026 LOSTSTR
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+/* ── الرصد: جرد الوجهات ──────────────────────────────────────────────────── */
+
+.esharq-sv-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+    padding: 10px 14px;
+    border-radius: 11px;
+    background: #17171b;
+    box-shadow: inset 0 0 0 1px #ffffff10;
+    transition: box-shadow 0.16s ease;
+}
+
+.esharq-sv-search:focus-within {
+    box-shadow: inset 0 0 0 1px #c9a22766;
+}
+
+.esharq-sv-search input {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    border: none;
+    background: none;
+    outline: none;
+    color: var(--text-normal);
+    font-size: 13.5px;
+    direction: ltr;
+    text-align: start;
+}
+
+.esharq-sv-search button {
+    border: none;
+    background: #2a2a31;
+    color: var(--text-normal);
+    border-radius: 999px;
+    inline-size: 22px;
+    block-size: 22px;
+    cursor: pointer;
+    font-size: 11px;
+    line-height: 1;
+}
+
+.esharq-sv-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.esharq-sv-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 9px 12px;
+    border-radius: 9px;
+    background: #17171b;
+    border-inline-start: 3px solid transparent;
+    transition: background 0.14s ease;
+}
+
+.esharq-sv-row:hover {
+    background: #1d1d23;
+}
+
+/* ما يُسمح له بشيفرة يحمل حدّاً أحمر — أخطر صفّ يُرى قبل أن يُقرأ. */
+.esharq-sv-row.exec {
+    border-inline-start-color: var(--status-danger, #f23f43);
+    background: rgb(242 63 67 / 6%);
+}
+
+.esharq-sv-host {
+    flex: 1 1 200px;
+    min-inline-size: 0;
+    font-family: var(--font-code, monospace);
+    font-size: 12.5px;
+    overflow-wrap: anywhere;
+
+    /* أسماء المضيفين إنجليزية دائماً. */
+    direction: ltr;
+    text-align: start;
+}
+
+.esharq-sv-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.esharq-sv-tag {
+    font-size: 10.5px;
+    padding: 2px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+    background: #2a2a31;
+    color: var(--text-muted);
+}
+
+.esharq-sv-tag.code {
+    background: rgb(242 63 67 / 16%);
+    color: #ff9a9d;
+}
+
+.esharq-sv-tag.net {
+    background: rgb(88 101 242 / 20%);
+    color: #a8b1ff;
+}
+
+.esharq-sv-tag.media {
+    background: rgb(35 165 90 / 15%);
+    color: #7fd8a4;
+}
+
+.esharq-sv-tag.style {
+    background: rgb(201 162 39 / 15%);
+    color: #e0c565;
+}
+
+.esharq-sv-mine {
+    font-size: 10.5px;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: rgb(201 162 39 / 18%);
+    color: #e0c565;
+    white-space: nowrap;
+}
+
+.esharq-sv-empty {
+    padding: 26px 12px;
+    text-align: center;
+    font-size: 13px;
+    opacity: 0.5;
+}

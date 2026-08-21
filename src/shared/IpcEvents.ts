@@ -66,4 +66,7 @@ export const enum IpcEvents {
     COMMUNITY_READ_SOURCE = "EsharqCommunityReadSource",
     /** متزامن: يُقرأ قبل تمهيد ديسكورد كي تلحق الرقع. */
     COMMUNITY_GET_BUNDLE = "EsharqCommunityGetBundle",
+
+    /* الرصد — جرد الوجهات الشبكية المسموح بها. */
+    CSP_LIST_POLICIES = "EsharqCspListPolicies",
 }

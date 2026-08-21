@@ -12,7 +12,23 @@ import { CspPolicies, ImageAndCssSrc } from ".";
 
 export type CspRequestResult = "invalid" | "cancelled" | "unchecked" | "ok" | "conflict";
 
+/**
+ * جرد الوجهات: ما يسمح به إشراق، وما أضافه المستخدم بنفسه.
+ *
+ * 🔴 يُقرأ من `CspPolicies` نفسه — مصدر الحقيقة الذي يُطبَّق فعلاً. وأي جدول
+ * يُكتب بجانبه في الواجهة يتعفّن: يُضاف مضيفٌ إلى السياسة ولا يُضاف إلى
+ * الجدول، فتقول الصفحة إن الاتّصال ممنوع وهو مسموح.
+ */
+export function listCspPolicies() {
+    const custom = NativeSettings.store.customCspRules ?? {};
+    return {
+        builtIn: Object.entries(CspPolicies).map(([host, directives]) => ({ host, directives })),
+        custom: Object.entries(custom).map(([host, directives]) => ({ host, directives: directives as string[] }))
+    };
+}
+
 export function registerCspIpcHandlers() {
+    ipcMain.handle(IpcEvents.CSP_LIST_POLICIES, () => listCspPolicies());
     ipcMain.handle(IpcEvents.CSP_REMOVE_OVERRIDE, removeCspRule);
     ipcMain.handle(IpcEvents.CSP_REQUEST_ADD_OVERRIDE, addCspRule);
     ipcMain.handle(IpcEvents.CSP_IS_DOMAIN_ALLOWED, isDomainAllowed);

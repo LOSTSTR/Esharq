@@ -103,6 +103,12 @@ export default {
         removeOverride: (url: string) => invoke<boolean>(IpcEvents.CSP_REMOVE_OVERRIDE, url),
         requestAddOverride: (url: string, directives: string[], callerName: string) =>
             invoke<CspRequestResult>(IpcEvents.CSP_REQUEST_ADD_OVERRIDE, url, directives, callerName),
+
+        /** جرد الوجهات المسموح بها — لصفحة «الرصد». */
+        listPolicies: () => invoke<{
+            builtIn: { host: string; directives: string[]; }[];
+            custom: { host: string; directives: string[]; }[];
+        }>(IpcEvents.CSP_LIST_POLICIES),
     },
 
     tray: {
