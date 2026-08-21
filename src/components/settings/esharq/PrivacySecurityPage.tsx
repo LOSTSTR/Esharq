@@ -8,10 +8,12 @@ import "./privacySecurity.css";
 
 import { useSettings } from "@api/Settings";
 import { isSecretKey } from "@api/SettingsSync/redact";
+import { BlockSnapshot, getBlockSnapshot } from "@debug/blockLog";
 import { t } from "@utils/esharqI18n";
 import { useEffect, useMemo, useState } from "@webpack/common";
 
 import { Card, NoticeStrip, StatRow } from "./Card";
+import { CopyButton } from "./CopyButton";
 import { stagger } from "./motion";
 import { Section, SectionTabs } from "./SectionTabs";
 
@@ -34,6 +36,22 @@ import { Section, SectionTabs } from "./SectionTabs";
  * سرّية عندك، وتُنقّى عند التصدير» ولا يُطبَع مفتاح واحد ولا جزء منه. صفحةٌ
  * تعرض السرّ لتُخبرك أنه محميّ صفحةٌ متناقضة.
  */
+
+const KIND_LABELS: Record<string, { ar: string; en: string; }> = {
+    analytics: { ar: "تحليلات", en: "Analytics" },
+    metric: { ar: "مقياس", en: "Metric" },
+    sentry: { ar: "تقرير عطل", en: "Crash report" },
+    science: { ar: "Science", en: "Science" }
+};
+
+/** «قبل ثوانٍ» أوضح من طابعٍ زمنيّ لسطرٍ عمرُه لحظات. */
+function ago(at: number): string {
+    const seconds = Math.max(0, Math.round((Date.now() - at) / 1000));
+    if (seconds < 60) return t(`قبل ${seconds} ثانية`, `${seconds}s ago`);
+    const minutes = Math.round(seconds / 60);
+    if (minutes < 60) return t(`قبل ${minutes} دقيقة`, `${minutes}m ago`);
+    return t(`قبل ${Math.round(minutes / 60)} ساعة`, `${Math.round(minutes / 60)}h ago`);
+}
 
 interface HostRule {
     host: string;
@@ -117,6 +135,7 @@ export function PrivacySecurityPage() {
     const [data, setData] = useState<{ root: string; entries: DataEntry[]; } | null>(null);
     const [failed, setFailed] = useState(false);
     const [hosts, setHosts] = useState<{ builtIn: HostRule[]; custom: HostRule[]; } | null>(null);
+    const [blocks, setBlocks] = useState<BlockSnapshot>(() => getBlockSnapshot());
 
     useEffect(() => {
         const api = (window as any).VencordNative?.dataInventory;
@@ -127,6 +146,13 @@ export function PrivacySecurityPage() {
         (window as any).VencordNative?.csp?.listPolicies?.()
             .then(setHosts)
             .catch(() => setHosts({ builtIn: [], custom: [] }));
+
+        // 🔴 المؤقّت يعيش مع الصفحة ويموت معها.
+        //
+        // العدّاد حيّ فيجب أن يتحرّك أمام الناظر، لكنّ مؤقّتاً يبقى بعد إغلاق
+        // الصفحة تكلفةٌ دائمة لأجل شاشةٍ لا تُرى. وثانيتان تكفيان لعينٍ تقرأ.
+        const timer = setInterval(() => setBlocks(getBlockSnapshot()), 2000);
+        return () => clearInterval(timer);
     }, []);
 
     const secrets = useMemo(() => {
@@ -266,6 +292,70 @@ export function PrivacySecurityPage() {
                     </>
                 )}
             </Card>
+        },
+        {
+            key: "blocked",
+            ar: "ما حُجب الآن", en: "Blocked now",
+            count: blocks.total,
+            tone: blocks.total > 0 ? "ok" : "info",
+            render: () => (
+                <Card index={0}
+                    title={t("تتبّع ديسكورد المحجوب", "Discord tracking, blocked")}
+                    subtitle={t("عدّادٌ حيّ لما أوقفه إشراق منذ إقلاعك — لا وعدٌ مكتوب.",
+                        "A live count of what Esharq stopped since you started — not a written promise.")}
+                    badge={blocks.total > 0 ? String(blocks.total) : t("لا شيء بعد", "Nothing yet")}
+                    badgeTone={blocks.total > 0 ? "ok" : "info"}>
+
+                    <StatRow items={[
+                        { label: t("المجموع", "Total"), value: String(blocks.total) },
+                        { label: t("أحداث تحليلية", "Analytics"), value: String(blocks.counts.analytics) },
+                        { label: t("مقاييس", "Metrics"), value: String(blocks.counts.metric) },
+                        { label: t("تقارير أعطال", "Crash reports"), value: String(blocks.counts.sentry) }
+                    ]} />
+
+                    <div className="esharq-ps-since">
+                        {t(`منذ إقلاع العميل قبل ${Math.max(1, Math.round((Date.now() - blocks.since) / 60000))} دقيقة.`,
+                            `Since the client started ${Math.max(1, Math.round((Date.now() - blocks.since) / 60000))} minutes ago.`)}
+                    </div>
+
+                    {blocks.recent.length === 0 ? (
+                        <NoticeStrip>
+                            {t("لم يُحجَب شيء بعد. وهذا طبيعيّ في أوّل دقائق الجلسة — ديسكورد يُرسل قياساته على فترات، لا فور الإقلاع.",
+                                "Nothing has been blocked yet. That is normal in the first minutes — Discord sends its measurements periodically, not at startup.")}
+                        </NoticeStrip>
+                    ) : (
+                        <>
+                            <div className="esharq-ps-sub">{t("آخر ما حُجب", "Most recent")}</div>
+                            <div className="esharq-ps-blocks">
+                                {blocks.recent.slice(0, 12).map((entry, i) => (
+                                    <div key={entry.at + entry.label + i} className="esharq-ps-block esharq-rise" style={stagger(Math.min(i, 10), 4)}>
+                                        <span className={"esharq-ps-kind " + entry.kind}>{t(KIND_LABELS[entry.kind].ar, KIND_LABELS[entry.kind].en)}</span>
+                                        <code>{entry.label}</code>
+                                        <span className="esharq-ps-ago">{ago(entry.at)}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
+
+                    <div className="esharq-ps-actions">
+                        <CopyButton
+                            text={() => JSON.stringify({
+                                total: blocks.total,
+                                counts: blocks.counts,
+                                minutes: Math.round((Date.now() - blocks.since) / 60000),
+                                recent: blocks.recent.map(e => ({ kind: e.kind, label: e.label, secondsAgo: Math.round((Date.now() - e.at) / 1000) }))
+                            }, null, 2)}
+                            label={t("انسخ التقرير", "Copy report")}
+                        />
+                    </div>
+
+                    <NoticeStrip>
+                        {t("يُسجَّل نوع الحدث ووقته فقط — لا محتواه ولا أي شيء منك. وصفحةٌ تعرض ما مُنع إرساله لتُطمئنك أنه لم يُرسَل صفحةٌ تناقض نفسها.",
+                            "Only the event's type and time are recorded — never its contents, and nothing of yours. A page that shows you what was stopped from being sent, in order to reassure you it wasn't sent, would contradict itself.")}
+                    </NoticeStrip>
+                </Card>
+            )
         },
         {
             key: "hosts",

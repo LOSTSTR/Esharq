@@ -187,3 +187,93 @@
     text-align: start;
     overflow-wrap: anywhere;
 }
+
+/* ── ما حُجب ─────────────────────────────────────────────────────────────── */
+
+.esharq-ps-since {
+    margin-top: 12px;
+    font-size: 11.5px;
+    opacity: 0.45;
+}
+
+.esharq-ps-sub {
+    margin: 18px 0 8px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.5;
+}
+
+.esharq-ps-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.esharq-ps-block {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 13px;
+    border-radius: 9px;
+    background: #15151a;
+    box-shadow: inset 0 0 0 1px #ffffff08;
+    min-inline-size: 0;
+}
+
+/* نوعُ الحدث بلونه: يُميَّز بالعين قبل أن يُقرأ. */
+.esharq-ps-kind {
+    flex: 0 0 auto;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 700;
+    background: #ffffff12;
+}
+
+.esharq-ps-kind.analytics {
+    background: rgb(88 101 242 / 20%);
+    color: #a3adff;
+}
+
+.esharq-ps-kind.metric {
+    background: rgb(201 162 39 / 20%);
+    color: #ecd384;
+}
+
+.esharq-ps-kind.sentry {
+    background: rgb(242 63 67 / 18%);
+    color: #ff9a9d;
+}
+
+.esharq-ps-kind.science {
+    background: rgb(35 165 90 / 18%);
+    color: #4ac07a;
+}
+
+.esharq-ps-block code {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    font-family: var(--font-code, monospace);
+    font-size: 11.5px;
+    opacity: 0.75;
+    direction: ltr;
+    text-align: start;
+    overflow-wrap: anywhere;
+}
+
+.esharq-ps-ago {
+    flex: 0 0 auto;
+    font-size: 10.5px;
+    opacity: 0.4;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.esharq-ps-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+}

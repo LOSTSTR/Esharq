@@ -17,6 +17,7 @@
 */
 
 import { definePluginSettings } from "@api/Settings";
+import { recordBlock } from "@debug/blockLog";
 import { Devs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType, StartAt } from "@utils/types";
@@ -58,8 +59,11 @@ export default definePlugin({
                     replace: "this._intervalId=void 0&&"
                 },
                 {
+                    // 🔴 `$self.countMetric()` قبل `return`: الحدث كان يُرمى
+                    // صامتاً منذ سنوات. وعدُّه لا يُغيّر سلوكاً — يجعل الحماية
+                    // مرئيةً لمن لا يملك إلّا أن يُصدّقنا.
                     match: /(?:increment|distribution)\(\i(?:,\i)?\){/g,
-                    replace: "$&return;"
+                    replace: "$&$self.countMetric();return;"
                 }
             ]
         },
@@ -78,6 +82,19 @@ export default definePlugin({
     // Since we NOOP the AnalyticsActionHandlers module, there is no handler for the TRACK event, so we have to handle it ourselves
     flux: {
         TRACK(event) {
+            // اسم الحدث وحده يُسجَّل — لا حمولته.
+            //
+            // 🔴 والاسم في `event.event` **نصّاً** لا في `event.event.type`.
+            // قِيس على أحداثٍ حقيقية: `{type:"TRACK", event:"settings_pane_viewed",
+            // properties:{guild_id, guild_size_total, guild_num_channels, …}}`.
+            // وتلك الحمولة هي بالضبط ما لا يُلمَس هنا: تعرف معرّف خادمك وعدد
+            // أعضائه وقنواته — ولا يُسجَّل منها حرف.
+            try {
+                const raw = (event as any)?.event;
+                const name = typeof raw === "string" ? raw : (raw?.type ?? (event as any)?.type ?? "TRACK");
+                const text = String(name);
+                recordBlock(text.toLowerCase().includes("science") ? "science" : "analytics", text);
+            } catch { /* العدّ لا يُعطّل الحجب */ }
             event?.resolve?.();
         }
     },
@@ -124,6 +141,7 @@ export default definePlugin({
                 }
 
                 new Logger("NoTrack", "#8caaee").info("Disabling Sentry by erroring its WebpackInstance");
+                try { recordBlock("sentry", "DiscordSentry"); } catch { /* العدّ لا يُعطّل الحجب */ }
 
                 Reflect.deleteProperty(Function.prototype, "d");
                 Reflect.deleteProperty(window, "DiscordSentry");
@@ -142,6 +160,11 @@ export default definePlugin({
                 Reflect.deleteProperty(window, "DiscordSentry");
             }
         });
+    },
+
+    /** يُنادى من رقعة `METRICS_V2` لكل مقياسٍ يُرمى. */
+    countMetric() {
+        try { recordBlock("metric", "METRICS_V2"); } catch { /* العدّ لا يُعطّل الحجب */ }
     },
 
     analyticsTrackingStoreMaker() {
