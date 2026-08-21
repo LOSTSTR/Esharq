@@ -22,11 +22,17 @@ import { app, net, protocol } from "electron";
 import { join } from "path";
 import { pathToFileURL } from "url";
 
+import { registerCommunityPluginIpc } from "./communityPlugins";
 import { initCsp } from "./csp";
 import { RendererSettings } from "./settings";
 import { IS_VANILLA, THEMES_DIR } from "./utils/constants";
 import { ensureSafePath } from "./utils/ensureSafePath";
 import { installExt } from "./utils/extensions";
+
+// 🔴 تُسجَّل عند تحميل الوحدة لا داخل `whenReady`: المُصيِّر يطلب حزمة إضافات
+// المجتمع **متزامنةً** في تمهيده، وقد يسبق ذلك جهوز التطبيق — ومعالجٌ غير
+// مسجَّل حينها يُعيد `undefined` فتختفي كل إضافات العضو بلا رسالة.
+registerCommunityPluginIpc();
 
 if (!IS_VANILLA && !IS_EXTENSION) {
     app.whenReady().then(() => {

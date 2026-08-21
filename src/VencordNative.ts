@@ -5,6 +5,7 @@
  */
 
 import type { Settings } from "@api/Settings";
+import type { BundledPlugin as CommunityBundle, CommunityEntry, ImportResult as CommunityImportResult } from "@main/communityPlugins";
 import type { CspRequestResult } from "@main/csp/manager";
 import type { PluginIpcMappings } from "@main/ipcPlugins";
 import { UserThemeHeader } from "@main/themes";
@@ -114,6 +115,23 @@ export default {
             ipcRenderer.removeAllListeners(IpcEvents.TRAY_REPAIR);
             ipcRenderer.on(IpcEvents.TRAY_REPAIR, cb);
         },
+    },
+
+    /**
+     * إضافات المجتمع — يستوردها العضو من جهازه ولا تغادره.
+     *
+     * 🔴 `getBundle` **متزامنة**: تُقرأ في تمهيد المُصيِّر قبل أن يُقلع webpack
+     * عند ديسكورد. ولو كانت وعداً لسُجّلت رقع الإضافة بعد تحميل الوحدات فلا
+     * تُطابق شيئاً — وهو فشل صامت لا رسالة له.
+     */
+    communityPlugins: {
+        getBundle: () => sendSync<CommunityBundle[]>(IpcEvents.COMMUNITY_GET_BUNDLE),
+        list: () => invoke<CommunityEntry[]>(IpcEvents.COMMUNITY_LIST),
+        pickAndImport: () => invoke<CommunityImportResult>(IpcEvents.COMMUNITY_PICK_AND_IMPORT),
+        remove: (id: string) => invoke<boolean>(IpcEvents.COMMUNITY_REMOVE, id),
+        setEnabled: (id: string, enabled: boolean) => invoke<boolean>(IpcEvents.COMMUNITY_SET_ENABLED, id, enabled),
+        openFolder: (id: string) => invoke<void>(IpcEvents.COMMUNITY_OPEN_FOLDER, id),
+        readSource: (id: string) => invoke<{ path: string; text: string; }[]>(IpcEvents.COMMUNITY_READ_SOURCE, id)
     },
 
     pluginHelpers: PluginHelpers

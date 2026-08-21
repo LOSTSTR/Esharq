@@ -41,6 +41,21 @@ const themeStore = DataStore.createStore("VencordThemes", "VencordThemeData");
 
 // probably should make this less cursed at some point
 window.VencordNative = {
+    // إضافات المجتمع تحتاج قرص المستخدم وعمليةً رئيسية — وكلاهما غير موجود
+    // على الويب. تُعطَّل الميزة صراحةً بدل أن تفشل بخطأ غامض.
+    communityPlugins: {
+        getBundle: () => [],
+        list: async () => [],
+        pickAndImport: async () => ({
+            ok: false,
+            findings: [{ severity: "error" as const, rule: "web", message: "إضافات المجتمع متاحة في تطبيق سطح المكتب فقط." }]
+        }),
+        remove: async () => false,
+        setEnabled: async () => false,
+        openFolder: NOOP_ASYNC,
+        readSource: async () => []
+    },
+
     themes: {
         uploadTheme: (fileName: string, fileData: string) => DataStore.set(fileName, fileData, themeStore),
         deleteTheme: (fileName: string) => DataStore.del(fileName, themeStore),

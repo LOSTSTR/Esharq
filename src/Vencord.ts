@@ -37,10 +37,11 @@ import { createAndAppendStyle } from "@utils/css";
 import { StartAt } from "@utils/types";
 import { SettingsRouter } from "@webpack/common";
 
+import { loadCommunityPlugins } from "./api/CommunityPlugins";
 import { get as dsGet } from "./api/DataStore";
 import { popNotice, showNotice } from "./api/Notices";
 import { NotificationData, showNotification } from "./api/Notifications";
-import { initPluginManager, PMLogger, startAllPlugins } from "./api/PluginManager";
+import { initPluginManager, plugins as allPlugins, PMLogger, startAllPlugins } from "./api/PluginManager";
 import { PlainSettings, Settings, SettingsStore } from "./api/Settings";
 import { areLocalSettingsDirty, getCloudSettings, getCloudSyncDirection, markLocalSettingsDirty, putCloudSettings, shouldCloudSync } from "./api/SettingsSync/cloudSync";
 import { t } from "./utils/esharqI18n";
@@ -230,6 +231,11 @@ async function init() {
             );
     }
 }
+
+// 🔴 قبل `initPluginManager` لا بعده: المدير يمرّ على الإضافات **مرّةً
+// واحدة** فيُسجّل رقعها ويحسب تبعياتها. وما يُضاف بعده لا تُسجَّل رقعه ولا
+// يُشغَّل بدؤه — فيبدو مُفعَّلاً في الواجهة وهو لا يفعل شيئاً.
+loadCommunityPlugins(allPlugins);
 
 initPluginManager();
 initStyles();

@@ -1,0 +1,196 @@
+/*
+ * Esharq, a Discord client mod
+ * Copyright (c) 2026 LOSTSTR
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+/* ── صفوف إضافات المجتمع ─────────────────────────────────────────────────────
+   الصفّ يحمل حالته بلونه **وبنصّه**: الحدّ الأخضر يقول «مُفعَّلة» للعين،
+   والمفتاح يقولها لقارئ الشاشة. اللون وحده لا يكفي. */
+
+.esharq-cp-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.esharq-cp-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: #17171b;
+    box-shadow: inset 0 0 0 1px #ffffff0d;
+
+    /* الحدّ على **بداية السطر** لا يساره، فينقلب مع العربية. */
+    border-inline-start: 3px solid transparent;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.esharq-cp-row:hover {
+    background: #1c1c22;
+}
+
+.esharq-cp-row.on {
+    border-inline-start-color: #23a55a;
+    background: #171c19;
+}
+
+.esharq-cp-main {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.esharq-cp-title {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.esharq-cp-name {
+    font-size: 15px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.esharq-cp-authors {
+    font-size: 11px;
+    opacity: 0.5;
+}
+
+.esharq-cp-desc {
+    font-size: 13px;
+    opacity: 0.72;
+    margin-top: 3px;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
+.esharq-cp-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 8px;
+    font-size: 11px;
+    opacity: 0.5;
+}
+
+.esharq-cp-hash {
+    font-family: var(--font-code, monospace);
+}
+
+.esharq-cp-side {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    flex: 0 0 auto;
+}
+
+.esharq-cp-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.esharq-cp-actions button {
+    background: #2a2a31;
+    border: none;
+    border-radius: 7px;
+    padding: 5px 8px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--text-normal);
+    transition: background 0.15s ease;
+}
+
+.esharq-cp-actions button:hover {
+    background: #34343d;
+}
+
+.esharq-cp-actions button.danger:hover {
+    background: rgb(242 63 67 / 20%);
+}
+
+.esharq-cp-error,
+.esharq-cp-pending {
+    margin-top: 8px;
+    padding: 7px 10px;
+    border-radius: 7px;
+    font-size: 12px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.esharq-cp-error {
+    background: rgb(242 63 67 / 10%);
+    color: var(--status-danger, #f23f43);
+}
+
+.esharq-cp-pending {
+    background: rgb(201 162 39 / 10%);
+    color: #c9a227;
+}
+
+.esharq-cp-empty {
+    padding: 26px 12px;
+    text-align: center;
+    font-size: 13px;
+    opacity: 0.5;
+}
+
+/* ── نتيجة الفحص ─────────────────────────────────────────────────────────────
+   الرفض يحمل القاعدة والملفّ ورقم السطر — «فشل الاستيراد» وحدها لا تُصلح شيئاً. */
+
+.esharq-cp-findings {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.esharq-cp-finding {
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    border-inline-start: 3px solid;
+}
+
+.esharq-cp-finding.error {
+    background: rgb(242 63 67 / 8%);
+    border-inline-start-color: var(--status-danger, #f23f43);
+}
+
+.esharq-cp-finding.warning {
+    background: rgb(201 162 39 / 8%);
+    border-inline-start-color: #c9a227;
+}
+
+.esharq-cp-finding-head {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 3px;
+}
+
+.esharq-cp-rule {
+    font-family: var(--font-code, monospace);
+    font-size: 11px;
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.esharq-cp-where {
+    font-family: var(--font-code, monospace);
+    font-size: 11px;
+    opacity: 0.55;
+    word-break: break-all;
+}
+
+.esharq-cp-hint {
+    margin-top: 4px;
+    opacity: 0.65;
+}

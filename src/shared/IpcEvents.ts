@@ -56,4 +56,14 @@ export const enum IpcEvents {
     TRAY_CHECK_UPDATES = "VencordTrayCheckUpdates",
     TRAY_ABOUT = "VencordTrayAbout",
     SUPPORTS_WINDOWS_MATERIAL = "VencordSupportsWindowsMaterial",
+
+    /* إضافات المجتمع — تُستورَد من مجلد على جهاز المستخدم ولا تغادره أبداً. */
+    COMMUNITY_LIST = "EsharqCommunityList",
+    COMMUNITY_PICK_AND_IMPORT = "EsharqCommunityPickAndImport",
+    COMMUNITY_REMOVE = "EsharqCommunityRemove",
+    COMMUNITY_SET_ENABLED = "EsharqCommunitySetEnabled",
+    COMMUNITY_OPEN_FOLDER = "EsharqCommunityOpenFolder",
+    COMMUNITY_READ_SOURCE = "EsharqCommunityReadSource",
+    /** متزامن: يُقرأ قبل تمهيد ديسكورد كي تلحق الرقع. */
+    COMMUNITY_GET_BUNDLE = "EsharqCommunityGetBundle",
 }

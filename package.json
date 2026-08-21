@@ -40,7 +40,7 @@
         "testWeb": "pnpm lint:fix && pnpm buildWeb && pnpm testTsc",
         "lint:overlay": "node scripts/lintOverlayOptions.mjs",
         "testTsc": "tsc --noEmit",
-        "testEsharq": "node scripts/esharqCheck.mjs && node scripts/lintOverlayOptions.mjs && pnpm testCoverage && pnpm testPrefs && pnpm testRedact && pnpm testIntlAst && pnpm intl:lint && node scripts/esharqSecurityAudit.mjs && tsc --noEmit -p tsconfig.esharq.json && stylelint \"src/esharqplugins/**/*.css\"",
+        "testEsharq": "node scripts/esharqCheck.mjs && node scripts/lintOverlayOptions.mjs && pnpm testCoverage && pnpm testPrefs && pnpm testRedact && pnpm testCommunity && pnpm testIntlAst && pnpm intl:lint && node scripts/esharqSecurityAudit.mjs && tsc --noEmit -p tsconfig.esharq.json && stylelint \"src/esharqplugins/**/*.css\"",
         "securityAudit": "node scripts/esharqSecurityAudit.mjs",
         "inject:canary": "node scripts/esharqInject.mjs --branch canary",
         "uninject:canary": "node scripts/esharqInject.mjs --branch canary --uninstall",
@@ -52,6 +52,7 @@
         "testCoverage": "tsx scripts/esharq/coverageSelfTest.ts",
         "testPrefs": "tsx scripts/esharq/prefsSelfTest.ts",
         "testRedact": "tsx scripts/esharq/redactSelfTest.ts",
+        "testCommunity": "tsx scripts/esharq/communityValidateSelfTest.ts",
         "testIntlAst": "node scripts/esharq/intlAstSelfTest.mjs"
     },
     "dependencies": {
@@ -70,6 +71,7 @@
         "monaco-editor": "^0.55.1",
         "nanoid": "^5.1.16",
         "native-file-system-adapter": "^3.0.1",
+        "sucrase": "3.35.1",
         "virtual-merge": "^1.0.1",
         "yaml-js": "^0.3.1"
     },
@@ -93,6 +95,7 @@
         "eslint-plugin-unused-imports": "^4.4.1",
         "highlight.js": "11.11.1",
         "html-minifier-terser": "^7.2.0",
+        "jszip": "^3.10.1",
         "md5": "^2.3.0",
         "moment": "^2.22.2",
         "p-limit": "^7.3.0",
@@ -108,7 +111,6 @@
         "typescript": "^6.0.3",
         "typescript-eslint": "^8.62.1",
         "typescript-transform-paths": "^3.5.6",
-        "jszip": "^3.10.1",
         "zip-local": "^0.3.5"
     },
     "packageManager": "pnpm@11.21.0",
