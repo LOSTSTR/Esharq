@@ -12,7 +12,7 @@ import { Switch } from "@components/Switch";
 import { IS_WINDOWS } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import { findByCodeLazy } from "@webpack";
-import { Button, Slider, ThemeStore, useEffect, useMemo, useRef, UserStore, useState, useStateFromStores } from "@webpack/common";
+import { Button, ClientThemesBackgroundStore, Slider, ThemeStore, useEffect, useMemo, useRef, UserStore, useState, useStateFromStores } from "@webpack/common";
 
 import { Card, NoticeStrip } from "./Card";
 import { stagger } from "./motion";
@@ -204,6 +204,22 @@ function ThemeCreatorPageInner() {
     const discordTheme = useStateFromStores([ThemeStore], () => ThemeStore.theme);
     const isLight = discordTheme === "light";
 
+    /**
+     * ثيم Nitro المتدرّج مُشتغل؟
+     *
+     * 🔴 هذا العطل يبدو **عطلاً فينا**: يختار المستخدم لوناً فلا يتغيّر شيء أو
+     * يتغيّر نصف الواجهة، فيظنّ منشئ الثيمات مكسوراً. والسبب أنّ ديسكورد يفرض
+     * تدرّجه فوق أسطحه، فيغلب ما نكتبه على السلّم الرماديّ.
+     *
+     * ويُقرأ من `gradientPreset`: `null` تعني «لا تدرّج»، وأي قيمة تعني تدرّجاً
+     * فعّالاً — وهو ما تفحصه إضافة `clientTheme` الأصلية نفسها
+     * (`plugins/clientTheme/components/Settings.tsx:47`).
+     */
+    const nitroGradient = useStateFromStores(
+        [ClientThemesBackgroundStore],
+        () => ClientThemesBackgroundStore.gradientPreset != null
+    );
+
     /** خطوطٌ مثبَّتةٌ فعلاً على هذا الجهاز — لا قائمةٌ مكتوبةٌ على أمل. */
     const interfaceChoices = useMemo(() => availableFonts(INTERFACE_FONTS), []);
     const monoChoices = useMemo(() => availableFonts(MONO_FONTS), []);
@@ -384,6 +400,28 @@ function ThemeCreatorPageInner() {
                     {t(`الصبغة ${Math.round(hsl.h)}° · التشبّع ${Math.round(hsl.s)}% · الإضاءة ${Math.round(hsl.l)}%`,
                         `Hue ${Math.round(hsl.h)}° · Saturation ${Math.round(hsl.s)}% · Lightness ${Math.round(hsl.l)}%`)}
                 </div>
+
+                {/* يسبق فحصَ التباين قصداً: ما دام التدرّج مُشتغلاً فاللون لا يظهر
+                    أصلاً، فلا معنى لمناقشة قراءة النصّ فوق لونٍ لا يُرى. */}
+                {nitroGradient && (
+                    <div className="esharq-tc-warn">
+                        <div className="esharq-tc-warn-text">
+                            <b>{t("ثيم Nitro يغلب لونك", "Your Nitro theme is overriding this")}</b>
+                            <span>
+                                {t(
+                                    "لديك ثيم Nitro متدرّج مُشتغل، وديسكورد يفرضه فوق أسطحه — فلونك هنا لن يظهر أو سيظهر نصفه. أطفئه ليعود المنشئ إلى عمله.",
+                                    "You have a Nitro gradient theme on, and Discord paints it over its own surfaces — so your colour here will not show, or will show only half. Turn it off and the creator works again."
+                                )}
+                            </span>
+                        </div>
+                        {/* إعادة حفظ الوضع الحاليّ نفسه تمسح التدرّج — وهي الطريقة
+                            التي يعتمدها ديسكورد نفسه، لا حيلةً من عندنا. */}
+                        <Button size={Button.Sizes.SMALL} color={Button.Colors.RED}
+                            onClick={() => setDiscordMode(isLight ? "light" : "dark")}>
+                            {t("أطفئ ثيم Nitro", "Turn off the Nitro theme")}
+                        </Button>
+                    </div>
+                )}
 
                 {verdict !== "fine" && (
                     <div className="esharq-tc-warn">
