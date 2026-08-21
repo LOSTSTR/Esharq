@@ -81,7 +81,7 @@ export const SETTINGS_TREE: readonly SettingsSection[] = [
         id: "safety-health",
         title: { ar: "الأمان والصحّة", en: "Safety & Health" },
         pages: [
-            page("privacy-security", "الخصوصية والأمان", "Privacy & Security", "safety-health", "planned"),
+            page("privacy-security", "الخصوصية والأمان", "Privacy & Security", "safety-health", "ready", "PrivacySecurityPage"),
             page("plugin-permissions", "صلاحيات الإضافات", "Plugin Permissions", "safety-health", "ready", "PluginPermissionsPage"),
             page("client-health", "صحّة العميل", "Client Health", "safety-health", "ready", "ClientHealthPage"),
             page("compatibility-matrix", "جدول التوافق", "Compatibility Matrix", "safety-health", "planned"),

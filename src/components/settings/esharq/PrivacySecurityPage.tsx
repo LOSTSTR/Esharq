@@ -1,0 +1,252 @@
+/*
+ * Esharq, a Discord client mod
+ * Copyright (c) 2026 LOSTSTR
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+import "./privacySecurity.css";
+
+import { useSettings } from "@api/Settings";
+import { isSecretKey } from "@api/SettingsSync/redact";
+import { t } from "@utils/esharqI18n";
+import { useEffect, useMemo, useState } from "@webpack/common";
+
+import { Card, NoticeStrip, StatRow } from "./Card";
+import { stagger } from "./motion";
+
+/**
+ * **الخصوصية والأمان** — ماذا يحفظ إشراق عنك، وأين، وما الذي يغادر جهازك.
+ *
+ * وهي غير «الرصد»: تلك تسأل **إلى أين يُسمح للعميل أن يصل**، وهذه تسأل
+ * **ماذا عندك وماذا يخرج منه**.
+ *
+ * 🔴 **الجرد أحجامٌ ومسارات لا محتوى.** لا يُقرأ ملفّ واحد لأجل هذه الصفحة —
+ * قراءة المحتوى لتُجيب سؤال الخصوصية تناقض السؤال.
+ *
+ * 🔴 **وعدّ الأسرار يقع في جهازك ولا يُعرض أيّ منها.** يُقال «سبعة مفاتيح
+ * سرّية عندك، وتُنقّى عند التصدير» ولا يُطبَع مفتاح واحد ولا جزء منه. صفحةٌ
+ * تعرض السرّ لتُخبرك أنه محميّ صفحةٌ متناقضة.
+ */
+
+interface DataEntry {
+    key: string;
+    path: string;
+    files: number;
+    bytes: number;
+    exists: boolean;
+}
+
+const ENTRY_LABELS: Record<string, { ar: string; en: string; whatAr: string; whatEn: string; }> = {
+    settings: {
+        ar: "الإعدادات", en: "Settings",
+        whatAr: "اختياراتك في إشراق وإضافاته. تبقى هنا، ولا تُرسَل إلّا إن فعّلتَ المزامنة السحابية بنفسك.",
+        whatEn: "Your choices in Esharq and its plugins. They stay here, and are sent only if you turn on cloud sync yourself."
+    },
+    themes: {
+        ar: "الثيمات", en: "Themes",
+        whatAr: "ملفّات الثيمات التي أضفتَها. لا تغادر جهازك.",
+        whatEn: "Theme files you added. They never leave your machine."
+    },
+    plugins: {
+        ar: "بيانات الإضافات", en: "Plugin data",
+        whatAr: "ما تحفظه الإضافات لنفسها — قوائم وتفضيلات. محلّيّ بالكامل.",
+        whatEn: "What plugins save for themselves — lists and preferences. Entirely local."
+    },
+    community: {
+        ar: "إضافات المجتمع", en: "Community plugins",
+        whatAr: "ما استوردته من مجلدات على جهازك. لا يُرفَع ولا يُشارَك أبداً.",
+        whatEn: "What you imported from folders on your machine. Never uploaded or shared."
+    },
+    tools: {
+        ar: "أدوات خارجية", en: "External tools",
+        whatAr: "ما نزّلته من أدوات اختيارية، ونسخُك الأصلية إن رقّعت شيئاً.",
+        whatEn: "Optional tools you downloaded, plus your original backups if you patched anything."
+    },
+    messageLogger: {
+        ar: "سجلّ الرسائل", en: "Message logger",
+        whatAr: "رسائل حفظتها إضافة سجلّ الرسائل إن كانت مُفعَّلة عندك. محلّيّ، ولا يُصدَّر مع حزمة الدعم.",
+        whatEn: "Messages saved by the message logger plugin if you enabled it. Local, and never included in the support bundle."
+    }
+};
+
+/** ما لا يفعله إشراق أبداً — بنودٌ كلٌّ منها قابل للتحقّق في المستودع. */
+const NEVER = [
+    ["لا يُرسل رسائلك ولا محتواها إلى أي جهة.", "It never sends your messages or their contents anywhere."],
+    ["لا يُرسل توكن حسابك إلى أي جهة غير ديسكورد نفسه.", "It never sends your account token anywhere except Discord itself."],
+    ["لا يجمع إحصاءات استعمال ولا يُرسل تقارير أعطال تلقائياً.", "It collects no usage analytics and sends no crash reports automatically."],
+    ["لا يرفع إضافات المجتمع التي تستوردها.", "It never uploads the community plugins you import."],
+    ["لا شيء يُرفَع تلقائياً — كل إرسالٍ يبدأ بضغطة منك.", "Nothing is uploaded automatically — every send starts with a press from you."]
+] as const;
+
+function human(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+    return `${(bytes / 1048576).toFixed(1)} MB`;
+}
+
+/**
+ * كم مفتاحاً سرّياً في إعداداتك — **عدداً لا قيمةً**.
+ *
+ * يُحسَب بنفس الدالّة التي تُنقّي التصدير، فالرقم يصف ما سيُنقّى فعلاً لا
+ * تقديراً موازياً يفترق عنه.
+ */
+function countSecrets(node: unknown, depth = 0): number {
+    if (depth > 8 || node === null || typeof node !== "object") return 0;
+    let n = 0;
+    for (const [key, value] of Object.entries(node)) {
+        if (isSecretKey(key) && value !== null && value !== undefined && value !== "") n++;
+        else n += countSecrets(value, depth + 1);
+    }
+    return n;
+}
+
+export function PrivacySecurityPage() {
+    const settings = useSettings();
+    const [data, setData] = useState<{ root: string; entries: DataEntry[]; } | null>(null);
+    const [failed, setFailed] = useState(false);
+
+    useEffect(() => {
+        const api = (window as any).VencordNative?.dataInventory;
+        if (api?.read == null) return setFailed(true);
+        api.read().then(setData).catch(() => setFailed(true));
+    }, []);
+
+    const secrets = useMemo(() => {
+        try { return countSecrets((window as any).VencordNative?.settings?.get?.() ?? {}); } catch { return 0; }
+    }, []);
+
+    const cloudOn = settings.cloud?.authenticated === true;
+    const totalBytes = data?.entries.reduce((n, e) => n + e.bytes, 0) ?? 0;
+    const totalFiles = data?.entries.reduce((n, e) => n + e.files, 0) ?? 0;
+
+    return (
+        <>
+            <NoticeStrip>
+                {t("هذه الصفحة تُجيب سؤالين: ماذا يحفظ إشراق عنك على جهازك، وما الذي يغادر الجهاز ومتى. أمّا إلى أين يُسمح له بالاتّصال فذاك في صفحة «الرصد».",
+                    "This page answers two questions: what Esharq keeps about you on your machine, and what leaves it and when. Where it is allowed to connect is on the Surveillance page.")}
+            </NoticeStrip>
+
+            <Card index={0}
+                title={t("ماذا يغادر جهازك", "What leaves your machine")}
+                subtitle={t("القاعدة: لا شيء — إلّا ما تبدأه أنت بنفسك.", "The rule: nothing — except what you start yourself.")}
+                badge={cloudOn ? t("المزامنة مُفعَّلة", "Sync is on") : t("لا شيء تلقائيّ", "Nothing automatic")}
+                badgeTone={cloudOn ? "warn" : "ok"}>
+
+                <div className="esharq-ps-never">
+                    {NEVER.map(([ar, en], i) => (
+                        <div key={i} className="esharq-ps-never-row esharq-rise" style={stagger(i, 8)}>
+                            <span className="esharq-ps-x" aria-hidden="true">✕</span>
+                            <span>{t(ar, en)}</span>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="esharq-ps-sends">
+                    <div className="esharq-ps-subhead">{t("وما يخرج فعلاً، ومتى", "And what does go out, and when")}</div>
+                    <div className="esharq-ps-send-row">
+                        <b>{t("فحص التحديثات", "Update checks")}</b>
+                        <span>{t("يسأل GitHub «هل يوجد إصدار أحدث؟». لا يحمل السؤال شيئاً عنك.",
+                            "Asks GitHub “is there a newer release?”. The question carries nothing about you.")}</span>
+                    </div>
+                    <div className="esharq-ps-send-row">
+                        <b>{t("ملفّات الثيمات", "Theme files")}</b>
+                        <span>{t("تُنزَّل من مواقع الثيمات لتُعرَض لك. الاتّجاه إليك لا منك.",
+                            "Downloaded from theme sites to be shown to you. The direction is toward you, not from you.")}</span>
+                    </div>
+                    <div className="esharq-ps-send-row">
+                        <b>{t("المزامنة السحابية", "Cloud sync")}</b>
+                        <span>{cloudOn
+                            ? t("مُفعَّلة عندك الآن: تُرسل إعداداتك إلى الخادم الذي اخترته، ومفاتيحك تُنقّى قبل الإرسال.",
+                                "On for you right now: it sends your settings to the server you chose, with your keys redacted before sending.")
+                            : t("مُطفأة عندك. ما دامت كذلك لا تُرسَل إعداداتك إلى أي مكان.",
+                                "Off for you. While it stays off, your settings are sent nowhere.")}</span>
+                    </div>
+                    <div className="esharq-ps-send-row">
+                        <b>{t("حزمة الدعم", "Support bundle")}</b>
+                        <span>{t("لا تُرفَع أبداً. تُبنى وتُعرَض، ولا تغادر إلّا إن نسختها بنفسك.",
+                            "Never uploaded. It is built and shown, and leaves only if you copy it yourself.")}</span>
+                    </div>
+                </div>
+            </Card>
+
+            <Card index={1}
+                title={t("أسرارك في الإعدادات", "Your secrets in the settings")}
+                subtitle={t("مفاتيح خدمات أدخلتَها في إضافات — تُنقّى تلقائياً من أي نسخة تُصدّرها.",
+                    "Service keys you entered into plugins — automatically redacted from any backup you export.")}
+                badge={secrets === 0 ? t("لا مفاتيح", "No keys") : t(`${secrets} مفتاحاً`, `${secrets} keys`)}
+                badgeTone={secrets === 0 ? "ok" : "warn"}>
+                <NoticeStrip>
+                    {secrets === 0
+                        ? t("لم أجد مفتاحاً سرّياً في إعداداتك. وإن أدخلتَ واحداً لاحقاً فسيُنقّى من التصدير تلقائياً.",
+                            "I found no secret keys in your settings. If you enter one later, it will be redacted from exports automatically.")
+                        : t(`عندك ${secrets} مفتاحاً سرّياً محفوظاً محلّياً. لم يُعرَض أيٌّ منها هنا ولن يُعرَض — العدد وحده يكفي للجواب. وكلّها تُستبدَل بعلامة تنقية في أي نسخة احتياطية تُصدّرها أو تُزامنها.`,
+                            `You have ${secrets} secret keys stored locally. None is shown here and none will be — the count alone answers the question. All of them are replaced with a redaction marker in any backup you export or sync.`)}
+                </NoticeStrip>
+                <div className="esharq-ps-note">
+                    {t("العدّ يجري بنفس الدالّة التي تُنقّي التصدير، فالرقم يصف ما سيُنقّى فعلاً لا تقديراً موازياً.",
+                        "The count uses the very function that redacts exports, so the number describes what will actually be redacted — not a parallel estimate.")}
+                </div>
+            </Card>
+
+            <Card index={2}
+                title={t("ماذا يُحفَظ على جهازك", "What is stored on your machine")}
+                subtitle={t("أحجام ومسارات — ولا يُقرأ محتوى ملفّ واحد لأجل هذه الصفحة.",
+                    "Sizes and paths — and not one file's contents is read for this page.")}
+                badge={data === null ? t("جارٍ…", "Working…") : `${human(totalBytes)}`}
+                badgeTone="info">
+
+                {failed ? (
+                    <NoticeStrip tone="danger">
+                        {t("الجرد متاح في تطبيق سطح المكتب فقط.", "The inventory is available in the desktop app only.")}
+                    </NoticeStrip>
+                ) : data === null ? (
+                    <div className="esharq-ps-empty">{t("جارٍ القراءة…", "Reading…")}</div>
+                ) : (
+                    <>
+                        <StatRow items={[
+                            { label: t("المساحة", "Space"), value: human(totalBytes) },
+                            { label: t("ملفّاً", "Files"), value: String(totalFiles) },
+                            { label: t("مجلداً مستعملاً", "Folders in use"), value: String(data.entries.filter(e => e.files > 0).length) },
+                            { label: t("يُرفَع تلقائياً", "Uploaded automatically"), value: t("لا شيء", "Nothing") }
+                        ]} />
+
+                        <div className="esharq-ps-list">
+                            {data.entries.map((e, i) => {
+                                const label = ENTRY_LABELS[e.key];
+                                return (
+                                    <div key={e.key} className={"esharq-ps-row esharq-rise" + (e.files === 0 ? " empty" : "")} style={stagger(i, 8)}>
+                                        <div className="esharq-ps-row-head">
+                                            <span className="esharq-ps-name">{label ? t(label.ar, label.en) : e.key}</span>
+                                            <span className="esharq-ps-size">
+                                                {e.files === 0 ? t("فارغ", "Empty") : `${e.files} · ${human(e.bytes)}`}
+                                            </span>
+                                        </div>
+                                        {label && <div className="esharq-ps-what">{t(label.whatAr, label.whatEn)}</div>}
+                                        <div className="esharq-ps-path">{e.path}</div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        <button type="button" className="esharq-ps-open"
+                            onClick={() => (window as any).VencordNative?.dataInventory?.openRoot?.()}>
+                            {t("افتح المجلد لتراه بنفسك", "Open the folder and see for yourself")}
+                        </button>
+                    </>
+                )}
+            </Card>
+
+            <Card index={3}
+                title={t("كيف تتحقّق بنفسك", "How to check for yourself")}
+                subtitle={t("لا تُصدّق صفحةً تقول عن نفسها إنها آمنة — هذه طرق التحقّق.",
+                    "Don't take a page's word that it is safe — here is how to check.")}>
+                <div style={{ fontSize: 13, lineHeight: 1.9 }}>
+                    <div>{t("① افتح المجلد بالزرّ أعلاه وانظر ما فيه بعينك.", "① Open the folder with the button above and look at what's inside.")}</div>
+                    <div>{t("② صفحة «الرصد» تسرد كل موقع يُسمح للعميل بجلب شيء منه — وما ليس فيها ممنوع.", "② The Surveillance page lists every site the client may fetch from — and anything not listed is blocked.")}</div>
+                    <div>{t("③ صفحة «صلاحيات الإضافات» تقول أي إضافة تلمس ماذا.", "③ The Plugin Permissions page says which plugin touches what.")}</div>
+                    <div>{t("④ ومصدر إشراق كلّه علنيّ على GitHub — كل جملة هنا يمكن مطابقتها بالكود.", "④ And Esharq's entire source is public on GitHub — every claim here can be matched against the code.")}</div>
+                </div>
+            </Card>
+        </>
+    );
+}

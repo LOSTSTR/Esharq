@@ -72,4 +72,8 @@ export const enum IpcEvents {
 
     /* ميزانيات الأداء — مقاييس عمليات ديسكورد. */
     PERF_APP_METRICS = "EsharqPerfAppMetrics",
+
+    /* الخصوصية — جرد ما يُخزَّن على القرص (أحجام ومسارات لا محتوى). */
+    DATA_INVENTORY = "EsharqDataInventory",
+    DATA_OPEN_ROOT = "EsharqDataOpenRoot",
 }

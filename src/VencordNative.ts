@@ -130,6 +130,12 @@ export default {
      * عند ديسكورد. ولو كانت وعداً لسُجّلت رقع الإضافة بعد تحميل الوحدات فلا
      * تُطابق شيئاً — وهو فشل صامت لا رسالة له.
      */
+    /** جرد ما يُخزَّن على القرص — أحجام ومسارات، لا محتوى. */
+    dataInventory: {
+        read: () => invoke<{ root: string; entries: { key: string; path: string; files: number; bytes: number; exists: boolean; }[]; }>(IpcEvents.DATA_INVENTORY),
+        openRoot: () => invoke<void>(IpcEvents.DATA_OPEN_ROOT)
+    },
+
     /** مقاييس العمليات — تُقرأ عند الطلب فقط، لصفحة «ميزانيات الأداء». */
     perf: {
         appMetrics: () => invoke<{ type: string; pid: number; cpu: number | null; memMB: number; }[]>(IpcEvents.PERF_APP_METRICS)

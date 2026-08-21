@@ -24,6 +24,7 @@ import { pathToFileURL } from "url";
 
 import { registerCommunityPluginIpc } from "./communityPlugins";
 import { initCsp } from "./csp";
+import { registerDataInventoryIpc } from "./dataInventory";
 import { registerPerfMetricsIpc } from "./perfMetrics";
 import { RendererSettings } from "./settings";
 import { IS_VANILLA, THEMES_DIR } from "./utils/constants";
@@ -35,6 +36,7 @@ import { installExt } from "./utils/extensions";
 // مسجَّل حينها يُعيد `undefined` فتختفي كل إضافات العضو بلا رسالة.
 registerCommunityPluginIpc();
 registerPerfMetricsIpc();
+registerDataInventoryIpc();
 
 if (!IS_VANILLA && !IS_EXTENSION) {
     app.whenReady().then(() => {

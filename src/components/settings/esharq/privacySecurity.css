@@ -1,0 +1,152 @@
+/*
+ * Esharq, a Discord client mod
+ * Copyright (c) 2026 LOSTSTR
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+/* ── الخصوصية والأمان ────────────────────────────────────────────────────── */
+
+.esharq-ps-never {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.esharq-ps-never-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 9px 13px;
+    border-radius: 9px;
+    background: rgb(35 165 90 / 7%);
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+/* علامة النفي خضراء لا حمراء: «لا يفعل هذا» خبرٌ سارّ لا تحذير. */
+.esharq-ps-x {
+    color: var(--status-positive, #23a55a);
+    font-weight: 700;
+    flex: 0 0 auto;
+}
+
+.esharq-ps-sends {
+    margin-top: 18px;
+}
+
+.esharq-ps-subhead {
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0.55;
+    margin-bottom: 9px;
+}
+
+.esharq-ps-send-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 9px 13px;
+    border-radius: 9px;
+    background: #17171b;
+    margin-bottom: 6px;
+    font-size: 12.5px;
+    line-height: 1.7;
+}
+
+.esharq-ps-send-row b {
+    flex: 0 0 auto;
+    min-inline-size: 120px;
+}
+
+.esharq-ps-send-row span {
+    flex: 1 1 240px;
+    opacity: 0.72;
+}
+
+/* ── جرد التخزين ─────────────────────────────────────────────────────────── */
+
+.esharq-ps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 18px;
+}
+
+.esharq-ps-row {
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: #17171b;
+}
+
+.esharq-ps-row.empty {
+    opacity: 0.45;
+}
+
+.esharq-ps-row-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.esharq-ps-name {
+    font-size: 13.5px;
+    font-weight: 600;
+}
+
+.esharq-ps-size {
+    font-size: 12px;
+    opacity: 0.6;
+    font-variant-numeric: tabular-nums;
+}
+
+.esharq-ps-what {
+    margin-top: 5px;
+    font-size: 12.5px;
+    line-height: 1.65;
+    opacity: 0.68;
+}
+
+.esharq-ps-path {
+    margin-top: 7px;
+    font-family: var(--font-code, monospace);
+    font-size: 10.5px;
+    opacity: 0.4;
+    overflow-wrap: anywhere;
+    direction: ltr;
+    text-align: start;
+}
+
+.esharq-ps-open {
+    display: block;
+    inline-size: 100%;
+    margin-top: 14px;
+    padding: 10px;
+    border: none;
+    border-radius: 9px;
+    background: #2a2a31;
+    color: var(--text-normal);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.16s ease;
+}
+
+.esharq-ps-open:hover {
+    background: #34343d;
+}
+
+.esharq-ps-note {
+    margin-top: 12px;
+    font-size: 11.5px;
+    line-height: 1.7;
+    opacity: 0.5;
+}
+
+.esharq-ps-empty {
+    padding: 26px 12px;
+    text-align: center;
+    font-size: 13px;
+    opacity: 0.5;
+}
