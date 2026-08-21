@@ -575,3 +575,43 @@ export function buildFontCss(interfaceFont: string, monoFont: string): string {
     if (monoFont !== "") lines.push(`    --font-code: "${monoFont}", monospace;`);
     return lines.length > 0 ? `:root {\n${lines.join("\n")}\n}` : "";
 }
+
+/* ── معاينة ─────────────────────────────────────────────────────────────── */
+
+export interface Palette {
+    app: string;
+    sidebar: string;
+    raised: string;
+    text: string;
+    muted: string;
+    accent: string;
+}
+
+/**
+ * ألوانٌ فعليّة لثيمٍ لم يُثبَّت بعد.
+ *
+ * تُحسَب **بنفس رياضيات التطبيق**: فرقُ إضاءة الدرجة عن الأساس يُضاف إلى إضاءة
+ * اللون المختار. فالمعاينة ليست تخميناً ولا لقطةً قديمة — هي اللون الذي سيظهر.
+ *
+ * والدرجات المستعمَلة مقروءةٌ من مصدر ديسكورد لا مُخمَّنة: `69` خلفية التطبيق،
+ * و`66` الأسطح، و`64` المرتفعة، و`4` النصّ، و`23` الخافت.
+ */
+export function previewPalette(neutrals: NeutralMap, hex: string): Palette {
+    const { h, s, l } = hexToHsl(hex);
+    const base = neutrals.get(66) ?? 13.333;
+
+    const step = (index: number, fallback: number) => {
+        const lightness = neutrals.get(index) ?? fallback;
+        const value = Math.max(0, Math.min(100, l + (lightness - base)));
+        return `hsl(${h.toFixed(1)} ${s.toFixed(1)}% ${value.toFixed(1)}%)`;
+    };
+
+    return {
+        app: step(69, 10.98),
+        sidebar: step(66, 13.333),
+        raised: step(64, 15.098),
+        text: step(4, 95.49),
+        muted: step(23, 60.392),
+        accent: `#${hex}`
+    };
+}

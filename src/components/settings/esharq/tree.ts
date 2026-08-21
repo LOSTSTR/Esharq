@@ -75,7 +75,7 @@ export const SETTINGS_TREE: readonly SettingsSection[] = [
             page("plugins", "الإضافات", "Plugins", "essentials", "ready", "PluginsTab"),
             page("themes", "الثيمات", "Themes", "essentials", "ready", "ThemesTab"),
             page("theme-creator", "منشئ الثيمات", "Theme Creator", "essentials", "ready", "ThemeCreatorPage"),
-            page("theme-library", "مكتبة الثيمات", "Theme Library", "essentials", "planned")
+            page("theme-library", "مكتبة الثيمات", "Theme Library", "essentials", "ready", "ThemeLibraryPage")
         ]
     },
     {

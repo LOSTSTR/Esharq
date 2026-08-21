@@ -31,6 +31,7 @@ import { SupportBundlePage } from "@components/settings/esharq/SupportBundlePage
 import { SurveillancePage } from "@components/settings/esharq/SurveillancePage";
 import { restoreOnStartup as restoreThemeCreator } from "@components/settings/esharq/themeCreator/state";
 import { ThemeCreatorPage } from "@components/settings/esharq/ThemeCreatorPage";
+import { ThemeLibraryPage } from "@components/settings/esharq/ThemeLibraryPage";
 import { SECTION_ORDER } from "@components/settings/esharq/tokens";
 import { SETTINGS_TREE } from "@components/settings/esharq/tree";
 import { VoiceLabPage } from "@components/settings/esharq/VoiceLabPage";
@@ -219,7 +220,7 @@ export default definePlugin({
             VencordTab, PluginsTab, ThemesTab, UpdaterTab,
             ChangelogTab, CloudTab, BackupAndRestoreTab,
             // صفحات بناها إشراق — لا تُشتقّ من الأصل.
-            LanguagePage, ClientHealthPage, VoiceLabPage, CommunityPluginsPage, StartupTimingsPage, IconFinderPage, SupportBundlePage, SurveillancePage, PluginPermissionsPage, PerformanceBudgetsPage, PrivacySecurityPage, CrashBisectPage, MyProfilePage, ThemeCreatorPage
+            LanguagePage, ClientHealthPage, VoiceLabPage, CommunityPluginsPage, StartupTimingsPage, IconFinderPage, SupportBundlePage, SurveillancePage, PluginPermissionsPage, PerformanceBudgetsPage, PrivacySecurityPage, CrashBisectPage, MyProfilePage, ThemeCreatorPage, ThemeLibraryPage
         };
         // أيقونة مميّزة لكل صفحة — لا ترس واحد للكلّ (قرار المالك).
         const iconFor: Record<string, ComponentType<IconProps>> = {

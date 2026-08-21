@@ -53,7 +53,8 @@
         "testPrefs": "tsx scripts/esharq/prefsSelfTest.ts",
         "testRedact": "tsx scripts/esharq/redactSelfTest.ts",
         "testCommunity": "tsx scripts/esharq/communityValidateSelfTest.ts",
-        "testIntlAst": "node scripts/esharq/intlAstSelfTest.mjs"
+        "testIntlAst": "node scripts/esharq/intlAstSelfTest.mjs",
+        "generateThemes": "tsx scripts/esharq/generateThemes.ts"
     },
     "dependencies": {
         "@ffmpeg/ffmpeg": "^0.12.10",
