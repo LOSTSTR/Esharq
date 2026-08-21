@@ -11,6 +11,8 @@ import { findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
 import { Clickable, Tooltip, useEffect, useState } from "@webpack/common";
 import type { ComponentType, JSX, MouseEventHandler, ReactNode } from "react";
 
+import { showsInPlace, useBackpackVersion } from "./Backpack";
+
 const logger = new Logger("HeaderBarAPI");
 
 const HeaderBarClasses = findCssClassesLazy("clickable", "selected", "badge", "badgeContainer");
@@ -138,6 +140,16 @@ export function ChannelToolbarButton(props: ChannelToolbarButtonProps) {
 const headerBarButtons = new Map<string, ButtonEntry>();
 const channelToolbarButtons = new Map<string, ButtonEntry>();
 
+/** @internal للحقيبة: تعرض ما أُخفي عن الترويسة داخل لوحتها (`api/Backpack.ts`). */
+export function _getHeaderBarButtons(): ReadonlyMap<string, ButtonEntry> {
+    return headerBarButtons;
+}
+
+/** @internal للحقيبة، كسابقتها — لشريط أدوات القناة. */
+export function _getChannelToolbarButtons(): ReadonlyMap<string, ButtonEntry> {
+    return channelToolbarButtons;
+}
+
 const headerBarListeners = new Set<() => void>();
 const channelToolbarListeners = new Set<() => void>();
 
@@ -212,7 +224,12 @@ function HeaderBarButtons() {
         return () => { headerBarListeners.delete(listener); };
     }, []);
 
+    // الحقيبة تُخفي ما لم يُثبّته المستخدم — والسجلّ نفسه لا يُمسّ، فالزرّ
+    // يبقى مسجّلاً وتعرضه هي في لوحتها (`api/Backpack.ts`).
+    useBackpackVersion();
+
     return Array.from(headerBarButtons)
+        .filter(([id]) => showsInPlace("headerBar", id))
         .sort(([, a], [, b]) => a.priority - b.priority)
         .map(([id, { render: Button }]) => (
             <ErrorBoundary noop key={id} onError={e => logger.error(`Failed to render header bar button: ${id}`, e.error)}>
@@ -230,7 +247,10 @@ function ChannelToolbarButtons() {
         return () => { channelToolbarListeners.delete(listener); };
     }, []);
 
+    useBackpackVersion();
+
     return Array.from(channelToolbarButtons)
+        .filter(([id]) => showsInPlace("channelToolbar", id))
         .sort(([, a], [, b]) => a.priority - b.priority)
         .map(([id, { render: Button }]) => (
             <ErrorBoundary noop key={id} onError={e => logger.error(`Failed to render channel toolbar button: ${id}`, e.error)}>

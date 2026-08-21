@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { showsInPlace, useBackpackVersion } from "@api/Backpack";
 import { SettingsPanel } from "@plugins/philsPluginLibrary/components";
 import { IconComponent, SettingsPanelButton } from "@plugins/philsPluginLibrary/components/settingsPanel/SettingsPanelButton";
 import { SettingsPanelRow } from "@plugins/philsPluginLibrary/components/settingsPanel/SettingsPanelRow";
@@ -51,7 +52,12 @@ export const useButtons = () => {
 };
 
 export const ButtonsSettingsPanel = () => {
-    const rawPanelButtons = useButtons();
+    const allPanelButtons = useButtons();
+
+    // 🔴 هذا سطح الأزرار الخامس، وفيه يعيش زرّ FakeDeafen. لولا ترشيحه هنا
+    // لبقي ظاهراً وحده بينما ذهبت بقيّة الأزرار إلى الحقيبة.
+    useBackpackVersion();
+    const rawPanelButtons = allPanelButtons.filter(({ name }) => showsInPlace("voicePanel", name));
 
     const convertRawPanelButtons = (buttons: PanelButton[]) => {
         const settingsPanelButtonsClone = [...buttons].sort();

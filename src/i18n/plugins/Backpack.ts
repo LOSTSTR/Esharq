@@ -1,6 +1,6 @@
 /*
- * Vencord, a Discord client mod
- * Copyright (c) 2026 Vendicated and contributors
+ * Esharq, a Discord client mod
+ * Copyright (c) 2026 LOSTSTR
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
@@ -8,7 +8,7 @@ import { definePluginI18n } from "@utils/i18n/types";
 
 export default definePluginI18n({
     "description": {
-        "ar": "نظّم أزرار شريط الدردشة داخل «حقيبة». نقر أيسر لاستخدام الأزرار المحزومة، نقر أيمن لحزم/إخراج الأزرار.",
-        "en": "Organize chat bar buttons into a backpack. Left-click to use packed buttons, right-click to pack/unpack buttons."
+        "ar": "اجمع أزرار الإضافات كلّها في حقيبة واحدة قرب المايك، وثبّت في الواجهة ما تشاء منها، وأخفِ كل شيء باختصار لوحة مفاتيح.",
+        "en": "Sweep every plugin button into one Backpack next to the mic, pin whichever you want to keep out, and hide all of it behind a hotkey."
     }
 });

@@ -9,6 +9,8 @@ import { Logger } from "@utils/Logger";
 import { findComponentByCodeLazy } from "@webpack";
 import type { ComponentType, MouseEventHandler, ReactNode } from "react";
 
+import { showsInPlace, useBackpackVersion } from "./Backpack";
+
 const PanelButton = findComponentByCodeLazy("tooltipPositionKey", "positionKeyStemOverride") as ComponentType<UserAreaButtonProps>;
 
 export interface UserAreaButtonProps {
@@ -60,9 +62,13 @@ export function removeUserAreaButton(id: string) {
 }
 
 function UserAreaButtons({ props }: { props: UserAreaRenderProps; }) {
+    // الحقيبة نفسها تسكن هنا، فهي الزرّ الوحيد الذي لا يُرشَّح خارج التخفّي.
+    useBackpackVersion();
+
     return (
         <>
             {Array.from(buttons)
+                .filter(([id]) => showsInPlace("userArea", id))
                 .sort(([, a], [, b]) => a.priority - b.priority)
                 .map(([id, { render: Button }]) => (
                     <ErrorBoundary noop key={id} onError={e => logger.error(`Failed to render ${id}`, e.error)}>

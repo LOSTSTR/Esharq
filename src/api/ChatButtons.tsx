@@ -12,9 +12,10 @@ import { classes } from "@utils/misc";
 import { IconComponent } from "@utils/types";
 import { Channel } from "@vencord/discord-types";
 import { findCssClassesLazy } from "@webpack";
-import { Clickable, Menu, Tooltip, useEffect, useState } from "@webpack/common";
+import { Clickable, Menu, Tooltip } from "@webpack/common";
 import { HTMLProps, JSX, MouseEventHandler, ReactNode } from "react";
 
+import { showsInPlace, useBackpackVersion } from "./Backpack";
 import { addContextMenuPatch, findGroupChildrenByChildId } from "./ContextMenu";
 import { useSettings } from "./Settings";
 
@@ -96,28 +97,27 @@ export const ChatBarButtonMap = new Map<string, ChatBarButtonData>();
 const logger = new Logger("ChatButtons");
 
 // ── Backpack plugin support (Esharq) ──────────────────────────────────────────
-// Button IDs in this set are hidden from the main chat bar and shown inside the Backpack
-// popout instead. `backpackListeners` lets the bar re-render when the set changes.
-export const BackpackedButtons = new Set<string>();
-export const backpackListeners = new Set<() => void>();
-export function notifyBackpackChange() { backpackListeners.forEach(l => l()); }
+// The Backpack lives in the user area, not here, so it never sees the chat bar's own
+// props. We keep the last ones Discord handed us so the popout can render these very
+// buttons with the real props instead of a fabricated object.
+let lastChatBarProps: ChatBarProps | null = null;
+
+/** @internal تستعملها الحقيبة لتعرض أزرار شريط الكتابة خارج الشريط. */
+export function getLastChatBarProps(): ChatBarProps | null {
+    return lastChatBarProps;
+}
 
 function VencordChatBarButtons(props: ChatBarProps) {
     const { chatBarButtons } = useSettings(["uiElements.chatBarButtons.*"]).uiElements;
-    const [, forceUpdate] = useState(0);
+    useBackpackVersion();
 
-    useEffect(() => {
-        const listener = () => forceUpdate(n => n + 1);
-        backpackListeners.add(listener);
-        return () => { backpackListeners.delete(listener); };
-    }, []);
+    lastChatBarProps = props;
 
     const { analyticsName } = props.type;
     return (
         <>
             {Array.from(ChatBarButtonMap)
-                .filter(([key]) => chatBarButtons[key]?.enabled !== false && !BackpackedButtons.has(key))
-                .sort(([a], [b]) => (a === "Backpack" ? -1 : b === "Backpack" ? 1 : 0))
+                .filter(([key]) => chatBarButtons[key]?.enabled !== false && showsInPlace("chatBar", key))
                 .map(([key, { render: Button }]) => (
                     <ErrorBoundary noop key={key} onError={e => logger.error(`Failed to render ${key}`, e.error)}>
                         <Button {...props} isMainChat={analyticsName === "normal"} isAnyChat={["normal", "sidebar"].includes(analyticsName)} />

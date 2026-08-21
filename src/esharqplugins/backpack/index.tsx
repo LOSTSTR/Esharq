@@ -1,268 +1,568 @@
 /*
- * Vencord, a Discord client mod
- * Copyright (c) 2026 Vendicated and contributors
+ * Esharq, a Discord client mod
+ * Copyright (c) 2026 LOSTSTR
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 import "./styles.css";
 
-import { backpackListeners, BackpackedButtons, ChatBarButton, ChatBarButtonFactory, ChatBarButtonMap, ChatBarProps, notifyBackpackChange } from "@api/ChatButtons";
-import { DataStore } from "@api/index";
+import {
+    BACKPACK_SURFACES,
+    BackpackSurface,
+    getPinnedKeys,
+    isPinned,
+    isStealth,
+    setBackpackActive,
+    setPinned,
+    setPinnedKeys,
+    setStealth,
+    showsInBackpack,
+    useBackpackVersion
+} from "@api/Backpack";
+import { ChatBarButtonMap, getLastChatBarProps } from "@api/ChatButtons";
+import { _getChannelToolbarButtons, _getHeaderBarButtons } from "@api/HeaderBar";
+import * as DataStore from "@api/DataStore";
+import { definePluginSettings } from "@api/Settings";
+import { buttons as userAreaButtons, UserAreaButton, UserAreaRenderProps } from "@api/UserArea";
 import ErrorBoundary from "@components/ErrorBoundary";
+import { openPluginModal } from "@components/settings";
+import { settingsPanelButtons, SettingsPanelTooltipButton } from "@plugins/philsPluginLibrary";
 import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
-import definePlugin from "@utils/types";
-import { ContextMenuApi, Menu, Popout, React, Tooltip, useEffect, useRef, useState } from "@webpack/common";
 import { Logger } from "@utils/Logger";
+import definePlugin, { OptionType } from "@utils/types";
+import { ContextMenuApi, Menu, Popout, React, showToast, Toasts, Tooltip, useEffect, useRef, useState } from "@webpack/common";
 
-const logger = new Logger("Backpack");
+import { comboFromEvent, hasModifier, matchesCombo, prettyCombo } from "./hotkey";
 
-const STORE_KEY = "Backpack_packedButtons";
+/**
+ * **الحقيبة** — واجهة ديسكورد نظيفة، وأزرار الإضافات كلّها خلف زرٍّ واحد.
+ *
+ * ## المشكلة
+ *
+ * كل إضافة تُفعّلها تضع زرّها في الواجهة، وليست الأزرار في مكان واحد: خمسة
+ * مواضع على الشاشة تتقاسمها. فعشر إضافات ذات أزرار تكفي لتصير النافذة أشبه
+ * بلوحة قيادة، ولا حلّ إلّا تعطيل إضافات تريدها.
+ *
+ * ## الحلّ
+ *
+ * زرّ واحد في لوحة الحساب — قرب المايك — يبتلعها كلّها ويعرضها في لوحته
+ * **تعمل كما هي**: لا صور لها ولا نسخ، بل المكوّنات نفسها. فالزرّ الذي
+ * يُشغّل FakeDeafen يُشغّله من داخل الحقيبة تماماً كما من مكانه.
+ *
+ * 🔴 **ولا يُمسّ زرّ من أزرار ديسكورد.** المايك والسمّاعة والإعدادات والبريد
+ * والمثبّتة والأعضاء تبقى كما هي — الحقيبة لا ترى إلّا ما سجّلته إضافاتنا.
+ *
+ * ## ما يُحفظ هو المُثبَّت، لا المحزوم
+ *
+ * لو حفظنا «المحزوم» لقفزت كل إضافة جديدة إلى الواجهة يوم يُفعّلها المستخدم،
+ * فيعود الزحام. والمحفوظ عندنا **ما اختار إبقاءه ظاهراً**، وما عداه — بما لم
+ * يُثبَّت بعد — يذهب إلى الحقيبة وحده. الشرح كاملاً في `api/Backpack.ts`.
+ *
+ * ## وضع التخفّي
+ *
+ * اختصار يُخفي **كل شيء** — الحقيبة وصندوق أدوات إشراق معهما — فتبدو النافذة
+ * ديسكورد رسمياً. والضغطة الثانية تُعيد كل شيء كما كان.
+ *
+ * 🔴 ولأنّه يُخفي مفتاحه نفسه، يمتنع تشغيله ما لم يكن هناك اختصار مسجَّل،
+ * ويُطفأ من تلقائه إن مُحي الاختصار وهو مُشتغل. وصفحة إعدادات الإضافة تبقى
+ * مخرجاً مضموناً في كل حال.
+ */
 
-// ─── Persistence ──────────────────────────────────────────────────────────────
+const logger = new Logger("Backpack", "#c9a227");
 
-async function loadPacked(): Promise<string[]> {
-    try { return (await DataStore.get<string[]>(STORE_KEY)) ?? []; }
-    catch { return []; }
-}
+/** المفاتيح المثبَّتة — قائمة `surface:id`. */
+const STORE_KEY = "Esharq_Backpack_pinned_v2";
+/** حالة التخفّي تعبر إعادة التشغيل، وإلّا عاد الزحام لمن أراد نافذةً نظيفة دائماً. */
+const STEALTH_KEY = "Esharq_Backpack_stealth";
 
-async function savePacked(ids: string[]) {
-    try { await DataStore.set(STORE_KEY, ids); } catch (err) { logger.debug("Ignored error", err); }
-}
+/** صندوق أدوات إشراق يبقى ظاهراً افتراضياً: هو باب الإعدادات كلّه. */
+const DEFAULT_PINNED = ["headerBar:EquicordToolbox"];
 
-async function packButton(id: string) {
-    BackpackedButtons.add(id);
-    notifyBackpackChange();
-    await savePacked([...BackpackedButtons]);
-}
+// ─── الشعار ───────────────────────────────────────────────────────────────────
 
-async function unpackButton(id: string) {
-    BackpackedButtons.delete(id);
-    notifyBackpackChange();
-    await savePacked([...BackpackedButtons]);
-}
-
-// ─── SVG Icons (Chevron Up = closed, Chevron Down = open) ──────────────────────
-
-function ChevronUpIcon(props: Record<string, any>) {
+/**
+ * سداسية إشراق وحرف E — **الشعار نفسه** الذي يحمله صندوق الأدوات، بلا فرق.
+ *
+ * ويأخذ لونه من `currentColor` فيتبع حالة الزرّ في لوحة الحساب (عادي ·
+ * مُمرَّر · مفتوح) كبقيّة أزرارها، بلا لون مثبَّت يشذّ عنها.
+ */
+export function EsharqMark(props: React.SVGProps<SVGSVGElement>) {
     const { width = 20, height = 20, ...rest } = props;
     return (
-        <svg width={width} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...rest}>
-            <path fill="currentColor" d="M3.3 15.7a1 1 0 0 0 1.4 0L12 8.42l7.3 7.3a1 1 0 0 0 1.4-1.42l-8-8a1 1 0 0 0-1.4 0l-8 8a1 1 0 0 0 0 1.42Z" />
+        <svg viewBox="0 0 24 24" width={width} height={height} {...rest}>
+            <path
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinejoin="round"
+                d="M12 2.6 20.1 7.3v9.4L12 21.4 3.9 16.7V7.3Z"
+            />
+            <path
+                fill="currentColor"
+                d="M15.4 8.2H9.9c-1 0-1.6.5-1.6 1.4v4.8c0 .9.6 1.4 1.6 1.4h5.5v-1.7h-5.2v-1.3h4.6v-1.6H10.2V9.9h5.2Z"
+            />
         </svg>
     );
 }
 
-function ChevronDownIcon(props: Record<string, any>) {
-    const { width = 20, height = 20, ...rest } = props;
-    return (
-        <svg width={width} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...rest}>
-            <path fill="currentColor" d="M5.3 9.3a1 1 0 0 1 1.4 0l5.3 5.29 5.3-5.3a1 1 0 1 1 1.4 1.42l-6 6a1 1 0 0 1-1.4 0l-6-6a1 1 0 0 1 0-1.42Z" />
-        </svg>
-    );
+// ─── الأسطح الخمسة ────────────────────────────────────────────────────────────
+
+const SURFACE_LABEL: Record<BackpackSurface, () => string> = {
+    chatBar: () => t("شريط الكتابة", "Chat bar"),
+    headerBar: () => t("ترويسة النافذة", "Window header"),
+    channelToolbar: () => t("شريط أدوات القناة", "Channel toolbar"),
+    userArea: () => t("لوحة الحساب", "Account panel"),
+    voicePanel: () => t("لوحة الصوت", "Voice panel")
+};
+
+/** أسماء ما هو مسجَّل الآن في كل سطح — تُقرأ حيّةً عند كل عرض. */
+function readSurface(surface: BackpackSurface): string[] {
+    switch (surface) {
+        case "chatBar": return [...ChatBarButtonMap.keys()];
+        case "headerBar": return [..._getHeaderBarButtons().keys()];
+        case "channelToolbar": return [..._getChannelToolbarButtons().keys()];
+        case "userArea": return [...userAreaButtons.keys()];
+        case "voicePanel": return settingsPanelButtons.map(button => button.name);
+    }
 }
 
-// ─── Backpack Popout (left-click) ─────────────────────────────────────────────
-// Renders the actual components of the packed buttons — they work just like in the bar.
-
-function useBackpack() {
-    const [, forceUpdate] = useState(0);
-    useEffect(() => {
-        const listener = () => forceUpdate(n => n + 1);
-        backpackListeners.add(listener);
-        return () => { backpackListeners.delete(listener); };
-    }, []);
-    return {
-        packed: Array.from(BackpackedButtons),
-        available: Array.from(ChatBarButtonMap.keys()).filter(id => id !== "Backpack" && !BackpackedButtons.has(id))
-    };
+interface SurfaceGroup {
+    surface: BackpackSurface;
+    ids: string[];
 }
 
-function BackpackPopout({ chatBarProps }: { chatBarProps: ChatBarProps; closePopout: () => void; }) {
-    const { packed: packedIds } = useBackpack();
-    const packed = packedIds
-        .filter(id => ChatBarButtonMap.has(id))
-        .map(id => ({ id, data: ChatBarButtonMap.get(id)! }));
+function readAllSurfaces(): SurfaceGroup[] {
+    return BACKPACK_SURFACES
+        .map(surface => ({ surface, ids: readSurface(surface).sort() }))
+        .filter(group => group.ids.length > 0);
+}
 
-    const popoutContainerRef = useRef<HTMLDivElement>(null);
+/**
+ * يرسم الزرّ الحقيقيّ داخل لوحة الحقيبة.
+ *
+ * 🔴 أزرار شريط الكتابة وحدها تحتاج خصائص لا تملكها الحقيبة: الشريط يُمرّرها
+ * إليها من ديسكورد (القناة · نوع المحرّر · صلاحياته). فبدل تلفيقها — وهي
+ * كائن من ثلاثين حقلاً يقرأ منها كل زرّ ما يشاء — يحتفظ `ChatButtons` بآخر
+ * ما سلّمه ديسكورد فعلاً، وتُعاد الأزرار به. وإن لم تُفتَح محادثة بعدُ فلا
+ * خصائص، فيُقال ذلك بدل أن يُرسَم زرّ ينفجر عند أول نقرة.
+ */
+function PackedButton({ surface, id, props }: { surface: BackpackSurface; id: string; props: UserAreaRenderProps; }) {
+    switch (surface) {
+        case "chatBar": {
+            const data = ChatBarButtonMap.get(id);
+            const chatBarProps = getLastChatBarProps();
+            if (data == null) return null;
+            if (chatBarProps == null) {
+                return (
+                    <div className="esharq-backpack-unavailable">
+                        {t("افتح محادثة أولاً", "Open a chat first")}
+                    </div>
+                );
+            }
+            const Button = data.render;
+            return <Button {...chatBarProps} isMainChat isAnyChat />;
+        }
 
-    if (packed.length === 0) {
-        return (
-            <div className="backpack-popout-horizontal-empty">
-                {t("انقر بالزر الأيمن لحزم الإضافات", "Right-click to pack plugins")}
-            </div>
-        );
+        case "headerBar":
+        case "channelToolbar": {
+            const registry = surface === "headerBar" ? _getHeaderBarButtons() : _getChannelToolbarButtons();
+            const entry = registry.get(id);
+            if (entry == null) return null;
+            const Button = entry.render;
+            return <Button />;
+        }
+
+        case "userArea": {
+            const entry = userAreaButtons.get(id);
+            if (entry == null) return null;
+            const Button = entry.render;
+            return <>{Button(props)}</>;
+        }
+
+        case "voicePanel": {
+            const button = settingsPanelButtons.find(entry => entry.name === id);
+            if (button == null) return null;
+            return (
+                <SettingsPanelTooltipButton
+                    tooltipProps={{ text: button.tooltipText ?? button.name }}
+                    icon={button.icon}
+                    onClick={button.onClick}
+                />
+            );
+        }
+    }
+}
+
+// ─── الحفظ ────────────────────────────────────────────────────────────────────
+
+async function loadPinned(): Promise<void> {
+    try {
+        const stored = await DataStore.get<string[]>(STORE_KEY);
+        setPinnedKeys(stored ?? DEFAULT_PINNED);
+    } catch (err) {
+        logger.error("Failed to load pinned buttons", err);
+        setPinnedKeys(DEFAULT_PINNED);
+    }
+}
+
+async function savePinned(): Promise<void> {
+    try {
+        await DataStore.set(STORE_KEY, getPinnedKeys());
+    } catch (err) {
+        logger.error("Failed to save pinned buttons", err);
+    }
+}
+
+function pin(surface: BackpackSurface, id: string, value: boolean) {
+    setPinned(surface, id, value);
+    void savePinned();
+}
+
+// ─── وضع التخفّي ──────────────────────────────────────────────────────────────
+
+/** التخفّي يُخفي مفتاحه، فلا يُشتغل بلا اختصار يُخرج منه. */
+function canStealth(): boolean {
+    return settings.store.stealthHotkey !== "";
+}
+
+function toggleStealth(next = !isStealth()) {
+    if (next && !canStealth()) {
+        showToast(t(
+            "سجّل اختصاراً أولاً — وإلّا لن تجد ما يُخرجك من التخفّي.",
+            "Record a hotkey first — otherwise nothing would bring you back."
+        ), Toasts.Type.FAILURE);
+        return;
     }
 
+    setStealth(next);
+    void DataStore.set(STEALTH_KEY, next).catch(err => logger.error("Failed to save stealth state", err));
+
+    if (next) {
+        showToast(t(
+            `وضع التخفّي — ${prettyCombo(settings.store.stealthHotkey)} يُعيد كل شيء`,
+            `Stealth mode — ${prettyCombo(settings.store.stealthHotkey)} brings everything back`
+        ), Toasts.Type.SUCCESS);
+    }
+}
+
+function onKeyDown(event: KeyboardEvent) {
+    if (!matchesCombo(event, settings.store.stealthHotkey)) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    toggleStealth();
+}
+
+// ─── مسجّل الاختصار ───────────────────────────────────────────────────────────
+
+function HotkeyRecorder() {
+    const [recording, setRecording] = useState(false);
+    const combo = settings.use(["stealthHotkey"]).stealthHotkey;
+
+    useEffect(() => {
+        if (!recording) return;
+
+        const capture = (event: KeyboardEvent) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (event.code === "Escape") {
+                setRecording(false);
+                return;
+            }
+
+            const next = comboFromEvent(event);
+            // مُعدِّلٌ وحده ليس اختصاراً — ننتظر الحرف الذي معه.
+            if (next === null) return;
+
+            // 🔴 بلا مُعدِّل يسرق الاختصار كل ضغطة على ذلك الحرف — بما فيها
+            // ما يُكتب في مربّع الرسالة.
+            if (!hasModifier(next)) {
+                showToast(t(
+                    "اختر تركيبة فيها Ctrl أو Alt — الحرف وحده يسرق الكتابة.",
+                    "Pick a combo with Ctrl or Alt — a bare key would steal your typing."
+                ), Toasts.Type.FAILURE);
+                return;
+            }
+
+            settings.store.stealthHotkey = next;
+            setRecording(false);
+        };
+
+        window.addEventListener("keydown", capture, true);
+        return () => window.removeEventListener("keydown", capture, true);
+    }, [recording]);
+
     return (
-        <div className="backpack-popout-horizontal" ref={popoutContainerRef} style={{ overflow: "visible" }}>
-            {packed.map(({ id, data }) => (
-                <Tooltip text={id} key={id}>
-                    {(tooltipProps: any) => (
-                        <div
-                            className="backpack-item-horizontal"
-                            {...tooltipProps}
-                            style={{ overflow: "visible" }}
-                        >
-                            <ErrorBoundary noop>
-                                <data.render {...({ ...chatBarProps, isMainChat: true, isAnyChat: true, popoutContainer: popoutContainerRef.current } as any)} />
-                            </ErrorBoundary>
-                        </div>
-                    )}
-                </Tooltip>
-            ))}
+        <div className="esharq-backpack-hotkey">
+            <button
+                className="esharq-backpack-hotkey-field"
+                data-recording={recording}
+                onClick={() => setRecording(value => !value)}
+            >
+                {recording
+                    ? t("اضغط التركيبة الآن…", "Press the combo now…")
+                    : combo === ""
+                        ? t("لا اختصار", "No hotkey")
+                        : prettyCombo(combo)}
+            </button>
+            {combo !== "" && !recording && (
+                <button
+                    className="esharq-backpack-hotkey-clear"
+                    onClick={() => {
+                        settings.store.stealthHotkey = "";
+                        // لا يبقى تخفٍّ بلا مخرج.
+                        if (isStealth()) toggleStealth(false);
+                    }}
+                >
+                    {t("امسح", "Clear")}
+                </button>
+            )}
         </div>
     );
 }
 
-// ─── Context Menu (right-click) ────────────────────────────────────────────────
+const settings = definePluginSettings({
+    stealthHotkey: {
+        type: OptionType.COMPONENT,
+        default: "",
+        get description() {
+            return t(
+                "اختصار وضع التخفّي — يُخفي كل ما تضيفه الإضافات، حتى الحقيبة وصندوق الأدوات، فتبدو النافذة ديسكورد رسمياً. والضغطة الثانية تُعيدها.",
+                "Stealth mode hotkey — hides everything the plugins add, the Backpack and the toolbox included, so the window looks like stock Discord. Press it again to bring it all back."
+            );
+        },
+        component: () => <HotkeyRecorder />
+    },
+    showBadge: {
+        type: OptionType.BOOLEAN,
+        default: true,
+        get description() {
+            return t("أظهر عدد الأزرار المحزومة على الحقيبة", "Show the packed button count on the Backpack");
+        }
+    },
+    openWithHover: {
+        type: OptionType.BOOLEAN,
+        default: false,
+        get description() {
+            return t("افتح الحقيبة بمرور المؤشّر لا بالنقر", "Open the Backpack on hover instead of a click");
+        }
+    }
+});
+
+// ─── قائمة النقر الأيمن ───────────────────────────────────────────────────────
 
 function BackpackContextMenu() {
-    useBackpack();
+    useBackpackVersion();
+    const groups = readAllSurfaces();
+
+    const setAll = (value: boolean) => {
+        for (const { surface, ids } of groups) {
+            for (const id of ids) setPinned(surface, id, value);
+        }
+        void savePinned();
+    };
 
     return (
-        <Menu.Menu navId="backpack-context" onClose={ContextMenuApi.closeContextMenu}>
-            <Menu.MenuGroup label={t("حزم الإضافات في الحقيبة", "Pack Plugins into Backpack")}>
-                {Array.from(ChatBarButtonMap.keys())
-                    .filter(id => id !== "Backpack")
-                    .sort()
-                    .map(id => {
-                        const isPacked = BackpackedButtons.has(id);
-                        return (
+        <Menu.Menu navId="esharq-backpack" onClose={ContextMenuApi.closeContextMenu} aria-label={t("الحقيبة", "Backpack")}>
+            <Menu.MenuGroup label={t("ما يبقى ظاهراً في الواجهة", "What stays visible in the interface")}>
+                {groups.map(({ surface, ids }) => (
+                    <Menu.MenuItem
+                        key={surface}
+                        id={`esharq-backpack-surface-${surface}`}
+                        label={`${SURFACE_LABEL[surface]()} (${ids.length})`}
+                    >
+                        {ids.map(id => (
                             <Menu.MenuCheckboxItem
-                                key={`bp-toggle-${id}`}
-                                id={`bp-toggle-${id}`}
+                                key={id}
+                                id={`esharq-backpack-pin-${surface}-${id}`}
                                 label={id}
-                                checked={isPacked}
-                                action={() => isPacked ? unpackButton(id) : packButton(id)}
+                                checked={isPinned(surface, id)}
+                                action={() => pin(surface, id, !isPinned(surface, id))}
                             />
-                        );
-                    })}
+                        ))}
+                    </Menu.MenuItem>
+                ))}
+            </Menu.MenuGroup>
+
+            <Menu.MenuGroup>
+                <Menu.MenuItem
+                    id="esharq-backpack-pack-all"
+                    label={t("احزم كل شيء", "Pack everything")}
+                    action={() => setAll(false)}
+                />
+                <Menu.MenuItem
+                    id="esharq-backpack-show-all"
+                    label={t("أظهر كل شيء", "Show everything")}
+                    action={() => setAll(true)}
+                />
+                <Menu.MenuItem
+                    id="esharq-backpack-reset"
+                    label={t("أعد الافتراضي", "Restore the default")}
+                    action={() => { setPinnedKeys(DEFAULT_PINNED); void savePinned(); }}
+                />
+            </Menu.MenuGroup>
+
+            <Menu.MenuGroup>
+                <Menu.MenuCheckboxItem
+                    id="esharq-backpack-stealth"
+                    label={t("وضع التخفّي", "Stealth mode")}
+                    checked={isStealth()}
+                    disabled={!canStealth()}
+                    action={() => toggleStealth()}
+                />
+                <Menu.MenuItem
+                    id="esharq-backpack-settings"
+                    label={t("إعدادات الحقيبة", "Backpack settings")}
+                    action={() => openPluginModal(Vencord.Plugins.plugins.Backpack)}
+                />
             </Menu.MenuGroup>
         </Menu.Menu>
     );
 }
 
-// ─── Chat Bar Button ──────────────────────────────────────────────────────────
+// ─── اللوحة ───────────────────────────────────────────────────────────────────
 
-const BackpackChatBarButton: ChatBarButtonFactory = props => {
-    const { isMainChat, ...chatBarProps } = props;
-    const [isOpen, setIsOpen] = useState(false);
-    const [count, setCount] = useState(BackpackedButtons.size);
-    const popoutRef = useRef<HTMLDivElement>(null);
-    // Counts popups/modals opened ABOVE the backpack, so we don't auto-close over them.
-    const overlayCount = useRef(0);
+function BackpackPopout({ props }: { props: UserAreaRenderProps; }) {
+    useBackpackVersion();
 
-    // Discord renders its modals/popups in special containers outside the popout. Watch the
-    // direct children of document.body (where Discord inserts its portals) to detect overlays.
-    useEffect(() => {
-        if (!isOpen) {
-            overlayCount.current = 0;
-            return;
-        }
+    // تُقرأ عند كل عرض بلا `useMemo`: السجلّات تتبدّل بتفعيل إضافة أو تعطيلها،
+    // وأي قائمة اعتماديات هنا تكون إمّا كاذبة أو أغلى من الحساب نفسه — وهو
+    // مرورٌ على بضع عشرات من الأسماء.
+    const groups = readAllSurfaces()
+        .map(({ surface, ids }) => ({ surface, ids: ids.filter(id => showsInBackpack(surface, id)) }))
+        .filter(group => group.ids.length > 0);
 
-        const bodyChildrenAtOpen = new Set(Array.from(document.body.children));
+    if (groups.length === 0) {
+        return (
+            <div className="esharq-backpack-popout esharq-backpack-empty">
+                {t(
+                    "الحقيبة فارغة — كل الأزرار ظاهرة في الواجهة. انقر باليمين لتحزم منها ما تشاء.",
+                    "The Backpack is empty — every button is out in the interface. Right-click to pack whichever you like."
+                )}
+            </div>
+        );
+    }
 
-        function looksLikeOverlay(node: HTMLElement): boolean {
-            if (!bodyChildrenAtOpen.has(node)) return true;
-            const cls = node.className?.toString() ?? "";
-            return ["layerContainer", "focusLock", "backdrop", "modal"].some(p => cls.includes(p));
-        }
+    return (
+        <div className="esharq-backpack-popout">
+            {groups.map(({ surface, ids }) => (
+                <div className="esharq-backpack-group" key={surface}>
+                    <div className="esharq-backpack-group-label">{SURFACE_LABEL[surface]()}</div>
+                    <div className="esharq-backpack-row">
+                        {ids.map(id => (
+                            <Tooltip text={id} key={id}>
+                                {tooltipProps => (
+                                    <div className="esharq-backpack-item" {...tooltipProps}>
+                                        <ErrorBoundary noop>
+                                            <PackedButton surface={surface} id={id} props={props} />
+                                        </ErrorBoundary>
+                                    </div>
+                                )}
+                            </Tooltip>
+                        ))}
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+}
 
-        const observer = new MutationObserver(mutations => {
-            for (const m of mutations) {
-                for (const node of Array.from(m.addedNodes)) {
-                    if (node instanceof HTMLElement && looksLikeOverlay(node)) {
-                        overlayCount.current++;
-                    }
-                }
-                for (const node of Array.from(m.removedNodes)) {
-                    if (node instanceof HTMLElement && looksLikeOverlay(node)) {
-                        overlayCount.current = Math.max(0, overlayCount.current - 1);
-                    }
-                }
-            }
-        });
+// ─── زرّ لوحة الحساب ──────────────────────────────────────────────────────────
 
-        observer.observe(document.body, { childList: true, subtree: false });
+function BackpackButton(props: UserAreaRenderProps) {
+    useBackpackVersion();
+    const { showBadge, openWithHover } = settings.use(["showBadge", "openWithHover"]);
+    const [open, setOpen] = useState(false);
+    const anchor = useRef<HTMLDivElement>(null);
 
-        return () => {
-            observer.disconnect();
-            overlayCount.current = 0;
-        };
-    }, [isOpen]);
-
-    useEffect(() => {
-        const listener = () => {
-            const actualCount = Array.from(BackpackedButtons).filter(id => ChatBarButtonMap.has(id)).length;
-            setCount(actualCount);
-        };
-        backpackListeners.add(listener);
-        listener(); // set correct count on mount
-        return () => { backpackListeners.delete(listener); };
-    }, []);
-
-    if (!isMainChat) return null;
+    const count = readAllSurfaces()
+        .reduce((total, { surface, ids }) => total + ids.filter(id => showsInBackpack(surface, id)).length, 0);
 
     return (
         <Popout
-            targetElementRef={popoutRef}
-            renderPopout={() => <BackpackPopout chatBarProps={chatBarProps as any as ChatBarProps} closePopout={() => setIsOpen(false)} />}
-            shouldShow={isOpen}
-            onRequestClose={() => {
-                // Don't close if a popup/modal was opened by a backpack plugin.
-                if (overlayCount.current > 0) return;
-                setIsOpen(false);
-            }}
+            targetElementRef={anchor}
+            renderPopout={() => <BackpackPopout props={props} />}
+            shouldShow={open}
+            onRequestClose={() => setOpen(false)}
             position="top"
-            align="right"
+            align="left"
             spacing={8}
         >
-            {(_, { isShown: _isShown }) => (
-                <ChatBarButton
-                    tooltip={t(`الحقيبة${count > 0 ? ` (${count})` : ""}`, `Backpack${count > 0 ? ` (${count})` : ""}`)}
-                    onClick={() => setIsOpen(v => !v)}
-                    onContextMenu={(e: React.MouseEvent) => {
-                        e.preventDefault();
-                        ContextMenuApi.openContextMenu(e, (props: any) => (
-                            <ErrorBoundary noop>
-                                <BackpackContextMenu {...props} />
-                            </ErrorBoundary>
-                        ));
-                    }}
+            {() => (
+                <div
+                    ref={anchor}
+                    className="esharq-backpack-anchor"
+                    onMouseEnter={openWithHover ? () => setOpen(true) : undefined}
                 >
-                    <div ref={popoutRef as any} style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                        {isOpen ? <ChevronDownIcon /> : <ChevronUpIcon />}
-                        {count > 0 && <div className="backpack-badge">{count}</div>}
-                    </div>
-                </ChatBarButton>
+                    <UserAreaButton
+                        tooltipText={props.hideTooltips ? void 0 : t(
+                            count > 0 ? `الحقيبة — ${count} زرّاً` : "الحقيبة",
+                            count > 0 ? `Backpack — ${count} buttons` : "Backpack"
+                        )}
+                        icon={<EsharqMark className={props.iconForeground} />}
+                        onClick={() => setOpen(value => !value)}
+                        onContextMenu={event => {
+                            event.preventDefault();
+                            ContextMenuApi.openContextMenu(event, () => (
+                                <ErrorBoundary noop>
+                                    <BackpackContextMenu />
+                                </ErrorBoundary>
+                            ));
+                        }}
+                        aria-label={t("الحقيبة", "Backpack")}
+                    />
+                    {showBadge && count > 0 && <div className="esharq-backpack-badge">{count}</div>}
+                </div>
             )}
         </Popout>
     );
-};
+}
 
-// ─── Plugin Definition ────────────────────────────────────────────────────────
+// ─── الإضافة ──────────────────────────────────────────────────────────────────
 
 export default definePlugin({
     name: "Backpack",
-    description: "Organize chat bar buttons into a backpack. Left-click to use packed buttons, right-click to pack/unpack buttons.",
-    authors: [EquicordDevs.nobody],
+    description: "Sweep every plugin button into one Backpack next to the mic, pin whichever you want to keep out, and hide all of it behind a hotkey.",
+    authors: [EquicordDevs.LOSTSTR],
     tags: ["Customisation", "Organisation"],
-    dependencies: ["ChatInputButtonAPI"],
+    dependencies: ["UserAreaAPI"],
+    enabledByDefault: true,
+    settings,
 
-    chatBarButton: {
-        icon: ChevronUpIcon,
-        render: BackpackChatBarButton,
+    userAreaButton: {
+        icon: EsharqMark,
+        render: BackpackButton,
+        // إلى يمين المايك مباشرةً: أوّل ما تصل إليه اليد بعده.
+        priority: 10
     },
 
     async start() {
-        const packed = await loadPacked();
-        for (const id of packed) BackpackedButtons.add(id);
-        notifyBackpackChange();
+        await loadPinned();
+        setBackpackActive(true);
+
+        window.addEventListener("keydown", onKeyDown, true);
+
+        // 🔴 تخفٍّ محفوظ بلا اختصار = نافذة لا مخرج منها. يُطفأ قبل أن يُرى.
+        try {
+            const wasStealth = await DataStore.get<boolean>(STEALTH_KEY);
+            if (wasStealth === true && canStealth()) {
+                setStealth(true);
+                showToast(t(
+                    `وضع التخفّي مُفعَّل — ${prettyCombo(settings.store.stealthHotkey)} يُعيد كل شيء`,
+                    `Stealth mode is on — ${prettyCombo(settings.store.stealthHotkey)} brings everything back`
+                ), Toasts.Type.MESSAGE);
+            } else if (wasStealth === true) {
+                await DataStore.set(STEALTH_KEY, false);
+            }
+        } catch (err) {
+            logger.error("Failed to restore stealth state", err);
+        }
     },
 
     stop() {
-        BackpackedButtons.clear();
-        notifyBackpackChange();
-    },
+        window.removeEventListener("keydown", onKeyDown, true);
+        setBackpackActive(false);
+    }
 });

@@ -1,131 +1,143 @@
-.backpack-popout {
-    background: var(--background-floating, #2b2d31) !important;
-    border-radius: 8px;
-    box-shadow: var(--elevation-high);
-    padding: 8px;
-    min-width: 200px;
-    max-width: 400px;
-    z-index: 1000;
-    color: var(--text-normal, #dbdee1) !important;
-}
+/*
+ * Esharq, a Discord client mod
+ * Copyright (c) 2026 LOSTSTR
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 
-.backpack-popout * {
-    color: inherit;
-}
-
-.backpack-popout svg {
-    color: var(--interactive-normal, #b5bac1) !important;
-}
-
-.backpack-popout svg:hover {
-    color: var(--interactive-hover, #dbdee1) !important;
-}
-
-.backpack-popout-header {
+/* الزرّ في لوحة الحساب: غلافٌ يحمل الشارة ويصلح مرساةً للوحة. */
+.esharq-backpack-anchor {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 4px 8px 8px;
-    border-bottom: 1px solid var(--background-modifier-accent, #3f4147);
-    margin-bottom: 6px;
-    color: var(--header-secondary, #b5bac1) !important;
-    font-size: 12px;
-    font-weight: 600;
+}
+
+.esharq-backpack-badge {
+    position: absolute;
+    inset-block-start: -2px;
+    inset-inline-end: -2px;
+    min-width: 14px;
+    height: 14px;
+    padding: 0 3px;
+    border-radius: 7px;
+    background: var(--brand-500, #5865f2);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 14px;
+    text-align: center;
+    pointer-events: none;
+    box-shadow: 0 0 0 2px var(--background-secondary-alt, #232428);
+}
+
+/* ── اللوحة ─────────────────────────────────────────────────────────────── */
+
+.esharq-backpack-popout {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 180px;
+    max-width: 420px;
+    padding: 10px;
+    border-radius: 8px;
+    background: var(--background-floating, #111214);
+    box-shadow: var(--elevation-high, 0 8px 16px rgb(0 0 0 / 24%));
+}
+
+.esharq-backpack-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.esharq-backpack-group-label {
+    color: var(--text-muted, #949ba4);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
     text-transform: uppercase;
 }
 
-.backpack-popout-grid {
+.esharq-backpack-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 0;
-    padding: 2px;
+    gap: 4px;
     align-items: center;
 }
 
-/* Override les styles des ChatBarButton à l'intérieur du popout */
-.backpack-popout-grid .expression-picker-chat-input-button {
+/* الأزرار المحزومة تُرسم كما هي، فلا يُفرَض عليها حجم — يُترك ما يكفيها. */
+.esharq-backpack-item {
     display: flex;
     align-items: center;
     justify-content: center;
+    min-width: 32px;
+    min-height: 32px;
+    border-radius: 4px;
+    overflow: visible;
+    transition: background-color 0.15s ease;
 }
 
-/* stylelint-disable-next-line no-descending-specificity */
-.backpack-popout-grid svg {
-    color: var(--interactive-normal);
+.esharq-backpack-item:hover {
+    background: var(--background-modifier-hover, rgb(255 255 255 / 4%));
 }
 
-.backpack-popout-grid svg:hover {
-    color: var(--interactive-hover);
-}
-
-.backpack-popout-empty {
-    padding: 12px 8px;
-    text-align: center;
-    color: var(--text-muted);
-    font-size: 13px;
-}
-
-.backpack-popout-item-tooltip {
+.esharq-backpack-empty,
+.esharq-backpack-unavailable {
+    color: var(--text-muted, #949ba4);
     font-size: 12px;
+    line-height: 1.4;
 }
 
-.backpack-popout-horizontal {
-    display: flex !important;
-    align-items: center !important;
-    background: var(--background-floating) !important;
-    border: 1px solid var(--border-subtle) !important;
-    border-radius: 12px !important;
-    padding: 4px 8px !important;
-    gap: 6px !important;
-    box-shadow: var(--elevation-high) !important;
-    flex-direction: row !important;
+.esharq-backpack-empty {
+    max-width: 240px;
+    padding: 4px 2px;
 }
 
-.backpack-item-horizontal {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 32px !important;
-    height: 32px !important;
-    border-radius: 8px !important;
-    transition: background 0.15s ease !important;
-    cursor: pointer !important;
+.esharq-backpack-unavailable {
+    padding: 0 6px;
 }
 
-.backpack-item-horizontal:hover {
-    background: var(--background-modifier-hover) !important;
+/* ── مسجّل الاختصار ──────────────────────────────────────────────────────── */
+
+.esharq-backpack-hotkey {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 8px;
 }
 
-.backpack-item-horizontal button {
-    background: none !important;
-    width: 100% !important;
-    height: 100% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 0 !important;
+.esharq-backpack-hotkey-field {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--background-modifier-accent, rgb(255 255 255 / 8%));
+    border-radius: 4px;
+    background: var(--input-background, rgb(0 0 0 / 20%));
+    color: var(--text-normal, #dbdee1);
+    font-family: var(--font-code, monospace);
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
 }
 
-.backpack-popout-horizontal-empty {
-    background: var(--background-floating) !important;
-    padding: 8px 16px !important;
-    border-radius: 12px !important;
-    font-size: 13px !important;
-    color: var(--text-muted) !important;
-    border: 1px solid var(--border-subtle) !important;
+.esharq-backpack-hotkey-field:hover {
+    border-color: var(--background-modifier-selected, rgb(255 255 255 / 16%));
 }
 
-.backpack-badge {
-    position: absolute;
-    top: -4px;
-    right: -6px;
-    background: var(--status-danger);
-    color: white;
-    font-size: 9px;
-    font-weight: 700;
-    padding: 1px 4px;
-    border-radius: 8px;
-    line-height: 1;
-    pointer-events: none;
-    box-shadow: 0 0 0 2px var(--background-floating);
+/* أثناء التسجيل: الحدّ يقول إنّ الضغطة القادمة تُلتقط. */
+.esharq-backpack-hotkey-field[data-recording="true"] {
+    border-color: var(--brand-500, #5865f2);
+    color: var(--brand-500, #5865f2);
+}
+
+.esharq-backpack-hotkey-clear {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    background: var(--button-secondary-background, #4e5058);
+    color: var(--text-normal, #dbdee1);
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.esharq-backpack-hotkey-clear:hover {
+    background: var(--button-secondary-background-hover, #6d6f78);
 }
