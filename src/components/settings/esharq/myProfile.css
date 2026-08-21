@@ -136,3 +136,118 @@
     line-height: 1.75;
     opacity: 0.55;
 }
+
+/* مفتاحان لكل شارة: أين تظهر. عموديّان في المساحة الضيّقة، متجاوران في الواسعة. */
+.esharq-mp-switches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    flex: 0 0 auto;
+}
+
+.esharq-mp-surface {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11.5px;
+    opacity: 0.75;
+    cursor: pointer;
+}
+
+/* ── عرض الشارة: دائرة كبيرة في الأعلى، والخيارات تحتها ──────────────────── */
+
+.esharq-mp-showcase {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 0 4px;
+}
+
+.esharq-mp-ring {
+    display: grid;
+    place-items: center;
+    inline-size: 104px;
+    block-size: 104px;
+    border-radius: 999px;
+    background:
+        radial-gradient(circle at 50% 35%, #26262e 0%, #17171b 70%);
+    box-shadow:
+        inset 0 0 0 1px #ffffff14,
+        0 0 0 3px rgb(201 162 39 / 22%),
+        0 10px 28px #0006;
+    transition: box-shadow 0.25s ease, opacity 0.25s ease;
+}
+
+/* المخفيّة في الموضعين تبهت وتفقد حلقتها الذهبية — الحال يُرى قبل أن يُقرأ. */
+.esharq-mp-ring.off {
+    opacity: 0.4;
+    box-shadow:
+        inset 0 0 0 1px #ffffff0d,
+        0 0 0 3px #ffffff0a;
+}
+
+.esharq-mp-ring img {
+    inline-size: 64px;
+    block-size: 64px;
+    border-radius: 999px;
+    object-fit: cover;
+}
+
+.esharq-mp-tooltip {
+    margin-top: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+.esharq-mp-nowhere {
+    margin-top: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    background: rgb(242 63 67 / 12%);
+    color: #ff9a9d;
+}
+
+.esharq-mp-choices {
+    inline-size: 100%;
+    margin-top: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.esharq-mp-choice {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: #17171b;
+    box-shadow: inset 0 0 0 1px #ffffff0a;
+    cursor: pointer;
+    transition: background 0.16s ease, box-shadow 0.16s ease;
+}
+
+.esharq-mp-choice:hover {
+    background: #1d1d23;
+}
+
+.esharq-mp-choice.on {
+    background: rgb(201 162 39 / 8%);
+    box-shadow: inset 0 0 0 1px rgb(201 162 39 / 30%);
+}
+
+.esharq-mp-choice-title {
+    font-size: 13.5px;
+    font-weight: 600;
+}
+
+.esharq-mp-choice-sub {
+    margin-top: 3px;
+    font-size: 11.5px;
+    line-height: 1.6;
+    opacity: 0.55;
+}

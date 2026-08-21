@@ -16,11 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Settings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import globalBadges from "@equicordplugins/globalBadges";
 import BadgeAPIPlugin from "@plugins/_api/badges";
-import { UserStore } from "@webpack/common";
 import { ComponentType, HTMLProps } from "react";
 
 import { isPluginEnabled } from "./PluginManager";
@@ -85,40 +83,10 @@ export function removeProfileBadge(badge: ProfileBadge) {
  * Inject badges into the profile badges array.
  * You probably don't need to use this.
  */
-/**
- * شاراتٌ أخفاها صاحبها من صفحة «ملفّك الشخصيّ».
- *
- * 🔴 **الإخفاء محلّيّ**: يسري على ما يراه صاحب الجهاز، ولا يصل غيره. وشارات
- * إشراق تُجلَب من ملفّات يقرؤها كل عميل بنفسه، فإخفاؤها عن الجميع يحتاج تعديل
- * تلك الملفّات على الخادم لا زرّاً هنا. والواجهة تقول هذا صراحةً بدل أن يظنّ
- * المستخدم أنه أخفاها عن الناس.
- *
- * والمفتاح **وصفُ الشارة** لا فهرسها: الفهارس تتبدّل مع كل إضافة شارة، فتنتقل
- * الإخفاءات إلى شاراتٍ أخرى بلا أن يمسّها أحد.
- */
-function hiddenBadgeKeys(): ReadonlySet<string> {
-    try {
-        const list = (Settings as any).esharq?.hiddenBadges;
-        return new Set<string>(Array.isArray(list) ? list : []);
-    } catch {
-        return new Set<string>();
-    }
-}
-
 export function _getBadges(args: BadgeUserArgs) {
     const badges = [] as ProfileBadge[];
-    const hidden = hiddenBadgeKeys();
-    const isSelf = (() => {
-        try { return UserStore.getCurrentUser()?.id === args.userId; } catch { return false; }
-    })();
-
     for (const badge of Badges) {
         if (badge.shouldShow && !badge.shouldShow(args)) {
-            continue;
-        }
-
-        // يُخفى على صاحبه وحده: إخفاء شارات الآخرين ليس ما طلبه أحد.
-        if (isSelf && badge.description != null && hidden.has(badge.description)) {
             continue;
         }
 

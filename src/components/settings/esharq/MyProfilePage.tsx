@@ -7,164 +7,169 @@
 import "./myProfile.css";
 
 import { _getBadges } from "@api/Badges";
-import { Settings, useSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Switch } from "@components/Switch";
+import { getSelfServeBadge } from "@plugins/_api/badges";
 import { t } from "@utils/esharqI18n";
 import { useMemo, UserStore, useState } from "@webpack/common";
 
-import { Card, NoticeStrip, StatRow } from "./Card";
+import { Card, NoticeStrip } from "./Card";
 import { stagger } from "./motion";
 
 /**
- * **ملفّك الشخصيّ** — صورتك وشاراتك في موضع واحد، ومفتاحٌ لكل شارة من إشراق.
+ * **ملفّك الشخصيّ** — من أنت في إشراق، وأين تظهر شارتك.
  *
- * ## 🔴 حدود الإخفاء — مكتوبةٌ في الواجهة لا في تعليقٍ وحده
+ * ## 🔴 التحكّم عامّ لا محلّيّ
  *
- * شارات إشراق تُقرأ من ملفّات في مستودع عامّ **يجلبها كل عميل بنفسه**. فزرٌّ
- * هنا يُغيّر ما يراه صاحب الجهاز ولا يصل غيره. وإخفاؤها عن الناس يحتاج تعديل
- * تلك الملفّات على الخادم — وهو مسارٌ مُوثَّق يخصّ الموقع لا العميل.
+ * أوّل نسخة جعلت المفتاح يُخفي الشارة **على جهاز صاحبها وحده**. ورفضه المالك
+ * بحقّ: مفتاحٌ يوهم الداعم أنه أخفى شارته عن الناس وهو لم يُخفها إلّا عن
+ * نفسه **أسوأ من غياب المفتاح**.
  *
- * ⇒ فالمفتاح هنا **معاينة**: يُخفي الشارة عن عينك أنت. والواجهة تقولها
- * صراحةً، لأن مفتاحاً يوهم صاحبه أنه أخفى شيئاً عن الناس وهو لم يفعل أسوأ من
- * ألّا يكون هناك مفتاح.
+ * ⇒ الحالة تُقرأ الآن من **الخادم**: حقل `surfaces` يأتي مع بيانات الشارة في
+ * `selfserve.json`، فيراه كل عميل ويحترمه في الملفّ الشخصيّ والمحادثة معاً.
  *
- * ## ولماذا لا توجد مفاتيح لشارات ديسكورد
+ * ## ولماذا يقع التبديل في الموقع لا هنا
  *
- * بحثتُ في العميل الحيّ: **لا مفتاح تفضيل واحد** يخصّ إظهار الشارات في حزمة
- * ديسكورد كلّها (`hidden_badges` · `badge_visibility` · `show_badges` — لا شيء)،
- * وما يُسمّى `hideBadge` فيها يخصّ **شارات المتجر** لا الملفّ الشخصيّ.
- * فديسكورد لا يُتيح هذا، ولا نخترع له مفتاحاً لا يعمل.
+ * تغيير الحالة يحتاج سلطةً: **رابطٌ موقَّع** يُنتجه `/badge` في ديسكورد ويُثبت
+ * الهويّة، ثم **يُعاد فحص دور الداعم** عند ديسكورد قبل الكتابة — لأن الرابط
+ * يبقى صالحاً مدّته بينما الدور قد يُسحَب داخلها.
  *
- * ## وعن الحظر
- *
- * كل ما هنا **قراءةٌ ورسمٌ محلّيّان**: لا طلب واحد إلى واجهة ديسكورد، ولا
- * تعديل لأي بيانات حساب. لا سطح خطر أصلاً.
+ * والعميل لا يملك ذلك الرابط، وإعطاؤه سلطةً خاصّةً به يعني **باباً ثانياً
+ * أضعف** إلى نفس البيانات. فالتبديل يُفتح في الموقع، والحالة هنا تُقرأ من
+ * الخادم فتصدُق سواء بُدّلت من هنا أو من هناك.
  */
+
+/** صفحة التحكّم — السلطة هناك: رابط موقَّع من `/badge` ثم فحص الدور. */
+const BADGE_CONTROL_URL = "https://esharq.org/badge";
 
 interface Badge {
     description?: string;
     image?: string;
     component?: any;
     props?: any;
-    link?: string;
 }
 
-/** أهي شارة من إشراق أم من ديسكورد أم من المُعدِّل الأصليّ؟ */
-function originOf(badge: Badge): "esharq" | "discord" | "upstream" {
+type Surface = "profile" | "chat";
+
+/** أهي شارة من إشراق أم من غيره؟ */
+function isEsharqBadge(badge: Badge): boolean {
     const src = `${badge.description ?? ""} ${badge.image ?? ""}`.toLowerCase();
-    if (src.includes("esharq") || src.includes("إشراق")) return "esharq";
-    if (src.includes("vencord") || src.includes("equicord")) return "upstream";
-    return "discord";
+    return src.includes("esharq") || src.includes("إشراق");
 }
 
-function readHidden(): string[] {
-    const list = (Settings as any).esharq?.hiddenBadges;
-    return Array.isArray(list) ? list : [];
-}
-
-function writeHidden(list: string[]) {
-    const store = Settings as Record<string, any>;
-    store.esharq = { ...(store.esharq ?? {}), hiddenBadges: list };
-}
-
-function BadgeTile({ badge, index, hidden, onToggle }: {
-    badge: Badge;
-    index: number;
-    hidden: boolean;
-    onToggle?: (v: boolean) => void;
+/**
+ * **بطاقة شارتك**: الشارة دائرةً كبيرة في الأعلى، والخيارات تحتها.
+ *
+ * والترتيب مقصود: يرى صاحبها شارته كما يراها الناس **قبل** أن يقرّر أين تظهر.
+ * وصفٌّ أفقيّ صغير لا يُري المرء ما يُقرّر بشأنه.
+ */
+function BadgeShowcase({ badge, busy, onToggle }: {
+    badge: { image: string; tooltip: string; effect: string; surfaces: { profile: boolean; chat: boolean; }; };
+    busy: boolean;
+    onToggle: (surface: Surface, visible: boolean) => void;
 }) {
-    const origin = originOf(badge);
-    const label = badge.description ?? t("شارة بلا اسم", "Unnamed badge");
+    const { surfaces } = badge;
+    const nowhere = !surfaces.profile && !surfaces.chat;
+
+    const CHOICES = [
+        {
+            key: "profile" as Surface,
+            ar: "أظهر شارتك في الملفّ الشخصيّ", en: "Show your badge on your profile",
+            subAr: "تظهر بجوار اسمك حين يفتح أحدٌ ملفّك.",
+            subEn: "It appears beside your name when someone opens your profile."
+        },
+        {
+            key: "chat" as Surface,
+            ar: "أظهر شارتك في المحادثة", en: "Show your badge in chat",
+            subAr: "تظهر بجوار اسمك في كل رسالة تكتبها.",
+            subEn: "It appears beside your name on every message you send."
+        }
+    ];
 
     return (
-        <div className={`esharq-mp-badge esharq-rise origin-${origin}` + (hidden ? " off" : "")} style={stagger(index, 10)}>
-            <div className="esharq-mp-badge-art">
-                {/* شارةٌ تنفجر عند الرسم يجب ألّا تُسقط الصفحة. */}
+        <div className="esharq-mp-showcase">
+            <div className={"esharq-mp-ring" + (nowhere ? " off" : "")}>
                 <ErrorBoundary noop>
-                    {badge.component
-                        ? <badge.component {...(badge.props ?? {})} />
-                        : badge.image
-                            ? <img src={badge.image} alt="" width={32} height={32} {...(badge.props ?? {})} />
-                            : <span className="esharq-mp-noart">?</span>}
+                    <img src={badge.image} alt="" />
                 </ErrorBoundary>
             </div>
 
-            <div className="esharq-mp-badge-body">
-                <div className="esharq-mp-badge-name">{label}</div>
-                <div className={`esharq-mp-origin ${origin}`}>
-                    {origin === "esharq" ? t("من إشراق", "From Esharq")
-                        : origin === "upstream" ? t("من المُعدِّل الأصليّ", "From the upstream mod")
-                            : t("من ديسكورد", "From Discord")}
-                </div>
-            </div>
+            <div className="esharq-mp-tooltip">{badge.tooltip || t("شارتك", "Your badge")}</div>
 
-            {onToggle ? (
-                <Switch checked={!hidden} onChange={v => onToggle(!v)} />
-            ) : (
-                <span className="esharq-mp-locked" title={t("شارات ديسكورد لا يُتيح ديسكورد إخفاءها", "Discord does not allow hiding its own badges")}>
-                    🔒
-                </span>
+            {nowhere && (
+                <div className="esharq-mp-nowhere">
+                    {t("شارتك مخفيّة في الموضعين — لا يراها أحد الآن.",
+                        "Your badge is hidden in both places — nobody sees it right now.")}
+                </div>
             )}
+
+            <div className="esharq-mp-choices">
+                {CHOICES.map((choice, i) => (
+                    <label key={choice.key}
+                        className={"esharq-mp-choice esharq-rise" + (surfaces[choice.key] ? " on" : "")}
+                        style={stagger(i, 4)}>
+                        <div className="esharq-mp-choice-text">
+                            <div className="esharq-mp-choice-title">{t(choice.ar, choice.en)}</div>
+                            <div className="esharq-mp-choice-sub">{t(choice.subAr, choice.subEn)}</div>
+                        </div>
+                        <Switch
+                            checked={surfaces[choice.key]}
+                            disabled={busy}
+                            onChange={v => onToggle(choice.key, v)}
+                        />
+                    </label>
+                ))}
+            </div>
         </div>
     );
 }
 
 export function MyProfilePage() {
-    useSettings(["esharq" as any]);
-    const [hidden, setHidden] = useState<string[]>(readHidden);
+    const [busy, setBusy] = useState(false);
+    const [opened, setOpened] = useState(false);
 
     const me = useMemo(() => {
         try { return UserStore.getCurrentUser(); } catch { return null; }
     }, []);
 
-    /**
-     * كل الشارات كما يراها المُصيِّر — **بلا مرشِّح الإخفاء**، وإلّا اختفت
-     * الشارة المُطفأة من الصفحة التي يُفترض أن يُعيد منها تشغيلها.
-     */
+    /** حالة الشارة **من الخادم** — نفس البيانات التي يرسم منها كل عميل. */
+    const selfServe = useMemo(() => (me == null ? null : getSelfServeBadge(me.id)), [me]);
+
     const badges = useMemo<Badge[]>(() => {
         if (me == null) return [];
-        try {
-            const previous = (Settings as any).esharq?.hiddenBadges;
-            const store = Settings as Record<string, any>;
-            store.esharq = { ...(store.esharq ?? {}), hiddenBadges: [] };
-            const all = _getBadges({ userId: me.id, guildId: "" } as any) as Badge[];
-            store.esharq = { ...(store.esharq ?? {}), hiddenBadges: previous };
-            return all;
-        } catch {
-            return [];
-        }
-        // مرّة واحدة عند الفتح: القائمة لا تتغيّر بتبديل مفتاح.
+        try { return _getBadges({ userId: me.id, guildId: "" } as any) as Badge[]; } catch { return []; }
     }, [me]);
 
     if (me == null) {
         return <NoticeStrip tone="danger">{t("لم أتمكّن من قراءة حسابك.", "I couldn't read your account.")}</NoticeStrip>;
     }
 
-    const esharqBadges = badges.filter(b => originOf(b) === "esharq");
-    const otherBadges = badges.filter(b => originOf(b) !== "esharq");
-    const isSupporter = esharqBadges.length > 0;
+    const esharqBadges = badges.filter(isEsharqBadge);
+    const isSupporter = selfServe != null || esharqBadges.length > 0;
+    const avatar = me.getAvatarURL?.(undefined, 128) ?? "";
 
-    const toggle = (description: string | undefined, hide: boolean) => {
-        if (description == null) return;
-        const next = hide
-            ? [...new Set([...hidden, description])]
-            : hidden.filter(d => d !== description);
-        writeHidden(next);
-        setHidden(next);
+    const openControl = () => {
+        setBusy(true);
+        try { (window as any).VencordNative?.native?.openExternal?.(BADGE_CONTROL_URL); } catch { /* تُعرَض الرسالة أدناه */ }
+        setOpened(true);
+        setTimeout(() => setBusy(false), 900);
     };
 
-    const avatar = me.getAvatarURL?.(undefined, 128) ?? "";
+    const state = selfServe == null
+        ? { text: t("لا شارة", "No badge"), tone: "warn" as const }
+        : selfServe.surfaces.profile && selfServe.surfaces.chat
+            ? { text: t("ظاهرة", "Visible"), tone: "ok" as const }
+            : selfServe.surfaces.profile || selfServe.surfaces.chat
+                ? { text: t("ظاهرة جزئياً", "Partly visible"), tone: "warn" as const }
+                : { text: t("مخفيّة", "Hidden"), tone: "danger" as const };
 
     return (
         <>
             <Card index={0}
                 title={t("ملفّك الشخصيّ", "Your profile")}
-                subtitle={t("كما يراك إشراق: صورتك وشاراتك كلّها في موضع واحد.",
-                    "As Esharq sees you: your avatar and all your badges in one place.")}
+                subtitle={t("كما يراك إشراق.", "As Esharq sees you.")}
                 badge={isSupporter ? t("داعم", "Supporter") : t("عضو", "Member")}
                 badgeTone={isSupporter ? "ok" : "info"}>
-
                 <div className="esharq-mp-head">
                     {avatar !== "" && <img className="esharq-mp-avatar" src={avatar} alt="" width={72} height={72} />}
                     <div className="esharq-mp-who">
@@ -172,78 +177,85 @@ export function MyProfilePage() {
                         <div className="esharq-mp-tag">@{me.username}</div>
                     </div>
                 </div>
-
-                <StatRow items={[
-                    { label: t("شاراتك كلّها", "All your badges"), value: String(badges.length) },
-                    { label: t("من إشراق", "From Esharq"), value: String(esharqBadges.length) },
-                    { label: t("مُخفاة عندك", "Hidden for you"), value: String(hidden.length) },
-                    { label: t("حالتك", "Your status"), value: isSupporter ? t("داعم", "Supporter") : t("عضو", "Member") }
-                ]} />
             </Card>
 
             <Card index={1}
-                title={t("شارات إشراق", "Esharq badges")}
-                subtitle={isSupporter
-                    ? t("لك مفتاحٌ لكل شارة. اقرأ ما تحته قبل أن تُطفئ شيئاً.", "You get a switch for each. Read the note below before turning one off.")
-                    : t("تظهر هنا لمن يدعم إشراق.", "These appear here for those who support Esharq.")}
-                badge={String(esharqBadges.length)}
-                badgeTone={isSupporter ? "ok" : "warn"}>
+                title={t("شارتك في إشراق", "Your Esharq badge")}
+                subtitle={selfServe != null
+                    ? t("تحكّم بأين تظهر — والتغيير يسري على كل مستخدمي إشراق.",
+                        "Control where it appears — the change applies to every Esharq user.")
+                    : t("للداعمين شارة خاصّة يتحكّمون بأين تظهر.",
+                        "Supporters get their own badge and control where it appears.")}
+                badge={state.text} badgeTone={state.tone}>
 
-                {isSupporter ? (
+                {selfServe != null ? (
                     <>
-                        <NoticeStrip tone="danger">
-                            {t("الإطفاء يُخفي الشارة عن عينك أنت وحدك — لا عن بقيّة مستخدمي إشراق. وشارات إشراق تُقرأ من ملفّ يجلبه كل عميل بنفسه، فإخفاؤها عن الناس يحتاج تعديل ذلك الملفّ لا زرّاً هنا. وهذا المفتاح معاينة، وسنربطه بالمسار العامّ حين يجهز.",
-                                "Turning one off hides it from your own view only — not from other Esharq users. Esharq badges are read from a file every client fetches itself, so hiding one from everyone means changing that file, not pressing a button here. This switch is a preview; it will be connected to the global path once that exists.")}
+                        <BadgeShowcase badge={selfServe} busy={busy} onToggle={openControl} />
+
+                        {opened && (
+                            <NoticeStrip>
+                                {t("فُتحت صفحة التحكّم في متصفّحك. اكتب /badge في خادم إشراق لتحصل على رابطك إن طُلب منك.",
+                                    "The control page opened in your browser. Type /badge in the Esharq server to get your link if it asks for one.")}
+                            </NoticeStrip>
+                        )}
+
+                        <NoticeStrip>
+                            {t("التبديل يجري في الموقع لأنه يحتاج إثبات أنك صاحب الشارة — رابطٌ موقَّع من /badge ثم فحصٌ لدورك عند ديسكورد. ولا نمنح العميل سلطةً ثانيةً أضعف على البيانات نفسها.",
+                                "The switch happens on the website because it must prove the badge is yours — a signed link from /badge, then a check of your role at Discord. We don't give the client a second, weaker authority over the same data.")}
                         </NoticeStrip>
-                        <div className="esharq-mp-list">
-                            {esharqBadges.map((b, i) => (
-                                <BadgeTile key={(b.description ?? "") + i} badge={b} index={i}
-                                    hidden={b.description != null && hidden.includes(b.description)}
-                                    onToggle={v => toggle(b.description, v)} />
-                            ))}
-                        </div>
+
+                        <NoticeStrip>
+                            {t("وما تُغيّره يصل بقيّة المستخدمين خلال نصف ساعة على الأكثر — وهي دورة تحديث الشارات عند كل عميل.",
+                                "What you change reaches other users within half an hour at most — that is how often each client refreshes badges.")}
+                        </NoticeStrip>
                     </>
                 ) : (
                     <div className="esharq-mp-empty">
-                        <div className="esharq-mp-empty-title">{t("لا شارات إشراق بعد", "No Esharq badges yet")}</div>
-                        <p>{t("ادعم إشراق لتظهر شاراتك الخاصّة هنا، وتتحكّم بها من هذه الصفحة.",
-                            "Support Esharq and your own badges appear here, with control over them from this page.")}</p>
+                        <div className="esharq-mp-empty-title">{t("لا شارة خاصّة بك بعد", "You don't have your own badge yet")}</div>
+                        <p>{t("ادعم إشراق فتختار صورتك ونصّك ومؤثّرك، وتتحكّم بأين تظهر من هنا.",
+                            "Support Esharq and you choose your own image, text and effect — then control where it appears from here.")}</p>
                     </div>
                 )}
             </Card>
 
-            <Card index={2}
-                title={t("شارات ديسكورد وغيرها", "Discord badges and others")}
-                subtitle={t("تأتي من حسابك في ديسكورد أو من المُعدِّل الأصليّ.",
-                    "These come from your Discord account or from the upstream mod.")}
-                badge={String(otherBadges.length)} badgeTone="info">
-                {otherBadges.length === 0 ? (
-                    <div className="esharq-mp-empty">
-                        <div className="esharq-mp-empty-title">{t("لا شارات هنا", "No badges here")}</div>
-                        <p>{t("حسابك لا يحمل شارات ديسكورد ظاهرة.", "Your account carries no visible Discord badges.")}</p>
-                    </div>
-                ) : (
+            {esharqBadges.length > 0 && (
+                <Card index={2}
+                    title={t("شاراتك الأخرى من إشراق", "Your other Esharq badges")}
+                    subtitle={t("شارات يمنحها إشراق، ولا تُضبَط من هنا.", "Badges granted by Esharq; not configured here.")}
+                    badge={String(esharqBadges.length)} badgeTone="info">
                     <div className="esharq-mp-list">
-                        {otherBadges.map((b, i) => (
-                            <BadgeTile key={(b.description ?? "") + i} badge={b} index={i} hidden={false} />
+                        {esharqBadges.map((b, i) => (
+                            <div key={(b.description ?? "") + i} className="esharq-mp-badge esharq-rise" style={stagger(i, 10)}>
+                                <div className="esharq-mp-badge-art">
+                                    <ErrorBoundary noop>
+                                        {b.component
+                                            ? <b.component {...(b.props ?? {})} />
+                                            : b.image
+                                                ? <img src={b.image} alt="" width={32} height={32} />
+                                                : <span className="esharq-mp-noart">?</span>}
+                                    </ErrorBoundary>
+                                </div>
+                                <div className="esharq-mp-badge-body">
+                                    <div className="esharq-mp-badge-name">{b.description ?? t("شارة", "Badge")}</div>
+                                    <div className="esharq-mp-origin esharq">{t("من إشراق", "From Esharq")}</div>
+                                </div>
+                            </div>
                         ))}
                     </div>
-                )}
-                <NoticeStrip>
-                    {t("شارات ديسكورد بلا مفاتيح لأن ديسكورد لا يُتيح إخفاءها: بحثتُ في العميل فلم أجد تفضيلاً واحداً لذلك، وما يحمل اسم «إخفاء شارة» عنده يخصّ شارات المتجر لا الملفّ الشخصيّ. ولا نضع مفتاحاً لا يفعل شيئاً.",
-                        "Discord badges have no switches because Discord offers no way to hide them: I searched the client and found no such preference, and what is named “hide badge” there belongs to store badges, not profile ones. We don't add a switch that does nothing.")}
-                </NoticeStrip>
-            </Card>
+                </Card>
+            )}
 
             <Card index={3}
                 title={t("هل يُعرّض هذا حسابك للحظر؟", "Does this put your account at risk?")}
                 subtitle={t("الجواب مبنيّ على ما تفعله الصفحة لا على الطمأنة.",
                     "The answer is based on what the page does, not on reassurance.")}>
                 <div style={{ fontSize: 13, lineHeight: 1.9 }}>
-                    <div>{t("① الصفحة تقرأ وترسم فقط. لا تُرسل طلباً واحداً إلى ديسكورد.", "① The page only reads and renders. It sends not one request to Discord.")}</div>
-                    <div>{t("② ولا تُعدّل بيانات حسابك: لا اسمك ولا شاراتك ولا أي حقل عند ديسكورد.", "② It changes nothing on your account: not your name, not your badges, not any field at Discord.")}</div>
-                    <div>{t("③ والإخفاء يقع في جهازك وحده، ولا يعلمه ديسكورد ولا يعنيه.", "③ Hiding happens on your machine alone; Discord neither knows nor cares.")}</div>
-                    <div>{t("④ وشارات إشراق ليست شارات ديسكورد أصلاً — يرسمها العميل عندك ولا وجود لها في حسابك.", "④ Esharq badges aren't Discord badges at all — your client draws them, and they don't exist on your account.")}</div>
+                    <div>{t("① الصفحة تقرأ وترسم فقط. لا تُرسل طلباً واحداً إلى ديسكورد.",
+                        "① The page only reads and renders. It sends not one request to Discord.")}</div>
+                    <div>{t("② ولا تُعدّل بيانات حسابك: لا اسمك ولا شاراتك ولا أي حقل عند ديسكورد.",
+                        "② It changes nothing on your account: not your name, not your badges, not any field at Discord.")}</div>
+                    <div>{t("③ وشارات إشراق ليست شارات ديسكورد أصلاً — يرسمها العميل عندك ولا وجود لها في حسابك.",
+                        "③ Esharq badges aren't Discord badges at all — your client draws them, and they don't exist on your account.")}</div>
                 </div>
             </Card>
         </>

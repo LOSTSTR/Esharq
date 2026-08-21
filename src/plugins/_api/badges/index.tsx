@@ -156,7 +156,7 @@ const EsharqSelfServeBadge: ProfileBadge = {
     id: "esharq_selfserve_badge",
     description: "داعم إشراق · Esharq Supporter",
     position: BadgePosition.START,
-    shouldShow: ({ userId }) => EsharqSelfServeBadges[userId]?.live?.image != null,
+    shouldShow: ({ userId }) => selfServeVisible(userId, "profile"),
     component: ({ userId }: ProfileBadge & BadgeUserArgs) => {
         const live = EsharqSelfServeBadges[userId]?.live;
         if (!live?.image) return null;
@@ -278,8 +278,51 @@ let EsharqCustomBadges = {} as Record<string, { image: string; tooltip?: string;
 //
 // Only `live` is rendered. A submission awaiting review is never published (its image stays
 // inside the private review channel until approval), so nothing unreviewed can reach a client.
+/**
+ * أين تظهر الشارة. الغياب = تظهر — فالبيانات القديمة تبقى صالحة بلا ترحيل،
+ * ولا يختفي شيء عن أحد لأن حقلاً لم يُكتب بعد.
+ */
+interface BadgeSurfaces {
+    profile?: boolean;
+    chat?: boolean;
+}
+
 interface SelfServeEntry {
-    live?: { image: string; tooltip?: string; effect?: string; };
+    live?: { image: string; tooltip?: string; effect?: string; surfaces?: BadgeSurfaces; };
+}
+
+/**
+ * 🔴 قاعدة الظهور في موضع واحد.
+ *
+ * لها **مساران** — الملفّ الشخصيّ والمحادثة — وتكرار الشرط فيهما يعني أن
+ * إصلاحاً في أحدهما ينسى الآخر، فتظهر الشارة في المحادثة بعد أن أخفاها
+ * صاحبها. والقاعدة هنا تُقرأ من الاثنين.
+ */
+/**
+ * حالة شارة الخدمة الذاتية كما جاءت **من الخادم** — تقرؤها صفحة «ملفّك
+ * الشخصيّ» لترسم مفاتيحها على الحقيقة لا على تخمين محلّيّ.
+ */
+export function getSelfServeBadge(userId: string) {
+    const live = EsharqSelfServeBadges[userId]?.live;
+    if (!live?.image) return null;
+    return {
+        image: live.image,
+        tooltip: live.tooltip ?? "",
+        effect: live.effect ?? "none",
+        surfaces: {
+            profile: live.surfaces?.profile !== false,
+            chat: live.surfaces?.chat !== false
+        }
+    };
+}
+
+function selfServeVisible(userId: string, surface: "profile" | "chat"): boolean {
+    const live = EsharqSelfServeBadges[userId]?.live;
+    if (!live?.image) return false;
+    // 🔴 مصدر الحقيقة **الخادم وحده**: `surfaces` تأتي مع بيانات الشارة
+    // فيراها كل عميل. ولا إخفاء محلّيّ هنا — مفتاحٌ يُخفي الشارة عن صاحبه
+    // وحده يوهمه أنه أخفاها عن الناس، وهو أسوأ من غياب المفتاح.
+    return live.surfaces?.[surface] !== false;
 }
 let EsharqSelfServeBadges = {} as Record<string, SelfServeEntry>;
 
@@ -441,7 +484,7 @@ export default definePlugin({
         });
         addMessageDecoration("esharq-selfserve", ({ message }) => {
             const id = message?.author?.id ?? "";
-            return EsharqSelfServeBadges[id]?.live?.image ? <EsharqSelfServeChatBadge userId={id} /> : null;
+            return selfServeVisible(id, "chat") ? <EsharqSelfServeChatBadge userId={id} /> : null;
         });
     },
 
