@@ -50,14 +50,14 @@ type BudgetKey = keyof typeof DEFAULT_BUDGETS;
 
 const BUDGET_META: Record<BudgetKey, { ar: string; en: string; unit: string; hintAr: string; hintEn: string; }> = {
     cpuPercent: {
-        ar: "المعالج (كل العمليات)", en: "CPU (all processes)", unit: "%",
-        hintAr: "100% = نواة واحدة مشغولة بالكامل، وقد يتجاوزها على عدّة أنوية.",
-        hintEn: "100% = one core fully busy; it can exceed that across multiple cores."
+        ar: "معالج ديسكورد", en: "Discord's CPU", unit: "%",
+        hintAr: "عمليات ديسكورد وحدها لا الجهاز. و100% = نواة واحدة مشغولة بالكامل، وقد يتجاوزها على عدّة أنوية.",
+        hintEn: "Discord's own processes only, not your machine. 100% = one core fully busy; it can exceed that across multiple cores."
     },
     memoryMB: {
-        ar: "الذاكرة (كل العمليات)", en: "Memory (all processes)", unit: "MB",
-        hintAr: "مجموعة العمل لكل عمليات ديسكورد مجتمعةً.",
-        hintEn: "The working set of all Discord processes combined."
+        ar: "ذاكرة ديسكورد", en: "Discord's memory", unit: "MB",
+        hintAr: "مجموعة العمل لعمليات ديسكورد مجتمعةً — لا ذاكرة الجهاز.",
+        hintEn: "The working set of Discord's processes combined — not your machine's memory."
     },
     heapMB: {
         ar: "كومة جافاسكربت", en: "JavaScript heap", unit: "MB",
@@ -206,8 +206,8 @@ export function PerformanceBudgetsPage() {
     return (
         <>
             <NoticeStrip>
-                {t("حدٌّ لكل مقياس، ومخالفةٌ حين يُتجاوَز. والقياس يعمل ما دامت هذه الصفحة مفتوحة ويتوقّف بإغلاقها — فلا يُكلّفك شيئاً وأنت لا تنظر.",
-                    "A budget for each measure, and a violation when it is exceeded. Measuring runs while this page is open and stops when you leave — so it costs you nothing while you aren't looking.")}
+                {t("حدٌّ لكل مقياس، ومخالفةٌ حين يُتجاوَز. كل الأرقام هنا لعمليات ديسكورد وحدها لا لجهازك. والقياس يعمل ما دامت هذه الصفحة مفتوحة ويتوقّف بإغلاقها.",
+                    "A budget for each measure, and a violation when it is exceeded. Every number here is for Discord's own processes only, not your machine. Measuring runs while this page is open and stops when you leave.")}
             </NoticeStrip>
 
             <Card index={0}
@@ -242,9 +242,9 @@ export function PerformanceBudgetsPage() {
             </Card>
 
             <Card index={1}
-                title={t("العمليات", "Processes")}
-                subtitle={t("ديسكورد ليس عمليةً واحدة — وهذه أرقام كلٍّ منها.",
-                    "Discord is not one process — these are the numbers for each of them.")}
+                title={t("عمليات ديسكورد", "Discord's processes")}
+                subtitle={t("ديسكورد ليس عمليةً واحدة — وهذه أرقام كلٍّ منها. ولا شيء هنا عن بقيّة برامج جهازك.",
+                    "Discord is not one process — these are the numbers for each. Nothing here concerns the rest of your machine.")}
                 badge={metrics === null ? t("جارٍ…", "Working…") : String(metrics.length)}
                 badgeTone="info">
                 {metrics === null ? (
@@ -272,13 +272,15 @@ export function PerformanceBudgetsPage() {
                 subtitle={t("حدود القياس، مكتوبةً — رقمٌ يُقرأ على غير معناه أسوأ من لا رقم.",
                     "The limits of the measurement, written down — a number read wrongly is worse than no number.")}>
                 <div style={{ fontSize: 13, lineHeight: 1.9 }}>
-                    <div>{t("① المعالج يُقاس لكل عملية لا لكل إضافة. كل الإضافات تعمل في عملية المُصيِّر نفسها وخيطها نفسه، فلا سبيل لنسب دورةٍ إلى إضافةٍ بعينها.",
-                        "① CPU is measured per process, not per plugin. All plugins run in the same renderer process and thread, so no cycle can be attributed to one plugin.")}</div>
-                    <div>{t("② الرقم لحظيّ: يقفز بفتح قائمة أو تشغيل فيديو. القراءة الواحدة لا تصف جلسةً.",
-                        "② The figure is instantaneous: it jumps when a menu opens or a video plays. One reading does not describe a session.")}</div>
-                    <div>{t("③ «تكلفة الإقلاع» وحدها منسوبة إلى الإضافات — وهي مقيسة لحظة الإقلاع لا الآن.",
-                        "③ Only “startup cost” is attributed to plugins — and it was measured at startup, not now.")}</div>
-                    <div>{t("④ ولا شيء يُقاس وهذه الصفحة مغلقة.", "④ And nothing is measured while this page is closed.")}</div>
+                    <div>{t("① الأرقام لعمليات ديسكورد وحدها. لا يقرأ إشراق شيئاً عن بقيّة برامج جهازك — المصدر واجهة إلكترون التي لا تُعطي إلّا عمليات التطبيق نفسه.",
+                        "① The numbers cover Discord's own processes only. Esharq reads nothing about the rest of your machine — the source is Electron's API, which returns only the app's own processes.")}</div>
+                    <div>{t("② المعالج يُقاس لكل عملية لا لكل إضافة. كل الإضافات تعمل في عملية المُصيِّر نفسها وخيطها نفسه، فلا سبيل لنسب دورةٍ إلى إضافةٍ بعينها.",
+                        "② CPU is measured per process, not per plugin. All plugins run in the same renderer process and thread, so no cycle can be attributed to one plugin.")}</div>
+                    <div>{t("③ الرقم لحظيّ: يقفز بفتح قائمة أو تشغيل فيديو. القراءة الواحدة لا تصف جلسةً.",
+                        "③ The figure is instantaneous: it jumps when a menu opens or a video plays. One reading does not describe a session.")}</div>
+                    <div>{t("④ «تكلفة الإقلاع» وحدها منسوبة إلى الإضافات — وهي مقيسة لحظة الإقلاع لا الآن.",
+                        "④ Only “startup cost” is attributed to plugins — and it was measured at startup, not now.")}</div>
+                    <div>{t("⑤ ولا شيء يُقاس وهذه الصفحة مغلقة.", "⑤ And nothing is measured while this page is closed.")}</div>
                 </div>
             </Card>
         </>
