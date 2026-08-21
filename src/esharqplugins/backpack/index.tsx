@@ -7,6 +7,7 @@
 import "./styles.css";
 
 import {
+    BACKPACK_ID,
     BACKPACK_SURFACES,
     BackpackSurface,
     getPinnedKeys,
@@ -426,6 +427,7 @@ function BackpackContextMenu() {
 
 function BackpackPopout({ props }: { props: UserAreaRenderProps; }) {
     useBackpackVersion();
+    const [arranging, setArranging] = useState(false);
 
     // تُقرأ عند كل عرض بلا `useMemo`: السجلّات تتبدّل بتفعيل إضافة أو تعطيلها،
     // وأي قائمة اعتماديات هنا تكون إمّا كاذبة أو أغلى من الحساب نفسه — وهو
@@ -434,35 +436,95 @@ function BackpackPopout({ props }: { props: UserAreaRenderProps; }) {
         .map(({ surface, ids }) => ({ surface, ids: ids.filter(id => showsInBackpack(surface, id)) }))
         .filter(group => group.ids.length > 0);
 
-    if (groups.length === 0) {
-        return (
-            <div className="esharq-backpack-popout esharq-backpack-empty">
-                {t(
-                    "الحقيبة فارغة — كل الأزرار ظاهرة في الواجهة. انقر باليمين لتحزم منها ما تشاء.",
-                    "The Backpack is empty — every button is out in the interface. Right-click to pack whichever you like."
-                )}
-            </div>
-        );
-    }
-
     return (
         <div className="esharq-backpack-popout">
-            {groups.map(({ surface, ids }) => (
+            <div className="esharq-backpack-head">
+                <span className="esharq-backpack-title">{t("الحقيبة", "Backpack")}</span>
+                <button
+                    className="esharq-backpack-edit"
+                    data-on={arranging}
+                    onClick={() => setArranging(value => !value)}
+                >
+                    {arranging ? t("تمّ", "Done") : t("رتّب", "Arrange")}
+                </button>
+            </div>
+
+            {arranging
+                ? <ArrangeView />
+                : groups.length === 0
+                    ? (
+                        <div className="esharq-backpack-empty">
+                            {t(
+                                "الحقيبة فارغة — كل الأزرار ظاهرة في الواجهة. اضغط «رتّب» لتُعيد ما تشاء إليها.",
+                                "The Backpack is empty — every button is out in the interface. Press “Arrange” to put any of them back."
+                            )}
+                        </div>
+                    )
+                    : (
+                        <div className="esharq-backpack-icons">
+                            {groups.map(({ surface, ids }) => (
+                                <div className="esharq-backpack-group" key={surface}>
+                                    <div className="esharq-backpack-group-label">{SURFACE_LABEL[surface]()}</div>
+                                    <div className="esharq-backpack-row">
+                                        {ids.map(id => (
+                                            <Tooltip text={id} key={id}>
+                                                {tooltipProps => (
+                                                    <div className="esharq-backpack-item" {...tooltipProps}>
+                                                        <ErrorBoundary noop>
+                                                            <PackedButton surface={surface} id={id} props={props} />
+                                                        </ErrorBoundary>
+                                                    </div>
+                                                )}
+                                            </Tooltip>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+        </div>
+    );
+}
+
+/**
+ * **وضع الترتيب** — أين يعيش كل زرّ، سطراً سطراً.
+ *
+ * 🔴 بالأسماء لا بالأيقونات قصداً. الأيقونة قد لا تُرسَم أصلاً في السياق
+ * الحاليّ (زرّ يخصّ خادماً وأنت في رسالة خاصّة)، فقائمة أيقونات تُخفي عنك
+ * نصف ما تملك. والاسم يظهر دائماً.
+ */
+function ArrangeView() {
+    useBackpackVersion();
+
+    return (
+        <div className="esharq-backpack-arrange">
+            <div className="esharq-backpack-hint">
+                {t(
+                    "اضغط أي زرّ لتنقله بين الحقيبة والواجهة. ما تُخرجه يعود إلى مكانه الأصليّ، وما تُعيده يختفي إلى هنا.",
+                    "Press any button to move it between the Backpack and the interface. What you take out returns to its original place; what you put back disappears in here."
+                )}
+            </div>
+
+            {readAllSurfaces().map(({ surface, ids }) => (
                 <div className="esharq-backpack-group" key={surface}>
                     <div className="esharq-backpack-group-label">{SURFACE_LABEL[surface]()}</div>
-                    <div className="esharq-backpack-row">
-                        {ids.map(id => (
-                            <Tooltip text={id} key={id}>
-                                {tooltipProps => (
-                                    <div className="esharq-backpack-item" {...tooltipProps}>
-                                        <ErrorBoundary noop>
-                                            <PackedButton surface={surface} id={id} props={props} />
-                                        </ErrorBoundary>
-                                    </div>
-                                )}
-                            </Tooltip>
-                        ))}
-                    </div>
+                    {ids.filter(id => id !== BACKPACK_ID).map(id => {
+                        const outside = isPinned(surface, id);
+                        return (
+                            <button
+                                key={id}
+                                className="esharq-backpack-arrange-row"
+                                onClick={() => pin(surface, id, !outside)}
+                            >
+                                <span className="esharq-backpack-arrange-name">{id}</span>
+                                <span className="esharq-backpack-arrange-state" data-outside={outside}>
+                                    {outside
+                                        ? t("في الواجهة", "In the interface")
+                                        : t("في الحقيبة", "In the Backpack")}
+                                </span>
+                            </button>
+                        );
+                    })}
                 </div>
             ))}
         </div>

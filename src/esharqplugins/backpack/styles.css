@@ -64,7 +64,9 @@
     align-items: center;
 }
 
-/* الأزرار المحزومة تُرسم كما هي، فلا يُفرَض عليها حجم — يُترك ما يكفيها. */
+/* الأزرار المحزومة تُرسم كما هي، فلا يُفرَض عليها حجم — يُترك ما يكفيها.
+   ويُحدَّد اللون صراحةً: أيقونة تأخذ لونها من `currentColor` كانت ترث لون
+   الحاوية، فتُرسم شبه معدومة على خلفية اللوحة الداكنة. */
 .esharq-backpack-item {
     display: flex;
     align-items: center;
@@ -73,11 +75,124 @@
     min-height: 32px;
     border-radius: 4px;
     overflow: visible;
-    transition: background-color 0.15s ease;
+    color: var(--interactive-normal, #b5bac1);
+    transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .esharq-backpack-item:hover {
     background: var(--background-modifier-hover, rgb(255 255 255 / 4%));
+    color: var(--interactive-hover, #dbdee1);
+}
+
+/* 🔴 زرٌّ رفض أن يرسم شيئاً في هذا السياق — زرّ يخصّ خادماً وأنت في رسالة
+   خاصّة مثلاً — لا يترك فجوةً بحجمه. الخانة الفارغة تُقرأ «أيقونة اختفت»،
+   وهي في الحقيقة زرّ قال إنّه لا شأن له هنا. */
+.esharq-backpack-item:empty {
+    display: none;
+}
+
+/* ومجموعةٌ لم يبقَ فيها ظاهرٌ واحد لا تُعلّق عنوانها فوق فراغ.
+   مقصورةٌ على عرض الأيقونات: في وضع الترتيب تُعرض المجموعات بأسمائها. */
+.esharq-backpack-icons .esharq-backpack-group:not(:has(.esharq-backpack-item:not(:empty))) {
+    display: none;
+}
+
+/* ── الرأس ووضع الترتيب ──────────────────────────────────────────────────── */
+
+.esharq-backpack-head {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--background-modifier-accent, rgb(255 255 255 / 6%));
+}
+
+.esharq-backpack-title {
+    color: var(--header-primary, #f2f3f5);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.esharq-backpack-edit {
+    padding: 3px 10px;
+    border: none;
+    border-radius: 4px;
+    background: var(--background-modifier-hover, rgb(255 255 255 / 6%));
+    color: var(--text-muted, #949ba4);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.esharq-backpack-edit:hover {
+    color: var(--text-normal, #dbdee1);
+}
+
+.esharq-backpack-edit[data-on="true"] {
+    background: var(--brand-500, #5865f2);
+    color: #fff;
+}
+
+.esharq-backpack-icons,
+.esharq-backpack-arrange {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    /* قائمة الترتيب تعدّ عشرات الأسطر، فلا تُطاول النافذة. */
+    max-height: 420px;
+    overflow-y: auto;
+}
+
+.esharq-backpack-hint {
+    color: var(--text-muted, #949ba4);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.esharq-backpack-arrange-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 6px 8px;
+    border: none;
+    border-radius: 4px;
+    background: none;
+    color: var(--text-normal, #dbdee1);
+    font-size: 12px;
+    text-align: start;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.esharq-backpack-arrange-row:hover {
+    background: var(--background-modifier-hover, rgb(255 255 255 / 4%));
+}
+
+.esharq-backpack-arrange-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* الحال بلونين لا بكلمة وحدها: تُقرأ باللمحة. */
+.esharq-backpack-arrange-state {
+    flex-shrink: 0;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--background-modifier-hover, rgb(255 255 255 / 6%));
+    color: var(--text-muted, #949ba4);
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.esharq-backpack-arrange-state[data-outside="true"] {
+    background: rgb(35 165 90 / 16%);
+    color: var(--status-positive, #23a55a);
 }
 
 .esharq-backpack-empty,
