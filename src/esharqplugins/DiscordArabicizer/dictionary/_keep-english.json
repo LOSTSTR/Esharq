@@ -1,66 +1,208 @@
 {
- "_": [
-  "قائمة ما لا يُعرَّب — **أسماء لا تسميات**.",
-  "القاعدة: اسم شركة، أو اسم شيء يُملَك أو يُرى (أفاتار · ثيم · أيقونة تطبيق ·",
-  "خلفية هدية · نمط اسم معروض · شارة أقدمية · خطّ)، أو اسم شخصية/مثال، أو رمز",
-  "ومعرّف برمجي — يبقى كما هو.",
-  "",
-  "🔴 وحين يخدم النصّ الإنجليزي الواحد معنيين — «Gaming» اسم أيقونة وحالةُ عضو،",
-  "و«Forest» اسم ثيم وكلمة عامّة — فقاموسنا مفتاحه النصّ لا السياق ⇒ لا تفريق.",
-  "فيُبقى بالإنجليزية: ترك تسمية بالإنجليزية نقصٌ ظاهر يُصلَح، أمّا تعريب اسمٍ",
-  "فخطأ يبدو صحيحاً على الشاشة ولا يُلاحَظ.",
-  "",
-  "المصدر: قراءة جداول الرسائل من العميل الحيّ — لا تخمين. الوحدات:",
-  "185243 أنماط الاسم المعروض · 288752 خلفيات الهدايا · 508645 ثيمات الخادم ·",
-  "520516 و943211 شارات الأقدمية والأفاتارات وأيقونات التطبيق وثيمات التطبيق."
- ],
-
- "أنماط الاسم المعروض (185243)": [
-  "Gradient", "Gummy", "Holographic", "Wumpus", "Neon", "Pop", "Prism", "Solid", "Toon", "Sakura",
-  "Jellybean", "gg sans", "Headbang", "Journal", "Mainframe", "Monkey Bars",
-  "Modern", "Medieval", "8Bit", "Vampyre", "Tempo"
- ],
-
- "خلفيات الهدايا (288752)": [
-  "Box", "Cake", "Chest", "Coffee", "Cup", "Nitroween", "Snowglobe",
-  "Holiday Box", "Holiday Cake", "Holiday Chest", "Holiday Coffee"
- ],
-
- "ثيمات الخادم (508645)": [
-  "Blurple", "Denim", "Fire", "Gold Dust", "Jade", "Moss", "Obsidian", "Ocean",
-  "Plum", "Twilight"
- ],
-
- "شارات الأقدمية (520516 · 943211)": [
-  "Bronze", "Diamond", "Emerald", "Gold", "Opal", "Platinum", "Ruby", "Silver",
-  "Nitro Bronze", "Nitro Diamond", "Nitro Emerald", "Nitro Gold", "Nitro Opal",
-  "Nitro Platinum", "Nitro Ruby", "Nitro Silver"
- ],
-
- "أيقونات التطبيق (943211)": [
-  "Color Wave", "D64", "Blurple (Default)", "Drip", "Galactic Chrome", "Gaming",
-  "Prismatic Waves", "In Rainbows", "WHAM", "Charcoal", "Ceramic",
-  "Midnight Prism", "Pastel", "Matey", "Yarr", "Aye Aye", "Discarrrd", "Arrr",
-  "Pride", "Slimy", "Sunset Ave", "Holo", "Zombie", "MissingNo."
- ],
-
- "ثيمات التطبيق (943211)": [
-  "Aurora", "Blurple Twilight", "Chroma Glow", "Citrus Sherbert", "Cotton Candy",
-  "Crimson Moon", "Desert Khaki", "Dusk", "Memory Lane", "Forest", "Hanami",
-  "LoFi Vibes", "Mars", "Midnight Blurple", "Mint Apple", "Neon Nights",
-  "Retro Raincloud", "Retro Storm", "Sepia", "Strawberry Lemonade", "Sunrise",
-  "Sunset", "Under the Sea", "Gray", "Light", "Midnight", "Onyx", "Ash"
- ],
-
- "الأفاتارات الافتراضية (943211)": [
-  "Boom", "Cherry", "Locke", "Mallow", "Phibi", "Nelly", "tofu", "Fuming",
-  "Sherbet Dreamsicle", "uwu~", "Big Brain", "Goth", "Drocsid", "Tactical",
-  "IT’S ALIVE"
- ],
-
- "أسماء وأمثلة أخرى بلا عائلة مُحدَّدة": [
-  "Cap", "graggle", "amanda", "Amanda", "Debil", "Coolsville", "Cybercity",
-  "Vaporwave", "Twinkle", "Mirage", "Lofi", "Kovanth", "Scynder", "Wumpice",
-  "Magenta", "Terracotta", "Sidekick", "Bloop", "BoooOOOOooOo0o!"
- ]
+    "_": [
+        "قائمة ما لا يُعرَّب — **أسماء لا تسميات**.",
+        "القاعدة: اسم شركة، أو اسم شيء يُملَك أو يُرى (أفاتار · ثيم · أيقونة تطبيق ·",
+        "خلفية هدية · نمط اسم معروض · شارة أقدمية · خطّ)، أو اسم شخصية/مثال، أو رمز",
+        "ومعرّف برمجي — يبقى كما هو.",
+        "",
+        "🔴 وحين يخدم النصّ الإنجليزي الواحد معنيين — «Gaming» اسم أيقونة وحالةُ عضو،",
+        "و«Forest» اسم ثيم وكلمة عامّة — فقاموسنا مفتاحه النصّ لا السياق ⇒ لا تفريق.",
+        "فيُبقى بالإنجليزية: ترك تسمية بالإنجليزية نقصٌ ظاهر يُصلَح، أمّا تعريب اسمٍ",
+        "فخطأ يبدو صحيحاً على الشاشة ولا يُلاحَظ.",
+        "",
+        "المصدر: قراءة جداول الرسائل من العميل الحيّ — لا تخمين. الوحدات:",
+        "185243 أنماط الاسم المعروض · 288752 خلفيات الهدايا · 508645 ثيمات الخادم ·",
+        "520516 و943211 شارات الأقدمية والأفاتارات وأيقونات التطبيق وثيمات التطبيق."
+    ],
+    "أنماط الاسم المعروض (185243)": [
+        "Gradient",
+        "Gummy",
+        "Holographic",
+        "Wumpus",
+        "Neon",
+        "Pop",
+        "Prism",
+        "Solid",
+        "Toon",
+        "Sakura",
+        "Jellybean",
+        "gg sans",
+        "Headbang",
+        "Journal",
+        "Mainframe",
+        "Monkey Bars",
+        "Modern",
+        "Medieval",
+        "8Bit",
+        "Vampyre",
+        "Tempo"
+    ],
+    "خلفيات الهدايا (288752)": [
+        "Box",
+        "Cake",
+        "Chest",
+        "Coffee",
+        "Cup",
+        "Nitroween",
+        "Snowglobe",
+        "Holiday Box",
+        "Holiday Cake",
+        "Holiday Chest",
+        "Holiday Coffee"
+    ],
+    "ثيمات الخادم (508645)": [
+        "Blurple",
+        "Denim",
+        "Fire",
+        "Gold Dust",
+        "Jade",
+        "Moss",
+        "Obsidian",
+        "Ocean",
+        "Plum",
+        "Twilight"
+    ],
+    "شارات الأقدمية (520516 · 943211)": [
+        "Bronze",
+        "Diamond",
+        "Emerald",
+        "Gold",
+        "Opal",
+        "Platinum",
+        "Ruby",
+        "Silver",
+        "Nitro Bronze",
+        "Nitro Diamond",
+        "Nitro Emerald",
+        "Nitro Gold",
+        "Nitro Opal",
+        "Nitro Platinum",
+        "Nitro Ruby",
+        "Nitro Silver"
+    ],
+    "أيقونات التطبيق (943211)": [
+        "Color Wave",
+        "D64",
+        "Blurple (Default)",
+        "Drip",
+        "Galactic Chrome",
+        "Gaming",
+        "Prismatic Waves",
+        "In Rainbows",
+        "WHAM",
+        "Charcoal",
+        "Ceramic",
+        "Midnight Prism",
+        "Pastel",
+        "Matey",
+        "Yarr",
+        "Aye Aye",
+        "Discarrrd",
+        "Arrr",
+        "Pride",
+        "Slimy",
+        "Sunset Ave",
+        "Holo",
+        "Zombie",
+        "MissingNo."
+    ],
+    "ثيمات التطبيق (943211)": [
+        "Aurora",
+        "Blurple Twilight",
+        "Chroma Glow",
+        "Citrus Sherbert",
+        "Cotton Candy",
+        "Crimson Moon",
+        "Desert Khaki",
+        "Dusk",
+        "Memory Lane",
+        "Forest",
+        "Hanami",
+        "LoFi Vibes",
+        "Mars",
+        "Midnight Blurple",
+        "Mint Apple",
+        "Neon Nights",
+        "Retro Raincloud",
+        "Retro Storm",
+        "Sepia",
+        "Strawberry Lemonade",
+        "Sunrise",
+        "Sunset",
+        "Under the Sea",
+        "Gray",
+        "Light",
+        "Midnight",
+        "Onyx",
+        "Ash"
+    ],
+    "الأفاتارات الافتراضية (943211)": [
+        "Boom",
+        "Cherry",
+        "Locke",
+        "Mallow",
+        "Phibi",
+        "Nelly",
+        "tofu",
+        "Fuming",
+        "Sherbet Dreamsicle",
+        "uwu~",
+        "Big Brain",
+        "Goth",
+        "Drocsid",
+        "Tactical",
+        "IT’S ALIVE"
+    ],
+    "أسماء وأمثلة أخرى بلا عائلة مُحدَّدة": [
+        "Cap",
+        "graggle",
+        "amanda",
+        "Amanda",
+        "Debil",
+        "Coolsville",
+        "Cybercity",
+        "Vaporwave",
+        "Twinkle",
+        "Mirage",
+        "Lofi",
+        "Kovanth",
+        "Scynder",
+        "Wumpice",
+        "Magenta",
+        "Terracotta",
+        "Sidekick",
+        "Bloop",
+        "BoooOOOOooOo0o!"
+    ],
+    "أسماء أصوات ومقاطع (لوحة الصوت والمتجر)": [
+        "<$i>Record Scratch</$i>",
+        "<$i>Sad Trombone</$i>",
+        "Somebody Playin'",
+        "Soft Rain"
+    ],
+    "أسماء مجموعات المتجر": [
+        "Starfall Tides",
+        "Starlit Dream"
+    ],
+    "أسماء أنشطة ديسكورد": [
+        "Study Together",
+        "Study Room"
+    ],
+    "محافظ ومزوّدو دفع": [
+        "TDS Wallet"
+    ],
+    "بنى بلا كلمات تُعرَّب": [
+        "<$b>{tier}</$b>",
+        "<$b>{roleName}</$b>",
+        "<$b>(#{channelName})</$b>",
+        "<$b>({duration})</$b>",
+        "{date, date, long}",
+        "{timestamp, date, short}",
+        "<$link={igdbLink}>IGDB</$link>",
+        "<settingOneHook></settingOneHook>",
+        "<orbIconHook></orbIconHook> {orbPrice}",
+        "<usernameHook></usernameHook> <messageTextHook></messageTextHook>",
+        "<$b>{value}</$b> {name}",
+        "<callToActionHook></callToActionHook> <channelNameHook>{channelName}</channelNameHook>"
+    ]
 }
