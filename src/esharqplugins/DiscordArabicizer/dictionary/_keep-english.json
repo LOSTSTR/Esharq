@@ -245,7 +245,8 @@
         "{start} — {end}",
         "{subgameName} • Roblox",
         "{value, number} {statisticName}",
-        "{description} - <$b>{count, number}</$b>"
+        "{description} - <$b>{count, number}</$b>",
+        "{createdAt, date, long} · {expiryLabel}"
     ],
     "أسماء عناصر ومجموعات المتجر": [
         "Wumpus Box",
@@ -261,11 +262,15 @@
         "When I'm 64",
         "Mr. Jack O’ Lantern",
         "Snow Day & Chill",
-        "Autumn Equinox Collection"
+        "Autumn Equinox Collection",
+        "{discountPercent}% Off PRO Series Collection"
     ],
     "عبارات مُعلِّق الألعاب": [
         "Triple Kill",
-        "Wicked Sick!!"
+        "Wicked Sick!!",
+        "You got a Double Kill!",
+        "You got a Quadra Kill!",
+        "You got a Triple Kill!"
     ],
     "نصوص بلغات أخرى تُعرَض كما هي": [
         "¿Cambiar idioma?",
