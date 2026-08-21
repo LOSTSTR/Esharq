@@ -118,7 +118,7 @@ export const SETTINGS_TREE: readonly SettingsSection[] = [
             // بقرار المالك: ملف على الجهاز لا خدمة.
             page("sync", "المزامنة", "Sync", "data-support", "ready", "CloudTab"),
             page("backup-restore", "النسخ والاستعادة", "Backup & Restore", "data-support", "ready", "BackupAndRestoreTab"),
-            page("support-bundle", "حزمة الدعم", "Support Bundle", "data-support", "planned")
+            page("support-bundle", "حزمة الدعم", "Support Bundle", "data-support", "ready", "SupportBundlePage")
         ]
     }
 ];

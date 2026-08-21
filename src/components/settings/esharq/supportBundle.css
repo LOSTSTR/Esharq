@@ -1,0 +1,143 @@
+/*
+ * Esharq, a Discord client mod
+ * Copyright (c) 2026 LOSTSTR
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+/* ── حزمة الدعم ──────────────────────────────────────────────────────────── */
+
+.esharq-sb-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.esharq-sb-actions button {
+    padding: 9px 18px;
+    border: none;
+    border-radius: 9px;
+    background: #2a2a31;
+    color: var(--text-normal);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.16s ease, transform 0.1s ease;
+}
+
+.esharq-sb-actions button:hover {
+    background: #34343d;
+}
+
+.esharq-sb-actions button:active {
+    transform: scale(0.97);
+}
+
+.esharq-sb-actions button.accent {
+    background: #c9a227;
+    color: #14140f;
+    font-weight: 600;
+}
+
+.esharq-sb-actions button.accent:hover {
+    background: #d8b23a;
+}
+
+/* عمودان: ما يخرج وما لا يخرج — متجاوران فيُقرأ الفرق بنظرة. */
+.esharq-sb-two {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+}
+
+.esharq-sb-col {
+    padding: 14px 16px;
+    border-radius: 11px;
+    border-inline-start: 3px solid;
+}
+
+.esharq-sb-col.in {
+    background: rgb(35 165 90 / 8%);
+    border-inline-start-color: var(--status-positive, #23a55a);
+}
+
+.esharq-sb-col.out {
+    background: rgb(242 63 67 / 8%);
+    border-inline-start-color: var(--status-danger, #f23f43);
+}
+
+.esharq-sb-colhead {
+    font-size: 12.5px;
+    font-weight: 700;
+    margin-bottom: 9px;
+}
+
+.esharq-sb-col.in .esharq-sb-colhead {
+    color: var(--status-positive, #23a55a);
+}
+
+.esharq-sb-col.out .esharq-sb-colhead {
+    color: var(--status-danger, #f23f43);
+}
+
+.esharq-sb-col ul {
+    margin: 0;
+    list-style: disc;
+    padding-inline-start: 19px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.esharq-sb-col li {
+    font-size: 12.5px;
+    line-height: 1.65;
+    opacity: 0.85;
+}
+
+.esharq-sb-col.in li::marker {
+    color: rgb(35 165 90 / 70%);
+}
+
+.esharq-sb-col.out li::marker {
+    color: rgb(242 63 67 / 70%);
+}
+
+/* النصّ إنجليزيّ (JSON) فيُقرأ من اليسار حتى داخل واجهة عربية. */
+.esharq-sb-pre {
+    margin: 0;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: #0e0e11;
+    box-shadow: inset 0 0 0 1px #ffffff0d;
+    font-family: var(--font-code, monospace);
+    font-size: 11.5px;
+    line-height: 1.6;
+    direction: ltr;
+    text-align: start;
+    white-space: pre;
+    overflow: auto;
+    max-block-size: 260px;
+    transition: max-block-size 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.esharq-sb-pre.full {
+    max-block-size: 620px;
+}
+
+.esharq-sb-toggle {
+    display: block;
+    inline-size: 100%;
+    margin-top: 10px;
+    padding: 9px;
+    border: none;
+    border-radius: 9px;
+    background: #1f1f25;
+    color: var(--text-normal);
+    font-size: 12.5px;
+    cursor: pointer;
+    transition: background 0.16s ease;
+}
+
+.esharq-sb-toggle:hover {
+    background: #2a2a31;
+}
