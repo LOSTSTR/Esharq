@@ -257,7 +257,7 @@ function CommunityPluginsContent({ onRelock }: { onRelock: () => void; }) {
                 subtitle={t("استورد مجلد إضافة من جهازك. بلا بناء وبلا أدوات مطوّرين — تعمل بعد إعادة التشغيل.",
                     "Import a plugin folder from your machine. No build, no developer tools — it runs after a restart.")}
                 badge={list.length === 0 ? t("لا شيء بعد", "None yet") : t(`${enabled} من ${list.length}`, `${enabled} of ${list.length}`)}
-                badgeTone={list.length === 0 ? "info" : enabled > 0 ? "ok" : "info"}>
+                badgeTone={list.length === 0 ? "warn" : enabled > 0 ? "ok" : "warn"}>
 
                 <StatRow items={[
                     { label: t("مستورَدة", "Imported"), value: String(list.length) },
