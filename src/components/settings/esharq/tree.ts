@@ -86,7 +86,7 @@ export const SETTINGS_TREE: readonly SettingsSection[] = [
             page("client-health", "صحّة العميل", "Client Health", "safety-health", "ready", "ClientHealthPage"),
             page("compatibility-matrix", "جدول التوافق", "Compatibility Matrix", "safety-health", "planned"),
             page("crash-bisect", "تنصيف الانهيار", "Crash Bisect", "safety-health", "planned"),
-            page("performance-budgets", "ميزانيات الأداء", "Performance Budgets", "safety-health", "planned"),
+            page("performance-budgets", "ميزانيات الأداء", "Performance Budgets", "safety-health", "ready", "PerformanceBudgetsPage"),
             page("surveillance", "الرصد", "Surveillance", "safety-health", "ready", "SurveillancePage")
         ]
     },

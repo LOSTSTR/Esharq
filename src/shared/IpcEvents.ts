@@ -69,4 +69,7 @@ export const enum IpcEvents {
 
     /* الرصد — جرد الوجهات الشبكية المسموح بها. */
     CSP_LIST_POLICIES = "EsharqCspListPolicies",
+
+    /* ميزانيات الأداء — مقاييس عمليات ديسكورد. */
+    PERF_APP_METRICS = "EsharqPerfAppMetrics",
 }

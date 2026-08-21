@@ -130,6 +130,11 @@ export default {
      * عند ديسكورد. ولو كانت وعداً لسُجّلت رقع الإضافة بعد تحميل الوحدات فلا
      * تُطابق شيئاً — وهو فشل صامت لا رسالة له.
      */
+    /** مقاييس العمليات — تُقرأ عند الطلب فقط، لصفحة «ميزانيات الأداء». */
+    perf: {
+        appMetrics: () => invoke<{ type: string; pid: number; cpu: number | null; memMB: number; }[]>(IpcEvents.PERF_APP_METRICS)
+    },
+
     communityPlugins: {
         getBundle: () => sendSync<CommunityBundle[]>(IpcEvents.COMMUNITY_GET_BUNDLE),
         list: () => invoke<CommunityEntry[]>(IpcEvents.COMMUNITY_LIST),

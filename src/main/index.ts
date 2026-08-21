@@ -24,6 +24,7 @@ import { pathToFileURL } from "url";
 
 import { registerCommunityPluginIpc } from "./communityPlugins";
 import { initCsp } from "./csp";
+import { registerPerfMetricsIpc } from "./perfMetrics";
 import { RendererSettings } from "./settings";
 import { IS_VANILLA, THEMES_DIR } from "./utils/constants";
 import { ensureSafePath } from "./utils/ensureSafePath";
@@ -33,6 +34,7 @@ import { installExt } from "./utils/extensions";
 // المجتمع **متزامنةً** في تمهيده، وقد يسبق ذلك جهوز التطبيق — ومعالجٌ غير
 // مسجَّل حينها يُعيد `undefined` فتختفي كل إضافات العضو بلا رسالة.
 registerCommunityPluginIpc();
+registerPerfMetricsIpc();
 
 if (!IS_VANILLA && !IS_EXTENSION) {
     app.whenReady().then(() => {
