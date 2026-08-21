@@ -85,6 +85,11 @@ export const enum IpcEvents {
     THEME_LIBRARY_LIST = "EsharqThemeLibraryList",
     THEME_LIBRARY_INSTALL = "EsharqThemeLibraryInstall",
     THEME_LIBRARY_OPEN = "EsharqThemeLibraryOpen",
+
+    /* الاتّصال المشفّر — DNS عبر HTTPS، يُضبَط على مستوى التطبيق. */
+    DNS_GET_STATE = "EsharqDnsGetState",
+    DNS_SET = "EsharqDnsSet",
+    DNS_TEST = "EsharqDnsTest",
     THEME_OPEN_FOLDER = "EsharqThemeOpenFolder",
 
     /* تنصيف الانهيار — جلسة بحثٍ ثنائيّ عبر إعادات التشغيل. */

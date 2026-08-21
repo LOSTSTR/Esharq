@@ -9,6 +9,7 @@ import type { BundledPlugin as CommunityBundle, CommunityEntry, ImportResult as 
 import type { BisectSession } from "@main/crashBisect";
 import type { CspRequestResult } from "@main/csp/manager";
 import type { PluginIpcMappings } from "@main/ipcPlugins";
+import type { DnsMode, DnsProvider, DnsState, DnsTestResult } from "@main/secureDns";
 import type { PickedBackground } from "@main/themeCreator";
 import type { LibraryResult } from "@main/themeLibrary";
 import { UserThemeHeader } from "@main/themes";
@@ -172,6 +173,14 @@ export default {
         install: (id: number, name: string) =>
             invoke<{ ok: boolean; reason?: string; fileName?: string; bytes?: number; }>(IpcEvents.THEME_LIBRARY_INSTALL, id, name),
         openPage: (id: number) => invoke<void>(IpcEvents.THEME_LIBRARY_OPEN, id)
+    },
+
+    /** الاتّصال المشفّر — يُضبَط في العملية الرئيسية لأنه إعداد التطبيق كلّه. */
+    secureDns: {
+        getState: () => invoke<DnsState & { providers: DnsProvider[]; }>(IpcEvents.DNS_GET_STATE),
+        set: (mode: DnsMode, providerId: string) =>
+            invoke<{ ok: boolean; reason?: string; state?: DnsState; }>(IpcEvents.DNS_SET, mode, providerId),
+        test: (providerId: string) => invoke<DnsTestResult>(IpcEvents.DNS_TEST, providerId)
     },
 
     communityPlugins: {

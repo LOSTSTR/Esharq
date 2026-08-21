@@ -277,3 +277,100 @@
     flex-wrap: wrap;
     margin-top: 16px;
 }
+
+/* ── الاتّصال المشفّر ─────────────────────────────────────────────────────── */
+
+.esharq-ps-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 13px 0;
+}
+
+.esharq-ps-line + .esharq-ps-line {
+    border-block-start: 1px solid #ffffff0a;
+}
+
+.esharq-ps-line-text {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+}
+
+.esharq-ps-line-label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.esharq-ps-line-hint {
+    margin-top: 3px;
+    font-size: 11.5px;
+    line-height: 1.65;
+    opacity: 0.52;
+}
+
+.esharq-ps-choices {
+    display: flex;
+    gap: 6px;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.esharq-ps-choice {
+    padding: 6px 13px;
+    border-radius: 999px;
+    border: 0;
+    font-size: 12px;
+    background: #17171b;
+    box-shadow: inset 0 0 0 1px #ffffff0f;
+    color: inherit;
+    cursor: pointer;
+    transition: background 0.14s ease, box-shadow 0.14s ease;
+}
+
+.esharq-ps-choice:hover {
+    background: #1d1d23;
+}
+
+.esharq-ps-choice.on {
+    background: rgb(201 162 39 / 14%);
+    box-shadow: inset 0 0 0 1px rgb(201 162 39 / 48%);
+    color: #ecd384;
+}
+
+.esharq-ps-select {
+    flex: 0 0 auto;
+    inline-size: 220px;
+    max-inline-size: 55%;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-medium, #ffffff1f);
+    background: var(--input-background, #1e1f22);
+    color: var(--text-default, #f2f3f5);
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.esharq-ps-choice:focus-visible,
+.esharq-ps-select:focus-visible {
+    outline: 2px solid #c9a227;
+    outline-offset: 2px;
+}
+
+/* العنوان الفعليّ المُطبَّق — يُقرأ ليُتحقَّق منه، فيُعرَض بخطّ أحاديّ. */
+.esharq-ps-endpoint {
+    margin-top: 12px;
+    padding: 9px 13px;
+    border-radius: 9px;
+    background: #101014;
+    box-shadow: inset 0 0 0 1px #ffffff0a;
+}
+
+.esharq-ps-endpoint code {
+    font-family: var(--font-code, monospace);
+    font-size: 11.5px;
+    opacity: 0.7;
+    direction: ltr;
+    overflow-wrap: anywhere;
+}

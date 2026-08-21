@@ -27,6 +27,7 @@ import { registerCrashBisectIpc } from "./crashBisect";
 import { initCsp } from "./csp";
 import { registerDataInventoryIpc } from "./dataInventory";
 import { registerPerfMetricsIpc } from "./perfMetrics";
+import { registerSecureDnsIpc } from "./secureDns";
 import { RendererSettings } from "./settings";
 import { registerThemeCreatorIpc } from "./themeCreator";
 import { registerThemeLibraryIpc } from "./themeLibrary";
@@ -43,6 +44,7 @@ registerDataInventoryIpc();
 registerCrashBisectIpc();
 registerThemeCreatorIpc();
 registerThemeLibraryIpc();
+registerSecureDnsIpc();
 
 if (!IS_VANILLA && !IS_EXTENSION) {
     app.whenReady().then(() => {

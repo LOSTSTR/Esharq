@@ -9,8 +9,9 @@ import "./privacySecurity.css";
 import { useSettings } from "@api/Settings";
 import { isSecretKey } from "@api/SettingsSync/redact";
 import { BlockSnapshot, getBlockSnapshot } from "@debug/blockLog";
+import type { DnsMode, DnsProvider, DnsState, DnsTestResult } from "@main/secureDns";
 import { t } from "@utils/esharqI18n";
-import { useEffect, useMemo, useState } from "@webpack/common";
+import { Button, useEffect, useMemo, useState } from "@webpack/common";
 
 import { Card, NoticeStrip, StatRow } from "./Card";
 import { CopyButton } from "./CopyButton";
@@ -136,6 +137,8 @@ export function PrivacySecurityPage() {
     const [failed, setFailed] = useState(false);
     const [hosts, setHosts] = useState<{ builtIn: HostRule[]; custom: HostRule[]; } | null>(null);
     const [blocks, setBlocks] = useState<BlockSnapshot>(() => getBlockSnapshot());
+    const [dns, setDns] = useState<(DnsState & { providers: DnsProvider[]; }) | null>(null);
+    const [dnsTest, setDnsTest] = useState<DnsTestResult | "running" | null>(null);
 
     useEffect(() => {
         const api = (window as any).VencordNative?.dataInventory;
@@ -146,6 +149,10 @@ export function PrivacySecurityPage() {
         (window as any).VencordNative?.csp?.listPolicies?.()
             .then(setHosts)
             .catch(() => setHosts({ builtIn: [], custom: [] }));
+
+        (window as any).VencordNative?.secureDns?.getState?.()
+            .then(setDns)
+            .catch(() => setDns(null));
 
         // 🔴 المؤقّت يعيش مع الصفحة ويموت معها.
         //
@@ -292,6 +299,144 @@ export function PrivacySecurityPage() {
                     </>
                 )}
             </Card>
+        },
+        {
+            key: "dns",
+            ar: "الاتّصال المشفّر", en: "Secure Connect",
+            count: dns === null ? undefined : (dns.mode === "off" ? t("مُطفأ", "Off") : t("يعمل", "On")),
+            tone: dns?.mode === "off" ? "info" : "ok",
+            render: () => {
+                const provider = dns?.providers.find(p => p.id === dns.providerId);
+
+                async function applyDns(mode: DnsMode, providerId: string) {
+                    setDnsTest(null);
+                    const result = await (window as any).VencordNative?.secureDns?.set?.(mode, providerId);
+                    if (result?.ok) setDns(prev => (prev ? { ...prev, ...result.state } : prev));
+                }
+
+                async function runTest() {
+                    setDnsTest("running");
+                    const result = await (window as any).VencordNative?.secureDns?.test?.(dns?.providerId ?? "cloudflare");
+                    setDnsTest(result ?? null);
+                }
+
+                return (
+                    <>
+                        <Card index={0}
+                            title={t("الاتّصال المشفّر", "Secure Connect")}
+                            subtitle={t("يُشفّر سؤال «ما عنوان discord.com؟» فلا يقرؤه مزوّد خدمتك.",
+                                "Encrypts the question “what is discord.com's address?” so your ISP can't read it.")}
+                            badge={dns === null ? t("جارٍ…", "Working…") : dns.mode === "off" ? t("مُطفأ", "Off") : t("يعمل", "Active")}
+                            badgeTone={dns?.mode === "off" ? "info" : "ok"}>
+
+                            {dns === null ? (
+                                <NoticeStrip>{t("يقرأ الحالة…", "Reading state…")}</NoticeStrip>
+                            ) : (
+                                <>
+                                    <div className="esharq-ps-line">
+                                        <div className="esharq-ps-line-text">
+                                            <div className="esharq-ps-line-label">{t("الوضع", "Mode")}</div>
+                                            <div className="esharq-ps-line-hint">
+                                                {t("«تلقائيّ» يستعمل المشفَّر إن أمكن ويرجع إلى العاديّ عند تعذّره. و«مشفَّر فقط» لا يرجع أبداً — أأمن، لكن إن سقط المُحوّل انقطع ديسكورد.",
+                                                    "“Automatic” uses encrypted when it can and falls back to plain when it can't. “Encrypted only” never falls back — safer, but if the resolver goes down, Discord goes with it.")}
+                                            </div>
+                                        </div>
+                                        <div className="esharq-ps-choices">
+                                            {([
+                                                { key: "off" as const, ar: "مُطفأ", en: "Off" },
+                                                { key: "automatic" as const, ar: "تلقائيّ", en: "Automatic" },
+                                                { key: "secure" as const, ar: "مشفَّر فقط", en: "Encrypted only" }
+                                            ]).map(option => (
+                                                <button
+                                                    key={option.key}
+                                                    type="button"
+                                                    className={"esharq-ps-choice" + (dns.mode === option.key ? " on" : "")}
+                                                    onClick={() => applyDns(option.key, dns.providerId)}>
+                                                    {t(option.ar, option.en)}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="esharq-ps-line">
+                                        <div className="esharq-ps-line-text">
+                                            <div className="esharq-ps-line-label">{t("المُحوِّل", "Resolver")}</div>
+                                            <div className="esharq-ps-line-hint">
+                                                {provider ? t(provider.ar, provider.en) : t("اختر من يُجيب أسئلتك.", "Choose who answers your questions.")}
+                                            </div>
+                                        </div>
+                                        <select
+                                            className="esharq-ps-select"
+                                            value={dns.providerId}
+                                            onChange={e => applyDns(dns.mode, e.currentTarget.value)}
+                                            aria-label={t("المُحوِّل", "Resolver")}>
+                                            {dns.providers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                                        </select>
+                                    </div>
+
+                                    <StatRow items={[
+                                        { label: t("الحالة", "State"), value: dns.mode === "off" ? t("مُطفأ", "Off") : t("مُطبَّق", "Applied") },
+                                        { label: t("المُحوِّل", "Resolver"), value: provider?.name ?? "—" },
+                                        { label: t("آخر اختبار", "Last test"), value: typeof dnsTest === "object" && dnsTest?.ms != null ? `${dnsTest.ms} ms` : "—" }
+                                    ]} />
+
+                                    {dns.appliedTemplate && (
+                                        <div className="esharq-ps-endpoint">
+                                            <code>{dns.appliedTemplate}</code>
+                                        </div>
+                                    )}
+
+                                    <div className="esharq-ps-actions">
+                                        <Button size={Button.Sizes.SMALL} disabled={dnsTest === "running"} onClick={runTest}>
+                                            {dnsTest === "running" ? t("يختبر…", "Testing…") : t("اختبر المُحوِّل", "Test resolver")}
+                                        </Button>
+                                        {dns.mode !== "off" && (
+                                            <Button size={Button.Sizes.SMALL} color={Button.Colors.RED} look={Button.Looks.LINK}
+                                                onClick={() => applyDns("off", dns.providerId)}>
+                                                {t("أوقفه", "Turn off")}
+                                            </Button>
+                                        )}
+                                    </div>
+
+                                    {typeof dnsTest === "object" && dnsTest !== null && (
+                                        <NoticeStrip tone={dnsTest.ok ? "info" : "danger"}>
+                                            {dnsTest.ok
+                                                ? t(`ردّ المُحوِّل في ${dnsTest.ms} مللي ثانية بـ${dnsTest.answers} إجابة. الاتّصال المشفَّر يعمل.`,
+                                                    `The resolver answered in ${dnsTest.ms} ms with ${dnsTest.answers} answers. Encrypted lookup works.`)
+                                                : dnsTest.reason === "timeout"
+                                                    ? t("لم يردّ المُحوِّل خلال ستّ ثوانٍ. جرّب غيره أو تحقّق من شبكتك.",
+                                                        "The resolver didn't answer within six seconds. Try another, or check your network.")
+                                                    : t(`تعذّر الاختبار (${dnsTest.reason ?? "خطأ"}). المُحوِّل قد يكون محجوباً على شبكتك.`,
+                                                        `The test failed (${dnsTest.reason ?? "error"}). This resolver may be blocked on your network.`)}
+                                        </NoticeStrip>
+                                    )}
+
+                                    <NoticeStrip>
+                                        {t("الاختبار يبدأ بضغطتك وحدها — لا شيء يجري تلقائياً في الخلفية، ولا اسم يخصّك يُسأل عنه.",
+                                            "The test only runs when you press it — nothing happens automatically in the background, and no name of yours is looked up.")}
+                                    </NoticeStrip>
+                                </>
+                            )}
+                        </Card>
+
+                        <Card index={1}
+                            title={t("ما لا يفعله هذا", "What this does not do")}
+                            subtitle={t("لأن نصف الحقيقة في الخصوصية أسوأ من لا شيء.",
+                                "Because half a truth about privacy is worse than none.")}>
+                            <div className="esharq-ps-how">
+                                <div>{t("① لا يُخفي أنك تستعمل ديسكورد: عنوان الوجهة يبقى مكشوفاً لمزوّدك. الذي يُخفى هو السؤال لا الاتّصال.",
+                                    "① It does not hide that you use Discord: the destination address stays visible to your ISP. What is hidden is the question, not the connection.")}</div>
+                                <div>{t("② وليس VPN: لا يُغيّر موقعك ولا يتخطّى حجباً.",
+                                    "② It is not a VPN: it does not change your location or bypass blocks.")}</div>
+                                <div>{t("③ وثقتك تنتقل من مزوّد خدمتك إلى المُحوِّل الذي تختاره — اختيارٌ لا إلغاء.",
+                                    "③ Your trust moves from your ISP to the resolver you pick — a choice, not an elimination.")}</div>
+                                <div>{t("④ ويُشفَّر DNS وحده (DoH). ومُحوّل كروميوم لا يدعم DoT، فلا نعرض زرّاً له.",
+                                    "④ Only DNS is encrypted (DoH). Chromium's resolver has no DoT support, so we don't offer a button for it.")}</div>
+                            </div>
+                        </Card>
+                    </>
+                );
+            }
         },
         {
             key: "blocked",

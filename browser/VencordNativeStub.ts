@@ -62,6 +62,13 @@ window.VencordNative = {
         readSource: async () => []
     },
 
+    // الاتّصال المشفّر إعدادٌ لمُحوّل التطبيق — لا وجود له في المتصفّح.
+    secureDns: {
+        getState: async () => ({ mode: "off" as const, providerId: "cloudflare", appliedTemplate: null, appliedAt: null, providers: [] }),
+        set: async () => ({ ok: false, reason: "web" }),
+        test: async () => ({ ok: false, providerId: "cloudflare", reason: "network" as const })
+    },
+
     // مكتبة الثيمات تحتاج عمليةً رئيسية لتجاوز CORS — غير متاحة على الويب.
     themeLibrary: {
         list: async () => ({ ok: false as const, reason: "offline" as const }),
