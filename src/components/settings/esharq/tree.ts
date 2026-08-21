@@ -71,6 +71,7 @@ export const SETTINGS_TREE: readonly SettingsSection[] = [
         title: { ar: "الأساسيات", en: "Essentials" },
         pages: [
             page("overview", "نظرة عامّة", "Overview", "essentials", "ready", "VencordTab"),
+            page("my-profile", "ملفّك الشخصيّ", "Your Profile", "essentials", "ready", "MyProfilePage"),
             page("plugins", "الإضافات", "Plugins", "essentials", "ready", "PluginsTab"),
             page("themes", "الثيمات", "Themes", "essentials", "ready", "ThemesTab"),
             page("theme-creator", "منشئ الثيمات", "Theme Creator", "essentials", "planned"),
