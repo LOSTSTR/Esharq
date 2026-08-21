@@ -25,6 +25,7 @@ import {
     NeutralMap,
     PAINT_TARGETS,
     parseHex,
+    SURFACE_GROUPS,
     SURFACES,
     TEXT_TARGETS
 } from "./themeCreator/engine";
@@ -117,30 +118,46 @@ function ColorField({ value, fallback, onChange }: { value: string; fallback: st
     );
 }
 
-/** أهدافٌ تُختار بالضغط — أوضح من قائمةٍ منسدلة متعدّدة الاختيار. */
-function TargetChips({ selected, onChange }: { selected: string[]; onChange: (next: string[]) => void; }) {
+/**
+ * الأهداف: بطاقةُ اختيارٍ لكلٍّ، بوصفٍ يقول ما الذي ستطاله.
+ *
+ * قائمةٌ منسدلة متعدّدة الاختيار تُخفي ما لم يُفتَح، ووسمٌ بكلمةٍ واحدة لا
+ * يقول ماذا تعني «تفاصيل المحادثة». والبطاقة تقول الاثنين معاً.
+ */
+function TargetGrid({ selected, onChange }: { selected: string[]; onChange: (next: string[]) => void; }) {
     const all = PAINT_TARGETS.map(target => target.key);
     const everything = selected.length === all.length;
 
     return (
-        <div className="esharq-tc-chips">
+        <div className="esharq-tc-targets">
             <button
                 type="button"
-                className={"esharq-tc-chip all" + (everything ? " on" : "")}
+                className={"esharq-tc-target all" + (everything ? " on" : "")}
                 onClick={() => onChange(everything ? [] : all)}>
-                {t("الكلّ", "Everything")}
+                <span className="esharq-tc-target-box" aria-hidden="true" />
+                <span className="esharq-tc-target-text">
+                    <b>{t("الكلّ", "Everything")}</b>
+                    <span>{t("يختار كل الأهداف أو يمسحها معاً.", "Select or clear every target together.")}</span>
+                </span>
             </button>
-            {PAINT_TARGETS.map(target => (
-                <button
-                    key={target.key}
-                    type="button"
-                    className={"esharq-tc-chip" + (selected.includes(target.key) ? " on" : "")}
-                    onClick={() => onChange(selected.includes(target.key)
-                        ? selected.filter(k => k !== target.key)
-                        : [...selected, target.key])}>
-                    {t(target.ar, target.en)}
-                </button>
-            ))}
+
+            <div className="esharq-tc-target-grid">
+                {PAINT_TARGETS.map(target => (
+                    <button
+                        key={target.key}
+                        type="button"
+                        className={"esharq-tc-target" + (selected.includes(target.key) ? " on" : "")}
+                        onClick={() => onChange(selected.includes(target.key)
+                            ? selected.filter(k => k !== target.key)
+                            : [...selected, target.key])}>
+                        <span className="esharq-tc-target-box" aria-hidden="true" />
+                        <span className="esharq-tc-target-text">
+                            <b>{t(target.ar, target.en)}</b>
+                            <span>{t(target.ar_hint, target.en_hint)}</span>
+                        </span>
+                    </button>
+                ))}
+            </div>
         </div>
     );
 }
@@ -443,7 +460,7 @@ function ThemeCreatorPageInner() {
                             ))}
                         </div>
 
-                        <Row label={t("كل الأسطح", "All surfaces")} hint={t("يضبط السبعة معاً.", "Sets all seven together.")}>
+                        <Row label={t("كل الأسطح", "All surfaces")} hint={t(`يضبط الـ${SURFACES.length} كلّها معاً.`, `Sets all ${SURFACES.length} together.`)}>
                             <ValueSlider
                                 value={uniformSurface}
                                 onChange={v => update({ surfaces: Object.fromEntries(SURFACES.map(s => [s.key, v])) })}
@@ -454,19 +471,39 @@ function ThemeCreatorPageInner() {
                             <ValueSlider value={state.panelBlur} max={40} unit="px" onChange={v => update({ panelBlur: v })} />
                         </Row>
 
-                        <div className="esharq-tc-surfaces">
-                            {SURFACES.map((surface, i) => (
-                                <div key={surface.key} className="esharq-tc-surface esharq-rise" style={stagger(i, 5)}>
-                                    <div className="esharq-tc-surface-head">
-                                        <span>{t(surface.ar, surface.en)}</span>
-                                        <span className="esharq-tc-surface-value">{state.surfaces[surface.key] ?? 0}%</span>
+                        {SURFACE_GROUPS.map(group => {
+                            const members = SURFACES.filter(s => s.group === group.key);
+                            if (members.length === 0) return null;
+                            return (
+                                <div key={group.key} className="esharq-tc-group">
+                                    <div className="esharq-tc-group-head">
+                                        <b>{t(group.ar, group.en)}</b>
+                                        <span>{t(group.ar_hint, group.en_hint)}</span>
                                     </div>
-                                    <ValueSlider
-                                        value={state.surfaces[surface.key] ?? 0}
-                                        onChange={v => update({ surfaces: { ...state.surfaces, [surface.key]: v } })}
-                                    />
+                                    <div className="esharq-tc-surfaces">
+                                        {members.map((surface, i) => (
+                                            <div key={surface.key} className="esharq-tc-surface esharq-rise" style={stagger(i, 4)}>
+                                                <div className="esharq-tc-surface-head">
+                                                    <span>{t(surface.ar, surface.en)}</span>
+                                                    <span className="esharq-tc-surface-value">{state.surfaces[surface.key] ?? 0}%</span>
+                                                </div>
+                                                <div className="esharq-tc-surface-hint">{t(surface.ar_hint, surface.en_hint)}</div>
+                                                <ValueSlider
+                                                    value={state.surfaces[surface.key] ?? 0}
+                                                    onChange={v => update({ surfaces: { ...state.surfaces, [surface.key]: v } })}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                            ))}
+                            );
+                        })}
+
+                        <div className="esharq-tc-actions end">
+                            <Button size={Button.Sizes.SMALL} look={Button.Looks.LINK} color={Button.Colors.PRIMARY}
+                                onClick={() => update({ surfaces: {}, panelBlur: 0 })}>
+                                {t("صفّر الأسطح", "Reset surfaces")}
+                            </Button>
                         </div>
                     </>
                 )}
@@ -592,7 +629,7 @@ function ThemeCreatorPageInner() {
                     <>
                         <Row label={t("الأهداف", "Targets")}
                             hint={t("كلّها مُتحقَّقٌ من مطابقتها لعناصر موجودة فعلاً.", "Every one is verified to match real elements.")} />
-                        <TargetChips selected={state.gradient.targets}
+                        <TargetGrid selected={state.gradient.targets}
                             onChange={targets => update({ gradient: { ...state.gradient, targets } })} />
 
                         <Row label={t("لون البداية", "Start colour")}>
@@ -653,7 +690,7 @@ function ThemeCreatorPageInner() {
                 {state.glow.enabled && (
                     <>
                         <Row label={t("الأهداف", "Targets")} />
-                        <TargetChips selected={state.glow.targets}
+                        <TargetGrid selected={state.glow.targets}
                             onChange={targets => update({ glow: { ...state.glow, targets } })} />
 
                         <Row label={t("اللون", "Colour")}>

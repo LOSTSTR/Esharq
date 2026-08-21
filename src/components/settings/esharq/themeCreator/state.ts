@@ -28,7 +28,6 @@ import {
     NeutralMap,
     parseHex,
     parseNeutrals,
-    Surface,
     SURFACES,
     SurfaceValues,
     VAR_ID
@@ -176,17 +175,6 @@ export async function loadNeutrals(): Promise<NeutralMap> {
     return neutralCache;
 }
 
-/** لون سطحٍ كما يرسمه ديسكورد الآن — يُقرأ من أوّل عنصرٍ يحمل صنفه. */
-function resolveSurfaceColor(surface: Surface): string | null {
-    for (const cls of surface.classes) {
-        const el = document.querySelector(`[class^="${cls}_"], [class*=" ${cls}_"]`);
-        if (el == null) continue;
-        const color = getComputedStyle(el).backgroundColor;
-        if (color && color !== "rgba(0, 0, 0, 0)" && color !== "transparent") return color;
-    }
-    return null;
-}
-
 export interface ApplyInput {
     state: ThemeCreatorState;
     neutrals: NeutralMap;
@@ -209,18 +197,8 @@ export function applyTheme({ state, neutrals, backgroundDataUrl }: ApplyInput): 
 
     setStyle(VAR_ID.ramp, neutrals.size > 0 ? buildRampCss(neutrals, hex) : "");
 
-    // 🔴 يُزال زجاج المرّة السابقة **قبل** قراءة ألوان الأسطح.
-    //
-    // بدونه تقرأ `resolveSurfaceColor` مُخرَجاتنا نحن لا لون ديسكورد، فتُضرب
-    // الشفافية في نفسها مع كل تغيير حتى يذوب السطح. قِيس حيّاً: 45% صارت
-    // 33.75% في التطبيق الثاني (0.45 × 0.75) — تسرّبٌ صامت لا رسالة له،
-    // ويزداد سوءاً كلّما حرّك صاحبه المِقبض.
-    //
-    // والإزالة أوّلاً تُعيد اللون إلى ما يرسمه ديسكورد **بسلّمنا الجديد** —
-    // وهو ما نريد بالضبط: زجاجٌ فوق لونك لا فوق زجاجك.
-    document.getElementById(VAR_ID.glass)?.remove();
     setStyle(VAR_ID.glass, state.glass
-        ? buildGlassCss(state.surfaces, state.panelBlur, resolveSurfaceColor)
+        ? buildGlassCss(state.surfaces, state.panelBlur)
         : "");
     setStyle(VAR_ID.text, buildTextCss(state.text));
     setStyle(VAR_ID.background, state.background.enabled && backgroundDataUrl
@@ -308,7 +286,7 @@ export function exportCss(state: ThemeCreatorState, name: string, author: string
     const blocks = [
         header.join("\n"),
         neutrals.size > 0 ? buildRampCss(neutrals, hex) : "",
-        state.glass ? buildGlassCss(state.surfaces, state.panelBlur, resolveSurfaceColor) : "",
+        state.glass ? buildGlassCss(state.surfaces, state.panelBlur) : "",
         buildTextCss(state.text),
         buildGradientCss(state.gradient),
         buildGlowCss(state.glow),

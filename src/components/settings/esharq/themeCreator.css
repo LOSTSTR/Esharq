@@ -516,3 +516,132 @@
     font-size: 13.5px;
     cursor: pointer;
 }
+
+/* ── مجموعات الأسطح ──────────────────────────────────────────────────────── */
+
+.esharq-tc-group {
+    margin-top: 20px;
+}
+
+.esharq-tc-group-head {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 10px;
+}
+
+.esharq-tc-group-head b {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.esharq-tc-group-head span {
+    font-size: 11.5px;
+    opacity: 0.5;
+}
+
+.esharq-tc-surface-hint {
+    margin: -2px 0 8px;
+    font-size: 11px;
+    line-height: 1.55;
+    opacity: 0.45;
+}
+
+.esharq-tc-actions.end {
+    justify-content: flex-end;
+    margin-bottom: 0;
+}
+
+/* ── بطاقات الأهداف ──────────────────────────────────────────────────────── */
+
+.esharq-tc-targets {
+    margin: 6px 0 4px;
+}
+
+.esharq-tc-target-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.esharq-tc-target {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    inline-size: 100%;
+    padding: 11px 13px;
+    border-radius: 10px;
+    border: 0;
+    text-align: start;
+    background: #17171b;
+    box-shadow: inset 0 0 0 1px #ffffff0a;
+    color: inherit;
+    cursor: pointer;
+    transition: background 0.14s ease, box-shadow 0.14s ease;
+}
+
+.esharq-tc-target:hover {
+    background: #1d1d23;
+}
+
+.esharq-tc-target.on {
+    background: rgb(201 162 39 / 9%);
+    box-shadow: inset 0 0 0 1px rgb(201 162 39 / 42%);
+}
+
+.esharq-tc-target.all {
+    background: #15151a;
+}
+
+/* مربّع اختيارٍ مرسوم: الحالة تُرى قبل أن تُقرأ. */
+.esharq-tc-target-box {
+    inline-size: 15px;
+    block-size: 15px;
+    margin-block-start: 2px;
+    flex: 0 0 auto;
+    border-radius: 4px;
+    box-shadow: inset 0 0 0 1.5px #fff3;
+    position: relative;
+    transition: background 0.14s ease, box-shadow 0.14s ease;
+}
+
+.esharq-tc-target.on .esharq-tc-target-box {
+    background: #c9a227;
+    box-shadow: inset 0 0 0 1.5px #c9a227;
+}
+
+.esharq-tc-target.on .esharq-tc-target-box::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: 4px;
+    inset-block-start: 1px;
+    inline-size: 4px;
+    block-size: 8px;
+    border: solid #0d0d0f;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.esharq-tc-target-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-inline-size: 0;
+}
+
+.esharq-tc-target-text b {
+    font-size: 12.5px;
+    font-weight: 600;
+}
+
+.esharq-tc-target-text span {
+    font-size: 10.5px;
+    line-height: 1.55;
+    opacity: 0.5;
+}
+
+.esharq-tc-target:focus-visible {
+    outline: 2px solid #c9a227;
+    outline-offset: 2px;
+}

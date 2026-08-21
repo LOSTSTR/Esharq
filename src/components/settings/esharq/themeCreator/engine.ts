@@ -196,70 +196,224 @@ export function buildRampCss(neutrals: NeutralMap, hex: string): string {
 /* ── الأسطح ──────────────────────────────────────────────────────────────── */
 
 /**
- * الأسطح التي **تُلوّن خلفيةً فعلاً**.
+ * الأسطح التي **تُلوّن خلفيةً فعلاً**، مجموعةً كما يراها المستخدم.
  *
- * 🔴 القائمة **مقيسة لا منقولة**: مُشيَت شجرة DOM على عميل حيّ، وأُخذ كل عنصر
- * يرسم خلفيةً غير شفّافة ومساحته تُعتدّ، ثم جُرّد صنفه من هاشه. فما هنا موجودٌ
- * ويُلوِّن، لا اسمٌ يبدو معقولاً.
+ * 🔴 القائمة **مقيسة عنصراً عنصراً**، لا منقولةً عن لقطة.
  *
- * والأسطح التي بدت مرشّحةً وسقطت: `sidebar` و`membersWrap` و`app` و`baseLayer`
- * — كلّها **شفّافة أصلاً**، فإدراجها يعطي المستخدم مِقبضاً لا يفعل شيئاً.
+ * والطريقة: يُؤخذ بكسلٌ من داخل كل سطح، وتُسأل الصفحة عن كل العناصر تحته من
+ * الأعلى إلى الأسفل، ويُؤخذ أوّل ما يرسم خلفيةً. وهذا تعريف السطح بالضبط: ما
+ * يُلوّن ذلك الموضع من الشاشة.
  *
- * والمطابقة بالبادئة (`[class^="name_"]`) لأن ديسكورد يُلحق هاشاً متغيّراً
- * بكل صنف. وهي أضيق من `*=` التي تلتقط `chatContent` حين نقصد `chat`.
+ * ⚠️ وثلاث محاولاتٍ سبقت هذه وأخطأت، ولكلٍّ درسها:
+ *
+ *  ① البحث بالاسم (`[class^="members_"]`) أصاب **أوّل عنصرٍ في ترتيب المستند**
+ *    فردّ `guildInviteContainer` مكان قائمة الأعضاء. الاسم ليس هويّة.
+ *  ② نافذة الإعدادات بقيت مفتوحةً فغطّت التطبيق، فردّت خمسةُ أسطح `modal`
+ *    و`scrim` ولم يشتكِ شيء. القياس فوق طبقةٍ حاجبة يكذب بثقة.
+ *  ③ `KeyboardEvent` المُصطنَع لا يُغلق تلك النافذة: ديسكورد يسمع الهروب على
+ *    مستوى المتصفّح. فلزم إرسال ضغطةٍ حقيقية عبر CDP.
+ *
+ * وما لم يُقَس **لم يُدرَج**: «تنقّل الإعدادات» و«شريط الردّ» سطحان في المرجع،
+ * وقياسُهما هنا وجدهما **شفّافَين** يُلوّنهما أبوهما — فمِقبضٌ لهما يَعِد بما
+ * لا يفعله.
  */
 export interface Surface {
     key: string;
     ar: string;
     en: string;
-    /** أصناف ديسكورد التي تحمل الخلفية — كلّها بلا هاش. */
-    classes: readonly string[];
+    /** المجموعة التي يظهر تحتها في الواجهة. */
+    group: "layout" | "components" | "profiles" | "settings";
+    ar_hint: string;
+    en_hint: string;
+    /** محدّدات مُتحقَّقٌ من مطابقتها لعنصرٍ يرسم خلفيةً. */
+    selectors: readonly string[];
+    /**
+     * درجة السلّم التي يرسم بها ديسكورد هذا السطح.
+     *
+     * 🔴 مقروءةٌ من لونه المحسوب لا مُخمَّنة: قِيست إضاءةُ كل سطح حيّاً
+     * (`oklab(0.183…)` ⇦ 10.98% ⇦ الدرجة 69 · `0.2195` ⇦ 13.333% ⇦ 66 ·
+     * `0.2452` ⇦ 15.098% ⇦ 64).
+     */
+    neutral: number;
 }
 
+/** `name_HASH` — بادئةً أو وسط قائمة الأصناف. */
+const cls = (name: string) => [`[class^="${name}_"]`, `[class*=" ${name}_"]`];
+
 export const SURFACES: readonly Surface[] = [
-    { key: "appFrame", ar: "خلفية التطبيق", en: "App backdrop", classes: ["bg", "appMount"] },
-    { key: "guilds", ar: "سكّة الخوادم", en: "Server rail", classes: ["guilds"] },
-    { key: "chat", ar: "منطقة المحادثة", en: "Chat area", classes: ["chat", "chatContent"] },
-    { key: "title", ar: "شريط القناة العلوي", en: "Channel header", classes: ["title"] },
-    { key: "members", ar: "قائمة الأعضاء", en: "Member list", classes: ["members"] },
-    { key: "panels", ar: "لوحة المستخدم", en: "User panel", classes: ["panels"] },
-    { key: "settings", ar: "نافذة الإعدادات", en: "Settings window", classes: ["container", "content", "contentHeader"] }
+    // ── تخطيط التطبيق ───────────────────────────────────────────────────────
+    {
+        key: "appFrame", ar: "خلفية التطبيق", en: "App backdrop", group: "layout",
+        ar_hint: "الأرضية خلف كل شيء — شفّفها لتظهر صورتك.", en_hint: "The ground behind everything — make it clear to reveal your image.",
+        // 🔴 «الشريط العلوي» كان هنا فحُذف: قِيس فوجِد **شفّافاً** فوق هذه
+        // الأرضية، و`bar_` طابق **23 عنصراً** (أشرطة تقدّم وغيرها) — فكان
+        // مِقبضاً يُشفّف ما لم يُقصَد.
+        selectors: [...cls("bg"), ...cls("appMount")],
+        neutral: 69
+    },
+    {
+        key: "serverRail", ar: "سكّة الخوادم", en: "Server rail", group: "layout",
+        ar_hint: "أيقونات الخوادم والمجلدات.", en_hint: "Server icons and folders.",
+        selectors: cls("guilds"),
+        neutral: 69
+    },
+    {
+        key: "channelNav", ar: "قائمة القنوات والرسائل", en: "Channel & DM navigation", group: "layout",
+        ar_hint: "القنوات والرسائل الخاصّة.", en_hint: "Channels and direct messages.",
+        // 🔴 `container` صنفٌ عامّ يتكرّر (نافذة الإعدادات تستعمله أيضاً)،
+        // فيُقصَر على ما داخل الشريط الجانبيّ وحده.
+        selectors: ['[class^="sidebar_"] [class^="container_"]', '[class*=" sidebar_"] [class^="container_"]'],
+        neutral: 66
+    },
+    {
+        key: "channelHeader", ar: "شريط القناة العلوي", en: "Channel header", group: "layout",
+        ar_hint: "اسم القناة وأدواتها.", en_hint: "The channel name and its tools.",
+        selectors: cls("title"),
+        neutral: 66
+    },
+    {
+        key: "mainContent", ar: "منطقة المحادثة", en: "Main content", group: "layout",
+        ar_hint: "الرسائل والصفحات الرئيسية.", en_hint: "Messages and the primary pages.",
+        selectors: [...cls("chat"), ...cls("chatContent")],
+        neutral: 69
+    },
+    {
+        key: "memberList", ar: "قائمة الأعضاء", en: "Member list", group: "layout",
+        ar_hint: "الأعضاء ونتائج البحث.", en_hint: "Members and search results.",
+        selectors: cls("members"),
+        neutral: 66
+    },
+    {
+        key: "composer", ar: "صندوق الكتابة", en: "Message composer", group: "layout",
+        ar_hint: "مربّع الرسالة ومرفقاته.", en_hint: "The message box and its attachments.",
+        selectors: [...cls("scrollableContainer"), ...cls("channelTextArea")],
+        neutral: 64
+    },
+
+    // ── مكوّنات ─────────────────────────────────────────────────────────────
+    {
+        key: "userPanel", ar: "لوحة المستخدم", en: "User panel", group: "components",
+        ar_hint: "حسابك وأدوات الصوت أسفل الشريط.", en_hint: "Your account and voice controls.",
+        selectors: cls("panels"),
+        neutral: 64
+    },
+    {
+        key: "inputs", ar: "المدخلات والبحث", en: "Inputs & search", group: "components",
+        ar_hint: "صناديق البحث والحقول.", en_hint: "Search boxes and text fields.",
+        selectors: cls("searchBar"),
+        neutral: 64
+    },
+    {
+        key: "menus", ar: "القوائم والنوافذ المنبثقة", en: "Menus & popouts", group: "components",
+        ar_hint: "قوائم السياق والمنسدلات.", en_hint: "Context menus and dropdowns.",
+        selectors: cls("menu"),
+        neutral: 64
+    },
+    {
+        key: "cards", ar: "البطاقات", en: "Cards & tiles", group: "components",
+        ar_hint: "بطاقات النشاط والمحتوى.", en_hint: "Activity and content cards.",
+        selectors: cls("card"),
+        neutral: 62
+    },
+
+    // ── الملفّات ────────────────────────────────────────────────────────────
+    {
+        key: "profileBanner", ar: "ترويسة الملفّ", en: "Profile header", group: "profiles",
+        ar_hint: "لافتة الملفّ الشخصيّ.", en_hint: "The profile banner.",
+        selectors: cls("banner"),
+        neutral: 66
+    },
+
+    // ── الإعدادات ───────────────────────────────────────────────────────────
+    {
+        key: "settingsFrame", ar: "إطار الإعدادات", en: "Settings frame", group: "settings",
+        ar_hint: "النافذة الخارجية للإعدادات.", en_hint: "The outer settings window.",
+        // 🔴 `[class*="layer_"] [class^="container_"]` طابق **77 عنصراً** حين قِيس:
+        // أوسع من أن يُستعمل، كان سيُشفّف نصف ما في النافذة. فاقتُصر على النافذة نفسها.
+        selectors: ['[class^="modal_"]', '[class*=" modal_"]'],
+        neutral: 66
+    },
+    {
+        key: "settingsContent", ar: "محتوى الإعدادات", en: "Settings content", group: "settings",
+        ar_hint: "الصفحة داخل الإعدادات.", en_hint: "The page inside settings.",
+        // `content_` وحده طابق **28 عنصراً**؛ يُقصَر على ما داخل نافذة الإعدادات.
+        selectors: ['[class*="modal_"] [class^="content_"]', '[class*="modal_"] [class*=" content_"]'],
+        neutral: 64
+    },
+    {
+        key: "settingsCards", ar: "بطاقات إشراق", en: "Esharq cards", group: "settings",
+        ar_hint: "بطاقات صفحات إشراق نفسها.", en_hint: "The cards on Esharq's own pages.",
+        selectors: [".esharq-rise"],
+        neutral: 62
+    }
+];
+
+export const SURFACE_GROUPS: readonly { key: Surface["group"]; ar: string; en: string; ar_hint: string; en_hint: string; }[] = [
+    { key: "layout", ar: "تخطيط التطبيق", en: "App layout", ar_hint: "أعمدة ديسكورد الرئيسية.", en_hint: "Discord's main columns." },
+    { key: "components", ar: "مكوّنات", en: "Components", ar_hint: "أسطحٌ أصغر تعلو التخطيط.", en_hint: "Smaller surfaces above the layout." },
+    { key: "profiles", ar: "الملفّات", en: "Profiles", ar_hint: "لوحات الملفّ الشخصيّ.", en_hint: "Profile panels." },
+    { key: "settings", ar: "الإعدادات", en: "Settings", ar_hint: "نافذة الإعدادات وصفحاتها.", en_hint: "The settings window and its pages." }
 ];
 
 export type SurfaceValues = Record<string, number>;
 
 /**
- * زجاجٌ لسطحٍ واحد.
+ * زجاجٌ للأسطح المضبوطة.
  *
  * الشفافية تُطبَّق على **الخلفية وحدها** لا على العنصر: `opacity` تُبهت النصّ
- * والأيقونات معه فتصير الواجهة غير مقروءة — وهو الخطأ الذي يقع فيه أكثر
- * الثيمات.
+ * والأيقونات معه فتصير الواجهة غير مقروءة — وهو خطأ أكثر الثيمات.
  *
- * ولا يكفي أن نكتب لوناً شفّافاً: يجب أن يبقى **لون ديسكورد نفسه** وتُنقَص
- * ألفاه، وإلّا فُرِض لونٌ مكتوبٌ بأرقام يكذب على من بدّل وضعه أو غيّر لونه.
- * ولون السطح لا يُعرَف إلّا وقت التشغيل، فيُمرَّر `resolve` ليقرأه من العنصر.
+ * ## 🔴 ولماذا لا يُقرأ لون العنصر
+ *
+ * أوّل نسخةٍ قرأت لون السطح من العنصر نفسه، وسقطت مرّتين وقد قِيس السقوطان:
+ *
+ *  ① **تراكم**: القراءة تجري وزجاجُنا مُطبَّق، فتقرأ مُخرَجاتنا لا لون
+ *    ديسكورد — 45٪ صارت 33.75٪ في التطبيق الثاني، وتذوب أكثر مع كل تحريك.
+ *  ② **اختفاءٌ صامت**: من يضبط الزجاج وهو **داخل نافذة الإعدادات** لا يكون
+ *    نصفُ أسطح التطبيق مرسوماً أصلاً، فتُرجع القراءة `null` وتُحذَف قواعدها
+ *    بلا رسالة. قِيس حيّاً: **سبعُ قواعد خرجت من خمس عشرة**.
+ *
+ * ⇒ اللون يُؤخذ من **درجة السلّم** التي يستعملها ديسكورد لذلك السطح: ثابتةٌ،
+ * ولا تشترط وجود العنصر، وتتبع لونَ ثيمك تلقائياً لأن السلّم نفسه أُعيد
+ * تعريفه. والنتيجة واحدة في العرض الحيّ وفي الملفّ المُصدَّر.
  */
-export function buildGlassCss(values: SurfaceValues, panelBlur: number, resolve: (s: Surface) => string | null): string {
+export function buildGlassCss(values: SurfaceValues, panelBlur: number): string {
     const blocks: string[] = [];
     for (const surface of SURFACES) {
         const percent = Math.max(0, Math.min(100, values[surface.key] ?? 0));
         if (percent <= 0 && panelBlur <= 0) continue;
 
-        const base = resolve(surface);
-        const selector = surface.classes.map(c => `[class^="${c}_"], [class*=" ${c}_"]`).join(",\n");
+        const base = `hsl(var(--neutral-${surface.neutral}-hsl))`;
+        const selector = surface.selectors.join(",\n");
         const lines: string[] = [];
 
-        if (percent > 0 && base) {
-            lines.push(`    background-color: ${withAlpha(base, 1 - percent / 100)} !important;`);
-        }
-        if (panelBlur > 0) {
-            lines.push(`    backdrop-filter: blur(${panelBlur}px) saturate(140%) !important;`);
-        }
+        if (percent > 0) lines.push(`    background-color: ${withAlpha(base, 1 - percent / 100)} !important;`);
+        if (panelBlur > 0) lines.push(`    backdrop-filter: blur(${panelBlur}px) saturate(140%) !important;`);
         if (lines.length > 0) blocks.push(`${selector} {\n${lines.join("\n")}\n}`);
     }
     return blocks.join("\n\n");
 }
 
+/**
+ * زجاجٌ لسطحٍ واحد.
+ *
+ * الشفافية تُطبَّق على **الخلفية وحدها** لا على العنصر: `opacity` تُبهت النصّ
+ * والأيقونات معه فتصير الواجهة غير مقروءة — وهو خطأ أكثر الثيمات.
+ *
+ * ## 🔴 ولماذا لا يُقرأ لون العنصر
+ *
+ * أوّل نسخةٍ قرأت لون السطح من العنصر نفسه، وسقطت مرّتين:
+ *
+ *  ① **تراكم**: القراءة تجري وزجاجُنا مُطبَّق، فتقرأ مُخرَجاتنا لا لون ديسكورد
+ *    — 45٪ صارت 33.75٪ في التطبيق الثاني وتذوب أكثر مع كل تحريك.
+ *  ② **اختفاءٌ صامت**: من يضبط الزجاج وهو **داخل نافذة الإعدادات** لا يكون
+ *    نصف أسطح التطبيق مرسوماً أصلاً، فتُرجع القراءة `null` وتُحذَف قواعدها
+ *    بلا رسالة. قِيس: سبعُ قواعد خرجت من خمس عشرة.
+ *
+ * ⇒ اللون يُؤخذ من **درجة السلّم** التي يستعملها ديسكورد لذلك السطح. ثابتةٌ،
+ * ولا تحتاج العنصر موجوداً، وتتبع لونَ ثيمك تلقائياً لأن السلّم نفسه أُعيد
+ * تعريفه. والنتيجة واحدة في العرض الحيّ وفي الملفّ المُصدَّر.
+ */
 /**
  * يُعيد اللون نفسه بألفا جديدة.
  *
@@ -362,27 +516,44 @@ export function buildTextCss(overrides: Record<string, string>): string {
 /**
  * أهداف التدرّج والتوهّج.
  *
- * 🔴 ستّة **مقيسة**، لا تسعة عشر منقولة عن لقطة. لكل هدفٍ هنا محدّدٌ جُرّب على
- * عميل حيّ وعُدَّت مطابقاته: `username_` (54) · `markup_` (18) · `name_` (78) ·
- * `title_` (6) · `anchor_` (25) · `timestamp_` (18).
+ * 🔴 **كلٌّ منها عُدَّت مطابقاته على عميل حيّ** في حالتَي المحادثة والإعدادات.
+ * والأرقام في التعليق هي ما قِيس فعلاً، لا تقديرٌ.
  *
- * وما لم يُقَس لم يُدرَج. مِقبضٌ باسمٍ جميل لا يُطابق شيئاً أسوأ من غيابه:
- * صاحبه يظنّ أنه لوّن شيئاً، ثم يبحث عن العطل في مكانٍ آخر.
+ * وثلاثةٌ كانت في القائمة فحُذفت لأنها طابقت **صفراً**: أسماء الأعضاء الملوّنة
+ * (`roleColor_`) — لا وجود لها في هذا البناء؛ وعناصر القوائم (`[role=menuitem]`)
+ * — لا تُوجد إلّا وقائمةٌ مفتوحة فلا يصحّ عرضها مِقبضاً دائماً؛ و«الحالات
+ * الفارغة» — لا صنف لها.
+ *
+ * ومِقبضٌ لا يُطابق شيئاً أسوأ من غيابه: صاحبه يظنّ أنه لوّن شيئاً، ثم يبحث
+ * عن العطل في مكانٍ آخر.
  */
 export interface PaintTarget {
     key: string;
     ar: string;
     en: string;
+    ar_hint: string;
+    en_hint: string;
     selector: string;
 }
 
 export const PAINT_TARGETS: readonly PaintTarget[] = [
-    { key: "usernames", ar: "أسماء المستخدمين", en: "Display names", selector: '[class^="username_"], [class*=" username_"]' },
-    { key: "messages", ar: "نصّ الرسائل", en: "Message text", selector: '[class^="markup_"], [class*=" markup_"]' },
-    { key: "channels", ar: "أسماء القنوات", en: "Channel names", selector: '[class^="name_"], [class*=" name_"]' },
-    { key: "headings", ar: "العناوين", en: "Headings", selector: 'h1, h2, h3, [class^="title_"], [class*=" title_"]' },
-    { key: "links", ar: "الروابط", en: "Links", selector: '[class^="anchor_"], [class*=" anchor_"]' },
-    { key: "timestamps", ar: "الأوقات", en: "Timestamps", selector: '[class^="timestamp_"], [class*=" timestamp_"]' }
+    { key: "usernames", ar: "أسماء المستخدمين", en: "Display names", ar_hint: "في الرسائل والأعضاء والصوت.", en_hint: "In messages, members and voice.", selector: '[class^="username_"], [class*=" username_"]' }, // 46
+    { key: "messages", ar: "نصّ الرسائل", en: "Message text", ar_hint: "متن الرسائل ومحتواها.", en_hint: "Message bodies and content.", selector: '[class^="markup_"], [class*=" markup_"]' }, // 5
+    { key: "chatDetails", ar: "تفاصيل المحادثة", en: "Chat details", ar_hint: "الأوقات والفواصل.", en_hint: "Timestamps and dividers.", selector: '[class^="timestamp_"], [class*=" timestamp_"]' }, // 4
+    { key: "channels", ar: "أسماء القنوات", en: "Channel names", ar_hint: "القنوات والرسائل والخوادم.", en_hint: "Channels, DMs and servers.", selector: '[class^="name_"], [class*=" name_"]' }, // 82
+    { key: "headings", ar: "العناوين", en: "Headings", ar_hint: "عناوين الصفحات والأقسام.", en_hint: "Page and section headings.", selector: 'h1, h2, h3, [class^="title_"], [class*=" title_"]' }, // 38
+    { key: "links", ar: "الروابط", en: "Links", ar_hint: "الروابط في المحادثات والملفّات.", en_hint: "Links in chats and profiles.", selector: '[class^="anchor_"], [class*=" anchor_"]' }, // 5
+    { key: "buttons", ar: "الأزرار", en: "Buttons and controls", ar_hint: "الأزرار والمفاتيح والحقول.", en_hint: "Buttons, switches and inputs.", selector: '[class^="button_"], [class*=" button_"]' }, // 41
+    { key: "inputText", ar: "نصّ المدخلات", en: "Input text", ar_hint: "صناديق الكتابة والبحث.", en_hint: "Message boxes and search fields.", selector: '[class^="textArea_"], [class*=" textArea_"], [class^="input_"], [class*=" input_"]' }, // 3
+    { key: "navigation", ar: "التنقّل", en: "Navigation", ar_hint: "عناصر الشريط الجانبي والإعدادات.", en_hint: "Sidebar and settings items.", selector: '[class^="item_"], [class*=" item_"]' }, // 119
+    { key: "icons", ar: "الأيقونات", en: "Interface icons", ar_hint: "أيقونات التنقّل وأشرطة الأدوات.", en_hint: "Navigation and toolbar icons.", selector: 'svg[class*="icon"], [class^="icon_"], [class*=" icon_"]' }, // 158
+    { key: "badges", ar: "الشارات", en: "Badges", ar_hint: "الشارات والوسوم الصغيرة.", en_hint: "Badges and small tags.", selector: '[class^="badge_"], [class*=" badge_"]' }, // 18
+    { key: "activityCards", ar: "بطاقات النشاط", en: "Activity cards", ar_hint: "الألعاب والقنوات والنشاط.", en_hint: "Games, channels and activity.", selector: '[class^="card_"], [class*=" card_"]' }, // 2
+    { key: "userArea", ar: "منطقة المستخدم", en: "User area", ar_hint: "اسمك وحالتك أسفل الشريط.", en_hint: "Your name and status at the bottom.", selector: '[class^="panels_"] [class^="nameTag"], [class*=" panels_"] [class*=" nameTag"]' }, // 1
+    { key: "profileText", ar: "نصّ الملفّ", en: "Profile text", ar_hint: "الأسماء والنبذة والبيانات.", en_hint: "Names, bios and metadata.", selector: '[class*="userProfile"] [class*="text"]' }, // 17
+    { key: "modals", ar: "النوافذ", en: "Modals and popouts", ar_hint: "عناوين النوافذ ونصوصها.", en_hint: "Dialog titles and descriptions.", selector: '[class^="modal_"], [class*=" modal_"], [role="dialog"]' }, // 3
+    { key: "indicators", ar: "المؤشّرات", en: "Indicators", ar_hint: "علامات غير المقروء والإشارات.", en_hint: "Unread markers and mentions.", selector: '[class^="numberBadge"], [class*=" numberBadge"], [class^="mention_"], [class*=" mention_"]' }, // 7
+    { key: "sidebarDetails", ar: "تفاصيل الشريط", en: "Sidebar details", ar_hint: "النشاط والوصف تحت الأسماء.", en_hint: "Activity and subtext under names.", selector: '[class^="subtext"], [class*=" subtext"], [class^="activity_"], [class*=" activity_"]' } // 1
 ];
 
 export type Direction = "to right" | "to left" | "to bottom" | "135deg" | "45deg";

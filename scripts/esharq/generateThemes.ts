@@ -35,7 +35,6 @@ import {
     buildGlassCss,
     buildRampCss,
     NeutralMap,
-    Surface,
     SURFACES,
     SurfaceValues
 } from "../../src/components/settings/esharq/themeCreator/engine";
@@ -139,28 +138,6 @@ function loadRamp(): NeutralMap {
     return map;
 }
 
-/**
- * ألوان الأسطح للثيم الثابت.
- *
- * الوضع الحيّ يقرأ اللون من العنصر نفسه؛ ولا عنصرَ هنا، فيُشتقّ من الدرجة التي
- * يستعملها ديسكورد لذلك السطح — وهي مقروءةٌ من مصدره لا مُخمَّنة:
- * `--background-base-low: var(--neutral-66)` وأخواتها.
- */
-const SURFACE_NEUTRAL: Record<string, number> = {
-    appFrame: 69,
-    guilds: 69,
-    chat: 69,
-    title: 66,
-    members: 66,
-    panels: 64,
-    settings: 66
-};
-
-function surfaceColor(surface: Surface): string {
-    const index = SURFACE_NEUTRAL[surface.key];
-    return index === undefined ? "var(--background-base-low)" : `hsl(var(--neutral-${index}-hsl))`;
-}
-
 function build(spec: ThemeSpec, ramp: NeutralMap): string {
     const header = [
         "/**",
@@ -180,7 +157,7 @@ function build(spec: ThemeSpec, ramp: NeutralMap): string {
     ].join("\n");
 
     const blocks = [header, buildRampCss(ramp, spec.color)];
-    if (spec.glass != null) blocks.push(buildGlassCss(spec.glass, spec.panelBlur, surfaceColor));
+    if (spec.glass != null) blocks.push(buildGlassCss(spec.glass, spec.panelBlur));
 
     return blocks.filter(block => block !== "").join("\n\n") + "\n";
 }
