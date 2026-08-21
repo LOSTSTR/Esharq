@@ -1,0 +1,233 @@
+/*
+ * Esharq, a Discord client mod
+ * Copyright (c) 2026 LOSTSTR
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+/* ── صلاحيات الإضافات ────────────────────────────────────────────────────────
+   الصفّ يحمل رتبته بحدّه: أحمر لمن يتجاوز المُصيِّر، ذهبيّ لمن يُرقّع أو
+   يستمع، محايد لمن يرسم. واللون مع النصّ لا بدلاً منه. */
+
+.esharq-pp-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.esharq-pp-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 10px 13px;
+    border-radius: 9px;
+    background: #17171b;
+    border-inline-start: 3px solid transparent;
+    transition: background 0.14s ease;
+}
+
+.esharq-pp-row:hover {
+    background: #1d1d23;
+}
+
+.esharq-pp-row.tone-danger {
+    border-inline-start-color: var(--status-danger, #f23f43);
+    background: rgb(242 63 67 / 6%);
+}
+
+.esharq-pp-row.tone-warn {
+    border-inline-start-color: #c9a227;
+}
+
+.esharq-pp-name {
+    flex: 1 1 190px;
+    min-inline-size: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 13.5px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.esharq-pp-flag {
+    font-size: 10px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: #2a2a31;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.esharq-pp-flag.req {
+    background: rgb(88 101 242 / 20%);
+    color: #a8b1ff;
+}
+
+.esharq-pp-caps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.esharq-pp-cap {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10.5px;
+    padding: 2px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+    background: #2a2a31;
+    color: var(--text-muted);
+    cursor: help;
+}
+
+.esharq-pp-cap b {
+    font-variant-numeric: tabular-nums;
+    opacity: 0.75;
+}
+
+.esharq-pp-cap.danger {
+    background: rgb(242 63 67 / 18%);
+    color: #ff9a9d;
+}
+
+.esharq-pp-cap.warn {
+    background: rgb(201 162 39 / 16%);
+    color: #e0c565;
+}
+
+.esharq-pp-cap.info {
+    background: rgb(88 101 242 / 16%);
+    color: #a8b1ff;
+}
+
+.esharq-pp-cap.pending {
+    background: rgb(201 162 39 / 10%);
+    color: #c9a227;
+}
+
+.esharq-pp-cap.none {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.esharq-pp-type {
+    font-size: 10.5px;
+    padding: 2px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+    background: #ffffff0a;
+    color: var(--text-muted);
+}
+
+.esharq-pp-type.continuous {
+    background: rgb(201 162 39 / 12%);
+    color: #d3b544;
+}
+
+/* ── بحث ومرشِّحات ──────────────────────────────────────────────────────── */
+
+.esharq-pp-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+    padding: 10px 14px;
+    border-radius: 11px;
+    background: #17171b;
+    box-shadow: inset 0 0 0 1px #ffffff10;
+    transition: box-shadow 0.16s ease;
+}
+
+.esharq-pp-search:focus-within {
+    box-shadow: inset 0 0 0 1px #c9a22766;
+}
+
+.esharq-pp-search input {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    border: none;
+    background: none;
+    outline: none;
+    color: var(--text-normal);
+    font-size: 13.5px;
+}
+
+.esharq-pp-search button {
+    border: none;
+    background: #2a2a31;
+    color: var(--text-normal);
+    border-radius: 999px;
+    inline-size: 22px;
+    block-size: 22px;
+    cursor: pointer;
+    font-size: 11px;
+    line-height: 1;
+}
+
+.esharq-pp-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 14px 0;
+}
+
+.esharq-pp-tabs button {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 13px;
+    border: none;
+    border-radius: 999px;
+    background: #1f1f25;
+    color: var(--text-normal);
+    font-size: 12.5px;
+    cursor: pointer;
+    transition: background 0.16s ease, color 0.16s ease;
+}
+
+.esharq-pp-tabs button:hover {
+    background: #2a2a31;
+}
+
+.esharq-pp-tabs button.on {
+    background: #c9a227;
+    color: #14140f;
+    font-weight: 600;
+}
+
+.esharq-pp-tabcount {
+    font-size: 10.5px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: #00000038;
+    font-variant-numeric: tabular-nums;
+}
+
+.esharq-pp-empty {
+    padding: 26px 12px;
+    text-align: center;
+    font-size: 13px;
+    opacity: 0.5;
+}
+
+/* ── مفتاح المصطلحات ─────────────────────────────────────────────────────── */
+
+.esharq-pp-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.esharq-pp-legend-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 12.5px;
+    line-height: 1.65;
+    opacity: 0.85;
+}

@@ -24,6 +24,8 @@ import { readdir, writeFile } from "fs/promises";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 
+import { getPluginTarget } from "../utils.mjs";
+
 import { BUILD_TIMESTAMP, commonOpts, exists, globPlugins, globPluginI18n, IS_DEV, IS_REPORTER, IS_COMPANION_TEST, IS_STANDALONE, IS_UPDATER_DISABLED, resolvePluginName, VERSION, commonRendererPlugins, watch, buildOrWatchAll, stringifyValues, IS_ANTI_CRASH_TEST } from "./common.mjs";
 
 const defines = stringifyValues({
@@ -99,6 +101,23 @@ const globNativesPlugin = {
 
                     if (!(await exists(nativePath)) && !(await exists(indexNativePath)))
                         continue;
+
+                    // 🔴 **الجسر يتبع هدف إضافته.** كان هذا المُولّد يستورد كل
+                    // `native.ts` في الشجرة بلا ترشيح، بينما `globPlugins`
+                    // يُقصي الإضافة نفسها بهدفها. فكانت النتيجة **جسراً بلا
+                    // إضافة تملكه يُشحن للعامّة**: `userpluginInstaller.dev`
+                    // مُقصاة من كل بناء غير تطويريّ، وجسرها — الذي يستنسخ
+                    // مستودعات ويُشغّل بناءً ويحذف مجلدات — كان في الحزمة
+                    // المشحونة وقابلاً للاستدعاء من المُصيِّر. مُتحقَّق في
+                    // `dist/desktop.asar` قبل الإصلاح وبعده.
+                    // الجسور للعملية الرئيسية وحدها، فالأهداف التي تخصّ
+                    // المُصيِّر لا معنى لها هنا. المهمّ هدف `dev`.
+                    const nativeTarget = getPluginTarget(fileName);
+                    if (!IS_REPORTER && (
+                        (nativeTarget === "dev" && !IS_DEV) ||
+                        nativeTarget === "web" ||
+                        nativeTarget === "browser"
+                    )) continue;
 
                     const pluginName = await resolvePluginName(dirPath, file);
 
