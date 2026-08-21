@@ -28,6 +28,7 @@ import { initCsp } from "./csp";
 import { registerDataInventoryIpc } from "./dataInventory";
 import { registerPerfMetricsIpc } from "./perfMetrics";
 import { RendererSettings } from "./settings";
+import { registerThemeCreatorIpc } from "./themeCreator";
 import { IS_VANILLA, THEMES_DIR } from "./utils/constants";
 import { ensureSafePath } from "./utils/ensureSafePath";
 import { installExt } from "./utils/extensions";
@@ -39,6 +40,7 @@ registerCommunityPluginIpc();
 registerPerfMetricsIpc();
 registerDataInventoryIpc();
 registerCrashBisectIpc();
+registerThemeCreatorIpc();
 
 if (!IS_VANILLA && !IS_EXTENSION) {
     app.whenReady().then(() => {

@@ -74,7 +74,7 @@ export const SETTINGS_TREE: readonly SettingsSection[] = [
             page("overview", "نظرة عامّة", "Overview", "essentials", "ready", "VencordTab"),
             page("plugins", "الإضافات", "Plugins", "essentials", "ready", "PluginsTab"),
             page("themes", "الثيمات", "Themes", "essentials", "ready", "ThemesTab"),
-            page("theme-creator", "منشئ الثيمات", "Theme Creator", "essentials", "planned"),
+            page("theme-creator", "منشئ الثيمات", "Theme Creator", "essentials", "ready", "ThemeCreatorPage"),
             page("theme-library", "مكتبة الثيمات", "Theme Library", "essentials", "planned")
         ]
     },

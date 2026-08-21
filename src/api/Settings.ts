@@ -123,6 +123,15 @@ export interface Settings {
         arabicFont: string;
     };
 
+    /**
+     * منشئ الثيمات — حالةٌ حرّة الشكل يقرؤها ويكتبها المنشئ وحده.
+     *
+     * تُكتب `unknown` عن قصد: شكلها يتوسّع مع كل مِقبض جديد، وتثبيته هنا
+     * يعني تعديل ملفّ الإعدادات الأساسي مع كل إضافةٍ في صفحةٍ واحدة. والقارئ
+     * الوحيد (`themeCreator/state.ts`) يُصحّح ما يقرأ ويملأ ناقصه.
+     */
+    themeCreator: unknown;
+
     ignoreResetWarning: boolean;
 }
 
@@ -176,6 +185,8 @@ const DefaultSettings: Settings = {
         pluginsArabic: false,
         arabicFont: "tajawal"
     },
+
+    themeCreator: null,
 
     ignoreResetWarning: false,
 };

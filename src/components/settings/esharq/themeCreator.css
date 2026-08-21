@@ -1,0 +1,334 @@
+/*
+ * Esharq, a Discord client mod
+ * Copyright (c) 2026 LOSTSTR
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+/* ── منشئ الثيمات ────────────────────────────────────────────────────────── */
+
+.esharq-tc-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 12px 0;
+}
+
+.esharq-tc-row + .esharq-tc-row {
+    border-block-start: 1px solid #ffffff0a;
+}
+
+.esharq-tc-row-text {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+}
+
+.esharq-tc-row-label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.esharq-tc-row-hint {
+    margin-top: 3px;
+    font-size: 12px;
+    line-height: 1.6;
+    opacity: 0.55;
+}
+
+/* المِقبض يحتاج عرضاً ثابتاً: تركه مرناً يجعل طوله يتغيّر بطول النصّ بجواره،
+   فيبدو كل صفٍّ بمقياسٍ مختلف عن أخيه. */
+.esharq-tc-row-control {
+    flex: 0 0 auto;
+    inline-size: 240px;
+    max-inline-size: 50%;
+}
+
+.esharq-tc-slider {
+    margin: 0;
+    padding: 0;
+}
+
+/* ── اللون ───────────────────────────────────────────────────────────────── */
+
+.esharq-tc-colour {
+    display: flex;
+    align-items: stretch;
+    gap: 16px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+.esharq-tc-swatch {
+    display: grid;
+    place-items: center;
+    inline-size: 150px;
+    block-size: 88px;
+    border-radius: 12px;
+    box-shadow: inset 0 0 0 1px #ffffff1a, 0 8px 22px #00000059;
+    flex: 0 0 auto;
+}
+
+/* اسم اللون يُكتب فوق اللون نفسه، فيجب أن يُقرأ على الفاتح والداكن معاً:
+   ظلٌّ حادّ خلف حروفٍ بيضاء يفعلها بلا افتراضٍ عن اللون. */
+.esharq-tc-swatch span {
+    font-family: var(--font-code, monospace);
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 3px #000, 0 0 10px #000;
+    direction: ltr;
+}
+
+.esharq-tc-colour-fields {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.esharq-tc-picker {
+    inline-size: 44px;
+    block-size: 34px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+}
+
+.esharq-tc-hex,
+.esharq-tc-name {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-medium, #ffffff1f);
+    background: var(--input-background, #1e1f22);
+    color: var(--text-default, #f2f3f5);
+    font-size: 14px;
+}
+
+.esharq-tc-hex {
+    inline-size: 110px;
+    font-family: var(--font-code, monospace);
+    direction: ltr;
+    text-align: start;
+}
+
+.esharq-tc-name {
+    inline-size: 100%;
+}
+
+.esharq-tc-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.esharq-tc-preset {
+    inline-size: 28px;
+    block-size: 28px;
+    border-radius: 999px;
+    border: 1px solid #ffffff26;
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.14s cubic-bezier(0.22, 1.2, 0.36, 1), box-shadow 0.14s ease;
+}
+
+.esharq-tc-preset:hover {
+    transform: scale(1.12);
+}
+
+.esharq-tc-preset.on {
+    box-shadow: 0 0 0 2px var(--background-base-lowest, #0b0b0e), 0 0 0 4px #c9a227;
+}
+
+.esharq-tc-preset:focus-visible {
+    outline: 2px solid #c9a227;
+    outline-offset: 3px;
+}
+
+.esharq-tc-hsl {
+    margin-top: 14px;
+    font-family: var(--font-code, monospace);
+    font-size: 11.5px;
+    opacity: 0.5;
+}
+
+/* ── الأسطح ──────────────────────────────────────────────────────────────── */
+
+.esharq-tc-quick {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.esharq-tc-quick-btn {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 0;
+    text-align: start;
+    background: #17171b;
+    box-shadow: inset 0 0 0 1px #ffffff0a;
+    color: inherit;
+    cursor: pointer;
+    transition: background 0.16s ease, box-shadow 0.16s ease;
+}
+
+.esharq-tc-quick-btn:hover {
+    background: #1d1d23;
+    box-shadow: inset 0 0 0 1px rgb(201 162 39 / 30%);
+}
+
+.esharq-tc-quick-name {
+    font-size: 13.5px;
+    font-weight: 600;
+}
+
+.esharq-tc-quick-hint {
+    font-size: 11.5px;
+    opacity: 0.55;
+}
+
+.esharq-tc-surfaces {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.esharq-tc-surface {
+    padding: 14px 16px 6px;
+    border-radius: 12px;
+    background: #15151a;
+    box-shadow: inset 0 0 0 1px #ffffff0a;
+}
+
+.esharq-tc-surface-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.esharq-tc-surface-value {
+    font-family: var(--font-code, monospace);
+    font-size: 11.5px;
+    opacity: 0.6;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ── الخلفية ─────────────────────────────────────────────────────────────── */
+
+.esharq-tc-bg {
+    display: flex;
+    gap: 16px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+.esharq-tc-bg-preview {
+    display: grid;
+    place-items: center;
+    inline-size: 220px;
+    block-size: 124px;
+    flex: 0 0 auto;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #101014;
+    box-shadow: inset 0 0 0 1px #ffffff0f;
+    font-size: 12px;
+    opacity: 1;
+}
+
+.esharq-tc-bg-preview span {
+    opacity: 0.4;
+}
+
+.esharq-tc-bg-preview img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+}
+
+.esharq-tc-bg-side {
+    flex: 1 1 220px;
+    min-inline-size: 0;
+}
+
+.esharq-tc-bg-side p {
+    margin: 0 0 12px;
+    font-size: 12.5px;
+    line-height: 1.7;
+    opacity: 0.55;
+}
+
+.esharq-tc-bg-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.esharq-tc-choices {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.esharq-tc-choice {
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 0;
+    font-size: 12px;
+    background: #17171b;
+    box-shadow: inset 0 0 0 1px #ffffff0f;
+    color: inherit;
+    cursor: pointer;
+    transition: background 0.14s ease, box-shadow 0.14s ease;
+}
+
+.esharq-tc-choice:hover {
+    background: #1d1d23;
+}
+
+.esharq-tc-choice.on {
+    background: rgb(201 162 39 / 12%);
+    box-shadow: inset 0 0 0 1px rgb(201 162 39 / 45%);
+}
+
+/* ── ألوان النصّ والإجراءات ──────────────────────────────────────────────── */
+
+.esharq-tc-text-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.esharq-tc-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 16px 0;
+}
+
+.esharq-tc-how {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 13px;
+    line-height: 1.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .esharq-tc-preset {
+        transition: none;
+    }
+}

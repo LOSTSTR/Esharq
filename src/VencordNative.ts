@@ -9,6 +9,7 @@ import type { BundledPlugin as CommunityBundle, CommunityEntry, ImportResult as 
 import type { BisectSession } from "@main/crashBisect";
 import type { CspRequestResult } from "@main/csp/manager";
 import type { PluginIpcMappings } from "@main/ipcPlugins";
+import type { PickedBackground } from "@main/themeCreator";
 import { UserThemeHeader } from "@main/themes";
 import { IpcEvents } from "@shared/IpcEvents";
 import type { IpcRes } from "@utils/types";
@@ -149,6 +150,16 @@ export default {
     /** مقاييس العمليات — تُقرأ عند الطلب فقط، لصفحة «ميزانيات الأداء». */
     perf: {
         appMetrics: () => invoke<{ type: string; pid: number; cpu: number | null; memMB: number; }[]>(IpcEvents.PERF_APP_METRICS)
+    },
+
+    /** منشئ الثيمات — الصورة والملفّ فقط؛ لا لون يعبر IPC. */
+    themeCreator: {
+        pickBackground: () => invoke<PickedBackground>(IpcEvents.THEME_PICK_BACKGROUND),
+        getBackground: () => invoke<PickedBackground>(IpcEvents.THEME_GET_BACKGROUND),
+        clearBackground: () => invoke<void>(IpcEvents.THEME_CLEAR_BACKGROUND),
+        saveCss: (fileName: string, css: string) =>
+            invoke<{ ok: boolean; reason?: string; fileName?: string; path?: string; }>(IpcEvents.THEME_SAVE_CSS, fileName, css),
+        openFolder: () => invoke<void>(IpcEvents.THEME_OPEN_FOLDER)
     },
 
     communityPlugins: {

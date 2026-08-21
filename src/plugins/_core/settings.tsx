@@ -29,6 +29,8 @@ import { PrivacySecurityPage } from "@components/settings/esharq/PrivacySecurity
 import { StartupTimingsPage } from "@components/settings/esharq/StartupTimingsPage";
 import { SupportBundlePage } from "@components/settings/esharq/SupportBundlePage";
 import { SurveillancePage } from "@components/settings/esharq/SurveillancePage";
+import { restoreOnStartup as restoreThemeCreator } from "@components/settings/esharq/themeCreator/state";
+import { ThemeCreatorPage } from "@components/settings/esharq/ThemeCreatorPage";
 import { SECTION_ORDER } from "@components/settings/esharq/tokens";
 import { SETTINGS_TREE } from "@components/settings/esharq/tree";
 import { VoiceLabPage } from "@components/settings/esharq/VoiceLabPage";
@@ -138,6 +140,11 @@ export default definePlugin({
         // الخيار نفسه يسكن في إعدادات DiscordArabicizer، لكنّ التطبيق يبقى هنا (إضافة
         // أساسية دائمة التشغيل) كي يعمل الخطّ حتى لو أطفأ المستخدم إضافة التعريب.
         initArabicFont(readArabicFont());
+
+        // ثيم المنشئ يعود بعد الإقلاع. غير مُنتظَر عمداً: قراءة أوراق أنماط
+        // ديسكورد تأخذ وقتاً، وانتظارها هنا يؤخّر بدء كل إضافةٍ بعدها. ومَن
+        // لا يستعمل الميزة لا يُقرأ له شيء — الدالّة تخرج عند أوّل سطر.
+        restoreThemeCreator();
     },
 
     patches: [
@@ -212,7 +219,7 @@ export default definePlugin({
             VencordTab, PluginsTab, ThemesTab, UpdaterTab,
             ChangelogTab, CloudTab, BackupAndRestoreTab,
             // صفحات بناها إشراق — لا تُشتقّ من الأصل.
-            LanguagePage, ClientHealthPage, VoiceLabPage, CommunityPluginsPage, StartupTimingsPage, IconFinderPage, SupportBundlePage, SurveillancePage, PluginPermissionsPage, PerformanceBudgetsPage, PrivacySecurityPage, CrashBisectPage, MyProfilePage
+            LanguagePage, ClientHealthPage, VoiceLabPage, CommunityPluginsPage, StartupTimingsPage, IconFinderPage, SupportBundlePage, SurveillancePage, PluginPermissionsPage, PerformanceBudgetsPage, PrivacySecurityPage, CrashBisectPage, MyProfilePage, ThemeCreatorPage
         };
         // أيقونة مميّزة لكل صفحة — لا ترس واحد للكلّ (قرار المالك).
         const iconFor: Record<string, ComponentType<IconProps>> = {

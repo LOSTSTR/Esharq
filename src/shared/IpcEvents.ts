@@ -77,6 +77,13 @@ export const enum IpcEvents {
     DATA_INVENTORY = "EsharqDataInventory",
     DATA_OPEN_ROOT = "EsharqDataOpenRoot",
 
+    /* منشئ الثيمات — ما يمسّ القرص وحده؛ التلوين كلّه في المُصيَّر. */
+    THEME_PICK_BACKGROUND = "EsharqThemePickBackground",
+    THEME_GET_BACKGROUND = "EsharqThemeGetBackground",
+    THEME_CLEAR_BACKGROUND = "EsharqThemeClearBackground",
+    THEME_SAVE_CSS = "EsharqThemeSaveCss",
+    THEME_OPEN_FOLDER = "EsharqThemeOpenFolder",
+
     /* تنصيف الانهيار — جلسة بحثٍ ثنائيّ عبر إعادات التشغيل. */
     BISECT_START = "EsharqBisectStart",
     BISECT_ANSWER = "EsharqBisectAnswer",

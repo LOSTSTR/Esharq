@@ -62,6 +62,16 @@ window.VencordNative = {
         readSource: async () => []
     },
 
+    // منشئ الثيمات: التلوين كلّه يجري في المُصيَّر ويعمل هنا كما يعمل هناك.
+    // ولا يعمل إلّا ما يمسّ القرص — صورة الخلفية وحفظ الملفّ.
+    themeCreator: {
+        pickBackground: async () => ({ ok: false, reason: "unreadable" as const }),
+        getBackground: async () => ({ ok: false, reason: "unreadable" as const }),
+        clearBackground: NOOP_ASYNC,
+        saveCss: async () => ({ ok: false, reason: "web" }),
+        openFolder: NOOP_ASYNC
+    },
+
     themes: {
         uploadTheme: (fileName: string, fileData: string) => DataStore.set(fileName, fileData, themeStore),
         deleteTheme: (fileName: string) => DataStore.del(fileName, themeStore),
