@@ -173,7 +173,9 @@
         "Sidekick",
         "Bloop",
         "BoooOOOOooOo0o!",
-        "cal, VALORANT admin"
+        "cal, VALORANT admin",
+        "Grace, Design Buddies founder",
+        "Howl, Harry Potter admin"
     ],
     "أسماء أصوات ومقاطع (لوحة الصوت والمتجر)": [
         "<$i>Record Scratch</$i>",
@@ -184,7 +186,8 @@
     "أسماء مجموعات المتجر": [
         "Starfall Tides",
         "Starlit Dream",
-        "Above the Clouds"
+        "Above the Clouds",
+        "Head In the Clouds"
     ],
     "أسماء أنشطة ديسكورد": [
         "Study Together",
@@ -226,7 +229,19 @@
         "<leaderboardNameHook>{leaderboardName}</leaderboardNameHook> · {timeLeft}",
         "Nitro Basic: {accessibilityLabel}",
         "Roblox • {subgameName}",
-        "Team Fortress 2"
+        "Team Fortress 2",
+        "{after} – {before}",
+        "{channelName} · {timeAgo}",
+        "{duration, time, ::Hms}",
+        "{duration} — {timestamp}",
+        "{numGuildSubscriptions} × {planName}",
+        "{orbAmount, number} Orbs",
+        "{quantity} × {label}",
+        "{sectionTitle} – {numberOfItems}",
+        "{skuName} - {price}",
+        "{start} — {end}",
+        "{subgameName} • Roblox",
+        "{value, number} {statisticName}"
     ],
     "أسماء عناصر ومجموعات المتجر": [
         "Wumpus Box",
@@ -255,5 +270,8 @@
     ],
     "أسماء مؤثّرات الملفّ": [
         "Rest in Peace"
+    ],
+    "أصوات وتعابير لا تُترجَم": [
+        "Beep boop. Boop beep?"
     ]
 }
