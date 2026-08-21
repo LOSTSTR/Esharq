@@ -256,3 +256,34 @@
         transform: none;
     }
 }
+
+/* ── ترتيب وبيانات ───────────────────────────────────────────────────────── */
+
+.esharq-tl-sort {
+    flex: 0 0 auto;
+    padding: 9px 12px;
+    border-radius: 9px;
+    border: 1px solid var(--border-medium, #ffffff1f);
+    background: var(--input-background, #1e1f22);
+    color: var(--text-default, #f2f3f5);
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* بياناتٌ صغيرة أسفل البطاقة — الإصدار والحجم بدل عدّادٍ لا نملكه. */
+.esharq-tl-meta {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-block-start: 1px solid #ffffff0a;
+    font-family: var(--font-code, monospace);
+    font-size: 10.5px;
+    opacity: 0.45;
+    direction: ltr;
+}
+
+/* الزرّ يملأ عرض البطاقة: هدفُ الضغط الأكبر أسهل إصابةً، وهو الفعل الوحيد هنا. */
+.esharq-tl-actions button {
+    inline-size: 100%;
+}

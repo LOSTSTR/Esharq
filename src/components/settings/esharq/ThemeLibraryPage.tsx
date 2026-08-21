@@ -73,6 +73,7 @@ function ThemeLibraryPageInner() {
     const [notice, setNotice] = useState<{ tone: "info" | "danger"; text: string; } | null>(null);
     const [query, setQuery] = useState("");
     const [tag, setTag] = useState<string | null>(null);
+    const [sort, setSort] = useState<"name" | "newest" | "size">("name");
 
     const settings = useSettings(["enabledThemes"]);
     const started = useRef(false);
@@ -108,13 +109,21 @@ function ThemeLibraryPageInner() {
 
     const shown = useMemo(() => {
         const needle = query.trim().toLowerCase();
-        return (catalogue?.themes ?? []).filter(theme => {
+        const list = (catalogue?.themes ?? []).filter(theme => {
             if (tag !== null && !theme.tags.includes(tag)) return false;
             if (needle === "") return true;
             return `${theme.name.ar} ${theme.name.en} ${theme.description.ar} ${theme.description.en} ${theme.author}`
                 .toLowerCase().includes(needle);
         });
-    }, [catalogue, query, tag]);
+
+        // نسخةٌ قبل الترتيب: `sort` تُغيّر المصفوفة في مكانها، وهي هنا نتيجةُ
+        // `filter` فمِلكُنا — لكن الترتيب على مصفوفةٍ مشتركة يُفسد المصدر.
+        return [...list].sort((a, b) => {
+            if (sort === "size") return b.bytes - a.bytes;
+            if (sort === "newest") return b.id.localeCompare(a.id);
+            return a.name.en.localeCompare(b.name.en);
+        });
+    }, [catalogue, query, tag, sort]);
 
     async function install(theme: CatalogueTheme) {
         setBusy({ id: theme.id });
@@ -175,6 +184,15 @@ function ThemeLibraryPageInner() {
                         onChange={e => setQuery(e.currentTarget.value)}
                         aria-label={t("ابحث في المكتبة", "Search the library")}
                     />
+                    <select
+                        className="esharq-tl-sort"
+                        value={sort}
+                        onChange={e => setSort(e.currentTarget.value as typeof sort)}
+                        aria-label={t("رتّب حسب", "Sort by")}>
+                        <option value="name">{t("الاسم", "Name")}</option>
+                        <option value="newest">{t("الأحدث", "Newest")}</option>
+                        <option value="size">{t("الحجم", "Size")}</option>
+                    </select>
                     <Button size={Button.Sizes.SMALL} look={Button.Looks.LINK} color={Button.Colors.PRIMARY}
                         onClick={() => { refreshCatalogue(); refreshInstalled(); }}>
                         {t("حدّث", "Refresh")}
@@ -247,11 +265,16 @@ function ThemeLibraryPageInner() {
                                         <div className="esharq-tl-name">{t(theme.name.ar, theme.name.en)}</div>
                                         <span className="esharq-tl-swatch" style={{ background: theme.color }} title={theme.color} />
                                     </div>
-                                    <div className="esharq-tl-author">{theme.author} · {(theme.bytes / 1024).toFixed(0)} KB</div>
+                                    <div className="esharq-tl-author">{t("بواسطة", "by")} {theme.author}</div>
                                     <p className="esharq-tl-desc">{t(theme.description.ar, theme.description.en)}</p>
 
                                     <div className="esharq-tl-chips">
                                         {theme.tags.map(value => <span key={value} className="esharq-tl-chip">{value}</span>)}
+                                    </div>
+
+                                    <div className="esharq-tl-meta">
+                                        <span>v{theme.version}</span>
+                                        <span>{(theme.bytes / 1024).toFixed(0)} KB</span>
                                     </div>
 
                                     <div className="esharq-tl-actions">
