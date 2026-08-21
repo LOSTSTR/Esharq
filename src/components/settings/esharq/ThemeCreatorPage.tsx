@@ -6,8 +6,10 @@
 
 import "./themeCreator.css";
 
+import { useSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Switch } from "@components/Switch";
+import { IS_WINDOWS } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import { findByCodeLazy } from "@webpack";
 import { Button, Slider, ThemeStore, useEffect, useMemo, useRef, UserStore, useState, useStateFromStores } from "@webpack/common";
@@ -191,6 +193,12 @@ function ThemeCreatorPageInner() {
     const [notice, setNotice] = useState<{ tone: "info" | "danger"; text: string; } | null>(null);
     const [saving, setSaving] = useState(false);
     const [themeName, setThemeName] = useState("");
+
+    /** مادّة النافذة إعدادٌ أصليّ (يُقرأ عند إنشاء النافذة)، لا جزءٌ من حالتنا. */
+    const native = useSettings(["windowsMaterial"]);
+    const canFrost = IS_WINDOWS && !IS_WEB && (() => {
+        try { return VencordNative.native.supportsWindowsMaterial(); } catch { return false; }
+    })();
 
     /** الوضع الحيّ عند ديسكورد — من مخزنه لا من إعداداتنا، فيتحدّث لو بدّله من مكانٍ آخر. */
     const discordTheme = useStateFromStores([ThemeStore], () => ThemeStore.theme);
@@ -443,6 +451,42 @@ function ThemeCreatorPageInner() {
 
                 {state.glass && (
                     <>
+                        {/* 🔴 أهمّ سطرٍ في هذه البطاقة.
+                            الشفافية تُظهر **ما خلفها**؛ فإن لم يكن خلفها شيء لم يتغيّر
+                            شيء. قِيس حيّاً: عند 55٪ صارت أسطح التطبيق فعلاً
+                            `alpha 0.45` بتمويه 40px — ومع ذلك لا يرى صاحبها فرقاً،
+                            لأن ما تحتها أسودُ النافذة نفسه. فالمقبض يعمل والنتيجة
+                            غير مرئية، وهو أسوأ أنواع الأعطال: لا رسالة ولا سبب. */}
+                        <NoticeStrip>
+                            {t("الشفافية تُظهر ما خلفها — فإن لم يكن خلف ديسكورد شيء لن ترى فرقاً. اختر صورة خلفية من البطاقة التالية، أو فعّل «شفافية النافذة» أدناه ليظهر سطح مكتبك.",
+                                "Transparency reveals what is behind it — with nothing behind Discord you will see no difference. Either pick a background image in the next card, or turn on window transparency below to reveal your desktop.")}
+                        </NoticeStrip>
+
+                        {canFrost && (
+                            <Row
+                                label={t("شفافية النافذة", "Window transparency")}
+                                hint={t("يجعل نافذة ديسكورد نفسها شبه شفّافة فيظهر سطح مكتبك خلفها. من ويندوز نفسه — ولذلك يحتاج إعادة تشغيل ديسكورد.",
+                                    "Makes the Discord window itself translucent so your desktop shows through. It comes from Windows, which is why it needs a Discord restart.")}>
+                                <select
+                                    className="esharq-tc-select"
+                                    value={native.windowsMaterial ?? "none"}
+                                    onChange={e => { native.windowsMaterial = e.currentTarget.value as any; }}
+                                    aria-label={t("شفافية النافذة", "Window transparency")}>
+                                    <option value="none">{t("مُطفأة", "Off")}</option>
+                                    <option value="mica">{t("Mica — خلفية سطح المكتب بلونٍ خافت", "Mica — your wallpaper, faintly tinted")}</option>
+                                    <option value="tabbed">{t("Tabbed — مثل Mica بتلوينٍ أقوى", "Tabbed — like Mica, more tinted")}</option>
+                                    <option value="acrylic">{t("Acrylic — يُضبِّب ما خلف النافذة", "Acrylic — blurs whatever is behind the window")}</option>
+                                </select>
+                            </Row>
+                        )}
+
+                        {canFrost && (native.windowsMaterial ?? "none") !== "none" && (
+                            <NoticeStrip tone="danger">
+                                {t("اخترتَ شفافية النافذة — لن تظهر حتى تُغلق ديسكورد وتفتحه من جديد. (ويندوز يقرأ هذا عند إنشاء النافذة، لا بعده.)",
+                                    "You chose window transparency — it won't appear until you fully close and reopen Discord. (Windows reads this when the window is created, not after.)")}
+                            </NoticeStrip>
+                        )}
+
                         <div className="esharq-tc-quick">
                             {([
                                 { key: "solid", ar: "صلب", en: "Solid", value: 0, hintAr: "أعلى تباين", hintEn: "Maximum contrast" },
