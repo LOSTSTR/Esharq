@@ -7,6 +7,7 @@
 import "./supportBundle.css";
 
 import { PlainSettings, Settings } from "@api/Settings";
+import { getDroppedIssueCount, getIssues } from "@debug/esharqErrors";
 import { getPluginStartups } from "@debug/esharqStartup";
 import { copyToClipboard } from "@utils/clipboard";
 import { t } from "@utils/esharqI18n";
@@ -50,7 +51,17 @@ interface Bundle {
     startup: { measuredPlugins: number; totalMs: number; heaviest: { name: string; ms: number; }[]; };
     community: { count: number; entries: { name: string; hash: string; enabled: boolean; }[]; };
     themes: { enabledFiles: number; enabledLinks: number; quickCss: boolean; };
+    /** سجلّ المشاكل — ما أبلغ عنه إشراق من أخطاء هذه الجلسة (`debug/esharqErrors.ts`). */
+    issues: {
+        total: number;
+        errors: number;
+        dropped: number;
+        entries: { level: string; kind: string; source: string; count: number; message: string; }[];
+    };
 }
+
+/** كم بلاغاً يدخل الحزمة — الأحدث أوّلاً، والباقي يبقى عدده مذكوراً. */
+const BUNDLED_ISSUES = 30;
 
 /**
  * أي مفاتيح غيّرها المستخدم عن الافتراضي — **بأسمائها لا بقيمها**.
@@ -96,6 +107,7 @@ function buildBundle(): Bundle {
         }
     }
 
+    const issues = getIssues();
     const startups = getPluginStartups().map(r => ({ name: r.name, ms: Math.round((r.startMs + r.patchMs) * 10) / 10 }));
     startups.sort((a, b) => b.ms - a.ms);
 
@@ -138,6 +150,18 @@ function buildBundle(): Bundle {
             enabledFiles: Settings.enabledThemes?.length ?? 0,
             enabledLinks: Settings.enabledThemeLinks?.length ?? 0,
             quickCss: Settings.useQuickCss === true
+        },
+        issues: {
+            total: issues.length,
+            errors: issues.filter(i => i.level === "error").length,
+            dropped: getDroppedIssueCount(),
+            entries: issues.slice(0, BUNDLED_ISSUES).map(i => ({
+                level: i.level,
+                kind: i.kind,
+                source: i.plugin ?? i.source,
+                count: i.count,
+                message: i.message
+            }))
         }
     };
 }
@@ -150,7 +174,8 @@ const INCLUDED = [
     ["أثقل الإضافات على الإقلاع بالميلي ثانية", "The heaviest plugins on startup, in milliseconds"],
     ["أسماء مفاتيح الإعدادات التي غيّرتها — بلا قيمها", "The names of settings you changed — without their values"],
     ["أسماء إضافات المجتمع وبصماتها — بلا مصدرها", "Community plugin names and hashes — without their source"],
-    ["عدد الثيمات المُفعَّلة", "How many themes are enabled"]
+    ["عدد الثيمات المُفعَّلة", "How many themes are enabled"],
+    ["نصّ ما أبلغ عنه إشراق من أخطاء هذه الجلسة — وهو معروض أمامك لتقرأه", "The text of the errors Esharq reported this session — shown here for you to read"]
 ] as const;
 
 const EXCLUDED = [

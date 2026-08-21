@@ -16,6 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { recordIssue } from "@debug/esharqErrors";
+
 export class Logger {
     /**
      * Returns the console format args for a title with the specified background colour and black text
@@ -32,6 +34,10 @@ export class Logger {
     constructor(public name: string, public color: string = "white") { }
 
     private _log(level: "log" | "error" | "warn" | "info" | "debug", levelColor: string, args: any[], customFmt = "") {
+        // كل خطأ وتحذير في إشراق يمرّ من هنا، فهذه نقطة الالتقاط الوحيدة
+        // لسجلّ المشاكل. محليّ بالكامل، ولا يرمي أبداً (`debug/esharqErrors.ts`).
+        if (level === "error" || level === "warn") recordIssue(level, this.name, args);
+
         if (IS_REPORTER && IS_WEB && !IS_VESKTOP && !IS_EQUIBOP) {
             console[level]("[Esharq]", this.name + ":", ...args);
             return;
