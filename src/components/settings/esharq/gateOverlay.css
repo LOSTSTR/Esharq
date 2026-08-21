@@ -1,0 +1,167 @@
+/*
+ * Esharq, a Discord client mod
+ * Copyright (c) 2026 LOSTSTR
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+/* ── بوّابة الصفحة: لوح زجاجيّ ────────────────────────────────────────────────
+   لا يُرى خلفه شيء — الصفحة لا تُصيَّر أصلاً ما دام مقفلاً. */
+
+.esharq-gate {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 24px 0 40px;
+    animation: esharq-gate-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes esharq-gate-in {
+    from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.985);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* الانقشاع عند الفتح: يستقرّ الشريط أوّلاً ثم يذوب اللوح. */
+.esharq-gate.opening {
+    animation: esharq-gate-out 0.46s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+@keyframes esharq-gate-out {
+    from {
+        opacity: 1;
+        transform: none;
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.99);
+    }
+}
+
+.esharq-gate-glass {
+    position: relative;
+    inline-size: min(560px, 100%);
+    padding: 34px 32px 28px;
+    border-radius: 20px;
+    text-align: center;
+
+    /* الزجاج: طبقتان — تدرّج خافت فوق سطح شبه شفّاف، وحدّ فاتح يُمسك الحافّة. */
+    background:
+        linear-gradient(160deg, #ffffff0f 0%, #ffffff05 38%, #0000 70%),
+        rgb(20 20 25 / 72%);
+    backdrop-filter: blur(22px) saturate(140%);
+    box-shadow:
+        inset 0 1px 0 #ffffff1f,
+        inset 0 0 0 1px #ffffff12,
+        0 24px 60px #00000073;
+}
+
+/* لمعة علوية رقيقة — ما يجعل السطح يُقرأ زجاجاً لا مستطيلاً داكناً. */
+.esharq-gate-glass::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    block-size: 45%;
+    border-radius: 20px 20px 0 0;
+    background: linear-gradient(180deg, #ffffff0a, transparent);
+    pointer-events: none;
+}
+
+.esharq-gate-lock {
+    display: grid;
+    place-items: center;
+    inline-size: 52px;
+    block-size: 52px;
+    margin: 0 auto 16px;
+    border-radius: 999px;
+    color: var(--status-danger, #f23f43);
+    background: rgb(242 63 67 / 12%);
+    box-shadow: inset 0 0 0 1px rgb(242 63 67 / 28%);
+}
+
+.esharq-gate-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.esharq-gate-sub {
+    margin: 7px 0 0;
+    font-size: 13.5px;
+    line-height: 1.65;
+    opacity: 0.62;
+}
+
+/* ── التحذير ─────────────────────────────────────────────────────────────────
+   أحمر، وعلى بداية السطر لا يساره فينقلب مع العربية. */
+
+.esharq-gate-warn {
+    margin-top: 22px;
+    padding: 15px 17px;
+    border-radius: 13px;
+    text-align: start;
+    background: rgb(242 63 67 / 9%);
+    border-inline-start: 3px solid var(--status-danger, #f23f43);
+}
+
+.esharq-gate-warn-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 9px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--status-danger, #f23f43);
+}
+
+.esharq-gate-warn ul {
+    margin: 0;
+
+    /* ديسكورد يُصفّر علامات القوائم عالمياً، فتُعاد هنا صراحةً — وبدونها
+       تُقرأ البنود فقرةً واحدة متّصلة فيضيع أن كلاً منها تحذير مستقلّ. */
+    list-style: disc;
+    padding-inline-start: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.esharq-gate-warn li::marker {
+    color: rgb(242 63 67 / 70%);
+}
+
+.esharq-gate-warn li {
+    font-size: 13px;
+    line-height: 1.7;
+    color: #f5b7b9;
+}
+
+.esharq-gate-warn li b,
+.esharq-gate-warn li strong {
+    color: #ff9a9d;
+}
+
+.esharq-gate-foot {
+    margin: 14px 0 0;
+    font-size: 11.5px;
+    opacity: 0.45;
+}
+
+/* الشريط داخل اللوح يأخذ عرضه كاملاً. */
+.esharq-gate-glass .esharq-slide {
+    margin-top: 22px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .esharq-gate,
+    .esharq-gate.opening {
+        animation: none;
+    }
+}

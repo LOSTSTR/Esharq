@@ -101,6 +101,13 @@ interface SettingsLayoutBuilder {
 // تسجيل الخروج** دائماً (قرار المالك)، فلم يعد للمكان خيار. إبقاء القائمة
 // المنسدلة كان يعني ضابطاً يحرّكه المستخدم فلا يحدث شيء.
 const settings = definePluginSettings({
+    // موافقة العضو على فتح صفحة إضافات المجتمع — سجلّ قرارٍ لا مفتاح يُقلَّب،
+    // ولذلك `CUSTOM` فلا يظهر في صفحة الإضافات. يُفتح بالسحب ويُغلق بزرّ.
+    communityPluginsUnlocked: {
+        type: OptionType.CUSTOM,
+        description: "",
+        default: false
+    },
     includeVencordInfoWhenCopying: {
         type: OptionType.BOOLEAN,
         description: "Also copy Esharq info (Esharq, Electron, Chromium) when clicking the version info in the bottom left area of the Settings page",

@@ -7,11 +7,13 @@
 import "./communityPlugins.css";
 
 import { getLoaded } from "@api/CommunityPlugins";
+import { Settings } from "@api/Settings";
 import { Switch } from "@components/Switch";
 import { t } from "@utils/esharqI18n";
 import { Alerts, useEffect, useState } from "@webpack/common";
 
 import { Card, NoticeStrip, StatRow } from "./Card";
+import { GateOverlay } from "./GateOverlay";
 import { ACCENT, SURFACE, UNIT } from "./tokens";
 
 interface Finding {
@@ -161,7 +163,50 @@ function PluginRow({ entry, loadError, onChanged }: {
  * تفعيلها من هنا وحدها. والسبب أن خلطهما يُوهم أن إشراق يقف خلفها — وهو لا
  * يقف. هنا مكانها، وهنا يُقال من يملكها.
  */
+/**
+ * الصفحة خلف بوّابة: لا تُصيَّر أصلاً حتى يقرأ العضو التحذير ويسحب الشريط.
+ *
+ * والموافقة تُحفَظ (`Settings.communityPluginsUnlocked`) فلا تُطلَب كل زيارة،
+ * ومعها زرّ إعادة قفل لمن يشارك جهازه.
+ */
 export function CommunityPluginsPage() {
+    const [unlocked, setUnlocked] = useState(
+        () => Settings.plugins.Settings?.communityPluginsUnlocked === true
+    );
+
+    if (!unlocked) {
+        return (
+            <GateOverlay
+                unlocked={false}
+                title={t("إضافات المجتمع", "Community plugins")}
+                subtitle={t("قسم يُشغّل إضافات كتبها أشخاص من خارج إشراق.",
+                    "A section that runs plugins written by people outside Esharq.")}
+                slideLabel={t("اسحب لفتح القسم", "Slide to open the section")}
+                warnings={[
+                    t("هذه إضافات ليست من إشراق. نحن نوفّر الميزة التي تُشغّلها فقط — لا نكتبها ولا نُراجعها ولا نُحدّثها ولا نُصلحها.",
+                        "These plugins are not Esharq's. We only provide the feature that runs them — we don't write, review, update or fix them."),
+                    t("الإضافة تعمل داخل ديسكورد بصلاحيات أي إضافة، فتستطيع ما تستطيعه أي إضافة. لا تُشغّل إلّا ما تثق بمصدره أنت.",
+                        "A plugin runs inside Discord with the same privileges as any plugin, so it can do whatever any plugin can. Only run what you trust."),
+                    t("ما تستورده يبقى على جهازك وحده: لا يُرفَع ولا يُشارَك، ولا يصل إشراق ولا أي مستخدم آخر، ولا يدخل النسخ الاحتياطية ولا المزامنة.",
+                        "What you import stays on your machine alone: never uploaded or shared, never reaching Esharq or any other user, and never included in backups or sync."),
+                    t("القرار قرارك وحدك، وإشراق لا يتحمّل مسؤولية ما تستورده ولا ما ينتج عنه.",
+                        "The decision is yours alone. Esharq takes no responsibility for what you import, or for what comes of it.")
+                ]}
+                onUnlock={() => {
+                    Settings.plugins.Settings.communityPluginsUnlocked = true;
+                    setUnlocked(true);
+                }}
+            />
+        );
+    }
+
+    return <CommunityPluginsContent onRelock={() => {
+        Settings.plugins.Settings.communityPluginsUnlocked = false;
+        setUnlocked(false);
+    }} />;
+}
+
+function CommunityPluginsContent({ onRelock }: { onRelock: () => void; }) {
     const [entries, setEntries] = useState<Entry[] | null>(null);
     const [findings, setFindings] = useState<Finding[]>([]);
     const [importing, setImporting] = useState(false);
@@ -203,17 +248,8 @@ export function CommunityPluginsPage() {
     return (
         <>
             <NoticeStrip tone="danger">
-                <b>{t("اقرأ هذا أوّلاً:", "Read this first:")}</b>
-                <ul style={{ margin: `${UNIT}px 0 0`, paddingInlineStart: UNIT * 2.5 }}>
-                    <li>{t("هذه إضافات يكتبها أشخاص خارج إشراق. نحن نوفّر الميزة التي تُشغّلها — ولا علاقة لنا بالإضافة نفسها: لا نكتبها ولا نُراجعها ولا نُحدّثها ولا نُصلحها.",
-                        "These are plugins written by people outside Esharq. We provide the feature that runs them — the plugin itself is not ours: we don't write, review, update or fix it.")}</li>
-                    <li>{t("الإضافة تعمل داخل ديسكورد بصلاحيات أي إضافة، فتستطيع ما تستطيعه إضافة عادية. شغّل ما تثق بمصدره أنت.",
-                        "A plugin runs inside Discord with the same privileges as any plugin, so it can do what any plugin can. Run only what you trust.")}</li>
-                    <li>{t("لا شيء يُرفَع ولا يُشارَك: ما تستورده يبقى على جهازك وحده، ولا يصل إشراق ولا أي مستخدم آخر — ولا يدخل النسخ الاحتياطية ولا المزامنة السحابية.",
-                        "Nothing is uploaded or shared: what you import stays on your machine alone. It never reaches Esharq or any other user, and it is not included in backups or cloud sync.")}</li>
-                    <li>{t("القرار قرارك وحدك، وإشراق لا يتحمّل مسؤولية ما تستورده.",
-                        "The decision is yours alone, and Esharq takes no responsibility for what you import.")}</li>
-                </ul>
+                {t("هذه إضافات ليست من إشراق: لا نكتبها ولا نُراجعها ولا نُحدّثها. تعمل بصلاحيات أي إضافة داخل ديسكورد، وما تستورده يبقى على جهازك وحده. القرار قرارك.",
+                    "These plugins are not Esharq's: we don't write, review or update them. They run with the same privileges as any plugin inside Discord, and what you import stays on your machine alone. The decision is yours.")}
             </NoticeStrip>
 
             <Card index={0}
@@ -235,6 +271,7 @@ export function CommunityPluginsPage() {
                         label={importing ? t("جارٍ…", "Working…") : t("استورد مجلد إضافة", "Import a plugin folder")}
                         onClick={doImport} />
                     <Btn label={t("تحديث القائمة", "Refresh")} onClick={refresh} />
+                    <Btn label={t("أعد قفل القسم", "Lock the section again")} onClick={onRelock} />
                 </div>
 
                 {justImported !== null && (
