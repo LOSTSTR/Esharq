@@ -182,14 +182,16 @@
     ],
     "أسماء مجموعات المتجر": [
         "Starfall Tides",
-        "Starlit Dream"
+        "Starlit Dream",
+        "Above the Clouds"
     ],
     "أسماء أنشطة ديسكورد": [
         "Study Together",
         "Study Room"
     ],
     "محافظ ومزوّدو دفع": [
-        "TDS Wallet"
+        "TDS Wallet",
+        "Cash App Pay"
     ],
     "بنى بلا كلمات تُعرَّب": [
         "<$b>{tier}</$b>",
@@ -203,6 +205,44 @@
         "<orbIconHook></orbIconHook> {orbPrice}",
         "<usernameHook></usernameHook> <messageTextHook></messageTextHook>",
         "<$b>{value}</$b> {name}",
-        "<callToActionHook></callToActionHook> <channelNameHook>{channelName}</channelNameHook>"
+        "<callToActionHook></callToActionHook> <channelNameHook>{channelName}</channelNameHook>",
+        "{applicationName} {applicationDescription}",
+        "{baseVariantName} ({variantLabel})",
+        "{buttonText} {applicationName}",
+        "{count, number}",
+        "{count} ›",
+        "{discountedPrice} <originalPriceHook><$del>{regularPrice}</$del></originalPriceHook>",
+        "{guildName} (#{channelName})",
+        "{itemName} ({productType})",
+        "{orbAmount} orbs",
+        "{orbsCount} Orbs",
+        "{product}: {a11y_text}",
+        "{ruleIndex, number}.",
+        "{sectionTitle} {sectionBody}",
+        "{username}: {message}",
+        "{value, number}",
+        "· {guildName}",
+        "<leaderboardNameHook>{leaderboardName}</leaderboardNameHook> · {timeLeft}"
+    ],
+    "أسماء عناصر ومجموعات المتجر": [
+        "Wumpus Box",
+        "Wumpus Cup",
+        "Wumpus Land",
+        "Wumpus Vacation",
+        "Wumpus' Favorite",
+        "Coruscant Guard Outfit",
+        "Coruscant's Pride Wrap",
+        "Golden Wumpus Club"
+    ],
+    "عبارات مُعلِّق الألعاب": [
+        "Triple Kill",
+        "Wicked Sick!!"
+    ],
+    "نصوص بلغات أخرى تُعرَض كما هي": [
+        "¿Cambiar idioma?"
+    ],
+    "عناوين ومعرّفات مثال": [
+        "123 Discord Drive",
+        "Discord the Movie"
     ]
 }
