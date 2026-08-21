@@ -302,18 +302,28 @@ interface SelfServeEntry {
  * حالة شارة الخدمة الذاتية كما جاءت **من الخادم** — تقرؤها صفحة «ملفّك
  * الشخصيّ» لترسم مفاتيحها على الحقيقة لا على تخمين محلّيّ.
  */
-export function getSelfServeBadge(userId: string) {
-    const live = EsharqSelfServeBadges[userId]?.live;
-    if (!live?.image) return null;
-    return {
-        image: live.image,
-        tooltip: live.tooltip ?? "",
-        effect: live.effect ?? "none",
-        surfaces: {
-            profile: live.surfaces?.profile !== false,
-            chat: live.surfaces?.chat !== false
-        }
-    };
+export function getSelfServeBadges(userId: string) {
+    const entry = EsharqSelfServeBadges[userId];
+    if (entry == null) return [];
+
+    // 🔴 مدخلٌ واحد اليوم (`live`)، والسجلّ مُهيّأ لعدّة (`badges`). تُقرأ
+    // الاثنتان فتعمل الصفحة نفسها قبل تغيير الخادم وبعده — بدل صفحةٍ تُعاد
+    // كتابتها يوم يصير للداعم شارتان.
+    const list = Array.isArray((entry as any).badges) ? (entry as any).badges : [];
+    const all = [...list, ...(entry.live ? [entry.live] : [])];
+
+    return all
+        .filter(b => typeof b?.image === "string" && b.image !== "")
+        .map((b, i) => ({
+            id: String(b.assetId ?? b.id ?? i),
+            image: b.image as string,
+            tooltip: (b.tooltip ?? "") as string,
+            effect: (b.effect ?? "none") as string,
+            surfaces: {
+                profile: b.surfaces?.profile !== false,
+                chat: b.surfaces?.chat !== false
+            }
+        }));
 }
 
 function selfServeVisible(userId: string, surface: "profile" | "chat"): boolean {

@@ -9,7 +9,7 @@ import "./myProfile.css";
 import { _getBadges } from "@api/Badges";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Switch } from "@components/Switch";
-import { getSelfServeBadge } from "@plugins/_api/badges";
+import { getSelfServeBadges } from "@plugins/_api/badges";
 import { t } from "@utils/esharqI18n";
 import { useMemo, UserStore, useState } from "@webpack/common";
 
@@ -63,8 +63,9 @@ function isEsharqBadge(badge: Badge): boolean {
  * والترتيب مقصود: يرى صاحبها شارته كما يراها الناس **قبل** أن يقرّر أين تظهر.
  * وصفٌّ أفقيّ صغير لا يُري المرء ما يُقرّر بشأنه.
  */
-function BadgeShowcase({ badge, busy, onToggle }: {
-    badge: { image: string; tooltip: string; effect: string; surfaces: { profile: boolean; chat: boolean; }; };
+function BadgeShowcase({ badge, index, busy, onToggle }: {
+    badge: { id: string; image: string; tooltip: string; effect: string; surfaces: { profile: boolean; chat: boolean; }; };
+    index: number;
     busy: boolean;
     onToggle: (surface: Surface, visible: boolean) => void;
 }) {
@@ -87,7 +88,7 @@ function BadgeShowcase({ badge, busy, onToggle }: {
     ];
 
     return (
-        <div className="esharq-mp-showcase">
+        <div className="esharq-mp-showcase esharq-rise" style={stagger(index, 6)}>
             <div className={"esharq-mp-ring" + (nowhere ? " off" : "")}>
                 <ErrorBoundary noop>
                     <img src={badge.image} alt="" />
@@ -132,8 +133,14 @@ export function MyProfilePage() {
         try { return UserStore.getCurrentUser(); } catch { return null; }
     }, []);
 
-    /** حالة الشارة **من الخادم** — نفس البيانات التي يرسم منها كل عميل. */
-    const selfServe = useMemo(() => (me == null ? null : getSelfServeBadge(me.id)), [me]);
+    /**
+     * شارات الخدمة الذاتية **من الخادم** — قائمةٌ لا واحدة.
+     *
+     * الداعم اليوم له واحدة، وقد يصير له ثلاث. وبطاقةٌ لكل شارة تُظهر كلّ
+     * شيء دفعةً واحدة بلا وضعٍ مخفيّ — أوضح من شارةٍ كبيرة وشريطِ مصغّرات
+     * يُخفي خيارات ما لم يُختَر.
+     */
+    const selfServe = useMemo(() => (me == null ? [] : getSelfServeBadges(me.id)), [me]);
 
     const badges = useMemo<Badge[]>(() => {
         if (me == null) return [];
@@ -145,7 +152,7 @@ export function MyProfilePage() {
     }
 
     const esharqBadges = badges.filter(isEsharqBadge);
-    const isSupporter = selfServe != null || esharqBadges.length > 0;
+    const isSupporter = selfServe.length > 0 || esharqBadges.length > 0;
     const avatar = me.getAvatarURL?.(undefined, 128) ?? "";
 
     const openControl = () => {
@@ -155,12 +162,13 @@ export function MyProfilePage() {
         setTimeout(() => setBusy(false), 900);
     };
 
-    const state = selfServe == null
+    const shownCount = selfServe.filter(b => b.surfaces.profile || b.surfaces.chat).length;
+    const state = selfServe.length === 0
         ? { text: t("لا شارة", "No badge"), tone: "warn" as const }
-        : selfServe.surfaces.profile && selfServe.surfaces.chat
-            ? { text: t("ظاهرة", "Visible"), tone: "ok" as const }
-            : selfServe.surfaces.profile || selfServe.surfaces.chat
-                ? { text: t("ظاهرة جزئياً", "Partly visible"), tone: "warn" as const }
+        : shownCount === selfServe.length
+            ? { text: selfServe.length > 1 ? t(`${selfServe.length} ظاهرة`, `${selfServe.length} visible`) : t("ظاهرة", "Visible"), tone: "ok" as const }
+            : shownCount > 0
+                ? { text: t(`${shownCount} من ${selfServe.length} ظاهرة`, `${shownCount} of ${selfServe.length} visible`), tone: "warn" as const }
                 : { text: t("مخفيّة", "Hidden"), tone: "danger" as const };
 
     return (
@@ -181,16 +189,20 @@ export function MyProfilePage() {
 
             <Card index={1}
                 title={t("شارتك في إشراق", "Your Esharq badge")}
-                subtitle={selfServe != null
-                    ? t("تحكّم بأين تظهر — والتغيير يسري على كل مستخدمي إشراق.",
-                        "Control where it appears — the change applies to every Esharq user.")
+                subtitle={selfServe.length > 0
+                    ? t("تحكّم بأين تظهر كل شارة — والتغيير يسري على كل مستخدمي إشراق.",
+                        "Control where each badge appears — the change applies to every Esharq user.")
                     : t("للداعمين شارة خاصّة يتحكّمون بأين تظهر.",
                         "Supporters get their own badge and control where it appears.")}
                 badge={state.text} badgeTone={state.tone}>
 
-                {selfServe != null ? (
+                {selfServe.length > 0 ? (
                     <>
-                        <BadgeShowcase badge={selfServe} busy={busy} onToggle={openControl} />
+                        <div className={"esharq-mp-cases" + (selfServe.length > 1 ? " many" : "")}>
+                            {selfServe.map((b, i) => (
+                                <BadgeShowcase key={b.id} badge={b} index={i} busy={busy} onToggle={openControl} />
+                            ))}
+                        </div>
 
                         {opened && (
                             <NoticeStrip>

@@ -251,3 +251,35 @@
     line-height: 1.6;
     opacity: 0.55;
 }
+
+/* ── عدّة شارات ──────────────────────────────────────────────────────────────
+   بطاقةٌ لكل شارة، كلّها ظاهرة معاً. والبديل — شارةٌ كبيرة وشريط مصغّرات —
+   يُخفي خيارات ما لم يُختَر، فيظنّ صاحبه أنه ضبط الكلّ وقد ضبط واحدة. */
+
+.esharq-mp-cases {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.esharq-mp-cases.many .esharq-mp-showcase {
+    padding: 18px 16px;
+    border-radius: 14px;
+    background: #15151a;
+    box-shadow: inset 0 0 0 1px #ffffff0a;
+}
+
+/* مع الكثرة تصغر الدائرة قليلاً كي تبقى الصفحة مقروءةً بلا تمرير طويل. */
+.esharq-mp-cases.many .esharq-mp-ring {
+    inline-size: 84px;
+    block-size: 84px;
+}
+
+.esharq-mp-cases.many .esharq-mp-ring img {
+    inline-size: 52px;
+    block-size: 52px;
+}
+
+.esharq-mp-cases.many .esharq-mp-choices {
+    margin-top: 16px;
+}
