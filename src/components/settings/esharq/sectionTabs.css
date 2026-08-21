@@ -1,0 +1,80 @@
+/*
+ * Esharq, a Discord client mod
+ * Copyright (c) 2026 LOSTSTR
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+/* ── شريط الأقسام ────────────────────────────────────────────────────────── */
+
+.esharq-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-block-end: 1px solid #ffffff0f;
+}
+
+.esharq-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 15px;
+    border: 0;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    background: transparent;
+    color: inherit;
+    opacity: 0.6;
+    cursor: pointer;
+    transition: background 0.14s ease, opacity 0.14s ease, box-shadow 0.14s ease;
+}
+
+.esharq-tab:hover {
+    background: #ffffff0a;
+    opacity: 0.85;
+}
+
+.esharq-tab.on {
+    background: rgb(201 162 39 / 12%);
+    box-shadow: inset 0 0 0 1px rgb(201 162 39 / 38%);
+    color: #ecd384;
+    opacity: 1;
+}
+
+.esharq-tab:focus-visible {
+    outline: 2px solid #c9a227;
+    outline-offset: 2px;
+}
+
+/* العدّاد يقول ما في القسم قبل فتحه. */
+.esharq-tab-count {
+    padding: 1px 7px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    background: #ffffff14;
+}
+
+.esharq-tab-count.ok {
+    background: rgb(35 165 90 / 18%);
+    color: #4ac07a;
+}
+
+.esharq-tab-count.warn {
+    background: rgb(201 162 39 / 20%);
+    color: #ecd384;
+}
+
+.esharq-tab-count.danger {
+    background: rgb(242 63 67 / 18%);
+    color: #ff9a9d;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .esharq-tab {
+        transition: none;
+    }
+}

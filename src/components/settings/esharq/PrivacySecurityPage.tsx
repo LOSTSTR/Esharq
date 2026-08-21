@@ -13,12 +13,19 @@ import { useEffect, useMemo, useState } from "@webpack/common";
 
 import { Card, NoticeStrip, StatRow } from "./Card";
 import { stagger } from "./motion";
+import { Section, SectionTabs } from "./SectionTabs";
 
 /**
  * **الخصوصية والأمان** — ماذا يحفظ إشراق عنك، وأين، وما الذي يغادر جهازك.
  *
  * وهي غير «الرصد»: تلك تسأل **إلى أين يُسمح للعميل أن يصل**، وهذه تسأل
  * **ماذا عندك وماذا يخرج منه**.
+ *
+ * ## مقسومةٌ إلى أقسام
+ *
+ * كانت بطاقاتٍ متتابعة تُقرأ بالتمرير وحده، فمن يبحث عن «ماذا يُحفَظ على
+ * جهازي» يمرّ على كل ما سواه. والأقسام تُعطيه خريطةً في سطرٍ ونقلةً بضغطة —
+ * ولا يُرسَم إلّا المفتوح منها، فلا مؤقّتاتٌ ولا طلباتٌ لأقسامٍ لا تُرى.
  *
  * 🔴 **الجرد أحجامٌ ومسارات لا محتوى.** لا يُقرأ ملفّ واحد لأجل هذه الصفحة —
  * قراءة المحتوى لتُجيب سؤال الخصوصية تناقض السؤال.
@@ -27,6 +34,11 @@ import { stagger } from "./motion";
  * سرّية عندك، وتُنقّى عند التصدير» ولا يُطبَع مفتاح واحد ولا جزء منه. صفحةٌ
  * تعرض السرّ لتُخبرك أنه محميّ صفحةٌ متناقضة.
  */
+
+interface HostRule {
+    host: string;
+    directives: string[];
+}
 
 interface DataEntry {
     key: string;
@@ -104,11 +116,17 @@ export function PrivacySecurityPage() {
     const settings = useSettings();
     const [data, setData] = useState<{ root: string; entries: DataEntry[]; } | null>(null);
     const [failed, setFailed] = useState(false);
+    const [hosts, setHosts] = useState<{ builtIn: HostRule[]; custom: HostRule[]; } | null>(null);
 
     useEffect(() => {
         const api = (window as any).VencordNative?.dataInventory;
         if (api?.read == null) return setFailed(true);
         api.read().then(setData).catch(() => setFailed(true));
+
+        // الوجهات تُقرأ مرّةً كذلك — قائمةٌ ثابتة لا تتغيّر أثناء الجلسة.
+        (window as any).VencordNative?.csp?.listPolicies?.()
+            .then(setHosts)
+            .catch(() => setHosts({ builtIn: [], custom: [] }));
     }, []);
 
     const secrets = useMemo(() => {
@@ -119,14 +137,21 @@ export function PrivacySecurityPage() {
     const totalBytes = data?.entries.reduce((n, e) => n + e.bytes, 0) ?? 0;
     const totalFiles = data?.entries.reduce((n, e) => n + e.files, 0) ?? 0;
 
-    return (
-        <>
-            <NoticeStrip>
-                {t("هذه الصفحة تُجيب سؤالين: ماذا يحفظ إشراق عنك على جهازك، وما الذي يغادر الجهاز ومتى. أمّا إلى أين يُسمح له بالاتّصال فذاك في صفحة «الرصد».",
-                    "This page answers two questions: what Esharq keeps about you on your machine, and what leaves it and when. Where it is allowed to connect is on the Surveillance page.")}
-            </NoticeStrip>
-
-            <Card index={0}
+    /**
+     * الأقسام الأربعة.
+     *
+     * التقسيم بالسؤال الذي يطرحه القارئ، لا بترتيب بنائها: «ما الذي يخرج؟»
+     * و«ما المحفوظ عندي؟» و«أين يُسمح له بالاتّصال؟» و«كيف أتحقّق بنفسي؟».
+     */
+    const sections: Section[] = [
+        {
+            key: "outbound",
+            ar: "ما يغادر جهازك", en: "What leaves",
+            count: cloudOn ? t("المزامنة", "Sync") : t("لا شيء", "None"),
+            tone: cloudOn ? "warn" : "ok",
+            render: () => (
+                <>
+                    <Card index={0}
                 title={t("ماذا يغادر جهازك", "What leaves your machine")}
                 subtitle={t("القاعدة: لا شيء — إلّا ما تبدأه أنت بنفسك.", "The rule: nothing — except what you start yourself.")}
                 badge={cloudOn ? t("المزامنة مُفعَّلة", "Sync is on") : t("لا شيء تلقائيّ", "Nothing automatic")}
@@ -168,8 +193,7 @@ export function PrivacySecurityPage() {
                     </div>
                 </div>
             </Card>
-
-            <Card index={1}
+                    <Card index={1}
                 title={t("أسرارك في الإعدادات", "Your secrets in the settings")}
                 subtitle={t("مفاتيح خدمات أدخلتَها في إضافات — تُنقّى تلقائياً من أي نسخة تُصدّرها.",
                     "Service keys you entered into plugins — automatically redacted from any backup you export.")}
@@ -187,8 +211,15 @@ export function PrivacySecurityPage() {
                         "The count uses the very function that redacts exports, so the number describes what will actually be redacted — not a parallel estimate.")}
                 </div>
             </Card>
-
-            <Card index={2}
+                </>
+            )
+        },
+        {
+            key: "stored",
+            ar: "المحفوظ على جهازك", en: "Stored here",
+            count: data === null ? undefined : human(totalBytes),
+            tone: "info",
+            render: () => <Card index={0}
                 title={t("ماذا يُحفَظ على جهازك", "What is stored on your machine")}
                 subtitle={t("أحجام ومسارات — ولا يُقرأ محتوى ملفّ واحد لأجل هذه الصفحة.",
                     "Sizes and paths — and not one file's contents is read for this page.")}
@@ -235,8 +266,54 @@ export function PrivacySecurityPage() {
                     </>
                 )}
             </Card>
+        },
+        {
+            key: "hosts",
+            ar: "الوجهات المسموح بها", en: "Allowed destinations",
+            count: hosts === null ? undefined : hosts.builtIn.length + hosts.custom.length,
+            tone: "info",
+            render: () => (
+                <Card index={0}
+                    title={t("إلى أين يُسمح لإشراق أن يتّصل", "Where Esharq is allowed to connect")}
+                    subtitle={t("قائمةٌ مغلقة يفرضها العميل نفسه: ما ليس فيها يُمنَع، ولو طلبته إضافة.",
+                        "A closed list the client itself enforces: anything not on it is blocked, even if a plugin asks for it.")}
+                    badge={hosts === null ? t("جارٍ…", "Working…") : String(hosts.builtIn.length + hosts.custom.length)}
+                    badgeTone="info">
 
-            <Card index={3}
+                    {hosts === null ? (
+                        <NoticeStrip>{t("يقرأ القائمة…", "Reading the list…")}</NoticeStrip>
+                    ) : (
+                        <>
+                            <StatRow items={[
+                                { label: t("وجهات مُدمَجة", "Built in"), value: String(hosts.builtIn.length) },
+                                { label: t("أضفتَها أنت", "Added by you"), value: String(hosts.custom.length) }
+                            ]} />
+
+                            <div className="esharq-ps-hosts">
+                                {[...hosts.builtIn, ...hosts.custom]
+                                    .slice()
+                                    .sort((a, b) => a.host.localeCompare(b.host))
+                                    .map((entry, i) => (
+                                        <div key={entry.host} className="esharq-ps-host esharq-rise" style={stagger(Math.min(i, 14), 4)}>
+                                            <code>{entry.host}</code>
+                                            <span>{entry.directives.join(" · ")}</span>
+                                        </div>
+                                    ))}
+                            </div>
+
+                            <NoticeStrip>
+                                {t("هذه هي سياسة المحتوى التي يفرضها المتصفّح نفسه، لا قائمةٌ نكتبها للعرض. وطلبٌ إلى مضيفٍ خارجها يفشل قبل أن يخرج من جهازك.",
+                                    "This is the content policy the browser itself enforces, not a list written for display. A request to a host outside it fails before it leaves your machine.")}
+                            </NoticeStrip>
+                        </>
+                    )}
+                </Card>
+            )
+        },
+        {
+            key: "verify",
+            ar: "تحقّق بنفسك", en: "Check yourself",
+            render: () => <Card index={0}
                 title={t("كيف تتحقّق بنفسك", "How to check for yourself")}
                 subtitle={t("لا تُصدّق صفحةً تقول عن نفسها إنها آمنة — هذه طرق التحقّق.",
                     "Don't take a page's word that it is safe — here is how to check.")}>
@@ -247,6 +324,17 @@ export function PrivacySecurityPage() {
                     <div>{t("④ ومصدر إشراق كلّه علنيّ على GitHub — كل جملة هنا يمكن مطابقتها بالكود.", "④ And Esharq's entire source is public on GitHub — every claim here can be matched against the code.")}</div>
                 </div>
             </Card>
+        }
+    ];
+
+    return (
+        <>
+            <NoticeStrip>
+                {t("هذه الصفحة تُجيب سؤالين: ماذا يحفظ إشراق عنك على جهازك، وما الذي يغادر الجهاز ومتى. والأقسام أدناه تفصل الجواب فلا تطول الصفحة.",
+                    "This page answers two questions: what Esharq keeps about you on your machine, and what leaves it and when. The sections below split the answer so the page stays short.")}
+            </NoticeStrip>
+
+            <SectionTabs sections={sections} />
         </>
     );
 }

@@ -465,8 +465,8 @@ function ThemeCreatorPageInner() {
                         {canFrost && (
                             <Row
                                 label={t("شفافية النافذة", "Window transparency")}
-                                hint={t("يجعل نافذة ديسكورد نفسها شبه شفّافة فيظهر سطح مكتبك خلفها. من ويندوز نفسه — ولذلك يحتاج إعادة تشغيل ديسكورد.",
-                                    "Makes the Discord window itself translucent so your desktop shows through. It comes from Windows, which is why it needs a Discord restart.")}>
+                                hint={t("يجعل نافذة ديسكورد نفسها شبه شفّافة فيظهر سطح مكتبك خلفها. وهو نفسه «مواد الخلفية» في صفحة «نظرة عامّة» — إعدادٌ واحد بمدخلين، لا اثنان.",
+                                    "Makes the Discord window itself translucent so your desktop shows through. It is the same setting as “Background Material” on the Overview page — one setting with two entry points, not two.")}>
                                 <select
                                     className="esharq-tc-select"
                                     value={native.windowsMaterial ?? "none"}
