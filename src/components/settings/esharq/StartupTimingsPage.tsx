@@ -122,7 +122,10 @@ function StepRow({ log, index, max, showBar }: {
                 </span>
             )}
             <span className={"esharq-st-ms" + (delta >= 100 ? " slow" : "")}>
-                {delta > 0 ? `${delta} ms` : "—"}
+                {/* 🔴 يُقرَّب دائماً: `delta` من `performance.now()` وقد يأتي
+                    `36.30000000447035` — أربعة عشر رقماً تخرج من خانتها وتكسر
+                    الصفّ. ورقمٌ عشريّ واحد تحت العشرة يكفي، وما فوقها صحيح. */}
+                {delta > 0 ? `${delta < 10 ? delta.toFixed(1) : Math.round(delta)} ms` : "—"}
             </span>
         </div>
     );
@@ -299,7 +302,7 @@ export function StartupTimingsPage() {
                 <StatRow items={[
                     { label: t("زمن الإقلاع", "Startup time"), value: data.totalMs != null ? `${(data.totalMs / 1000).toFixed(2)}s` : "—" },
                     { label: t("خطوات مُسجَّلة", "Recorded steps"), value: String(data.logs.length) },
-                    { label: t("أبطأ خطوة", "Slowest step"), value: `${data.maxDelta} ms` },
+                    { label: t("أبطأ خطوة", "Slowest step"), value: `${Math.round(data.maxDelta)} ms` },
                     { label: t("مجموع المقيس", "Measured total"), value: `${(data.accounted / 1000).toFixed(2)}s` }
                 ]} />
                 <NoticeStrip>

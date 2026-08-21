@@ -10,6 +10,7 @@ import type { BisectSession } from "@main/crashBisect";
 import type { CspRequestResult } from "@main/csp/manager";
 import type { PluginIpcMappings } from "@main/ipcPlugins";
 import type { PickedBackground } from "@main/themeCreator";
+import type { LibraryResult } from "@main/themeLibrary";
 import { UserThemeHeader } from "@main/themes";
 import { IpcEvents } from "@shared/IpcEvents";
 import type { IpcRes } from "@utils/types";
@@ -160,6 +161,17 @@ export default {
         saveCss: (fileName: string, css: string) =>
             invoke<{ ok: boolean; reason?: string; fileName?: string; path?: string; }>(IpcEvents.THEME_SAVE_CSS, fileName, css),
         openFolder: () => invoke<void>(IpcEvents.THEME_OPEN_FOLDER)
+    },
+
+    /**
+     * مكتبة الثيمات — تُقرأ في العملية الرئيسية.
+     * 🔴 `betterdiscord.app` لا يُرسل ترويسة CORS، فالمُصيَّر عاجزٌ عن قراءته.
+     */
+    themeLibrary: {
+        list: () => invoke<LibraryResult>(IpcEvents.THEME_LIBRARY_LIST),
+        install: (id: number, name: string) =>
+            invoke<{ ok: boolean; reason?: string; fileName?: string; bytes?: number; }>(IpcEvents.THEME_LIBRARY_INSTALL, id, name),
+        openPage: (id: number) => invoke<void>(IpcEvents.THEME_LIBRARY_OPEN, id)
     },
 
     communityPlugins: {

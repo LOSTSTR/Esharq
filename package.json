@@ -40,7 +40,7 @@
         "testWeb": "pnpm lint:fix && pnpm buildWeb && pnpm testTsc",
         "lint:overlay": "node scripts/lintOverlayOptions.mjs",
         "testTsc": "tsc --noEmit",
-        "testEsharq": "node scripts/esharqCheck.mjs && node scripts/lintOverlayOptions.mjs && pnpm testCoverage && pnpm testPrefs && pnpm testRedact && pnpm testCommunity && pnpm testIntlAst && pnpm intl:lint && node scripts/esharqSecurityAudit.mjs && tsc --noEmit -p tsconfig.esharq.json && stylelint \"src/esharqplugins/**/*.css\"",
+        "testEsharq": "node scripts/esharqCheck.mjs && node scripts/lintOverlayOptions.mjs && pnpm testCoverage && pnpm testPrefs && pnpm testRedact && pnpm testCommunity && pnpm testThemeLibrary && pnpm testIntlAst && pnpm intl:lint && node scripts/esharqSecurityAudit.mjs && tsc --noEmit -p tsconfig.esharq.json && stylelint \"src/esharqplugins/**/*.css\"",
         "securityAudit": "node scripts/esharqSecurityAudit.mjs",
         "inject:canary": "node scripts/esharqInject.mjs --branch canary",
         "uninject:canary": "node scripts/esharqInject.mjs --branch canary --uninstall",
@@ -54,7 +54,7 @@
         "testRedact": "tsx scripts/esharq/redactSelfTest.ts",
         "testCommunity": "tsx scripts/esharq/communityValidateSelfTest.ts",
         "testIntlAst": "node scripts/esharq/intlAstSelfTest.mjs",
-        "generateThemes": "tsx scripts/esharq/generateThemes.ts"
+        "testThemeLibrary": "tsx scripts/esharq/themeLibraryParseSelfTest.ts"
     },
     "dependencies": {
         "@ffmpeg/ffmpeg": "^0.12.10",

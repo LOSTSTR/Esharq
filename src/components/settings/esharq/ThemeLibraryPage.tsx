@@ -13,67 +13,43 @@ import { Button, useEffect, useMemo, useRef, useState } from "@webpack/common";
 
 import { Card, NoticeStrip } from "./Card";
 import { stagger } from "./motion";
-import { NeutralMap, Palette, previewPalette } from "./themeCreator/engine";
-import { loadNeutrals } from "./themeCreator/state";
-import { Catalogue, CatalogueTheme, installTheme, loadCatalogue } from "./themeLibrary/catalogue";
+import { CatalogueTheme, installTheme, loadCatalogue } from "./themeLibrary/catalogue";
 
 /**
- * **مكتبة الثيمات** — تصفّح ثيماتٍ جاهزة وثبّتها بضغطة.
+ * **مكتبة الثيمات** — معرض BetterDiscord داخل إشراق.
  *
  * ## وأين تقف من صفحة «الثيمات»
  *
- * تلك تُدير **ما عندك**: تشغيل وإطفاء وروابطك الخاصّة. وهذه تُريك **ما لا
- * تعرفه بعد**. ولو خلطناهما لصارت صفحةٌ واحدة تفعل شيئين نصفَ فعل.
+ * تلك تُدير **ما عندك**: تشغيلٌ وإطفاءٌ وروابطك. وهذه تُريك **ما لا تعرفه
+ * بعد**، وتُثبّته بضغطة.
  *
- * ## 🔴 والمعاينة محسوبة لا مصوَّرة
+ * ## 🔴 ولا حساب ولا تفويض
  *
- * لا لقطةَ شاشةٍ لأي ثيم هنا. بل تُحسَب ألوانه **بنفس رياضيات التطبيق**:
- * فرقُ إضاءة كل درجة عن الأساس يُضاف إلى إضاءة لون الثيم. فما تراه في البطاقة
- * هو اللون الذي سيظهر عندك بعد التثبيت، لا صورةٌ قد تكون قديمة أو من جهازٍ آخر.
+ * نقرأ صفحةً عامّة ونُنزّل ملفّاً. لا تسجيل دخول، ولا إعجابات تُرسَل، ولا شيء
+ * يُعرَف به مَن تصفّح. (مكتبةٌ أخرى في هذا المجال تطلب OAuth بصلاحيّتَي
+ * `identify` و`connections` لتُسجّل الإعجابات — ثمنٌ لا يستحقّه تصفّحُ ثيمات.)
  *
- * ## ولا حساب ولا تفويض
+ * ## وما يُثبَّت ليس منّا
  *
- * المكتبة تقرأ ملفّاً عامّاً وتُنزّل ملفّاً. لا تسجيل دخول، ولا إعجابات،
- * ولا شيء يُعرَف به مَن تصفّح. التفصيل في `themeLibrary/catalogue.ts`.
+ * الثيمات من مؤلّفيها في المعرض، لا من إشراق. والصفحة تقول ذلك بوضوح: ثيمٌ
+ * هو CSS يعمل داخل ديسكورد، ومن يُثبّته يثق بكاتبه.
  */
 
-function MiniPreview({ palette }: { palette: Palette; }) {
-    // مُحاكاةٌ صغيرة لتخطيط ديسكورد: سكّة، ثم قائمة، ثم محادثة.
-    return (
-        <div className="esharq-tl-preview" style={{ background: palette.app }} aria-hidden="true">
-            <div className="esharq-tl-rail" style={{ background: palette.app }}>
-                <span style={{ background: palette.accent }} />
-                <span style={{ background: palette.raised }} />
-                <span style={{ background: palette.raised }} />
-            </div>
-            <div className="esharq-tl-side" style={{ background: palette.sidebar }}>
-                <i style={{ background: palette.muted }} />
-                <i style={{ background: palette.muted, width: "62%" }} />
-                <i style={{ background: palette.raised, width: "78%" }} />
-                <i style={{ background: palette.muted, width: "48%" }} />
-            </div>
-            <div className="esharq-tl-chat" style={{ background: palette.app }}>
-                <b style={{ background: palette.text }} />
-                <i style={{ background: palette.muted }} />
-                <i style={{ background: palette.muted, width: "70%" }} />
-                <b style={{ background: palette.accent, width: "36%" }} />
-                <i style={{ background: palette.muted, width: "55%" }} />
-            </div>
-        </div>
-    );
-}
+const NUMBER = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 });
 
-type Busy = { id: string; } | null;
+type Busy = { id: number; } | null;
+type Sort = "downloads" | "likes" | "name";
 
 function ThemeLibraryPageInner() {
-    const [result, setResult] = useState<"loading" | "empty" | "error" | Catalogue>("loading");
-    const [neutrals, setNeutrals] = useState<NeutralMap | null>(null);
+    const [themes, setThemes] = useState<CatalogueTheme[] | null>(null);
+    const [failed, setFailed] = useState<"offline" | "http" | "shape" | null>(null);
     const [installed, setInstalled] = useState<Set<string>>(new Set());
     const [busy, setBusy] = useState<Busy>(null);
     const [notice, setNotice] = useState<{ tone: "info" | "danger"; text: string; } | null>(null);
     const [query, setQuery] = useState("");
     const [tag, setTag] = useState<string | null>(null);
-    const [sort, setSort] = useState<"name" | "newest" | "size">("name");
+    const [sort, setSort] = useState<Sort>("downloads");
+    const [shownCount, setShownCount] = useState(24);
 
     const settings = useSettings(["enabledThemes"]);
     const started = useRef(false);
@@ -82,48 +58,49 @@ function ThemeLibraryPageInner() {
         try {
             const list = await (window as any).VencordNative?.themes?.getThemesList?.();
             setInstalled(new Set((list ?? []).map((theme: any) => theme.fileName)));
-        } catch { /* القائمة تُعرَض بلا حالة تثبيت */ }
+        } catch { /* تُعرَض القائمة بلا حالة تثبيت */ }
     }
 
-    async function refreshCatalogue() {
-        setResult("loading");
+    async function refresh() {
+        setThemes(null);
+        setFailed(null);
         const loaded = await loadCatalogue();
-        setResult(loaded.status === "ok" ? loaded.catalogue : loaded.status);
+        if (loaded.status === "ok") setThemes(loaded.themes);
+        else setFailed(loaded.reason);
     }
 
     useEffect(() => {
         if (started.current) return;
         started.current = true;
-        loadNeutrals().then(setNeutrals).catch(() => setNeutrals(new Map()));
-        refreshCatalogue();
+        refresh();
         refreshInstalled();
     }, []);
 
-    const catalogue = typeof result === "object" ? result : null;
-
+    /** أشهر الوسوم أوّلاً: المعرض فيه عشرات، وقائمةٌ بلا ترتيب لا تُقرأ. */
     const tags = useMemo(() => {
-        const set = new Set<string>();
-        for (const theme of catalogue?.themes ?? []) for (const value of theme.tags) set.add(value);
-        return [...set].sort();
-    }, [catalogue]);
+        const count = new Map<string, number>();
+        for (const theme of themes ?? []) for (const value of theme.tags) count.set(value, (count.get(value) ?? 0) + 1);
+        return [...count.entries()].sort((a, b) => b[1] - a[1]).slice(0, 14).map(([value]) => value);
+    }, [themes]);
 
     const shown = useMemo(() => {
         const needle = query.trim().toLowerCase();
-        const list = (catalogue?.themes ?? []).filter(theme => {
+        const list = (themes ?? []).filter(theme => {
             if (tag !== null && !theme.tags.includes(tag)) return false;
             if (needle === "") return true;
-            return `${theme.name.ar} ${theme.name.en} ${theme.description.ar} ${theme.description.en} ${theme.author}`
+            return `${theme.name} ${theme.description} ${theme.author} ${theme.tags.join(" ")}`
                 .toLowerCase().includes(needle);
         });
 
-        // نسخةٌ قبل الترتيب: `sort` تُغيّر المصفوفة في مكانها، وهي هنا نتيجةُ
-        // `filter` فمِلكُنا — لكن الترتيب على مصفوفةٍ مشتركة يُفسد المصدر.
         return [...list].sort((a, b) => {
-            if (sort === "size") return b.bytes - a.bytes;
-            if (sort === "newest") return b.id.localeCompare(a.id);
-            return a.name.en.localeCompare(b.name.en);
+            if (sort === "likes") return b.likes - a.likes;
+            if (sort === "name") return a.name.localeCompare(b.name);
+            return b.downloads - a.downloads;
         });
-    }, [catalogue, query, tag, sort]);
+    }, [themes, query, tag, sort]);
+
+    // البحث يبدأ من أوّل النتائج لا من حيث انتهى التمرير السابق.
+    useEffect(() => setShownCount(24), [query, tag, sort]);
 
     async function install(theme: CatalogueTheme) {
         setBusy({ id: theme.id });
@@ -141,68 +118,62 @@ function ThemeLibraryPageInner() {
                 return;
             }
 
-            // التثبيت وحده لا يُشغّل الثيم؛ والتشغيل هو ما جاء المستخدم لأجله.
             const enabled: string[] = Settings.enabledThemes ?? [];
             if (!enabled.includes(outcome.fileName)) Settings.enabledThemes = [...enabled, outcome.fileName];
 
             await refreshInstalled();
             setNotice({
                 tone: "info",
-                text: t(`ثُبِّت «${theme.name.ar}» وشُغِّل. تُطفئه من صفحة «الثيمات» متى شئت.`,
-                    `“${theme.name.en}” is installed and on. Turn it off from the Themes page whenever you like.`)
+                text: t(`ثُبِّت «${theme.name}» وشُغِّل. تُطفئه من صفحة «الثيمات» متى شئت.`,
+                    `“${theme.name}” is installed and on. Turn it off from the Themes page whenever you like.`)
             });
         } finally {
             setBusy(null);
         }
     }
 
-    const stateBadge = result === "loading"
-        ? { text: t("يقرأ…", "Loading…"), tone: "info" as const }
-        : catalogue
-            ? { text: t(`${catalogue.themes.length} ثيماً`, `${catalogue.themes.length} themes`), tone: "ok" as const }
-            : { text: t("فارغة", "Empty"), tone: "warn" as const };
+    const badge = themes === null
+        ? (failed ? { text: t("تعذّرت القراءة", "Unavailable"), tone: "danger" as const } : { text: t("يقرأ…", "Loading…"), tone: "info" as const })
+        : { text: t(`${themes.length} ثيماً`, `${themes.length} themes`), tone: "ok" as const };
 
     return (
         <>
             <NoticeStrip>
-                {t("هذه المكتبة تقرأ ملفّاً عامّاً وتُنزّل ملفّاً — بلا تسجيل دخول ولا حساب ولا إعجابات، ولا شيء يُعرَف به من تصفّح.",
-                    "This library reads a public file and downloads a file — no sign-in, no account, no likes, and nothing that identifies who browsed.")}
+                {t("هذه ثيمات مجتمع BetterDiscord، من مؤلّفيها لا من إشراق. والثيم ملفُّ CSS يعمل داخل ديسكورد — فمن يُثبّته يثق بكاتبه.",
+                    "These are BetterDiscord community themes, from their authors and not from Esharq. A theme is a CSS file that runs inside Discord — installing one means trusting whoever wrote it.")}
             </NoticeStrip>
 
             <Card index={0}
                 title={t("مكتبة الثيمات", "Theme Library")}
-                subtitle={t("ثيمات جاهزة من إشراق — عاينها ثم ثبّتها بضغطة.",
-                    "Ready-made themes from Esharq — preview one, then install it in a click.")}
-                badge={stateBadge.text} badgeTone={stateBadge.tone}>
+                subtitle={t("تصفّح ثيمات المجتمع وثبّتها بضغطة.", "Browse the community's themes and install one in a click.")}
+                badge={badge.text} badgeTone={badge.tone}>
 
                 <div className="esharq-tl-toolbar">
                     <input
                         type="search"
                         className="esharq-tl-search"
                         value={query}
-                        placeholder={t("ابحث بالاسم أو الوصف…", "Search by name or description…")}
+                        placeholder={t("ابحث بالاسم أو المؤلّف أو الوصف…", "Search by name, author or description…")}
                         onChange={e => setQuery(e.currentTarget.value)}
                         aria-label={t("ابحث في المكتبة", "Search the library")}
                     />
                     <select
                         className="esharq-tl-sort"
                         value={sort}
-                        onChange={e => setSort(e.currentTarget.value as typeof sort)}
+                        onChange={e => setSort(e.currentTarget.value as Sort)}
                         aria-label={t("رتّب حسب", "Sort by")}>
+                        <option value="downloads">{t("الأكثر تنزيلاً", "Most downloaded")}</option>
+                        <option value="likes">{t("الأكثر إعجاباً", "Most liked")}</option>
                         <option value="name">{t("الاسم", "Name")}</option>
-                        <option value="newest">{t("الأحدث", "Newest")}</option>
-                        <option value="size">{t("الحجم", "Size")}</option>
                     </select>
-                    <Button size={Button.Sizes.SMALL} look={Button.Looks.LINK} color={Button.Colors.PRIMARY}
-                        onClick={() => { refreshCatalogue(); refreshInstalled(); }}>
+                    <Button size={Button.Sizes.SMALL} look={Button.Looks.LINK} color={Button.Colors.PRIMARY} onClick={() => { refresh(); refreshInstalled(); }}>
                         {t("حدّث", "Refresh")}
                     </Button>
                 </div>
 
                 {tags.length > 0 && (
                     <div className="esharq-tl-tags">
-                        <button type="button" className={"esharq-tl-tag" + (tag === null ? " on" : "")}
-                            onClick={() => setTag(null)}>
+                        <button type="button" className={"esharq-tl-tag" + (tag === null ? " on" : "")} onClick={() => setTag(null)}>
                             {t("الكلّ", "All")}
                         </button>
                         {tags.map(value => (
@@ -215,107 +186,109 @@ function ThemeLibraryPageInner() {
                     </div>
                 )}
 
+                {themes !== null && (
+                    <div className="esharq-tl-count">
+                        {t(`${shown.length} نتيجة`, `${shown.length} results`)}
+                    </div>
+                )}
+
                 {notice && <NoticeStrip tone={notice.tone}>{notice.text}</NoticeStrip>}
             </Card>
 
-            {result === "loading" && (
-                <Card index={1} title={t("يقرأ الفهرس…", "Reading the index…")} />
+            {themes === null && failed === null && (
+                <Card index={1} title={t("يقرأ المعرض…", "Reading the gallery…")} />
             )}
 
-            {result === "empty" && (
+            {failed !== null && (
                 <Card index={1}
-                    title={t("المكتبة فارغة بعد", "The library is empty for now")}
-                    subtitle={t("لم يُنشَر فهرس الثيمات بعد.", "The theme index has not been published yet.")}>
-                    <div className="esharq-tl-empty">
-                        {t("الصفحة تعمل وتنتظر الفهرس. وحين يُنشَر تظهر الثيمات هنا بلا تحديثٍ للعميل — تماماً كالشارات.",
-                            "The page works and is waiting for the index. Once it is published the themes appear here with no client update — exactly like the badges.")}
-                    </div>
-                </Card>
-            )}
-
-            {result === "error" && (
-                <Card index={1}
-                    title={t("تعذّر قراءة المكتبة", "Couldn't read the library")}
-                    subtitle={t("لا شيء تعطّل عندك — المصدر لم يُجب.", "Nothing broke on your side — the source didn't answer.")}
+                    title={t("تعذّر فتح المعرض", "Couldn't open the gallery")}
+                    subtitle={failed === "shape"
+                        ? t("المعرض فُتح لكنّ شكل صفحته تغيّر، فلم نتعرّف على ثيماته.",
+                            "The gallery opened but its page shape changed, so we couldn't read its themes.")
+                        : t("لم يُجب المعرض. تحقّق من اتّصالك ثم أعد المحاولة.",
+                            "The gallery didn't answer. Check your connection and try again.")}
                     badge={t("خطأ", "Error")} badgeTone="danger">
-                    <Button onClick={() => { refreshCatalogue(); refreshInstalled(); }}>
-                        {t("أعد المحاولة", "Try again")}
-                    </Button>
+                    <Button onClick={() => { refresh(); refreshInstalled(); }}>{t("أعد المحاولة", "Try again")}</Button>
                 </Card>
             )}
 
-            {catalogue && (
-                <div className="esharq-tl-grid">
-                    {shown.map((theme, i) => {
-                        const palette = neutrals != null
-                            ? previewPalette(neutrals, theme.color.replace("#", ""))
-                            : null;
-                        const fileName = theme.file;
-                        const isInstalled = installed.has(fileName);
-                        const isOn = (settings.enabledThemes ?? []).includes(fileName);
+            {themes !== null && (
+                <>
+                    <div className="esharq-tl-grid">
+                        {shown.slice(0, shownCount).map((theme, i) => {
+                            const isInstalled = installed.has(theme.file);
+                            const isOn = (settings.enabledThemes ?? []).includes(theme.file);
 
-                        return (
-                            <div key={theme.id} className="esharq-tl-card esharq-rise" style={stagger(i, 6)}>
-                                {palette
-                                    ? <MiniPreview palette={palette} />
-                                    : <div className="esharq-tl-preview flat" style={{ background: theme.color }} />}
-
-                                <div className="esharq-tl-body">
-                                    <div className="esharq-tl-head">
-                                        <div className="esharq-tl-name">{t(theme.name.ar, theme.name.en)}</div>
-                                        <span className="esharq-tl-swatch" style={{ background: theme.color }} title={theme.color} />
-                                    </div>
-                                    <div className="esharq-tl-author">{t("بواسطة", "by")} {theme.author}</div>
-                                    <p className="esharq-tl-desc">{t(theme.description.ar, theme.description.en)}</p>
-
-                                    <div className="esharq-tl-chips">
-                                        {theme.tags.map(value => <span key={value} className="esharq-tl-chip">{value}</span>)}
+                            return (
+                                <div key={theme.id} className="esharq-tl-card esharq-rise" style={stagger(Math.min(i, 12), 5)}>
+                                    <div className="esharq-tl-shot">
+                                        <img src={theme.thumbnail} alt="" loading="lazy" />
                                     </div>
 
-                                    <div className="esharq-tl-meta">
-                                        <span>v{theme.version}</span>
-                                        <span>{(theme.bytes / 1024).toFixed(0)} KB</span>
-                                    </div>
-
-                                    <div className="esharq-tl-actions">
-                                        {isInstalled ? (
-                                            <span className={"esharq-tl-state" + (isOn ? " on" : "")}>
-                                                {isOn ? t("مثبَّت ويعمل", "Installed and on") : t("مثبَّت — مُطفأ", "Installed — off")}
-                                            </span>
-                                        ) : (
-                                            <Button
-                                                size={Button.Sizes.SMALL}
-                                                disabled={busy?.id === theme.id}
-                                                onClick={() => install(theme)}>
-                                                {busy?.id === theme.id ? t("يُثبِّت…", "Installing…") : t("ثبّته", "Install")}
-                                            </Button>
+                                    <div className="esharq-tl-body">
+                                        <div className="esharq-tl-name">{theme.name}</div>
+                                        {/* بعض المؤلّفين لا تُعرَّف أسماؤهم في صفحة المعرض أصلاً؛
+                                            وسطرُ «بواسطة» بلا اسمٍ أسوأ من غيابه. */}
+                                        {theme.author !== "" && (
+                                            <div className="esharq-tl-author">{t("بواسطة", "by")} {theme.author}</div>
                                         )}
+                                        <p className="esharq-tl-desc">{theme.description}</p>
+
+                                        <div className="esharq-tl-chips">
+                                            {theme.tags.slice(0, 4).map(value => (
+                                                <span key={value} className="esharq-tl-chip">{value}</span>
+                                            ))}
+                                        </div>
+
+                                        <div className="esharq-tl-meta">
+                                            <span title={t("تنزيلات", "Downloads")}>⭳ {NUMBER.format(theme.downloads)}</span>
+                                            <span title={t("إعجابات", "Likes")}>♥ {NUMBER.format(theme.likes)}</span>
+                                        </div>
+
+                                        <div className="esharq-tl-actions">
+                                            {isInstalled ? (
+                                                <span className={"esharq-tl-state" + (isOn ? " on" : "")}>
+                                                    {isOn ? t("مثبَّت ويعمل", "Installed and on") : t("مثبَّت — مُطفأ", "Installed — off")}
+                                                </span>
+                                            ) : (
+                                                <Button size={Button.Sizes.SMALL} disabled={busy?.id === theme.id} onClick={() => install(theme)}>
+                                                    {busy?.id === theme.id ? t("يُثبِّت…", "Installing…") : t("ثبّته", "Install")}
+                                                </Button>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        );
-                    })}
+                            );
+                        })}
 
-                    {shown.length === 0 && (
-                        <div className="esharq-tl-none">
-                            {t("لا ثيم يطابق بحثك.", "No theme matches your search.")}
+                        {shown.length === 0 && (
+                            <div className="esharq-tl-none">{t("لا ثيم يطابق بحثك.", "No theme matches your search.")}</div>
+                        )}
+                    </div>
+
+                    {/* عرضٌ تدريجيّ: مئات البطاقات دفعةً واحدة تُثقل الصفحة بلا داعٍ. */}
+                    {shown.length > shownCount && (
+                        <div className="esharq-tl-more">
+                            <Button onClick={() => setShownCount(n => n + 24)}>
+                                {t(`اعرض المزيد (${shown.length - shownCount})`, `Show more (${shown.length - shownCount})`)}
+                            </Button>
                         </div>
                     )}
-                </div>
+                </>
             )}
 
             <Card index={2}
-                title={t("من أين تأتي هذه الثيمات", "Where these themes come from")}
+                title={t("قبل أن تُثبّت", "Before you install")}
                 subtitle={t("لأن ما لا يُعرَف مصدره لا يُثبَّت.", "Because you shouldn't install what you can't trace.")}>
                 <div className="esharq-tl-how">
-                    <div>{t("① كلّها من إشراق: نختار لوناً، ويُبنى الباقي بنفس محرّك «منشئ الثيمات».",
-                        "① All of them are ours: we pick a colour, and the rest is built by the same engine as the Theme Creator.")}</div>
-                    <div>{t("② لا ننشر عمل غيرنا هنا بلا رخصةٍ نعرفها — لإضافة ثيمٍ من الشبكة استعمل «الثيمات» بالرابط.",
-                        "② We don't republish other people's work here without a licence we know — to add a theme from the web, use the Themes page and its link field.")}</div>
-                    <div>{t("③ والمعاينة أعلاه محسوبة لا مصوَّرة: هي اللون الذي سيظهر عندك بالضبط.",
-                        "③ And the preview above is computed, not photographed: it is exactly the colour you will get.")}</div>
-                    <div>{t("④ وما تُثبّته يصير ملفّاً في مجلد ثيماتك، تُعدّله أو تحذفه كما تشاء.",
-                        "④ What you install becomes a file in your themes folder — edit it or delete it as you like.")}</div>
+                    <div>{t("① الثيمات من مجتمع BetterDiscord، وكلٌّ منها من مؤلّفه. إشراق يعرضها ويُنزّلها ولا يكتبها ولا يراجعها.",
+                        "① The themes come from the BetterDiscord community, each from its own author. Esharq lists and downloads them; it doesn't write or review them.")}</div>
+                    <div>{t("② والثيم ملفُّ CSS: يُغيّر الشكل ولا يقرأ رسائلك ولا يصل حسابك.",
+                        "② A theme is a CSS file: it changes appearance, and cannot read your messages or reach your account.")}</div>
+                    <div>{t("③ وما تُثبّته يصير ملفّاً في مجلد ثيماتك، تُعدّله أو تحذفه من صفحة «الثيمات».",
+                        "③ What you install becomes a file in your themes folder — edit or delete it from the Themes page.")}</div>
+                    <div>{t("④ ولا يُرسَل شيء عنك: لا تسجيل دخول، ولا إعجاب يُسجَّل، ولا أثر لمن تصفّح.",
+                        "④ And nothing about you is sent: no sign-in, no like recorded, no trace of who browsed.")}</div>
                 </div>
             </Card>
         </>

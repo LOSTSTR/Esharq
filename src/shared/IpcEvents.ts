@@ -82,6 +82,9 @@ export const enum IpcEvents {
     THEME_GET_BACKGROUND = "EsharqThemeGetBackground",
     THEME_CLEAR_BACKGROUND = "EsharqThemeClearBackground",
     THEME_SAVE_CSS = "EsharqThemeSaveCss",
+    THEME_LIBRARY_LIST = "EsharqThemeLibraryList",
+    THEME_LIBRARY_INSTALL = "EsharqThemeLibraryInstall",
+    THEME_LIBRARY_OPEN = "EsharqThemeLibraryOpen",
     THEME_OPEN_FOLDER = "EsharqThemeOpenFolder",
 
     /* تنصيف الانهيار — جلسة بحثٍ ثنائيّ عبر إعادات التشغيل. */

@@ -88,6 +88,12 @@
     font-variant-numeric: tabular-nums;
     font-size: 11.5px;
     opacity: 0.55;
+
+    /* حزامُ أمانٍ ثانٍ: التقريب يحلّ المصدر، وهذا يمنع أي رقمٍ طويلٍ آخر من
+       دفع الصفّ خارج البطاقة — عرضٌ ثابت لا ينكمش، وسطرٌ واحد لا يلتفّ. */
+    flex: 0 0 auto;
+    min-inline-size: 68px;
+    white-space: nowrap;
 }
 
 .esharq-st-ms.slow {

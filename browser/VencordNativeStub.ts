@@ -62,6 +62,13 @@ window.VencordNative = {
         readSource: async () => []
     },
 
+    // مكتبة الثيمات تحتاج عمليةً رئيسية لتجاوز CORS — غير متاحة على الويب.
+    themeLibrary: {
+        list: async () => ({ ok: false as const, reason: "offline" as const }),
+        install: async () => ({ ok: false, reason: "web" }),
+        openPage: NOOP_ASYNC
+    },
+
     // منشئ الثيمات: التلوين كلّه يجري في المُصيَّر ويعمل هنا كما يعمل هناك.
     // ولا يعمل إلّا ما يمسّ القرص — صورة الخلفية وحفظ الملفّ.
     themeCreator: {

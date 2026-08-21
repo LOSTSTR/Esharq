@@ -29,6 +29,7 @@ import { registerDataInventoryIpc } from "./dataInventory";
 import { registerPerfMetricsIpc } from "./perfMetrics";
 import { RendererSettings } from "./settings";
 import { registerThemeCreatorIpc } from "./themeCreator";
+import { registerThemeLibraryIpc } from "./themeLibrary";
 import { IS_VANILLA, THEMES_DIR } from "./utils/constants";
 import { ensureSafePath } from "./utils/ensureSafePath";
 import { installExt } from "./utils/extensions";
@@ -41,6 +42,7 @@ registerPerfMetricsIpc();
 registerDataInventoryIpc();
 registerCrashBisectIpc();
 registerThemeCreatorIpc();
+registerThemeLibraryIpc();
 
 if (!IS_VANILLA && !IS_EXTENSION) {
     app.whenReady().then(() => {

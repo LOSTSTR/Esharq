@@ -82,68 +82,22 @@
     box-shadow: inset 0 0 0 1px rgb(201 162 39 / 26%), 0 14px 32px -18px #000c;
 }
 
-/* ── المعاينة المحسوبة ───────────────────────────────────────────────────── */
+/* ── لقطة المعرض ─────────────────────────────────────────────────────────── */
 
-/* مُحاكاةٌ لتخطيط ديسكورد بألوان الثيم نفسها — لا لقطة شاشة، فلا تتقادم. */
-.esharq-tl-preview {
-    display: flex;
-    block-size: 118px;
+/* نسبةٌ ثابتة: لقطاتُ المعرض بأبعادٍ مختلفة، وبلا نسبةٍ تقفز البطاقات في الشبكة. */
+.esharq-tl-shot {
+    aspect-ratio: 16 / 9;
+    inline-size: 100%;
     flex: 0 0 auto;
     overflow: hidden;
+    background: #101014;
 }
 
-.esharq-tl-preview.flat {
+.esharq-tl-shot img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
     display: block;
-}
-
-.esharq-tl-rail {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    align-items: center;
-    padding: 9px 6px;
-    inline-size: 26px;
-    flex: 0 0 auto;
-}
-
-.esharq-tl-rail span {
-    inline-size: 14px;
-    block-size: 14px;
-    border-radius: 999px;
-    flex: 0 0 auto;
-}
-
-.esharq-tl-side {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-    padding: 11px 8px;
-    inline-size: 34%;
-    flex: 0 0 auto;
-}
-
-.esharq-tl-chat {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-    padding: 11px 10px;
-    flex: 1 1 auto;
-    min-inline-size: 0;
-}
-
-.esharq-tl-side i,
-.esharq-tl-chat i {
-    block-size: 5px;
-    inline-size: 88%;
-    border-radius: 3px;
-    opacity: 0.55;
-}
-
-.esharq-tl-chat b {
-    block-size: 6px;
-    inline-size: 46%;
-    border-radius: 3px;
-    opacity: 0.9;
 }
 
 /* ── جسم البطاقة ─────────────────────────────────────────────────────────── */
@@ -156,25 +110,10 @@
     flex: 1 1 auto;
 }
 
-.esharq-tl-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-}
-
 .esharq-tl-name {
     font-size: 15px;
     font-weight: 700;
     overflow-wrap: anywhere;
-}
-
-.esharq-tl-swatch {
-    inline-size: 18px;
-    block-size: 18px;
-    flex: 0 0 auto;
-    border-radius: 999px;
-    box-shadow: inset 0 0 0 1px #ffffff2e;
 }
 
 .esharq-tl-author {
@@ -191,6 +130,13 @@
     line-height: 1.75;
     opacity: 0.62;
     flex: 1 1 auto;
+
+    /* ثلاثة أسطر بحدٍّ أقصى: أوصاف المعرض متفاوتة الطول، وبلا حدٍّ تتفاوت
+       البطاقات في الارتفاع فتنكسر الشبكة. */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .esharq-tl-chips {
@@ -273,7 +219,7 @@
 /* بياناتٌ صغيرة أسفل البطاقة — الإصدار والحجم بدل عدّادٍ لا نملكه. */
 .esharq-tl-meta {
     display: flex;
-    gap: 12px;
+    gap: 14px;
     margin-top: 8px;
     padding-top: 8px;
     border-block-start: 1px solid #ffffff0a;
@@ -287,3 +233,18 @@
 .esharq-tl-actions button {
     inline-size: 100%;
 }
+
+/* ── عدّ النتائج وزرّ المزيد ─────────────────────────────────────────────── */
+
+.esharq-tl-count {
+    margin-top: 12px;
+    font-size: 11.5px;
+    opacity: 0.45;
+}
+
+.esharq-tl-more {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
