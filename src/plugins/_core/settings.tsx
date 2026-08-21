@@ -19,6 +19,7 @@ import {
 import { ClientHealthPage } from "@components/settings/esharq/ClientHealthPage";
 import { ComingSoon } from "@components/settings/esharq/ComingSoon";
 import { CommunityPluginsPage } from "@components/settings/esharq/CommunityPluginsPage";
+import { IconFinderPage } from "@components/settings/esharq/IconFinderPage";
 import { LanguagePage } from "@components/settings/esharq/LanguagePage";
 import { StartupTimingsPage } from "@components/settings/esharq/StartupTimingsPage";
 import { SECTION_ORDER } from "@components/settings/esharq/tokens";
@@ -204,7 +205,7 @@ export default definePlugin({
             VencordTab, PluginsTab, ThemesTab, UpdaterTab,
             ChangelogTab, CloudTab, BackupAndRestoreTab,
             // صفحات بناها إشراق — لا تُشتقّ من الأصل.
-            LanguagePage, ClientHealthPage, VoiceLabPage, CommunityPluginsPage, StartupTimingsPage
+            LanguagePage, ClientHealthPage, VoiceLabPage, CommunityPluginsPage, StartupTimingsPage, IconFinderPage
         };
         // أيقونة مميّزة لكل صفحة — لا ترس واحد للكلّ (قرار المالك).
         const iconFor: Record<string, ComponentType<IconProps>> = {
