@@ -175,7 +175,8 @@
         "BoooOOOOooOo0o!",
         "cal, VALORANT admin",
         "Grace, Design Buddies founder",
-        "Howl, Harry Potter admin"
+        "Howl, Harry Potter admin",
+        "locke, mallow, and graggle"
     ],
     "أسماء أصوات ومقاطع (لوحة الصوت والمتجر)": [
         "<$i>Record Scratch</$i>",
@@ -241,7 +242,8 @@
         "{skuName} - {price}",
         "{start} — {end}",
         "{subgameName} • Roblox",
-        "{value, number} {statisticName}"
+        "{value, number} {statisticName}",
+        "{description} - <$b>{count, number}</$b>"
     ],
     "أسماء عناصر ومجموعات المتجر": [
         "Wumpus Box",
@@ -254,14 +256,17 @@
         "Golden Wumpus Club",
         "Wumpus Snow Globe",
         "Wumpus and Locke",
-        "When I'm 64"
+        "When I'm 64",
+        "Mr. Jack O’ Lantern",
+        "Snow Day & Chill"
     ],
     "عبارات مُعلِّق الألعاب": [
         "Triple Kill",
         "Wicked Sick!!"
     ],
     "نصوص بلغات أخرى تُعرَض كما هي": [
-        "¿Cambiar idioma?"
+        "¿Cambiar idioma?",
+        "¡El cambio fue hecho!"
     ],
     "عناوين ومعرّفات مثال": [
         "123 Discord Drive",
