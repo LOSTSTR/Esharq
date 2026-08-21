@@ -56,7 +56,37 @@ export const PMLogger = logger;
 let enabledPluginsSubscribedFlux = false;
 const subscribedFluxEventsPlugins = new Set<string>();
 
+/**
+ * إضافات مُخفاة لجلسة واحدة بسبب تنصيف الانهيار.
+ *
+ * 🔴 **طبقةُ إخفاءٍ فوق الإعدادات لا كتابةٌ فيها.** من يبحث عن سبب انهيار
+ * يحتمل الانهيار بتعريف المشكلة، فحلٌّ يكتب في إعداداته ثم «يُعيدها لاحقاً»
+ * يفقدها متى انقطع في المنتصف. وهذه المجموعة تعيش في الذاكرة وحدها، ومصدرها
+ * ملفٌّ مستقلّ يُحذف فينتهي كل أثر.
+ *
+ * وتُقرأ **مرّةً واحدة عند التحميل**: القراءة في كل نداء تُكلّف، والجلسة لا
+ * تتغيّر إلّا بإعادة تشغيل.
+ */
+const bisectHidden: ReadonlySet<string> = (() => {
+    try {
+        const session = (globalThis as any).VencordNative?.bisect?.get?.();
+        const list = session?.disabled;
+        return new Set<string>(Array.isArray(list) ? list : []);
+    } catch {
+        return new Set<string>();
+    }
+})();
+
+/** هل تُخفي جلسةُ تنصيفٍ جاريةٌ هذه الإضافة؟ */
+export function isHiddenByBisect(p: string) {
+    return bisectHidden.has(p);
+}
+
 export function isPluginEnabled(p: string) {
+    // التنصيف يعلو على كل شيء — حتى `required`: الإضافة الضرورية قد تكون هي
+    // الجانية، واستثناؤها يجعل البحث عاجزاً عن إيجادها.
+    if (bisectHidden.has(p)) return false;
+
     return (
         Plugins[p]?.required ||
         Plugins[p]?.isDependency ||

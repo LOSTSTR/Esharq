@@ -1,0 +1,122 @@
+/*
+ * Esharq, a Discord client mod
+ * Copyright (c) 2026 LOSTSTR
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+/* ── تنصيف الانهيار ──────────────────────────────────────────────────────── */
+
+.esharq-cb-ask {
+    margin: 20px 0 12px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.esharq-cb-answers {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.esharq-cb-btn {
+    inline-size: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: #2a2a31;
+    color: var(--text-normal);
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: background 0.16s ease, transform 0.09s ease;
+}
+
+.esharq-cb-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.esharq-cb-btn:hover:not(:disabled) {
+    background: #34343d;
+}
+
+.esharq-cb-btn:active:not(:disabled) {
+    transform: scale(0.985);
+}
+
+.esharq-cb-btn.accent {
+    margin-top: 18px;
+    background: #c9a227;
+    color: #14140f;
+    font-weight: 600;
+}
+
+.esharq-cb-btn.accent:hover:not(:disabled) {
+    background: #d8b23a;
+}
+
+.esharq-cb-btn.danger {
+    background: rgb(242 63 67 / 16%);
+    color: #ff9a9d;
+    font-weight: 600;
+}
+
+.esharq-cb-btn.danger:hover:not(:disabled) {
+    background: rgb(242 63 67 / 26%);
+}
+
+.esharq-cb-btn.ok {
+    background: rgb(35 165 90 / 16%);
+    color: #7fd8a4;
+    font-weight: 600;
+}
+
+.esharq-cb-btn.ok:hover:not(:disabled) {
+    background: rgb(35 165 90 / 26%);
+}
+
+/* اسم الجانية: أكبر ما في الصفحة — هو الجواب الذي جاء المستخدم لأجله. */
+.esharq-cb-culprit {
+    padding: 22px 16px;
+    margin-bottom: 16px;
+    text-align: center;
+    border-radius: 12px;
+    background: rgb(35 165 90 / 10%);
+    box-shadow: inset 0 0 0 1px rgb(35 165 90 / 26%);
+    font-size: 22px;
+    font-weight: 700;
+    direction: ltr;
+    overflow-wrap: anywhere;
+}
+
+.esharq-cb-details {
+    margin: 4px 0 14px;
+}
+
+.esharq-cb-details summary {
+    cursor: pointer;
+    font-size: 12.5px;
+    opacity: 0.6;
+    padding: 6px 0;
+}
+
+.esharq-cb-details summary:hover {
+    opacity: 0.85;
+}
+
+.esharq-cb-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 9px;
+}
+
+.esharq-cb-chip {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #1f1f25;
+    opacity: 0.75;
+    direction: ltr;
+}

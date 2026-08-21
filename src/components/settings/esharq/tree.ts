@@ -85,7 +85,7 @@ export const SETTINGS_TREE: readonly SettingsSection[] = [
             page("plugin-permissions", "صلاحيات الإضافات", "Plugin Permissions", "safety-health", "ready", "PluginPermissionsPage"),
             page("client-health", "صحّة العميل", "Client Health", "safety-health", "ready", "ClientHealthPage"),
             page("compatibility-matrix", "جدول التوافق", "Compatibility Matrix", "safety-health", "planned"),
-            page("crash-bisect", "تنصيف الانهيار", "Crash Bisect", "safety-health", "planned"),
+            page("crash-bisect", "تنصيف الانهيار", "Crash Bisect", "safety-health", "ready", "CrashBisectPage"),
             page("performance-budgets", "ميزانيات الأداء", "Performance Budgets", "safety-health", "ready", "PerformanceBudgetsPage"),
             page("surveillance", "الرصد", "Surveillance", "safety-health", "ready", "SurveillancePage")
         ]

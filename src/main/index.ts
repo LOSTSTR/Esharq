@@ -23,6 +23,7 @@ import { join } from "path";
 import { pathToFileURL } from "url";
 
 import { registerCommunityPluginIpc } from "./communityPlugins";
+import { registerCrashBisectIpc } from "./crashBisect";
 import { initCsp } from "./csp";
 import { registerDataInventoryIpc } from "./dataInventory";
 import { registerPerfMetricsIpc } from "./perfMetrics";
@@ -37,6 +38,7 @@ import { installExt } from "./utils/extensions";
 registerCommunityPluginIpc();
 registerPerfMetricsIpc();
 registerDataInventoryIpc();
+registerCrashBisectIpc();
 
 if (!IS_VANILLA && !IS_EXTENSION) {
     app.whenReady().then(() => {

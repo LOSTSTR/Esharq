@@ -76,4 +76,11 @@ export const enum IpcEvents {
     /* الخصوصية — جرد ما يُخزَّن على القرص (أحجام ومسارات لا محتوى). */
     DATA_INVENTORY = "EsharqDataInventory",
     DATA_OPEN_ROOT = "EsharqDataOpenRoot",
+
+    /* تنصيف الانهيار — جلسة بحثٍ ثنائيّ عبر إعادات التشغيل. */
+    BISECT_START = "EsharqBisectStart",
+    BISECT_ANSWER = "EsharqBisectAnswer",
+    BISECT_CANCEL = "EsharqBisectCancel",
+    /** متزامن: يُقرأ قبل بدء أي إضافة. */
+    BISECT_GET = "EsharqBisectGet",
 }

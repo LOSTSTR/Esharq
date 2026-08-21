@@ -43,6 +43,8 @@ const themeStore = DataStore.createStore("VencordThemes", "VencordThemeData");
 window.VencordNative = {
     // إضافات المجتمع تحتاج قرص المستخدم وعمليةً رئيسية — وكلاهما غير موجود
     // على الويب. تُعطَّل الميزة صراحةً بدل أن تفشل بخطأ غامض.
+    bisect: { get: () => null, start: async () => ({}) as any, answer: async () => ({ done: true, culprit: null }), cancel: NOOP_ASYNC },
+
     dataInventory: { read: async () => ({ root: "", entries: [] }), openRoot: NOOP_ASYNC },
 
     perf: { appMetrics: async () => [] },

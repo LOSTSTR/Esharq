@@ -6,6 +6,7 @@
 
 import type { Settings } from "@api/Settings";
 import type { BundledPlugin as CommunityBundle, CommunityEntry, ImportResult as CommunityImportResult } from "@main/communityPlugins";
+import type { BisectSession } from "@main/crashBisect";
 import type { CspRequestResult } from "@main/csp/manager";
 import type { PluginIpcMappings } from "@main/ipcPlugins";
 import { UserThemeHeader } from "@main/themes";
@@ -130,6 +131,15 @@ export default {
      * عند ديسكورد. ولو كانت وعداً لسُجّلت رقع الإضافة بعد تحميل الوحدات فلا
      * تُطابق شيئاً — وهو فشل صامت لا رسالة له.
      */
+    /** تنصيف الانهيار — جلسة بحثٍ ثنائيّ لا تمسّ الإعدادات المحفوظة. */
+    bisect: {
+        /** 🔴 متزامن: يُقرأ قبل بدء أي إضافة. */
+        get: () => sendSync<BisectSession | null>(IpcEvents.BISECT_GET),
+        start: (candidates: string[]) => invoke<BisectSession>(IpcEvents.BISECT_START, candidates),
+        answer: (stillHappens: boolean) => invoke<BisectSession | { done: true; culprit: string | null; }>(IpcEvents.BISECT_ANSWER, stillHappens),
+        cancel: () => invoke<void>(IpcEvents.BISECT_CANCEL)
+    },
+
     /** جرد ما يُخزَّن على القرص — أحجام ومسارات، لا محتوى. */
     dataInventory: {
         read: () => invoke<{ root: string; entries: { key: string; path: string; files: number; bytes: number; exists: boolean; }[]; }>(IpcEvents.DATA_INVENTORY),
