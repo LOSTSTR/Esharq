@@ -5,6 +5,7 @@
  */
 
 import { Settings } from "@api/Settings";
+import { recordPatch } from "@debug/esharqStartup";
 import { reporterData } from "@debug/reporterData";
 import { traceFunctionWithResults } from "@debug/Tracer";
 import { makeLazy } from "@utils/lazy";
@@ -562,7 +563,12 @@ function patchFactory(moduleId: PropertyKey, originalFactory: AnyModuleFactory):
 
             let newPatchedCode: string = "";
             try {
+                // 🔴 يُقاس هنا مستقلّاً عن `totalTime` أعلاه: تلك تُرجع صفراً
+                // دائماً خارج بناء المُبلِّغ، فلا تصلح لمستخدم عاديّ. والتكلفة
+                // نداءا توقيتٍ لكل ترقيعة — عشرات النانوثواني.
+                const patchedAt = performance.now();
                 const [patchResult, totalTime] = executePatch(replacement.match, replacement.replace as string);
+                recordPatch(patch.plugin, performance.now() - patchedAt);
                 newPatchedCode = patchResult;
 
                 if (IS_REPORTER) {

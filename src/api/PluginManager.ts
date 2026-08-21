@@ -28,6 +28,7 @@ import { addMessagePopoverButton, removeMessagePopoverButton } from "@api/Messag
 import { addNicknameIcon, removeNicknameIcon } from "@api/NicknameIcons";
 import { Settings, SettingsStore } from "@api/Settings";
 import { disableStyle, enableStyle } from "@api/Styles";
+import { recordPluginStart } from "@debug/esharqStartup";
 import { traceFunction } from "@debug/Tracer";
 import { Logger } from "@utils/Logger";
 import { onlyOnce } from "@utils/onlyOnce";
@@ -232,12 +233,17 @@ export const startPlugin = traceFunction("startPlugin", function startPlugin(p: 
             logger.warn(`${name} already started`);
             return false;
         }
+        // 🔴 يُقاس هنا لا بـ`traceFunction`: تلك تصير بلا عمل خارج بناء
+        // التطوير، فيبقى المستخدم — وهو صاحب السؤال — بلا رقم واحد.
+        const startedAt = performance.now();
         try {
             p.start();
         } catch (e) {
+            recordPluginStart(name, performance.now() - startedAt, true, p.startAt ?? StartAt.WebpackReady);
             logger.error(`Failed to start ${name}\n`, e);
             return false;
         }
+        recordPluginStart(name, performance.now() - startedAt, false, p.startAt ?? StartAt.WebpackReady);
     }
 
     p.started = true;

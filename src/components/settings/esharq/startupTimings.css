@@ -154,3 +154,79 @@
         animation: none;
     }
 }
+
+/* ── تكلفة الإضافات ──────────────────────────────────────────────────────────
+   الشريط مقسوم: بدءٌ ثمّ ترقيع. لونان يقولان أين ذهب الوقت بلا قراءة رقمين. */
+
+.esharq-st-row.plugin {
+    grid-template-columns: 22px minmax(0, 1fr) 110px 72px;
+    padding: 8px 10px;
+}
+
+.esharq-st-label.plugin {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+    direction: inherit;
+    font-family: inherit;
+    font-size: 13px;
+    opacity: 1;
+}
+
+.esharq-st-sub {
+    font-size: 10.5px;
+    opacity: 0.45;
+    white-space: nowrap;
+}
+
+/* المسار كامل، والقسمان داخله متلاصقان بنسبتهما من الأطول — فطول الشريط
+   كلّه يساوي التكلفة، وانقسامه يقول أين ذهبت. */
+.esharq-st-bar.split {
+    display: block;
+}
+
+.esharq-st-fill {
+    display: flex;
+    block-size: 100%;
+    inline-size: 100%;
+    transform-origin: left;
+
+    /* المتحرّك واحد: الغلاف. والنِّسَب داخله ثابتة فلا تُحسَب في كل إطار. */
+    animation: esharq-st-fill 620ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.esharq-st-bar.split i {
+    display: block;
+    block-size: 100%;
+    min-inline-size: 0;
+}
+
+.esharq-st-bar.split i.start {
+    background: #5865f2;
+    border-start-start-radius: 999px;
+    border-end-start-radius: 999px;
+}
+
+.esharq-st-bar.split i.patch {
+    background: #c9a227;
+    border-start-end-radius: 999px;
+    border-end-end-radius: 999px;
+}
+
+.esharq-st-more {
+    display: block;
+    inline-size: 100%;
+    margin-top: 10px;
+    padding: 9px;
+    border: none;
+    border-radius: 9px;
+    background: #1f1f25;
+    color: var(--text-normal);
+    font-size: 12.5px;
+    cursor: pointer;
+    transition: background 0.16s ease;
+}
+
+.esharq-st-more:hover {
+    background: #2a2a31;
+}

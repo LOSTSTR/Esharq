@@ -119,12 +119,13 @@ export function StatRow({ items }: { items: readonly { label: string; value: str
 export function StatusRow({ title, detail, state, index = 0 }: {
     title: string;
     detail?: string;
-    state: { text: string; tone: "ok" | "warn" | "idle"; };
+    state: { text: string; tone: "ok" | "warn" | "danger" | "idle"; };
     index?: number;
 }) {
     const color = state.tone === "ok"
         ? "var(--status-positive, #23a55a)"
-        : state.tone === "warn" ? ACCENT : "var(--text-muted)";
+        : state.tone === "danger" ? "var(--status-danger, #f23f43)"
+            : state.tone === "warn" ? ACCENT : "var(--text-muted)";
 
     return (
         <div style={{

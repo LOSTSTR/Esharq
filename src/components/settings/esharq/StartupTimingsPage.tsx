@@ -6,6 +6,7 @@
 
 import "./startupTimings.css";
 
+import { getPluginStartups, type PluginStartRecord } from "@debug/esharqStartup";
 import { t } from "@utils/esharqI18n";
 import { findByPropsLazy } from "@webpack";
 import { useEffect, useMemo, useState } from "@webpack/common";
@@ -17,13 +18,17 @@ import { UNIT } from "./tokens";
 /**
  * **أزمنة الإقلاع** — من أين يذهب الوقت بين ضغطة التشغيل وظهور الواجهة.
  *
- * 🔴 **البيانات من ديسكورد نفسه لا من قياسٍ نُضيفه.** وهذا مقصود: قياسنا
- * الخاصّ كان سيكلّف كل إقلاع شيئاً ولو يسيراً، وديسكورد يُسجّل هذا أصلاً في
- * `AppStartPerformance`. فالصفحة **تقرأ ولا تقيس** — تكلفتها على الإقلاع صفر.
+ * مصدران، وكلٌّ يُقال من أين جاء:
  *
- * ⚠️ ولذلك حدودها حدود ما يُسجّله ديسكورد: تظهر خطواته هو، **ولا يظهر فيها
- * زمن إضافات إشراق** — فتلك لا يقيسها أحد. وهذا مكتوب في الصفحة صراحةً بدل
- * أن يظنّ القارئ أن الجدول يشمل كل شيء.
+ * 1. **خطوات ديسكورد** — من `AppStartPerformance` الذي يُسجّله هو أصلاً.
+ *    نقرأ ولا نقيس، فتكلفتها صفر.
+ * 2. **إضافات إشراق** — من قياسٍ نُضيفه نحن (`@debug/esharqStartup`)، لأن
+ *    قياس ڤينكورد لا يعمل عند المستخدم: `traceFunction` تصير بلا عمل خارج
+ *    بناء التطوير، و`patchTimings` لا تُملأ إلّا في بناء المُبلِّغ. فمن يُشغّل
+ *    من المُثبِّت كان بلا رقم واحد عن إضافاته — وهو صاحب السؤال.
+ *
+ * وتكلفة قياسنا نداءا توقيتٍ لكل إضافة تبدأ ولكل ترقيعة تُنفَّذ: أقلّ من ميلي
+ * ثانية على إقلاعٍ يستغرق آلافها.
  */
 
 interface StartupLog {
@@ -123,6 +128,115 @@ function StepRow({ log, index, max, showBar }: {
     );
 }
 
+/**
+ * **تكلفة إضافات إشراق** — أيّها يأكل وقت إقلاعك.
+ *
+ * التكلفة شقّان: زمن `start()`، وزمن ترقيعات الإضافة على وحدات ديسكورد.
+ * والثاني يُنسى غالباً وهو الأثقل في إضافات كثيرة — ترقيعةٌ تبحث بنمطٍ في
+ * وحدةٍ ضخمة تُكلّف أضعاف ما يُكلّفه `start()` فارغ.
+ */
+function PluginCostCard({ index }: { index: number; }) {
+    const [showAll, setShowAll] = useState(false);
+
+    const rows = useMemo(() => {
+        return getPluginStartups()
+            .map(r => ({ ...r, totalMs: r.startMs + r.patchMs }))
+            .filter(r => r.totalMs > 0.05 || r.failed)
+            .sort((a, b) => b.totalMs - a.totalMs);
+    }, []);
+
+    if (rows.length === 0) {
+        return (
+            <Card index={index} title={t("تكلفة الإضافات", "Plugin cost")}
+                subtitle={t("كم كلّفت كل إضافة من وقت إقلاعك.", "How much of your startup each plugin cost.")}>
+                <NoticeStrip>
+                    {t("لم تُقَس إضافات في هذه الجلسة. أعد تشغيل ديسكورد ثم عُد إلى هنا.",
+                        "No plugins were measured this session. Restart Discord, then come back.")}
+                </NoticeStrip>
+            </Card>
+        );
+    }
+
+    const total = rows.reduce((n, r) => n + r.totalMs, 0);
+    const max = rows[0].totalMs;
+    const shown = showAll ? rows : rows.slice(0, 12);
+    const failed = rows.filter(r => r.failed).length;
+
+    return (
+        <Card index={index}
+            title={t("تكلفة الإضافات", "Plugin cost")}
+            subtitle={t("كم كلّفت كل إضافة من وقت إقلاعك — بدؤها وترقيعاتها معاً.",
+                "How much of your startup each plugin cost — its start and its patches together.")}
+            badge={`${total.toFixed(0)} ms`}
+            badgeTone={total > 1500 ? "danger" : total > 600 ? "warn" : "ok"}>
+
+            <StatRow items={[
+                { label: t("إضافات مقيسة", "Measured plugins"), value: String(rows.length) },
+                { label: t("مجموع التكلفة", "Total cost"), value: `${total.toFixed(0)} ms` },
+                { label: t("الأثقل", "Heaviest"), value: `${max.toFixed(0)} ms` },
+                { label: t("فشل بدؤها", "Failed to start"), value: String(failed) }
+            ]} />
+
+            <div className="esharq-st-list" style={{ marginTop: UNIT * 2 }}>
+                {shown.map((r, i) => <PluginRow key={r.name} record={r} index={i} max={max} />)}
+            </div>
+
+            {rows.length > 12 && (
+                <button type="button" className="esharq-st-more" onClick={() => setShowAll(v => !v)}>
+                    {showAll
+                        ? t("اعرض الأثقل فقط", "Show the heaviest only")
+                        : t(`اعرض الباقي (${rows.length - 12})`, `Show the rest (${rows.length - 12})`)}
+                </button>
+            )}
+
+            <NoticeStrip>
+                {t("«البدء» زمن تشغيل الإضافة نفسها، و«الترقيع» زمن تعديلها لوحدات ديسكورد. وإضافة بلا رقم لم تُكلّف شيئاً يُذكر — لا أنها معطَّلة.",
+                    "“Start” is the time the plugin itself took to run; “Patch” is the time it spent modifying Discord's modules. A plugin with no number cost nothing measurable — it isn't disabled.")}
+            </NoticeStrip>
+        </Card>
+    );
+}
+
+/**
+ * صفّ إضافة: شريط واحد مقسوم قسمين — بدءٌ ثمّ ترقيع.
+ *
+ * 🔴 القسمان **متلاصقان بنسبتهما من الأطول**، لا نصفان متساويان. أوّل نسخة
+ * جعلت لكلٍّ نصف المسار فكان القسم الذهبيّ يبدأ من المنتصف مهما صغر زمنه —
+ * فتُقارَن الصفوف ببعضها خطأً. كُشف باللقطة لا بالقراءة.
+ *
+ * والكشف بـ`scaleX` على الغلاف: النِّسَب داخله ثابتة، والمتحرّك واحدٌ فقط.
+ */
+function PluginRow({ record, index, max }: {
+    record: PluginStartRecord & { totalMs: number; };
+    index: number;
+    max: number;
+}) {
+    const pct = (ms: number) => (max > 0 ? Math.min(100, (ms / max) * 100) : 0);
+
+    return (
+        <div className="esharq-st-row plugin esharq-rise" style={stagger(index, 10)}>
+            <span className="esharq-st-emoji" aria-hidden="true">{record.failed ? "⚠" : "🧩"}</span>
+            <span className="esharq-st-label plugin" title={record.name}>
+                {record.name}
+                {record.patchCount > 0 && (
+                    <span className="esharq-st-sub">{t(`${record.patchCount} ترقيعة`, `${record.patchCount} patches`)}</span>
+                )}
+            </span>
+            <span className="esharq-st-bar split" aria-hidden="true">
+                <span className="esharq-st-fill">
+                    <i className="start" style={{ inlineSize: `${pct(record.startMs)}%` }}
+                        title={`start ${record.startMs.toFixed(1)}ms`} />
+                    <i className="patch" style={{ inlineSize: `${pct(record.patchMs)}%` }}
+                        title={`patch ${record.patchMs.toFixed(1)}ms`} />
+                </span>
+            </span>
+            <span className={"esharq-st-ms" + (record.totalMs >= 100 ? " slow" : "")}>
+                {record.totalMs.toFixed(record.totalMs < 10 ? 1 : 0)} ms
+            </span>
+        </div>
+    );
+}
+
 export function StartupTimingsPage() {
     const [filter, setFilter] = useState<"all" | "slow" | CategoryKey>("all");
 
@@ -204,7 +318,9 @@ export function StartupTimingsPage() {
                 </div>
             </Card>
 
-            <Card index={2}
+            <PluginCostCard index={2} />
+
+            <Card index={3}
                 title={t("الخطّ الزمنيّ الكامل", "Full timeline")}
                 subtitle={t("كل خطوة سجّلها ديسكورد، بترتيب وقوعها.", "Every step Discord recorded, in the order it happened.")}
                 badge={t(`${shown.length} من ${data.logs.length}`, `${shown.length} of ${data.logs.length}`)}
@@ -233,7 +349,7 @@ export function StartupTimingsPage() {
                 )}
             </Card>
 
-            <Card index={3}
+            <Card index={4}
                 title={t("ما لا تقوله هذه الأرقام", "What these numbers do not say")}
                 subtitle={t("حدود القياس مكتوبة كي لا تُقرأ الأرقام أكثر ممّا تحتمل.",
                     "The limits of the measurement, written down so the numbers aren't read for more than they hold.")}>

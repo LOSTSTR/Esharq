@@ -317,7 +317,7 @@ export function ClientHealthPage() {
                     title={t("المزامنة السحابية", "Cloud sync")}
                     state={settings.cloud?.authenticated
                         ? { text: t("متّصلة", "Connected"), tone: "ok" }
-                        : { text: t("غير متّصلة", "Not connected"), tone: "idle" }}
+                        : { text: t("غير متّصلة", "Not connected"), tone: "danger" }}
                 />
             </Card>
 
