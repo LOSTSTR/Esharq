@@ -53,11 +53,11 @@
 }
 
 .esharq-sv-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    padding: 9px 12px;
+    /* عموديّ: الاسم، ثم شرحٌ بجملة، ثم الوسوم. والشرح قبل الوسوم قصداً —
+       من يقرأ «موقع استضافة صور تستعمله الثيمات» لا يُفزعه بعدها وسمُ
+       «يعرض صورةً منه». */
+    display: block;
+    padding: 12px 14px;
     border-radius: 9px;
     background: #17171b;
     border-inline-start: 3px solid transparent;
@@ -90,6 +90,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
+    margin-top: 9px;
 }
 
 .esharq-sv-tag {
@@ -135,4 +136,65 @@
     text-align: center;
     font-size: 13px;
     opacity: 0.5;
+}
+
+
+/* ── الشرح النصّي ────────────────────────────────────────────────────────── */
+
+.esharq-sv-top {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* الشرح بجملة قبل الوسوم — يُفهم الموقع قبل أن تُقرأ صلاحياته. */
+.esharq-sv-note {
+    margin-top: 5px;
+    font-size: 12px;
+    line-height: 1.6;
+    opacity: 0.62;
+}
+
+.esharq-sv-explain p {
+    margin: 0 0 11px;
+    font-size: 13.5px;
+    line-height: 1.85;
+}
+
+.esharq-sv-explain p:last-child {
+    margin-bottom: 0;
+}
+
+.esharq-sv-explain b {
+    color: #e3e3ea;
+}
+
+/* ── مفتاح المصطلحات ─────────────────────────────────────────────────────── */
+
+.esharq-sv-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+}
+
+.esharq-sv-legend-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.esharq-sv-legend-text {
+    flex: 1 1 260px;
+    font-size: 12.5px;
+    line-height: 1.7;
+    opacity: 0.75;
+}
+
+.esharq-sv-subhead {
+    margin: 16px 0 8px;
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0.55;
 }
