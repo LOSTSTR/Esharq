@@ -301,7 +301,9 @@ const UserPluginContributorBadge: ProfileBadge = {
 };
 
 let DonorBadges = {} as Record<string, Array<Record<"tooltip" | "badge", string>>>;
-let EquicordDonorBadges = {} as Record<string, Array<Record<"tooltip" | "badge", string>>>;
+// تبقى فارغةً بعد اليوم: انظر التعليق في `loadAllBadges`. `const` لأنّ إسنادها
+// هو بالضبط ما كان يرسم شارة الرتبة مرّتين.
+const EquicordDonorBadges = {} as Record<string, Array<Record<"tooltip" | "badge", string>>>;
 // Esharq's own donors only (from Esharq-Bored). The merged set above is used to render badges;
 // this one decides who sees the "thank you for donating" card, so Equicord donors don't trigger it.
 let EsharqDonorBadges = {} as Record<string, Array<Record<"tooltip" | "badge", string>>>;
@@ -489,7 +491,10 @@ async function loadAllBadges(noCache = false) {
         }];
     }
     EsharqDonorBadges = supporters;
-    EquicordDonorBadges = supporters;
+    // 🔴 **لا تُطعَم `EquicordDonorBadges`**: `api/Badges.ts` يرسمها شارةَ ملفٍّ
+    // بنفسها (`getEquicordDonorBadges`)، فوضع داعمينا فيها يرسم صورة الرتبة
+    // مرّةً ثانيةً بجوار شارة الرتبة — شارتان متطابقتان لكلّ داعم. رُئي على
+    // ملفّ عضو حيّ. تبقى فارغةً: متبرّعو إيكوكورد ليسوا داعمينا.
 }
 
 let intervalId: any;
@@ -585,7 +590,10 @@ export default definePlugin({
 
     // Listed in reverse display order: every START badge is unshifted, so the last one here
     // ends up first. This puts the Esharq Developer badge first, then the Custom badge.
-    userProfileBadges: [UserPluginContributorBadge, EquicordContributorBadge, ContributorBadge, EsharqUserBadge, EsharqSelfServeBadge, EsharqCustomBadge, EsharqTierBadge],
+    // 🔴 القائمة **بعكس ترتيب العرض**: كل شارة START تُدسّ في الأوّل، فآخر ما
+    // هنا يظهر أوّلاً. المطلوب: شارات إشراق (الرتبة ثمّ المستخدم) قبل الصور
+    // التي يختارها الأعضاء (المخصّصة ثمّ الذاتية).
+    userProfileBadges: [UserPluginContributorBadge, EquicordContributorBadge, ContributorBadge, EsharqSelfServeBadge, EsharqCustomBadge, EsharqUserBadge, EsharqTierBadge],
 
     async start() {
         // يلتقط الرابط الموقَّع من ردّ /badge حتى يعمل التحكّم العامّ من داخل

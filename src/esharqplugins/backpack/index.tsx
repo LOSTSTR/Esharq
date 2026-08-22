@@ -591,6 +591,10 @@ export default definePlugin({
     tags: ["Customisation", "Organisation"],
     dependencies: ["UserAreaAPI"],
     enabledByDefault: true,
+    // مطلوبة: الحقيبة تجمع أزرار الإضافات كلّها في شريط المحادثة، فتعطيلها
+    // يُعيد الأزرار متناثرةً ويُخفي ما اعتاد المستخدم الوصول إليه من مكان
+    // واحد. تُعرَض في «الإضافات المطلوبة» بلا مفتاح تعطيل.
+    required: true,
     settings,
 
     userAreaButton: {
