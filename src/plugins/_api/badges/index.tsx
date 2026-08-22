@@ -92,7 +92,6 @@ const EsharqTierBadge: ProfileBadge = {
             </Tooltip>
         );
     },
-    props: { style: { margin: "0 2px" } },
 };
 
 /**
@@ -121,7 +120,6 @@ const EsharqUserBadge: ProfileBadge = {
     position: BadgePosition.START,
     shouldShow: ({ userId }) => isEsharqMember(userId) && badgeVisible(userId, "user", "profile"),
     onClick: (_, { userId }) => openContributorModal(UserStore.getUser(userId)),
-    props: { style: { margin: "0 2px" } },
 };
 
 // شارة الرتبة تظهر أيضاً بجانب الاسم في المحادثة (زخرفة رسالة).
