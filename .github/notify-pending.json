@@ -1,0 +1,6 @@
+{
+    "type": "improve",
+    "scope": "notify",
+    "ar": "نصّ الإعلان انتقل إلى ملفّه الخاصّ، فرسالة الالتزام على GitHub صارت سطراً واحداً بلا شرح، ورسالة ديسكورد بقيت مفصّلة كما هي.",
+    "en": "Announcement text moved to its own file: commit messages on GitHub are now a single line with no explanation, while the Discord message stays as detailed as before."
+}

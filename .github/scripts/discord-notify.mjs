@@ -164,6 +164,44 @@ function overrideFor(sha) {
     return key ? overrides[key] : null;
 }
 
+/**
+ * **ملفّ الإعلان** — النصّ المفصّل يسكن هنا لا في رسالة الالتزام.
+ *
+ * 🔴 لماذا: اللاحقتان `notify-ar:`/`notify-en:` تُكتبان في متن رسالة الالتزام،
+ * وGitHub يعرض المتن كاملاً في صفحة كل التزام وفي قائمة الالتزامات. فكان كل
+ * إصلاح صغير يُرفَق بفقرتين تشرحان ما فُعل — وهو ما لا يريده صاحب المستودع
+ * على الواجهة العلنية، بينما يريد رسالة ديسكورد مفصّلة كما هي.
+ *
+ * الحلّ: يُلتزَم النصّ **ملفّاً** مع التغيير نفسه. فرسالة الالتزام تبقى سطراً
+ * واحداً، والمُبلِّغ يقرأ الملفّ **بنسخته عند ذلك الالتزام** (`git show <sha>:`)
+ * فيعرف أي إعلانٍ يخصّ أي التزام حتى لو حملت الدفعة عدّة التزامات.
+ *
+ * ويُعلَن فقط إن **تغيّر** الملفّ في ذلك الالتزام: بلا هذا الشرط لأُعيد الإعلان
+ * نفسه مع كل التزامٍ لاحق ما دام الملفّ موجوداً.
+ */
+const PENDING_PATH = ".github/notify-pending.json";
+
+function pendingFor(sha) {
+    const at = ref => {
+        try {
+            return run(`git show ${ref}:"${PENDING_PATH}"`);
+        } catch {
+            return "";
+        }
+    };
+    const cur = at(sha);
+    if (!cur) return null;
+    // ~1 لا ^ — على صدفات ويندوز يُبتلع ^ فيُقرأ الالتزام نفسه بدل أبيه.
+    if (cur === at(`${sha}~1`)) return null;
+    try {
+        const parsed = JSON.parse(cur);
+        return parsed && typeof parsed === "object" ? parsed : null;
+    } catch (e) {
+        console.error(`  ⚠ ${PENDING_PATH} at ${sha.slice(0, 7)} is not valid JSON — ignoring (${e.message})`);
+        return null;
+    }
+}
+
 // ─── Pushed range ─────────────────────────────────────────────────────────────
 // Scan the WHOLE pushed range, not just the last commit — otherwise a push that bundles
 // several commits only ever inspects the final one (which is how a whole batch of fixes
@@ -255,7 +293,8 @@ function parseCommit(c) {
 
     // Bilingual detail: commit trailers first, then the hand-written overrides file,
     // then the subject. Only the last one is English-only.
-    const ov = overrideFor(c.sha) ?? {};
+    // ترتيب المصادر: ملفّ الإعلان (يُلتزَم مع التغيير) ثم الجدول اليدويّ.
+    const ov = pendingFor(c.sha) ?? overrideFor(c.sha) ?? {};
 
     const isSync = type === "sync" || /merge upstream/i.test(c.subject);
     let category = isSync ? "sync" : TYPE_CATEGORY[type];
@@ -265,8 +304,10 @@ function parseCommit(c) {
     // announce it under «إصلاح · Fix» with the plugin name as the scope — this lets a
     // `git merge upstream` batch's fixes be announced DELIBERATELY (one override per fix)
     // WITHOUT opening the floodgates to every upstream commit (Lint, Merge, etc. stay silent).
-    if (!category && ov.ar) {
-        category = "fix";
+    // 🔴 كان هذا يفرض «إصلاح» على كل ما يأتي من الجدول اليدويّ أو ملفّ الإعلان،
+    // ويسبق الاستدلال فلا يصل إليه شيء. الآن لا يفرض إلا حين لا يُصرَّح بالنوع،
+    // ويترك الباقي للكتلة أدناه — فالتحديث لا يُعلَن إصلاحاً.
+    if (!category && ov.ar && typeof ov.type !== "string") {
         if (!scope && rawName) scope = sanitise(rawName, 60);
     }
 
@@ -288,7 +329,9 @@ function parseCommit(c) {
     // one category that is never wrong enough to mislead.
     const hasTrailer = ar !== "" || en !== "";
     if (!category && hasTrailer) {
-        const declared = (c.body.match(/^notify-type:\s*(\w+)$/mi) ?? [])[1]?.toLowerCase();
+        // `type` من ملفّ الإعلان أوّلاً، ثم لاحقة `notify-type:` إن بقيت مستعملة.
+        const declared = (typeof ov.type === "string" ? ov.type
+            : (c.body.match(/^notify-type:\s*(\w+)$/mi) ?? [])[1] ?? "").toLowerCase();
         const known = new Set(CATEGORIES.map(([k]) => k));
         category = known.has(declared)
             ? declared
@@ -303,6 +346,8 @@ function parseCommit(c) {
     if (!category) return null; // no prefix, no trailer, no curated override — don't guess
 
     if (!ar) console.warn(`  ⚠ ${c.sha.slice(0, 7)} "${c.subject.slice(0, 60)}" has no Arabic — add a notify-ar trailer or an entry in ${OVERRIDES_PATH}`);
+
+    if (typeof ov.scope === "string" && ov.scope) scope = sanitise(ov.scope, 60);
 
     return { sha: c.sha, category, scope, ar, en: en || title };
 }
