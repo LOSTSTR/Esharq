@@ -70,7 +70,7 @@ import { comboFromEvent, hasModifier, matchesCombo, prettyCombo } from "./hotkey
  * مخرجاً مضموناً في كل حال.
  */
 
-const logger = new Logger("Backpack", "#c9a227");
+const logger = new Logger("Backpack", "#22c9f0");
 
 /** المفاتيح المثبَّتة — قائمة `surface:id`. */
 const STORE_KEY = "Esharq_Backpack_pinned_v2";

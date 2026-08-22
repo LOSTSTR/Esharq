@@ -37,8 +37,8 @@
 /* الإضافات المطلوبة لا تُطفأ أصلاً، فتلوينها بالأحمر يوهم بعطل.
    تأخذ لون التمييز: «قائمة دائماً» لا «متوقّفة». */
 .vc-addon-card-locked {
-    border-inline-start-color: #c9a227;
-    background-color: rgb(201 162 39 / 6%);
+    border-inline-start-color: #22c9f0;
+    background-color: rgb(34 201 240 / 6%);
 }
 
 @media (prefers-reduced-motion: reduce) {

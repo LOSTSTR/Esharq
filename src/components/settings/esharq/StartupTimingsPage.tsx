@@ -82,7 +82,7 @@ function CountUp({ value, suffix = "" }: { value: number; suffix?: string; }) {
  */
 const CATEGORIES = {
     network: { emojis: ["🌐", "📡", "☁️"], ar: "شبكة", en: "Network", color: "#5865f2" },
-    lazy: { emojis: ["🦥"], ar: "تحميل مؤجَّل", en: "Lazy load", color: "#c9a227" },
+    lazy: { emojis: ["🦥"], ar: "تحميل مؤجَّل", en: "Lazy load", color: "#22c9f0" },
     render: { emojis: ["🖼️", "🎨", "⚛️"], ar: "رسم", en: "Render", color: "#23a55a" },
     other: { emojis: [], ar: "أخرى", en: "Other", color: "#8a8a99" }
 } as const;

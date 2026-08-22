@@ -715,11 +715,11 @@ function ThemeCreatorPageInner() {
                             onChange={targets => update({ gradient: { ...state.gradient, targets } })} />
 
                         <Row label={t("لون البداية", "Start colour")}>
-                            <ColorField value={state.gradient.start} fallback="c9a227"
+                            <ColorField value={state.gradient.start} fallback="22c9f0"
                                 onChange={start => update({ gradient: { ...state.gradient, start } })} />
                         </Row>
                         <Row label={t("لون النهاية", "End colour")}>
-                            <ColorField value={state.gradient.end} fallback="e3c25a"
+                            <ColorField value={state.gradient.end} fallback="5fd9f8"
                                 onChange={end => update({ gradient: { ...state.gradient, end } })} />
                         </Row>
                         <Row label={t("الاتّجاه", "Direction")}>
@@ -748,7 +748,7 @@ function ThemeCreatorPageInner() {
                         )}
 
                         <div className="esharq-tc-preview gradient" style={{
-                            backgroundImage: `linear-gradient(${state.gradient.direction}, #${parseHex(state.gradient.start) ?? "c9a227"}, #${parseHex(state.gradient.end) ?? "e3c25a"})`
+                            backgroundImage: `linear-gradient(${state.gradient.direction}, #${parseHex(state.gradient.start) ?? "22c9f0"}, #${parseHex(state.gradient.end) ?? "5fd9f8"})`
                         }}>
                             {t("هكذا سيبدو النصّ", "This is how the text will look")}
                         </div>
@@ -776,7 +776,7 @@ function ThemeCreatorPageInner() {
                             onChange={targets => update({ glow: { ...state.glow, targets } })} />
 
                         <Row label={t("اللون", "Colour")}>
-                            <ColorField value={state.glow.color} fallback="c9a227"
+                            <ColorField value={state.glow.color} fallback="22c9f0"
                                 onChange={color => update({ glow: { ...state.glow, color } })} />
                         </Row>
                         <Row label={t("القوّة", "Strength")}>
@@ -806,8 +806,8 @@ function ThemeCreatorPageInner() {
                         )}
 
                         <div className="esharq-tc-preview" style={{
-                            color: `#${parseHex(state.glow.color) ?? "c9a227"}`,
-                            textShadow: `0 0 ${state.glow.blur}px #${parseHex(state.glow.color) ?? "c9a227"}`
+                            color: `#${parseHex(state.glow.color) ?? "22c9f0"}`,
+                            textShadow: `0 0 ${state.glow.blur}px #${parseHex(state.glow.color) ?? "22c9f0"}`
                         }}>
                             {t("هكذا سيبدو النصّ", "This is how the text will look")}
                         </div>

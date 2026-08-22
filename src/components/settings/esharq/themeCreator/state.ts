@@ -71,8 +71,8 @@ export const DEFAULT_STATE: ThemeCreatorState = {
     gradient: {
         enabled: false,
         targets: ["usernames"],
-        start: "c9a227",
-        end: "e3c25a",
+        start: "22c9f0",
+        end: "5fd9f8",
         direction: "to right",
         motion: false,
         speed: 8,
@@ -81,7 +81,7 @@ export const DEFAULT_STATE: ThemeCreatorState = {
     glow: {
         enabled: false,
         targets: ["usernames"],
-        color: "c9a227",
+        color: "22c9f0",
         strength: 55,
         blur: 12,
         motion: false,

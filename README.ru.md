@@ -16,7 +16,7 @@
 [![GitHub Release](https://img.shields.io/github/v/release/LOSTSTR/Esharq?style=flat&color=5865F2&label=%D0%A0%D0%B5%D0%BB%D0%B8%D0%B7)](https://github.com/LOSTSTR/Esharq/releases/latest)
 [![Tests](https://github.com/LOSTSTR/Esharq/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/LOSTSTR/Esharq/actions/workflows/test.yml)
 [![Discord](https://img.shields.io/badge/Discord-5865F2?style=flat&logo=discord&logoColor=white)](https://discord.gg/QamdqDNEDa)
-[![Website](https://img.shields.io/badge/%D0%A1%D0%B0%D0%B9%D1%82-esharq.org-D4AF37?style=flat&logo=vercel&logoColor=white)](https://esharq.org/)
+[![Website](https://img.shields.io/badge/%D0%A1%D0%B0%D0%B9%D1%82-esharq.org-22C9F0?style=flat&logo=vercel&logoColor=white)](https://esharq.org/)
 [![License](https://img.shields.io/github/license/LOSTSTR/Esharq?color=green&label=%D0%9B%D0%B8%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%8F)](LICENSE)
 [![Security Verified](https://img.shields.io/badge/security-verified-brightgreen?style=flat&logo=shield&logoColor=white)](https://github.com/LOSTSTR/Esharq)
 

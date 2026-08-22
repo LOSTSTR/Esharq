@@ -37,14 +37,14 @@
 }
 
 .esharq-tab.on {
-    background: rgb(201 162 39 / 12%);
-    box-shadow: inset 0 0 0 1px rgb(201 162 39 / 38%);
-    color: #ecd384;
+    background: rgb(34 201 240 / 12%);
+    box-shadow: inset 0 0 0 1px rgb(34 201 240 / 38%);
+    color: #a0eafd;
     opacity: 1;
 }
 
 .esharq-tab:focus-visible {
-    outline: 2px solid #c9a227;
+    outline: 2px solid #22c9f0;
     outline-offset: 2px;
 }
 
@@ -64,8 +64,8 @@
 }
 
 .esharq-tab-count.warn {
-    background: rgb(201 162 39 / 20%);
-    color: #ecd384;
+    background: rgb(34 201 240 / 20%);
+    color: #a0eafd;
 }
 
 .esharq-tab-count.danger {

@@ -29,7 +29,7 @@ import { PluginMeta } from "~plugins";
 
 import { resolveModule } from "./moduleMap";
 
-const logger = new Logger("CommunityPlugins", "#c9a227");
+const logger = new Logger("CommunityPlugins", "#22c9f0");
 
 /** يُقرأ عند كل استعمال، فلا يُثبَّت `undefined` قبل جهوز webpack. */
 const lazyReact: any = new Proxy({}, {
