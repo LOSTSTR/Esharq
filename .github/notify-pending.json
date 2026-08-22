@@ -1,6 +1,6 @@
 {
-    "type": "improve",
-    "scope": "notify",
-    "ar": "نصّ الإعلان انتقل إلى ملفّه الخاصّ، فرسالة الالتزام على GitHub صارت سطراً واحداً بلا شرح، ورسالة ديسكورد بقيت مفصّلة كما هي.",
-    "en": "Announcement text moved to its own file: commit messages on GitHub are now a single line with no explanation, while the Discord message stays as detailed as before."
+    "type": "fix",
+    "scope": "settings",
+    "ar": "إن تعذّر على إشراق حفظ إعداداتك على القرص فسيقول لك ذلك فوراً بسببه ومسار الملفّ، بدل أن تكتشفه بضياع إضافاتك بعد إعادة التشغيل. والسبب صار جزءاً من حزمة الدعم.",
+    "en": "If Esharq cannot save your settings to disk it now tells you at once, with the reason and the file path, instead of you discovering it when your plugins are gone after a restart. The reason is also part of the support bundle."
 }

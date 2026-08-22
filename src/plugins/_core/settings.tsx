@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { definePluginSettings } from "@api/Settings";
+import { popNotice, showNotice } from "@api/Notices";
+import { definePluginSettings,SettingsStore } from "@api/Settings";
 import { AttachmentIcon, BackupRestoreIcon, ClockIcon, CloudDownloadIcon, CloudIcon, ColorPaletteIcon, ComponentsIcon, EyeIcon, FolderIcon, HammerAndChiselIcon, HeadphonesIcon, LogIcon, LogsIcon, MagnifyingGlassIcon, MainSettingsIcon, PaintbrushIcon, PatchHelperIcon, PluginIcon, PluginsIcon, SafetyIcon, ShieldIcon, SkullIcon, UpdaterIcon, WebsiteIcon } from "@components/Icons";
 import {
     BackupAndRestoreTab,
@@ -137,6 +138,47 @@ export default definePlugin({
     settings,
 
     start() {
+        // فحصٌ عند الإقلاع **وبعد كل تبديل**.
+        //
+        // 🔴 الإقلاع وحده لا يكفي: قِسته على عميل حيّ — الملفّ صار للقراءة
+        // فقط، فرُصد العطل ووصل الإشعار في الإقلاع التالي فقط. ومن يفشل حفظه
+        // **بعد** أن أقلع (مضادّ فيروسات يستيقظ، مجلد مُزامَن يقفل الملفّ) لا
+        // يعلم شيئاً حتى يُعيد التشغيل ويجد اختياره ضائعاً — وهي الشكوى نفسها.
+        //
+        // فيُربَط الفحص بلحظة التبديل: يُسأل بعد ثانية من آخر تغيير (تجميعاً،
+        // فتبديل إضافةٍ واحدة يُطلق عدّة تغييرات)، ويُنبَّه **مرّة واحدة في
+        // الجلسة** كي لا يتحوّل العطل إلى إزعاج متكرّر.
+        let warned = false;
+        let timer: ReturnType<typeof setTimeout> | undefined;
+
+        const checkHealth = () => {
+            if (warned) return;
+            (window as any).VencordNative?.settings?.getHealth?.().then((h: any) => {
+                const reason = h?.lastWriteError ?? h?.readable;
+                if (!reason || warned) return;
+                warned = true;
+                showNotice(
+                    t(`تعذّر حفظ إعداداتك على القرص (${reason}). ستعود إلى حالتها السابقة بعد إعادة التشغيل. الملفّ: ${h.path}`,
+                        `Esharq could not save your settings to disk (${reason}). They will revert after a restart. File: ${h.path}`),
+                    t("فهمت", "Got it"),
+                    () => popNotice()
+                );
+            }).catch(() => { /* واجهةٌ أقدم — لا تنبيه */ });
+        };
+
+        SettingsStore.addGlobalChangeListener(() => {
+            clearTimeout(timer);
+            timer = setTimeout(checkHealth, 1000);
+        });
+
+        // 🔴 فشل حفظ الإعدادات كان **صامتاً تماماً**: يُطبَع في مِعراض العملية
+        // الرئيسية الذي لا يفتحه مستخدم، ولا يظهر في الواجهة ولا في تقرير
+        // الدعم. فمن يُفعّل إضافاته ثمّ يجدها مُطفأة بعد كل إعادة تشغيل لا
+        // يجد سبباً واحداً في أي مكان — وصلنا تقريرٌ حقيقيّ بهذه الحال.
+        //
+        // يُسأل مرّة عند الإقلاع، وينبّه فقط إن كان هناك عطلٌ فعليّ.
+        checkHealth();
+
         // خطّ التعريب العربي: يُحقن مرّة ويطبّق الخطّ المحفوظ (Tajawal افتراضياً).
         // الخيار نفسه يسكن في إعدادات DiscordArabicizer، لكنّ التطبيق يبقى هنا (إضافة
         // أساسية دائمة التشغيل) كي يعمل الخطّ حتى لو أطفأ المستخدم إضافة التعريب.

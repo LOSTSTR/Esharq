@@ -28,6 +28,8 @@ export const enum IpcEvents {
     GET_THEME_DATA = "VencordGetThemeData",
     GET_THEME_SYSTEM_VALUES = "VencordGetThemeSystemValues",
     GET_SETTINGS_DIR = "VencordGetSettingsDir",
+    /** حال حفظ الإعدادات على القرص — لتشخيص «إعداداتي تعود كما كانت». */
+    GET_SETTINGS_HEALTH = "EsharqGetSettingsHealth",
     GET_SETTINGS = "VencordGetSettings",
     SET_SETTINGS = "VencordSetSettings",
     THEME_UPDATE = "VencordThemeUpdate",

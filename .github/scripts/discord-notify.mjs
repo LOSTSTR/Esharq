@@ -17,10 +17,17 @@
  *   - feat / fix / perf / sync commits  → WEBHOOK_UPDATES  (grouped per category)
  *   - docs / test commits are ignored (not user-facing)
  *
- * Bilingual detail: put these trailers in the commit body and they are used
- * verbatim as the Arabic / English lines of the announcement —
+ * Bilingual detail — PREFERRED: write it into .github/notify-pending.json and
+ * commit that file WITH the change. The commit message then stays a single short
+ * line (GitHub shows the body on every commit page; a paragraph there is noise),
+ * while Discord still gets the full text:
+ *   { "type": "fix", "scope": "notify", "ar": "…", "en": "…" }
+ * `type` is one of update | fix | improve | sync | removed.
+ *
+ * Still supported for one-off commits: the same text as commit-body trailers —
  *   notify-ar: شرح عربي مفصّل لما تغيّر ولماذا
  *   notify-en: detailed English explanation of what changed and why
+ *   notify-type: fix
  *
  * Commits we cannot amend (upstream merges) get their Arabic from
  * .github/notify-overrides.json, keyed by sha prefix. Anything still missing an
@@ -182,9 +189,15 @@ function overrideFor(sha) {
 const PENDING_PATH = ".github/notify-pending.json";
 
 function pendingFor(sha) {
+    // stderr مكتوم عمداً: غياب الملفّ عند أبٍ ما حالةٌ **عادية** (أوّل مرّة
+    // يُضاف فيها)، وgit يكتب عنها «fatal: …» فتبدو في سجلّ الإجراء عطلاً
+    // وليست عطلاً. الغياب يُعالَج بالقيمة الفارغة أدناه.
     const at = ref => {
         try {
-            return run(`git show ${ref}:"${PENDING_PATH}"`);
+            return execSync(`git show ${ref}:"${PENDING_PATH}"`, {
+                encoding: "utf8",
+                stdio: ["ignore", "pipe", "ignore"]
+            }).trim();
         } catch {
             return "";
         }

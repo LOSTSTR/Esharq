@@ -12,7 +12,7 @@ import { getPluginStartups } from "@debug/esharqStartup";
 import { copyToClipboard } from "@utils/clipboard";
 import { t } from "@utils/esharqI18n";
 import { saveFile } from "@utils/web";
-import { Toasts, useMemo, useState } from "@webpack/common";
+import { Toasts, useEffect, useMemo, useState } from "@webpack/common";
 import { getBuildNumber, patches } from "@webpack/patcher";
 
 import gitHash from "~git-hash";
@@ -51,6 +51,18 @@ interface Bundle {
     startup: { measuredPlugins: number; totalMs: number; heaviest: { name: string; ms: number; }[]; };
     community: { count: number; entries: { name: string; hash: string; enabled: boolean; }[]; };
     themes: { enabledFiles: number; enabledLinks: number; quickCss: boolean; };
+    /**
+     * حال حفظ الإعدادات على القرص.
+     *
+     * 🔴 بلا هذا القسم لا يُجاب أشيع شكوى: «أُفعّل إضافاتي فتُطفأ بعد إعادة
+     * التشغيل». تقريرٌ حقيقيّ وصل بإحدى وعشرين إضافة **كلّها تلقائية**، فدلّ
+     * على أنّ الملفّ لا يُطبَّق — ولم يقل **لماذا**: أفشلت الكتابة؟ أم كُتب
+     * وتلف؟ أم كُتب في مسارٍ آخر؟ ثلاثة أسباب مختلفة وعلاجات مختلفة.
+     */
+    settingsHealth?: {
+        path: string; exists: boolean; size: number; mtime: string | null;
+        readable: string | null; lastWriteError: string | null;
+    };
     /** سجلّ المشاكل — ما أبلغ عنه إشراق من أخطاء هذه الجلسة (`debug/esharqErrors.ts`). */
     issues: {
         total: number;
@@ -191,6 +203,15 @@ const EXCLUDED = [
 export function SupportBundlePage() {
     const [expanded, setExpanded] = useState(false);
     const [bundle, setBundle] = useState(() => buildBundle());
+
+    // حال الحفظ يأتي من العملية الرئيسية (نداءٌ غير متزامن)، فيُدمج بعد أوّل رسم.
+    useEffect(() => {
+        let alive = true;
+        (window as any).VencordNative?.settings?.getHealth?.()
+            .then((h: Bundle["settingsHealth"]) => { if (alive) setBundle(b => ({ ...b, settingsHealth: h })); })
+            .catch(() => { /* واجهةٌ أقدم أو ويب — القسم يبقى غائباً */ });
+        return () => { alive = false; };
+    }, []);
 
     const text = useMemo(() => JSON.stringify(bundle, null, 2), [bundle]);
     const sizeKb = Math.max(1, Math.round(new TextEncoder().encode(text).length / 1024));

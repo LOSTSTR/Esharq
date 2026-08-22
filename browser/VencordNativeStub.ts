@@ -176,6 +176,13 @@ window.VencordNative = {
         },
         set: async (s: Settings) => localStorage.setItem("EquicordSettings", JSON.stringify(s)),
         getSettingsDir: async () => "LocalStorage",
+        // على الويب لا ملفّ ولا قرص: التخزين المحلي هو الموضع كلّه، فلا
+        // فشلَ كتابةٍ صامتاً يُرصَد. تُعاد قيمٌ صادقة بدل تعطيل النداء.
+        getHealth: async () => ({
+            path: "LocalStorage", exists: localStorage.getItem("EquicordSettings") !== null,
+            size: (localStorage.getItem("EquicordSettings") ?? "").length,
+            mtime: null, readable: null, lastWriteError: null
+        }),
         openFolder: async () => Promise.reject("settings:openFolder is not supported on web"),
     },
 

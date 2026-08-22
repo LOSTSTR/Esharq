@@ -9,7 +9,7 @@ import { IpcEvents } from "@shared/IpcEvents";
 import { SettingsStore } from "@shared/SettingsStore";
 import { mergeDefaults } from "@utils/mergeDefaults";
 import { ipcMain } from "electron";
-import { mkdirSync, readFileSync, writeFileSync } from "fs";
+import { mkdirSync, readFileSync, statSync, writeFileSync } from "fs";
 
 import { NATIVE_SETTINGS_FILE, SETTINGS_DIR, SETTINGS_FILE } from "./utils/constants";
 
@@ -28,12 +28,50 @@ function readSettings<T = object>(name: string, file: string): Partial<T> {
 
 export const RendererSettings = new SettingsStore(readSettings<Settings>("renderer", SETTINGS_FILE));
 
+/**
+ * آخر فشلٍ في حفظ الإعدادات — يُقرأ من الواجهة.
+ *
+ * 🔴 لماذا يُرصد: كان الفشل يُطبَع في مِعراض **العملية الرئيسية** وحده — وهو
+ * ما لا يراه مستخدم. فمن يُفعّل إضافاته ثمّ يجدها مُطفأة بعد إعادة التشغيل لا
+ * يرى سبباً واحداً في أي مكان، ولا يحمله تقرير الدعم. حالةٌ حقيقية: عضوٌ
+ * أرسل تقريراً فيه 21 إضافة، **كلّها تلقائية** (`required` أو
+ * `enabledByDefault` أو تابعة) — أي أن ملفّه لم يُطبَّق قطّ، والتقرير لا يقول
+ * لماذا. فالسبب يجب أن يصل الواجهة لا المِعراض.
+ */
+let lastWriteError: string | null = null;
+
 RendererSettings.addGlobalChangeListener(() => {
     try {
-        writeFileSync(SETTINGS_FILE, JSON.stringify(RendererSettings.plain, null, 4));
-    } catch (e) {
+        const json = JSON.stringify(RendererSettings.plain, null, 4);
+        writeFileSync(SETTINGS_FILE, json);
+
+        // 🔴 الكتابة قد «تنجح» ولا تصل القرص: مضادّ فيروسات يعترضها، أو مجلد
+        // مُزامَن يُعيد الملفّ القديم. نتحقّق من الحجم — رخيصٌ، والتبديل نادر.
+        const written = statSync(SETTINGS_FILE).size;
+        const expected = Buffer.byteLength(json);
+        lastWriteError = written === expected
+            ? null
+            : `الملفّ كُتب بحجم ${written} بايت والمتوقّع ${expected} — يعترضه شيءٌ خارج إشراق.`;
+    } catch (e: any) {
+        lastWriteError = `${e?.code ?? "خطأ"}: ${e?.message ?? e}`;
         console.error("Failed to write renderer settings", e);
     }
+});
+
+ipcMain.handle(IpcEvents.GET_SETTINGS_HEALTH, () => {
+    let exists = false, size = 0, mtime: string | null = null, readable: string | null = null;
+    try {
+        const st = statSync(SETTINGS_FILE);
+        exists = true;
+        size = st.size;
+        mtime = st.mtime.toISOString();
+        // يُقرأ فعلاً: ملفٌّ موجودٌ لكنّه تالف يُعيد المستخدمَ إلى الافتراضات
+        // في كل إقلاع، وهو أشيع من غيابه.
+        JSON.parse(readFileSync(SETTINGS_FILE, "utf-8"));
+    } catch (e: any) {
+        if (e?.code !== "ENOENT") readable = `${e?.code ?? "خطأ"}: ${e?.message ?? e}`;
+    }
+    return { path: SETTINGS_FILE, exists, size, mtime, readable, lastWriteError };
 });
 
 ipcMain.handle(IpcEvents.GET_SETTINGS_DIR, () => SETTINGS_DIR);
