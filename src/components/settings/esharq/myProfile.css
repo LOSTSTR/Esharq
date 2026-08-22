@@ -57,7 +57,7 @@
 
 /* لون الحدّ يقول مصدر الشارة بلا قراءة. */
 .esharq-mp-badge.origin-esharq {
-    border-inline-start-color: #c9a227;
+    border-inline-start-color: #22c9f0;
 }
 
 .esharq-mp-badge.origin-upstream {
@@ -173,7 +173,7 @@
         radial-gradient(circle at 50% 35%, #26262e 0%, #17171b 70%);
     box-shadow:
         inset 0 0 0 1px #ffffff14,
-        0 0 0 3px rgb(201 162 39 / 22%),
+        0 0 0 3px rgb(34 201 240 / 22%),
         0 10px 28px #0006;
     transition: box-shadow 0.25s ease, opacity 0.25s ease;
 }
@@ -236,8 +236,8 @@
 }
 
 .esharq-mp-choice.on {
-    background: rgb(201 162 39 / 8%);
-    box-shadow: inset 0 0 0 1px rgb(201 162 39 / 30%);
+    background: rgb(34 201 240 / 8%);
+    box-shadow: inset 0 0 0 1px rgb(34 201 240 / 30%);
 }
 
 .esharq-mp-choice-title {
@@ -282,4 +282,65 @@
 
 .esharq-mp-cases.many .esharq-mp-choices {
     margin-top: 16px;
+}
+
+/* ── بطاقة التحكّم بالشارات ─────────────────────────────────────────
+   النطاق شريطُ خيارٍ لا مفتاح: الفرق بين «هذا الجهاز» و«إشراق كلّه» أكبر من
+   أن يُختصر في مفتاحٍ لا يقول أيّهما مُفعَّل. */
+.esharq-mp-scope {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 11px;
+    background: rgb(255 255 255 / 4%);
+}
+
+.esharq-mp-scope-btn {
+    padding: 7px 14px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text-muted, #949ba4);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 140ms ease, color 140ms ease;
+}
+
+.esharq-mp-scope-btn:hover {
+    color: var(--text-normal, #dbdee1);
+}
+
+.esharq-mp-scope-btn.on {
+    background: rgb(34 201 240 / 14%);
+    color: #22c9f0;
+}
+
+.esharq-mp-scope-note {
+    margin: 10px 0 14px;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--text-muted, #949ba4);
+}
+
+.esharq-mp-ctl {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    padding: 14px 0 0;
+    border-top: 1px solid rgb(255 255 255 / 7%);
+}
+
+.esharq-mp-ctl-name {
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--header-primary, #f2f3f5);
+}
+
+/* المفاتيح المعطَّلة في النطاق العامّ قبل وصول الإذن */
+.esharq-mp-choice input:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
 }

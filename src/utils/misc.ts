@@ -19,7 +19,7 @@
 import { User } from "@vencord/discord-types";
 import { ChannelStore, GuildMemberStore, IconUtils } from "@webpack/common";
 
-import { EQUICORD_HELPERS, EquicordDevsById, EsharqContributors, EsharqDevs, GUILD_ID, KNOWN_ISSUES_CHANNEL_ID, SUPPORT_CHANNEL_ID, VencordDevsById } from "./constants";
+import { EQUICORD_HELPERS, EquicordDevsById, ESHARQ_TIERS, EsharqTeamSeed, type EsharqTier, GUILD_ID, KNOWN_ISSUES_CHANNEL_ID, SUPPORT_CHANNEL_ID, VencordDevsById } from "./constants";
 
 /**
  * Calls .join(" ") on the arguments
@@ -84,31 +84,48 @@ export const shouldShowContributorBadge = (id: string) => isPluginDev(id) && Ven
 export const isEquicordPluginDev = (id: string) => Object.hasOwn(EquicordDevsById, id);
 export const shouldShowEquicordContributorBadge = (id: string) => isEquicordPluginDev(id) && EquicordDevsById[id].badge !== false;
 
-// Live Esharq team sets — seeded from the compiled constants (offline fallback and
-// no startup flash) and overridden at runtime from Esharq-Bored/team.json by the
-// BadgeAPI, so team tiers can be granted/revoked without rebuilding the client —
-// same idea as the donor/custom badge JSONs.
-let liveEsharqDevs = new Set<string>(EsharqDevs);
-let liveEsharqContributors = new Set<string>(EsharqContributors);
+// رتب إشراق الحيّة — تُبذَر من الثوابت المُصرَّفة (احتياط بلا شبكة، ولا وميض عند
+// الإقلاع) ثمّ تُستبدَل وقت التشغيل من Esharq-Bored/team.json عبر BadgeAPI، فتُمنَح
+// الرتب وتُسحَب بلا إعادة بناء — نفس فكرة ملفّات الشارات الأخرى.
+type TierSets = Record<EsharqTier, Set<string>>;
 
-// Called by the BadgeAPI after it fetches team.json. A missing, empty or malformed
-// file falls back to the compiled seed, so a bad or unreachable file never wipes
-// the team's badges.
-export function setEsharqTeam(team: { developers?: unknown; contributors?: unknown; } | null | undefined) {
-    const devsRaw = team && Array.isArray(team.developers) ? team.developers : [];
-    const extraRaw = team && Array.isArray(team.contributors) ? team.contributors : [];
-    const devs = devsRaw.filter((x): x is string => typeof x === "string");
-    const extra = extraRaw.filter((x): x is string => typeof x === "string");
-    const finalDevs = devs.length ? devs : [...EsharqDevs];
-    liveEsharqDevs = new Set(finalDevs);
-    liveEsharqContributors = new Set([...finalDevs, ...extra]);
+function seedTiers(): TierSets {
+    return Object.fromEntries(
+        ESHARQ_TIERS.map(tier => [tier, new Set(EsharqTeamSeed[tier])])
+    ) as TierSets;
 }
 
-export const isEsharqDev = (id: string) => liveEsharqDevs.has(id);
-export const shouldShowEsharqDeveloperBadge = (id: string) => isEsharqDev(id);
+let liveEsharqTiers: TierSets = seedTiers();
 
-export const isEsharqContributor = (id: string) => liveEsharqContributors.has(id);
-export const shouldShowEsharqContributorBadge = (id: string) => isEsharqContributor(id);
+// يُستدعى من BadgeAPI بعد جلب team.json. ملفّ مفقود أو تالف أو فارغ تماماً يعود
+// بالبذرة المُصرَّفة، فلا يمحو ملفٌّ سيّئ شارات الفريق. أمّا رتبةٌ غائبة من ملفٍّ
+// صالح فتعني «لا أحد فيها» فعلاً — وهذه هي طريقة السحب.
+export function setEsharqTeam(team: Partial<Record<EsharqTier, unknown>> | null | undefined) {
+    if (!team || typeof team !== "object") {
+        liveEsharqTiers = seedTiers();
+        return;
+    }
+    const next = Object.fromEntries(ESHARQ_TIERS.map(tier => {
+        const raw = (team as Record<string, unknown>)[tier];
+        const ids = Array.isArray(raw) ? raw.filter((x): x is string => typeof x === "string") : [];
+        return [tier, new Set(ids)];
+    })) as TierSets;
+
+    // ملفّ لا يحمل أيّ رتبة معروفة = تالف، لا «فريق فارغ».
+    const total = ESHARQ_TIERS.reduce((n, tier) => n + next[tier].size, 0);
+    liveEsharqTiers = total ? next : seedTiers();
+}
+
+export const esharqTierOf = (id: string): EsharqTier | null =>
+    ESHARQ_TIERS.find(tier => liveEsharqTiers[tier].has(id)) ?? null;
+
+export const hasEsharqTier = (id: string, tier: EsharqTier) => liveEsharqTiers[tier].has(id);
+
+/** المالك والمدراء — هؤلاء «فريق إشراق». */
+export const isEsharqTeam = (id: string) => hasEsharqTier(id, "owner") || hasEsharqTier(id, "admin");
+
+/** شارة «مستخدم إشراق» تلقائية لكلّ من له مدخل عامّ في أي رتبة. */
+export const isEsharqUser = (id: string) => esharqTierOf(id) !== null;
 
 export const isAnyPluginDev = (id: string) => Object.hasOwn(VencordDevsById, id) || Object.hasOwn(EquicordDevsById, id);
 

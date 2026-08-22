@@ -1,94 +1,13 @@
 /*
- * Esharq badge rings. Discord overrides the badge className and only inline style reaches
- * its <img>, so profile rings are targeted via the badge's aria-label (the bilingual
- * tooltip contains the English name, covering both languages). Keyframes are namespaced
- * (esharq-*) so they can't collide.
+ * شارات رتب إشراق. الرتب خمس — مالك · مدير · مُختبِر · داعم · مستخدم — ولكلٍّ
+ * صورتها في Esharq-Bored/badges/<الرتبة>/.
  *
- * Designs (owner-picked from the live gallery):
- * - Developer  = «القلم الذهبي»: a gold arc draws itself around the badge, holds, then
- *   erases and redraws — done with @property-registered angle vars driving a conic
- *   gradient (Chromium in Discord supports @property; if it ever doesn't, the static
- *   faint gold outline below still shows — graceful degradation, never broken).
- * - Contributor = «النار الذهبية / Golden Fire»: the fire is baked into the badge image
- *   itself — a transparent animated APNG (orb + golden flame ring + rising embers) served
- *   from Esharq-Bored. So there's no CSS ring here; we just show the image un-clipped
- *   (border-radius: 0) so the flames around the orb aren't cut off. Unified for all.
- * - Donor       = «بريق العملة»: a steady gold rim plus a diagonal shine that sweeps
- *   across the badge face like a coin/metal gleam (owner-picked D4).
- * - Custom      = unchanged spinning RGB ring (per-member images from
- *   Esharq-Bored/badges/custom/custom.json).
+ * لا حلقات CSS ولا قصّ دائريّ هنا عمداً: كلّ صورة تحمل إطارها ولونها في الرسم
+ * نفسه (سداسيّ · قلب · قارورة · درع · تاج)، فإضافة حلقة فوقها تُشوّشها. ما يبقى
+ * من CSS هو المقاس والتوهّج الخفيف حسب الرتبة وتكبير بسيط عند المرور.
+ *
+ * «مخصّص» و«الشارة الذاتية» تحتفظان بتأثيراتهما — فهما صور يختارها الأعضاء.
  */
-
-/* زاويتا «القلم»: رأس القوس (h) وذيله (t) — تسجيلهما يجعلهما قابلتين للتحريك */
-@property --esharq-pen-h {
-    syntax: "<angle>";
-    inherits: false;
-    initial-value: 0deg;
-}
-
-@property --esharq-pen-t {
-    syntax: "<angle>";
-    inherits: false;
-    initial-value: 0deg;
-}
-
-/* Developer badge shown inline next to the name in chat (message decoration). Same
- * self-drawing gold pen ring, sized to sit beside the username. */
-.esharq-dev-chat-badge {
-    position: relative;
-    display: inline-flex;
-    width: 18px;
-    height: 18px;
-    margin: 0 2px;
-    vertical-align: middle;
-    border-radius: 50%;
-
-    /* حدّ ذهبي خافت ثابت — يظهر لو تعطّل تحريك @property لأي سبب (تدهور رشيق) */
-    box-shadow: 0 0 0 1px rgb(251 191 36 / 30%);
-}
-
-.esharq-dev-chat-badge::before {
-    content: "";
-    position: absolute;
-    inset: -2.5px;
-    border-radius: 50%;
-    background: conic-gradient(from -90deg,
-        transparent 0 var(--esharq-pen-t),
-        #fbbf24 var(--esharq-pen-t) var(--esharq-pen-h),
-        transparent var(--esharq-pen-h));
-    mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 1.5px));
-    filter: drop-shadow(0 0 2px #fbbf24);
-    animation: esharq-pen 2.4s ease-in-out infinite;
-    z-index: 0;
-    pointer-events: none;
-}
-
-.esharq-dev-chat-badge img {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-/* ── Esharq Contributor chat badge — the animated APNG scene shown inline in chat.
- * Unlike the dev/donor badges it is NOT cropped to a circle (that would cut the chess
- * pieces and flames); it shows the full square art on its own transparent background. ── */
-.esharq-contributor-chat-badge {
-    display: inline-flex;
-    width: 20px;
-    height: 20px;
-    margin: 0 2px;
-    vertical-align: middle;
-}
-
-.esharq-contributor-chat-badge img {
-    width: 100%;
-    height: 100%;
-    border-radius: 0;
-    object-fit: contain;
-}
 
 /* ── Esharq Custom badge — per-member image shown AS-IS (owner 2026-07-30: no effects, no
  * ring, no crop, no text). Sized to match Discord's native profile badges: 22px box + 0 2px
@@ -125,53 +44,6 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
-}
-
-/* ── Donor badge shown inline in chat (message decoration) — the member's own image
- * with the «بريق العملة / Coin Gleam» gold glow: steady rim (::before) + a diagonal
- * shine sweeping across the face (::after), same keyframe as the profile donor badge. ── */
-.esharq-donor-chat-badge {
-    position: relative;
-    display: inline-flex;
-    width: 18px;
-    height: 18px;
-    margin: 0 2px;
-    vertical-align: middle;
-    border-radius: 50%;
-
-    /* حدّ ذهبي خافت ثابت — تدهور رشيق لو تعطّل أي تأثير */
-    box-shadow: 0 0 0 1px rgb(227 194 90 / 30%);
-}
-
-.esharq-donor-chat-badge::before {
-    content: "";
-    position: absolute;
-    inset: -2px;
-    border-radius: 50%;
-    box-shadow: 0 0 0 1.5px rgb(227 194 90 / 55%), 0 0 8px rgb(227 194 90 / 40%);
-    z-index: 0;
-    pointer-events: none;
-}
-
-.esharq-donor-chat-badge::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: linear-gradient(115deg, transparent 42%, rgb(255 246 216 / 80%) 50%, transparent 58%);
-    background-size: 260% 260%;
-    animation: esharq-coin-gleam 3.2s ease-in-out infinite;
-    z-index: 2;
-    pointer-events: none;
-}
-
-.esharq-donor-chat-badge img {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
 }
 
 /* ══ Self-service supporter badges ═══════════════════════════════════════════════════════
@@ -215,7 +87,7 @@
     position: absolute;
     inset: -2px;
     border-radius: 50%;
-    box-shadow: 0 0 0 1.5px rgb(227 194 90 / 55%), 0 0 9px rgb(227 194 90 / 40%);
+    box-shadow: 0 0 0 1.5px rgb(95 217 248 / 55%), 0 0 9px rgb(95 217 248 / 40%);
     z-index: 0;
     pointer-events: none;
 }
@@ -326,122 +198,77 @@
     }
 }
 
-/* لا تجميد للحركة عند تفضيل «تقليل الحركة»: قرار المالك (٢٠٢٦-٠٧-١٥) أنّ المؤثّرات تعمل
- * دائماً، وقد سبق أن أزال كتلة مماثلة كانت تُجمّد كل حركات المشروع. */
 
-/* Both profile badges (Developer + Contributor) are iconSrc badges targeted via their
- * aria-label (the description tooltip). They share the same round image + hover styling;
- * only the ::before ring gradient differs (gold for Developer, RGB rainbow for Contributor).
- * Selectors are grouped by specificity to satisfy stylelint no-descending-specificity. */
-a[aria-label*="Esharq Developer"],
-a[aria-label*="Esharq Contributor"],
-a[aria-label*="Esharq Donor"] {
-    position: relative;
-
-    /* نفس تباعد بادجات ديسكورد الأصليّة ومطابق للشارة المخصّصة (0 2px). صُغِّرت الحلقات إلى
-     * ~2px لكل جهة كي تناسب هذا التباعد الضيّق دون أن تتشابك مع الشارة المجاورة. */
-    margin: 0 2px;
-}
-
-/* Developer (profile) — «القلم الذهبي»: قوس ذهبي يرسم نفسه ثم يُمحى ويُعاد */
-a[aria-label*="Esharq Developer"]::before {
-    content: "";
-    position: absolute;
-    inset: -2px;
-    border-radius: 50%;
-    background: conic-gradient(from -90deg,
-        transparent 0 var(--esharq-pen-t),
-        #fbbf24 var(--esharq-pen-t) var(--esharq-pen-h),
-        transparent var(--esharq-pen-h));
-    mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
-    filter: drop-shadow(0 0 3px #fbbf24);
-    animation: esharq-pen 2.4s ease-in-out infinite;
-    z-index: 0;
-    pointer-events: none;
-}
-
-/* Contributor (profile) — «النار الذهبية»: النار الآن مدموجة داخل صورة الشارة نفسها
- * (APNG شفّاف متحرّك: كرة + حلقة لهب ذهبية + شرر). فلا حاجة لحلقة CSS — نعرض الصورة
- * كاملة بلا قصّ دائري (border-radius: 0 أدناه) كي لا تُقصّ النار حول الكرة. */
-
-/* Donor (profile) — «بريق العملة»: حافة ذهبية ثابتة (::before) + ومضة لمعان
- * تمرّ قطريّاً فوق وجه الشارة دوريّاً (::after فوق الصورة) — كلمعة معدن/عملة. */
-a[aria-label*="Esharq Donor"]::before {
-    content: "";
-    position: absolute;
-    inset: -2px;
-    border-radius: 50%;
-    box-shadow: 0 0 0 1.5px rgb(227 194 90 / 55%), 0 0 9px rgb(227 194 90 / 40%);
-    z-index: 0;
-    pointer-events: none;
-}
-
-a[aria-label*="Esharq Donor"]::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: linear-gradient(115deg, transparent 42%, rgb(255 246 216 / 80%) 50%, transparent 58%);
-    background-size: 260% 260%;
-    animation: esharq-coin-gleam 3.2s ease-in-out infinite;
-    z-index: 2;
-    pointer-events: none;
-}
-
-a[aria-label*="Esharq Developer"] img,
-a[aria-label*="Esharq Contributor"] img,
-a[aria-label*="Esharq Donor"] img {
-    position: relative;
-    z-index: 1;
-    border-radius: 50%;
-    transition: transform 0.25s ease;
-}
-
-/* Contributor image carries its own baked fire (transparent APNG) — don't circle-clip it,
- * or the flames around the orb get cut off. */
-a[aria-label*="Esharq Contributor"] img {
-    border-radius: 0;
-}
-
-a[aria-label*="Esharq Developer"]:hover img,
-a[aria-label*="Esharq Contributor"]:hover img {
-    transform: scale(1.12);
-}
-
-/* «القلم الذهبي»: الرأس يرسم القوس كاملاً، وقفة قصيرة، ثم الذيل يلحقه فيمحوه */
-@keyframes esharq-pen {
-    0% {
-        --esharq-pen-h: 0deg;
-        --esharq-pen-t: 0deg;
-    }
-
-    45% {
-        --esharq-pen-h: 360deg;
-        --esharq-pen-t: 0deg;
-    }
-
-    55% {
-        --esharq-pen-h: 360deg;
-        --esharq-pen-t: 0deg;
-    }
-
-    100% {
-        --esharq-pen-h: 360deg;
-        --esharq-pen-t: 360deg;
-    }
-}
 
 /* «القصاصات»: تبدأ على حافة الشارة، تنفجر قليلاً وتتلاشى تماماً قبل بلوغ الشارة المجاورة */
 
 /* (النار لم تعد حلقة CSS — صارت مدموجة في صورة APNG لشارة المساهمين) */
 
-/* «بريق العملة»: شريط اللمعان يعبر وجه الشارة قطريّاً ذهاباً وإياباً */
-@keyframes esharq-coin-gleam {
-    0%, 100% {
-        background-position: 130% 130%;
-    }
+/* ── شارة الرتبة ─────────────────────────────────────────────────
+ * تُعرَض كما هي: بلا قصّ ولا حلقة. `object-fit: contain` يمنع قصّ أطراف
+ * السداسي والتاج، و`border-radius: 0` يُلغي التدوير الافتراضي للشارات.
+ * التوهّج مأخوذ من لون الرتبة نفسها فيقرأ الفرق بينها بطرف العين.
+ */
+.esharq-tier-badge {
+    display: inline-flex;
+    width: 22px;
+    height: 22px;
+    margin: 0 2px;
+    vertical-align: middle;
+    cursor: pointer;
+    transition: transform 140ms ease;
+}
 
-    50% {
-        background-position: -30% -30%;
-    }
+.esharq-tier-badge:hover {
+    transform: scale(1.14);
+}
+
+.esharq-tier-badge img,
+.esharq-tier-chat-badge img {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    object-fit: contain;
+}
+
+/* بجانب الاسم في المحادثة — أصغر قليلاً ليتناسب مع سطر النصّ */
+.esharq-tier-chat-badge {
+    display: inline-flex;
+    width: 18px;
+    height: 18px;
+    margin: 0 2px;
+    vertical-align: middle;
+}
+
+/* «مستخدم إشراق» شارة iconSrc عادية، فتُستهدَف بـaria-label مثل شارات ديسكورد */
+a[aria-label*="Esharq User"] img {
+    border-radius: 0;
+    object-fit: contain;
+    filter: drop-shadow(0 0 3px rgb(34 201 240 / 55%));
+    transition: transform 140ms ease;
+}
+
+
+.esharq-tier-badge[data-tier="owner"] img,
+.esharq-tier-chat-badge[data-tier="owner"] img {
+    filter: drop-shadow(0 0 3px rgb(139 92 250 / 55%));
+}
+
+.esharq-tier-badge[data-tier="admin"] img,
+.esharq-tier-chat-badge[data-tier="admin"] img {
+    filter: drop-shadow(0 0 3px rgb(240 162 48 / 55%));
+}
+
+.esharq-tier-badge[data-tier="tester"] img,
+.esharq-tier-chat-badge[data-tier="tester"] img {
+    filter: drop-shadow(0 0 3px rgb(0 200 120 / 55%));
+}
+
+.esharq-tier-badge[data-tier="supporter"] img,
+.esharq-tier-chat-badge[data-tier="supporter"] img {
+    filter: drop-shadow(0 0 3px rgb(255 78 155 / 55%));
+}
+
+a[aria-label*="Esharq User"]:hover img {
+    transform: scale(1.14);
 }

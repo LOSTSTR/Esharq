@@ -22,7 +22,7 @@ import { gitRemote } from "@shared/vencordUserAgent";
 import { IS_WINDOWS, VC_DONOR_ROLE_ID, VC_GUILD_ID } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import { Margins } from "@utils/margins";
-import { isAnyPluginDev, isEsharqContributor } from "@utils/misc";
+import { hasEsharqTier, isAnyPluginDev, isEsharqUser } from "@utils/misc";
 import { relaunch } from "@utils/native";
 import { Alerts, GuildMemberStore, React, UserStore } from "@webpack/common";
 
@@ -176,8 +176,8 @@ function EquicordSettings() {
                     description={
                         isEsharqDonor(user?.id) && isVencordDonor(user?.id)
                             ? t(
-                                "يرى جميع مستخدمي Vencord شارة متبرع Vencord، ويرى مستخدمو Esharq شارة متبرع Esharq. لتغيير شارتك في Vencord تواصل مع @vending.machine، ولشارة Esharq افتح تذكرة في سيرفر Esharq.",
-                                "All Vencord users see a Vencord donor badge, and Esharq users see an Esharq donor badge. To change your Vencord badge contact @vending.machine, and for the Esharq badge open a ticket in the Esharq server."
+                                "يرى جميع مستخدمي Vencord شارة متبرّع Vencord، ويرى مستخدمو Esharq شارة داعم Esharq. لتغيير شارتك في Vencord تواصل مع @vending.machine، ولشارة Esharq افتح تذكرة في سيرفر Esharq.",
+                                "All Vencord users see a Vencord donor badge, and Esharq users see an Esharq supporter badge. To change your Vencord badge contact @vending.machine, and for the Esharq badge open a ticket in the Esharq server."
                             )
                             : isVencordDonor(user?.id)
                                 ? t(
@@ -190,7 +190,7 @@ function EquicordSettings() {
                                 )
                     }
                     cardImage={ESHARQ_LOGO}
-                    backgroundColor="#ED87A9"
+                    backgroundColor="#22c9f0"
                 >
                     <DonateButtonComponent donated={true} />
                 </SpecialCard>
@@ -202,12 +202,12 @@ function EquicordSettings() {
                         "Support Esharq development by donating!"
                     )}
                     cardImage={ESHARQ_LOGO}
-                    backgroundColor="#c3a3ce"
+                    backgroundColor="#4e74fc"
                 >
                     <DonateButtonComponent />
                 </SpecialCard>
             )}
-            {(isAnyPluginDev(user?.id) || isEsharqContributor(user?.id)) && (
+            {(isAnyPluginDev(user?.id) || isEsharqUser(user?.id)) && (
                 <SpecialCard
                     title={t("المساهمات", "Contributions")}
                     subtitle={t("شكراً لمساهمتك!", "Thank you for contributing!")}
@@ -216,7 +216,7 @@ function EquicordSettings() {
                         "As a contributor to Esharq, you earned a special badge!"
                     )}
                     cardImage={ESHARQ_LOGO}
-                    backgroundColor="#EDCC87"
+                    backgroundColor="#8b5cfa"
                 >
                     <Button
                         variant="none"
@@ -348,7 +348,7 @@ export default wrapTab(EquicordSettings, "Equicord Settings");
 
 export function isEsharqDonor(userId: string): boolean {
     // Card depends only on Esharq's own donor list, so donating to Equicord doesn't trigger it.
-    return !!BadgeAPI.EsharqDonorBadges[userId];
+    return hasEsharqTier(userId, "supporter");
 }
 
 export function isVencordDonor(userId: string): boolean {

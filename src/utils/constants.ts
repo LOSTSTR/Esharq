@@ -34,6 +34,11 @@ export const KNOWN_ISSUES_CHANNEL_ID = "1466558228379992266";
 // responses are augmented client-side with a real, per-viewer plugin toggle card.
 export const ESHARQ_BOT_USER_ID = "1528492372248236183";
 
+// خادم إشراق. تُمنَح شارة «مستخدم إشراق» لكلّ عضو فيه — والعضوية تُقرأ من مخزن
+// ديسكورد المحليّ، فلا تُنشَر قائمة أعضاء ولا تُفعَّل صلاحية مميّزة ولا يُستدعى
+// خادم. الثمن أنّها تظهر لمن هو نفسه في الخادم؛ وهذا يليق بشارة انتماء.
+export const ESHARQ_GUILD_ID = "1211352550583042058";
+
 // Vencord
 export const VC_SUPPORT_CHANNEL_ID = "1026515880080842772";
 export const VC_GUILD_ID = "1015060230222131221";
@@ -1441,23 +1446,36 @@ export const EquicordDevs = Object.freeze({
     },
 } satisfies Record<string, Dev>);
 
-// Esharq core team ids — these show the Esharq Developer badge.
-export const EsharqDevs: ReadonlySet<string> = new Set([
-    "681465758127226900",
-    "1072961475125182564",
-    "538699316232060938",
-    "1046545292100653177",
-    "683031548672606264",
-    "1161389239112568902",
-    "1295464673264664747",
-]);
+// بذور رتب إشراق — احتياطٌ مُصرَّف يعمل بلا شبكة وبلا وميض عند الإقلاع.
+// المصدر الحيّ هو Esharq-Bored/team.json، ويطغى على هذه القيم بلا إعادة بناء.
+export const ESHARQ_TIERS = ["owner", "admin", "tester", "supporter"] as const;
+export type EsharqTier = typeof ESHARQ_TIERS[number];
 
-// Esharq contributor ids — these show the Esharq Contributor badge (shared circular EA
-// image + spinning RGB ring). Seeded with the whole dev team, and extendable with anyone
-// else who contributes to Esharq. (Add ids here to grant the contributor badge.)
-export const EsharqContributors: ReadonlySet<string> = new Set([
-    ...EsharqDevs,
-]);
+export const EsharqTeamSeed: Readonly<Record<EsharqTier, readonly string[]>> = Object.freeze({
+    owner: ["681465758127226900"],
+    admin: [
+        "1072961475125182564",
+        "538699316232060938",
+        "1046545292100653177",
+        "683031548672606264",
+        "1161389239112568902",
+        "1295464673264664747",
+    ],
+    tester: [] as readonly string[],
+    supporter: [
+        "1320081396034965544",
+        "1459617061566287983",
+        "1098303427009843342",
+        "353359209460400138",
+        "428275226883915778",
+        "365991785396437014",
+        "863164009556607026",
+        "1220343848786464862",
+        "850239065495306240",
+        "1214355476029120515",
+        "349020193701363712",
+    ],
+});
 
 // iife so #__PURE__ works correctly
 export const VencordDevsById = /* #__PURE__*/ (() =>

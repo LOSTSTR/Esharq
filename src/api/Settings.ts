@@ -121,6 +121,12 @@ export interface Settings {
         pluginsArabic: boolean;
         /** مفتاح الخطّ العربي المختار (`tajawal` … `off`). */
         arabicFont: string;
+        /**
+         * إخفاء شارات إشراق **على هذا الجهاز وحده** — خريطة `"<نوع>:<موضع>"`.
+         * الغياب يعني «ظاهرة». النطاق العامّ لا يُخزَّن هنا بل على الخادم،
+         * لأنّ ما يراه الناس ليس شأن جهازٍ واحد.
+         */
+        badgeHidden: Record<string, boolean>;
     };
 
     /**
@@ -183,7 +189,8 @@ const DefaultSettings: Settings = {
     esharq: {
         migrated: false,
         pluginsArabic: false,
-        arabicFont: "tajawal"
+        arabicFont: "tajawal",
+        badgeHidden: {}
     },
 
     themeCreator: null,

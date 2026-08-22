@@ -39,7 +39,7 @@ interface StyledCardProps {
 }
 
 export function SpecialCard({ title, subtitle, description, cardImage, backgroundColor, buttonTitle, buttonOnClick: onClick, children }: PropsWithChildren<StyledCardProps>) {
-    // backgroundColor is the card's accent — fed to the Midnight Gold styles in
+    // backgroundColor is the card's accent — fed to the Midnight Aurora styles in
     // SpecialCard.css (border + glow + title + buttons) via the --vc-accent var.
     const cardStyle = {
         "--vc-accent": backgroundColor || "#9c85ef",

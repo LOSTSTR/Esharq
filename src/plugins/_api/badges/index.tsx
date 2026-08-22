@@ -23,76 +23,129 @@ import { _getBadges, BadgePosition, BadgeUserArgs, ProfileBadge } from "@api/Bad
 import { addMessageDecoration, removeMessageDecoration } from "@api/MessageDecorations";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { openContributorModal } from "@components/settings/tabs";
-import { Devs } from "@utils/constants";
+import { Devs, ESHARQ_GUILD_ID } from "@utils/constants";
 import { copyWithToast } from "@utils/discord";
 import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
-import { isEsharqDev, setEsharqTeam, shouldShowContributorBadge, shouldShowEquicordContributorBadge, shouldShowEsharqContributorBadge, shouldShowEsharqDeveloperBadge } from "@utils/misc";
+import { esharqTierOf, isEsharqUser, setEsharqTeam, shouldShowContributorBadge, shouldShowEquicordContributorBadge } from "@utils/misc";
+import { sha256Hex } from "@utils/sha256";
 import definePlugin from "@utils/types";
-import { ContextMenuApi, Menu, Toasts, Tooltip, UserStore } from "@webpack/common";
+import { ContextMenuApi, GuildMemberStore, Menu, Toasts, Tooltip, UserStore } from "@webpack/common";
 
 import Plugins, { PluginMeta } from "~plugins";
 
+import { isHiddenLocally, startLinkCapture, stopLinkCapture } from "./control";
 import { EquicordDonorModal, EquicordTranslatorModal, VencordDonorModal } from "./modals";
 
 const CONTRIBUTOR_BADGE = "https://cdn.discordapp.com/emojis/1092089799109775453.png?size=64";
 const EQUICORD_CONTRIBUTOR_BADGE = "https://equicord.org/assets/favicon.png";
 const USERPLUGIN_CONTRIBUTOR_BADGE = "https://equicord.org/assets/icons/misc/userplugin.png";
-const ESHARQ_DEVELOPER_BADGE = "https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges/developers/esharq.png";
-const ESHARQ_CONTRIBUTOR_BADGE = "https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges/contributors/Esharq.png";
+const ESHARQ_BADGES = "https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges/";
 
-// Tooltips carry both languages at once. Visual polish (round image, spinning glow ring,
-// hover scale) lives in esharqBadges.css, targeted via the aria-label — inline style would
-// block the CSS :hover transform.
-const EsharqDeveloperBadge: ProfileBadge = {
-    id: "esharq_developer_badge",
-    description: "مطوّر إشراق · Esharq Developer",
-    iconSrc: ESHARQ_DEVELOPER_BADGE,
+/**
+ * رتب إشراق. الصورة والاسم لكلّ رتبة في مكان واحد، فإضافة رتبة لاحقاً سطرٌ هنا
+ * وسطرٌ في `ESHARQ_TIERS` — لا شيء آخر.
+ *
+ * «مستخدم» ليست رتبة تُمنَح: تظهر تلقائياً لكلّ من له مدخل عامّ في أيّ رتبة،
+ * فهي علامة الانتماء لا مرتبة فوق غيرها.
+ */
+const ESHARQ_TIER_META = {
+    owner: { img: "owner/owner.png", label: "مالك إشراق · Esharq Owner" },
+    admin: { img: "admin/admin.png", label: "مدير إشراق · Esharq Admin" },
+    tester: { img: "tester/tester.png", label: "مُختبِر إشراق · Esharq Tester" },
+    supporter: { img: "supporter/supporter.png", label: "داعم إشراق · Esharq Supporter" },
+    user: { img: "user/user.png", label: "مستخدم إشراق · Esharq User" },
+} as const;
+
+const tierIcon = (tier: keyof typeof ESHARQ_TIER_META) => ESHARQ_BADGES + ESHARQ_TIER_META[tier].img;
+
+// شارة الرتبة الممنوحة (واحدة لكلّ عضو — أعلى رتبة يملكها). الصقل البصريّ
+// (قصّ دائريّ، حلقة، تكبير عند المرور) في esharqBadges.css عبر aria-label،
+// لأنّ النمط السطريّ يمنع تحوّل :hover.
+const EsharqTierBadge: ProfileBadge = {
+    id: "esharq_tier_badge",
+    // اسمٌ عامّ لا تفصيليّ: الشارة مكوّن، والمكوّن يعرف الرتبة فيُظهر اسمها
+    // الدقيق في تلميحه. أمّا هذا الحقل فيقرؤه ديسكورد وصفحة «ملفّي» في إعدادات
+    // إشراق، وكان فارغاً — فكانت الشارة تغيب عن تلك الصفحة كلّياً.
+    description: "رتبة إشراق · Esharq Rank",
     position: BadgePosition.START,
-    shouldShow: ({ userId }) => shouldShowEsharqDeveloperBadge(userId),
+    shouldShow: ({ userId }) => esharqTierOf(userId) !== null && badgeVisible(userId, "tier", "profile"),
+    component: ({ userId }: BadgeUserArgs) => {
+        const tier = esharqTierOf(userId);
+        if (!tier) return null;
+        const meta = ESHARQ_TIER_META[tier];
+        return (
+            <Tooltip text={meta.label}>
+                {({ onMouseEnter, onMouseLeave }) => (
+                    <span
+                        className="esharq-tier-badge"
+                        data-tier={tier}
+                        role="img"
+                        aria-label={meta.label}
+                        onMouseEnter={onMouseEnter}
+                        onMouseLeave={onMouseLeave}
+                        onClick={() => openContributorModal(UserStore.getUser(userId))}
+                    >
+                        <img src={tierIcon(tier)} alt="" />
+                    </span>
+                )}
+            </Tooltip>
+        );
+    },
+    props: { style: { margin: "0 2px" } },
+};
+
+/**
+ * شارة «مستخدم إشراق» — علامة انتماء لا مرتبة.
+ *
+ * تُمنَح لثلاثة، وترتيبها ترتيب الوثوق والكلفة:
+ *
+ *  1. **مدخل عامّ في أيّ رتبة** — يُعرَف بلا شبكة ولا مخزن.
+ *  2. **بصمات الأعضاء المنشورة** — تجعلها تظهر **لكلّ ناظر**، حتى من ليس في
+ *     خادم إشراق، وتبقى لمن غادره. تُبنى بمهمّة مجدولة في الموقع، ولا توجد
+ *     قبل أوّل مزامنة. تُنشَر بصماتٍ لا معرّفات، فلا تُسحَب القائمة.
+ *  3. **مخزن ديسكورد المحليّ** — احتياطٌ فوريّ يلتقط من انضمّ اليوم قبل أن
+ *     تلحقه المزامنة، ويعمل حين يتعذّر جلب القائمة.
+ *
+ * الثالث وحده كان يعني «تظهر لأهل الدار فقط»؛ الثاني هو ما جعلها عامّة.
+ */
+const isEsharqMember = (userId: string) =>
+    isEsharqUser(userId)
+    || (EsharqMemberFingerprints.size > 0 && EsharqMemberFingerprints.has(fingerprintOf(userId)))
+    || GuildMemberStore.isMember(ESHARQ_GUILD_ID, userId);
+
+const EsharqUserBadge: ProfileBadge = {
+    id: "esharq_user_badge",
+    description: ESHARQ_TIER_META.user.label,
+    iconSrc: tierIcon("user"),
+    position: BadgePosition.START,
+    shouldShow: ({ userId }) => isEsharqMember(userId) && badgeVisible(userId, "user", "profile"),
     onClick: (_, { userId }) => openContributorModal(UserStore.getUser(userId)),
     props: { style: { margin: "0 2px" } },
 };
 
-// The Developer badge also shows inline next to the name in chat (message decoration).
-const EsharqDevChatBadge = () => (
-    <span className="esharq-dev-chat-badge" role="img" aria-label="مطوّر إشراق · Esharq Developer">
-        <img src={ESHARQ_DEVELOPER_BADGE} alt="" />
-    </span>
-);
-
-// The Donor badge also shows inline in chat — the member's OWN donor image (per-user,
-// from Esharq-Bored/badges.json) with the same Coin-Gleam gold glow as their profile badge.
-const EsharqDonorChatBadge = ({ userId }: { userId: string; }) => {
-    const badge = EsharqDonorBadges[userId]?.[0]?.badge;
-    if (!badge) return null;
+// شارة الرتبة تظهر أيضاً بجانب الاسم في المحادثة (زخرفة رسالة).
+const EsharqTierChatBadge = ({ userId }: { userId: string; }) => {
+    const tier = esharqTierOf(userId);
+    if (!tier) return null;
+    const meta = ESHARQ_TIER_META[tier];
     return (
-        <span className="esharq-donor-chat-badge" role="img" aria-label="متبرّع إشراق · Esharq Donor">
-            <img src={badge} alt="" />
+        <span className="esharq-tier-chat-badge" data-tier={tier} role="img" aria-label={meta.label}>
+            <img src={tierIcon(tier)} alt="" />
         </span>
     );
 };
 
-// The Contributor badge also shows inline in chat (message decoration), same idea as the
-// Developer and Donor chat badges. It shows the FULL square art (no circular crop, no ring —
-// the art carries its own fire/ice glow). Devs are excluded here since they already show the
-// Developer chat badge, so a dev never gets two inline badges.
-const EsharqContributorChatBadge = () => (
-    <span className="esharq-contributor-chat-badge" role="img" aria-label="مساهم إشراق · Esharq Contributor">
-        <img src={ESHARQ_CONTRIBUTOR_BADGE} alt="" />
-    </span>
-);
-
 // Esharq Custom badges — a per-member image shown AS-IS (no ring/crop/text). Also shown
 // inline in chat (message decoration) like the donor/contributor/developer badges; clicking
-// opens the Esharq donor modal ("متبرّع إشراق"), and hovering shows ":3".
+// opens the Esharq supporter modal ("داعم إشراق"), and hovering shows ":3".
 // Each member's image is mapped by Discord user id in
 // Esharq-Bored/badges/custom/custom.json (loaded into EsharqCustomBadges).
 const EsharqCustomBadge: ProfileBadge = {
     id: "esharq_custom_badge",
     description: "مخصّص · Esharq Custom",
     position: BadgePosition.START,
-    shouldShow: ({ userId }) => userId in EsharqCustomBadges,
+    shouldShow: ({ userId }) => userId in EsharqCustomBadges && badgeVisible(userId, "custom", "profile"),
     component: ({ userId }: ProfileBadge & BadgeUserArgs) => {
         // Per-member image + hover text come from custom.json ({ image, tooltip }); since
         // component-rendered badges get no automatic Discord tooltip, wrap in an explicit one.
@@ -117,12 +170,12 @@ const EsharqCustomBadge: ProfileBadge = {
     },
     // ⚠️ onClick on a `component:` ProfileBadge is IGNORED by the badge API (like the auto
     // tooltip) — so the click is wired INSIDE the <span> above instead. This makes EVERY custom
-    // badge (present and future, any member in custom.json) open the Esharq donor modal on click.
+    // badge (present and future, any member in custom.json) open the Esharq supporter modal on click.
 };
 
 // The Custom badge also shows inline in chat — the member's OWN image, shown as-is (no ring/
 // crop, like its profile badge). Same idea as the donor/dev/contributor chat badges; hover
-// reveals ":3" and clicking opens the Esharq donor modal.
+// reveals ":3" and clicking opens the Esharq supporter modal.
 const EsharqCustomChatBadge = ({ userId }: { userId: string; }) => {
     const entry = EsharqCustomBadges[userId];
     if (!entry?.image) return null;
@@ -203,20 +256,6 @@ const EsharqSelfServeChatBadge = ({ userId }: { userId: string; }) => {
     );
 };
 
-// Esharq Contributor badge — a shared circular EA image with a spinning RGB ring. Granted to
-// everyone in EsharqContributors (seeded with the whole dev team). Profile only. Uses iconSrc
-// (not component) so Discord shows the description tooltip ("مساهم إشراق · Esharq Contributor"),
-// same as the Developer badge; the RGB ring is applied via the aria-label CSS selector.
-const EsharqContributorBadge: ProfileBadge = {
-    id: "esharq_contributor_badge",
-    description: "مساهم إشراق · Esharq Contributor",
-    iconSrc: ESHARQ_CONTRIBUTOR_BADGE,
-    position: BadgePosition.START,
-    shouldShow: ({ userId }) => shouldShowEsharqContributorBadge(userId),
-    onClick: (_, { userId }) => openContributorModal(UserStore.getUser(userId)),
-    props: { style: { margin: "0 2px" } },
-};
-
 const ContributorBadge: ProfileBadge = {
     id: "vencord_contributor_badge",
     get description() { return t("مساهم Vencord", "Vencord contributor"); },
@@ -271,6 +310,58 @@ let EsharqDonorBadges = {} as Record<string, Array<Record<"tooltip" | "badge", s
 // Esharq Custom badges: Discord user id → { image, tooltip } (from Esharq-Bored/custom.json).
 // Data-driven so a member's image AND hover text can change with NO rebuild (edit the JSON).
 let EsharqCustomBadges = {} as Record<string, { image: string; tooltip?: string; }>;
+
+/**
+ * بصمات أعضاء إشراق (Esharq-Bored/badges/user/members.json).
+ *
+ * الملفّ **لا يحمل معرّفات**، بل أوائل SHA-256 لكلّ معرّف مسبوقاً ببادئة معلنة.
+ * فلا يستطيع أحد تنزيل «قائمة من في خادم إشراق»؛ ومن عنده معرّفٌ بعينه يستطيع
+ * التحقّق منه — وهذا حدُّ ما يُمكن مع بيانٍ يقرأه كلّ عميل، وقيل صراحةً.
+ *
+ * يُوحَّد ولا ينكمش: من دخل الخادم مرّةً بقيت شارته وإن غادر.
+ *
+ * التجزئة تُخزَّن لكلّ معرّف بعد أوّل حساب: الشارة تُستدعى مراراً لنفس العضو
+ * في القائمة والمحادثة والملفّ، فلا داعي لإعادة الحساب.
+ */
+/**
+ * تفضيلات إظهار الشارات (Esharq-Bored/badges/visibility.json).
+ *
+ * 🔴 من الخادم لا من الجهاز. عضوٌ يُخفي شارته تختفي **لدى إشراق كلّه**، لا عنه
+ * وحده — فمفتاحٌ محليّ يُخفيها عن صاحبها بينما يراها الناس إخفاءٌ وهميّ، ورُفض.
+ *
+ * الغياب يعني «ظاهرة»: من لم يُغيّر شيئاً لا يُذكَر في الملفّ أصلاً.
+ */
+let EsharqVisibility = {} as Record<string, Partial<Record<"tier" | "user" | "custom", { profile?: boolean; chat?: boolean; }>>>;
+
+/**
+ * أتُرسَم شارة من هذا النوع لهذا العضو في هذا الموضع؟
+ *
+ * فحصان مستقلّان: تفضيل صاحبها على الخادم (يسري على الجميع)، وتفضيلٌ محليّ
+ * يخصّ **شاراتي أنا على جهازي**. الثاني لا يُطبَّق على غيري: إخفاء شارة شخصٍ
+ * آخر عن نفسي ليس ممّا وُعِد به المستخدم، ولا معنى له.
+ */
+function badgeVisible(userId: string, kind: "tier" | "user" | "custom", surface: "profile" | "chat"): boolean {
+    if (EsharqVisibility[userId]?.[kind]?.[surface] === false) return false;
+    if (userId === UserStore.getCurrentUser()?.id && isHiddenLocally(kind, surface)) return false;
+    return true;
+}
+
+let EsharqMemberFingerprints = new Set<string>();
+let EsharqHashPrefix = "esharq-user-v1:";
+let EsharqHashChars = 16;
+
+const fingerprintCache = new Map<string, string>();
+
+function fingerprintOf(userId: string): string {
+    let fp = fingerprintCache.get(userId);
+    if (fp === undefined) {
+        fp = sha256Hex(EsharqHashPrefix + userId).slice(0, EsharqHashChars);
+        // سقفٌ للذاكرة: خادمٌ مزدحم يمرّ بآلاف المعرّفات في الجلسة الواحدة.
+        if (fingerprintCache.size > 5000) fingerprintCache.clear();
+        fingerprintCache.set(userId, fp);
+    }
+    return fp;
+}
 
 // Esharq self-service supporter badges (Esharq-Bored/badges/selfserve.json). A supporter sets
 // their own image, hover text and effect with /badge in the Esharq server; a moderator approves
@@ -354,27 +445,53 @@ async function loadBadges(url: string, noCache = false) {
 
 async function loadAllBadges(noCache = false) {
     const vencordBadges = await loadBadges("https://badges.vencord.dev/badges.json", noCache);
-    // Esharq's own donor badges only. Equicord's donors are intentionally not pulled in to avoid
-    // flooding Esharq with ~100 unrelated badges; Equicord devs/contributors keep their original
-    // badges via the devs lists, which are untouched.
-    const esharqBadges = await loadBadges("https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges.json", noCache);
-    // Per-member Esharq Custom badge images (user id → image url).
+    // صور «مخصّص» لكلّ عضو (معرّف ← صورة + نصّ التمرير).
     const esharqCustom = await loadBadges("https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges/custom/custom.json", noCache);
-    // Esharq team ids (developers + extra contributors). Lets the Developer/Contributor
-    // tiers be granted or revoked by editing team.json — no rebuild — same idea as the
-    // donor/custom JSONs. Isolated with catch so a missing/malformed file leaves the
-    // compiled seed in place (setEsharqTeam falls back) without breaking the other loads.
+    // رتب إشراق. تُمنَح وتُسحَب بتحرير team.json وحده — بلا إعادة بناء.
+    // معزولة بـcatch حتى لا يُسقِط ملفٌّ مفقود أو تالف بقيّة الشارات.
     const esharqTeam = await loadBadges("https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/team.json", noCache).catch(() => null);
-    // Self-service supporter badges. Isolated with catch because this file does not exist until
-    // the first badge is approved — a 404 must leave the other badge sets working.
+    // الشارة الذاتية للداعمين. معزولة بـcatch لأنّ الملفّ لا يوجد قبل أوّل موافقة —
+    // و404 يجب ألّا يُعطّل بقيّة المجموعات.
     const esharqSelfServe = await loadBadges("https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges/selfserve.json", noCache).catch(() => null);
+    // قائمة أعضاء إشراق. معزولة بـcatch: الملفّ لا يوجد قبل أوّل مزامنة، و404
+    // يجب أن يترك بقيّة الشارات تعمل ويترك الفحص المحليّ يتولّى الأمر.
+    const esharqMembers = await loadBadges("https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges/user/members.json", noCache).catch(() => null);
+    // تفضيلات الإظهار. معزولة بـcatch: الملفّ لا يوجد حتى يُغيّر أوّل عضو شيئاً،
+    // وغيابه يعني «الكلّ ظاهر» وهو الافتراض الصحيح.
+    const esharqVisibility = await loadBadges("https://raw.githubusercontent.com/LOSTSTR/Esharq-Bored/main/badges/visibility.json", noCache).catch(() => null);
 
     DonorBadges = vencordBadges;
-    EquicordDonorBadges = esharqBadges;
-    EsharqDonorBadges = esharqBadges;
     EsharqCustomBadges = esharqCustom;
     EsharqSelfServeBadges = esharqSelfServe ?? {};
+    EsharqVisibility = (esharqVisibility && typeof esharqVisibility === "object") ? esharqVisibility as typeof EsharqVisibility : {};
+    // ملفّ تالف أو ناقص يترك المجموعة السابقة كما هي بدل أن يمحوها.
+    const members = esharqMembers as { fp?: unknown; prefix?: unknown; chars?: unknown; } | null;
+    if (Array.isArray(members?.fp)) {
+        EsharqMemberFingerprints = new Set(members.fp.filter((x): x is string => typeof x === "string"));
+        // البادئة والطول يأتيان مع البيانات، فتغييرهما لاحقاً لا يحتاج إعادة بناء.
+        if (typeof members.prefix === "string") EsharqHashPrefix = members.prefix;
+        if (typeof members.chars === "number" && members.chars >= 8 && members.chars <= 64) {
+            EsharqHashChars = members.chars;
+        }
+        fingerprintCache.clear();
+    }
     setEsharqTeam(esharqTeam);
+
+    // واجهات قديمة (بطاقة الشكر، showBadgesInChat، api/Badges) كانت تقرأ خريطة
+    // المتبرّعين. رتبة «داعم» حلّت محلّها، فتُشتقّ الخريطة منها بدل أن تُحذف
+    // فتختفي الميزة صامتةً. صورة العضو المخصّصة تسبق صورة الرتبة إن وُجدت.
+    const supporterIds: string[] = Array.isArray(esharqTeam?.supporter) ? esharqTeam.supporter : [];
+    const supporters: Record<string, Array<Record<"tooltip" | "badge", string>>> = {};
+    for (const id of supporterIds) {
+        if (typeof id !== "string") continue;
+        const own = EsharqCustomBadges[id];
+        supporters[id] = [{
+            tooltip: own?.tooltip || ESHARQ_TIER_META.supporter.label,
+            badge: own?.image || tierIcon("supporter")
+        }];
+    }
+    EsharqDonorBadges = supporters;
+    EquicordDonorBadges = supporters;
 }
 
 let intervalId: any;
@@ -470,27 +587,26 @@ export default definePlugin({
 
     // Listed in reverse display order: every START badge is unshifted, so the last one here
     // ends up first. This puts the Esharq Developer badge first, then the Custom badge.
-    userProfileBadges: [UserPluginContributorBadge, EquicordContributorBadge, ContributorBadge, EsharqContributorBadge, EsharqSelfServeBadge, EsharqCustomBadge, EsharqDeveloperBadge],
+    userProfileBadges: [UserPluginContributorBadge, EquicordContributorBadge, ContributorBadge, EsharqUserBadge, EsharqSelfServeBadge, EsharqCustomBadge, EsharqTierBadge],
 
     async start() {
+        // يلتقط الرابط الموقَّع من ردّ /badge حتى يعمل التحكّم العامّ من داخل
+        // التطبيق. مرشِّحٌ على معرّف المُرسِل، ولا يُكتب شيء على القرص.
+        startLinkCapture();
         await loadAllBadges();
         clearInterval(intervalId);
         intervalId = setInterval(loadAllBadges, 1000 * 60 * 30); // 30 minutes
 
-        addMessageDecoration("esharq-dev", ({ message }) =>
-            isEsharqDev(message?.author?.id ?? "") ? <EsharqDevChatBadge /> : null
-        );
-        addMessageDecoration("esharq-donor", ({ message }) => {
+        // شارة واحدة لكلّ عضو في المحادثة: رتبته. لا تُكدَّس شارتان بجانب الاسم.
+        addMessageDecoration("esharq-tier", ({ message }) => {
             const id = message?.author?.id ?? "";
-            return EsharqDonorBadges[id]?.length ? <EsharqDonorChatBadge userId={id} /> : null;
-        });
-        addMessageDecoration("esharq-contributor", ({ message }) => {
-            const id = message?.author?.id ?? "";
-            return shouldShowEsharqContributorBadge(id) && !isEsharqDev(id) ? <EsharqContributorChatBadge /> : null;
+            return esharqTierOf(id) && badgeVisible(id, "tier", "chat")
+                ? <EsharqTierChatBadge userId={id} /> : null;
         });
         addMessageDecoration("esharq-custom", ({ message }) => {
             const id = message?.author?.id ?? "";
-            return id in EsharqCustomBadges ? <EsharqCustomChatBadge userId={id} /> : null;
+            return id in EsharqCustomBadges && badgeVisible(id, "custom", "chat")
+                ? <EsharqCustomChatBadge userId={id} /> : null;
         });
         addMessageDecoration("esharq-selfserve", ({ message }) => {
             const id = message?.author?.id ?? "";
@@ -500,9 +616,10 @@ export default definePlugin({
 
     async stop() {
         clearInterval(intervalId);
-        removeMessageDecoration("esharq-dev");
-        removeMessageDecoration("esharq-donor");
-        removeMessageDecoration("esharq-contributor");
+        stopLinkCapture();
+        // الأسماء هنا يجب أن تطابق ما سُجّل في start() بالضبط. كانت تُزيل زخارف
+        // «مطوّر/متبرّع/مساهم» التي زالت مع الرتب القديمة، وتترك «الرتبة» معلّقة.
+        removeMessageDecoration("esharq-tier");
         removeMessageDecoration("esharq-custom");
         removeMessageDecoration("esharq-selfserve");
     },

@@ -10,8 +10,12 @@ import { _getBadges } from "@api/Badges";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Switch } from "@components/Switch";
 import { getSelfServeBadges } from "@plugins/_api/badges";
+import {
+    type BadgeKind, fetchRemote, hasLink, isHiddenLocally, onLinkChange,
+    type RemoteState, setHiddenLocally, setRemote
+} from "@plugins/_api/badges/control";
 import { t } from "@utils/esharqI18n";
-import { useMemo, UserStore, useState } from "@webpack/common";
+import { useEffect, useMemo, UserStore, useState } from "@webpack/common";
 
 import { Card, NoticeStrip } from "./Card";
 import { stagger } from "./motion";
@@ -43,7 +47,10 @@ import { stagger } from "./motion";
 const BADGE_CONTROL_URL = "https://esharq.org/badge";
 
 interface Badge {
+    id?: string;
     description?: string;
+    /** الحقل الحقيقيّ في واجهة الشارات. `image` بقيّة من واجهة أقدم. */
+    iconSrc?: string;
     image?: string;
     component?: any;
     props?: any;
@@ -51,10 +58,140 @@ interface Badge {
 
 type Surface = "profile" | "chat";
 
-/** أهي شارة من إشراق أم من غيره؟ */
+/**
+ * أهي شارة من إشراق أم من غيره؟
+ *
+ * المعرّف أوّلاً: شارات إشراق كلّها `esharq_*`، وهو أوثق من تفتيش النصّ —
+ * شارةٌ مكوّنٌ بلا وصف كانت تفلت من الفحص النصّيّ فتغيب عن هذه الصفحة.
+ * ويبقى فحص النصّ لما يأتي من بيانات (شارة داعم بنصٍّ يختاره صاحبه).
+ */
 function isEsharqBadge(badge: Badge): boolean {
-    const src = `${badge.description ?? ""} ${badge.image ?? ""}`.toLowerCase();
+    if (badge.id?.startsWith("esharq")) return true;
+    const src = `${badge.description ?? ""} ${badge.iconSrc ?? badge.image ?? ""}`.toLowerCase();
     return src.includes("esharq") || src.includes("إشراق");
+}
+
+/** الشارات التي لها تحكّم، وأسماؤها كما يراها صاحبها. */
+const CONTROLLABLE: { kind: BadgeKind; ar: string; en: string; }[] = [
+    { kind: "tier", ar: "شارة رتبتك", en: "Your rank badge" },
+    { kind: "user", ar: "شارة مستخدم إشراق", en: "Esharq User badge" },
+    { kind: "custom", ar: "شارتك المخصّصة", en: "Your custom badge" },
+    { kind: "selfserve", ar: "شارتك الخاصّة", en: "Your own badge" }
+];
+
+const SURFACES: { key: Surface; ar: string; en: string; }[] = [
+    { key: "profile", ar: "في الملفّ الشخصيّ", en: "On your profile" },
+    { key: "chat", ar: "في المحادثة", en: "In chat" }
+];
+
+/**
+ * بطاقة التحكّم.
+ *
+ * النطاق خيارٌ صريح لا افتراض: **محليّ** يسري على هذا الجهاز وحده وفوريّ،
+ * و**لدى إشراق بالكامل** يُكتب على الخادم فتختفي الشارة عن الناس جميعاً.
+ * إخفاءٌ محليّ يتظاهر بأنّه عامّ خداعٌ للمستخدم، ولذلك يُسمّى كلٌّ باسمه.
+ *
+ * النطاق العامّ يحتاج رابطاً موقَّعاً من `/badge` — الخادم لا يثق بادّعاء
+ * العميل، وإلّا غيّر أيّ أحدٍ شارات أيّ أحد.
+ */
+function BadgeControl({ held }: { held: BadgeKind[]; }) {
+    const [scope, setScope] = useState<"local" | "global">("local");
+    const [linked, setLinked] = useState(hasLink());
+    const [remote, setRemoteState] = useState<RemoteState | null>(null);
+    const [busyKey, setBusyKey] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [, force] = useState(0);
+
+    useEffect(() => onLinkChange(() => setLinked(hasLink())), []);
+
+    useEffect(() => {
+        if (scope !== "global" || !linked) return;
+        let alive = true;
+        fetchRemote().then(r => { if (alive) setRemoteState(r); });
+        return () => { alive = false; };
+    }, [scope, linked]);
+
+    const globalVisible = (kind: BadgeKind, surface: Surface): boolean => {
+        if (kind === "selfserve") return remote?.surfaces?.[surface] !== false;
+        return remote?.badges?.[kind as "tier" | "user" | "custom"]?.[surface] !== false;
+    };
+
+    const flip = async (kind: BadgeKind, surface: Surface, visible: boolean) => {
+        setError(null);
+        if (scope === "local") {
+            setHiddenLocally(kind, surface, !visible);
+            force(n => n + 1);
+            return;
+        }
+        // 🔴 لا تفاؤل: لا يُقلب المفتاح قبل جواب الخادم. مفتاحٌ يبدو مُطفأً
+        // بينما الخادم رفض يجعل صاحبه يظنّ شارته مخفيّة وهي ظاهرة للجميع.
+        const key = `${kind}:${surface}`;
+        setBusyKey(key);
+        const failure = await setRemote(kind, surface, visible);
+        setBusyKey(null);
+        if (failure !== null) { setError(failure); return; }
+        setRemoteState(await fetchRemote());
+    };
+
+    return (
+        <>
+            <div className="esharq-mp-scope">
+                {([
+                    { id: "local" as const, ar: "محليّ", en: "This device" },
+                    { id: "global" as const, ar: "لدى إشراق بالكامل", en: "All of Esharq" }
+                ]).map(option => (
+                    <button
+                        key={option.id}
+                        type="button"
+                        className={"esharq-mp-scope-btn" + (scope === option.id ? " on" : "")}
+                        onClick={() => setScope(option.id)}
+                    >{t(option.ar, option.en)}</button>
+                ))}
+            </div>
+
+            <div className="esharq-mp-scope-note">
+                {scope === "local"
+                    ? t("يسري على هذا الجهاز وحده. الآخرون يظلّون يرون شارتك.",
+                        "Applies to this device only. Other people still see your badge.")
+                    : t("يسري على كلّ مستخدمي إشراق. ما تُخفيه هنا لا يراه أحد.",
+                        "Applies to every Esharq user. What you hide here, nobody sees.")}
+            </div>
+
+            {scope === "global" && !linked && (
+                <NoticeStrip tone="info">
+                    {t("اكتب /badge في أيّ قناة بخادم إشراق، وسيلتقط التطبيق إذنك تلقائياً (صالح ١٥ دقيقة).",
+                        "Type /badge in any channel in the Esharq server; the app picks up your authorisation automatically (valid 15 minutes).")}
+                </NoticeStrip>
+            )}
+
+            {error !== null && <NoticeStrip tone="danger">{error}</NoticeStrip>}
+
+            {CONTROLLABLE.filter(b => held.includes(b.kind)).map(badge => (
+                <div key={badge.kind} className="esharq-mp-ctl">
+                    <div className="esharq-mp-ctl-name">{t(badge.ar, badge.en)}</div>
+                    {SURFACES.map(surface => {
+                        const key = `${badge.kind}:${surface.key}`;
+                        const on = scope === "local"
+                            ? !isHiddenLocally(badge.kind, surface.key)
+                            : globalVisible(badge.kind, surface.key);
+                        const disabled = scope === "global" && (!linked || busyKey !== null);
+                        return (
+                            <label key={surface.key} className={"esharq-mp-choice" + (on ? " on" : "")}>
+                                <span>{t(surface.ar, surface.en)}</span>
+                                <input
+                                    type="checkbox"
+                                    checked={on}
+                                    disabled={disabled}
+                                    aria-busy={busyKey === key}
+                                    onChange={e => flip(badge.kind, surface.key, e.currentTarget.checked)}
+                                />
+                            </label>
+                        );
+                    })}
+                </div>
+            ))}
+        </>
+    );
 }
 
 /**
@@ -162,6 +299,14 @@ export function MyProfilePage() {
         setTimeout(() => setBusy(false), 900);
     };
 
+    // الشارات التي يملكها فعلاً — لا يُعرَض مفتاحٌ لشارةٍ لا يملكها.
+    const heldKinds: BadgeKind[] = [
+        ...(esharqBadges.some(b => b.id === "esharq_tier_badge") ? ["tier" as const] : []),
+        ...(esharqBadges.some(b => b.id === "esharq_user_badge") ? ["user" as const] : []),
+        ...(esharqBadges.some(b => b.id === "esharq_custom_badge") ? ["custom" as const] : []),
+        ...(selfServe.length > 0 ? ["selfserve" as const] : [])
+    ];
+
     const shownCount = selfServe.filter(b => b.surfaces.profile || b.surfaces.chat).length;
     const state = selfServe.length === 0
         ? { text: t("لا شارة", "No badge"), tone: "warn" as const }
@@ -186,6 +331,15 @@ export function MyProfilePage() {
                     </div>
                 </div>
             </Card>
+
+            {heldKinds.length > 0 && (
+                <Card index={1}
+                    title={t("أين تظهر شاراتك", "Where your badges appear")}
+                    subtitle={t("اختر النطاق أوّلاً، ثمّ الموضع.", "Choose the scope first, then the place.")}
+                    badge={t("جديد", "New")} badgeTone="info">
+                    <BadgeControl held={heldKinds} />
+                </Card>
+            )}
 
             <Card index={1}
                 title={t("شارتك في إشراق", "Your Esharq badge")}
@@ -241,9 +395,12 @@ export function MyProfilePage() {
                                 <div className="esharq-mp-badge-art">
                                     <ErrorBoundary noop>
                                         {b.component
-                                            ? <b.component {...(b.props ?? {})} />
-                                            : b.image
-                                                ? <img src={b.image} alt="" width={32} height={32} />
+                                            // `_getBadges` يدمج `userId` في كائن الشارة نفسه،
+                                            // والمكوّن يحتاجه ليعرف الرتبة. تمريرُ `props` وحدها
+                                            // كان يُصيّر شارة الرتبة فارغةً بلا خطأ.
+                                            ? <b.component {...b} {...(b.props ?? {})} />
+                                            : (b.iconSrc ?? b.image)
+                                                ? <img src={b.iconSrc ?? b.image} alt="" width={32} height={32} />
                                                 : <span className="esharq-mp-noart">?</span>}
                                     </ErrorBoundary>
                                 </div>
