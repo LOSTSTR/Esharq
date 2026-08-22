@@ -270,10 +270,37 @@ function parseCommit(c) {
         if (!scope && rawName) scope = sanitise(rawName, 60);
     }
 
-    if (!category) return null; // unrecognised prefix + no curated override — don't guess
-
     const ar = sanitise((c.body.match(/^notify-ar:\s*(.+)$/mi) ?? [])[1] ?? ov.ar ?? "", 600);
     const en = sanitise((c.body.match(/^notify-en:\s*(.+)$/mi) ?? [])[1] ?? ov.en ?? "", 600);
+
+    // 🔴 A `notify-ar:`/`notify-en:` trailer IS the author saying "announce this".
+    //
+    // Until now those trailers were read only AFTER a category had been found, and a
+    // category came only from a conventional prefix (feat/fix/perf/…). Our subjects
+    // read `badges: …`, `updater: …`, `تعريب: …` — `badges` is not in the type map and
+    // `\w+` never matches Arabic at all, so EVERY such commit returned null and its
+    // trailers were never even looked at. Measured: nothing was announced between
+    // 2026-08-22 07:33 and 12:16 UTC although the workflow ran green each time and
+    // printed "No notification triggered". A green run is not a delivered message.
+    //
+    // So: an explicit trailer overrides the prefix. `notify-type:` names the section
+    // outright; without it we read the subject, and fall back to "improvement" — the
+    // one category that is never wrong enough to mislead.
+    const hasTrailer = ar !== "" || en !== "";
+    if (!category && hasTrailer) {
+        const declared = (c.body.match(/^notify-type:\s*(\w+)$/mi) ?? [])[1]?.toLowerCase();
+        const known = new Set(CATEGORIES.map(([k]) => k));
+        category = known.has(declared)
+            ? declared
+            : /إصلاح|أصلح|أُصلح|عطل|أعطال|خلل|مشكلة|كسر|fix|bug/i.test(c.subject) ? "fix"
+                : /حذف|أُزيل|أزال|remove|delete/i.test(c.subject) ? "removed"
+                    : /جديد|أضاف|أُضيف|add|new/i.test(c.subject) ? "update"
+                        : "improve";
+        // The prefix before ":" is the area the change touched — it belongs in the scope.
+        if (!scope && rawName) scope = sanitise(rawName, 60);
+    }
+
+    if (!category) return null; // no prefix, no trailer, no curated override — don't guess
 
     if (!ar) console.warn(`  ⚠ ${c.sha.slice(0, 7)} "${c.subject.slice(0, 60)}" has no Arabic — add a notify-ar trailer or an entry in ${OVERRIDES_PATH}`);
 
