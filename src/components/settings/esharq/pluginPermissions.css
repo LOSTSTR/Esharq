@@ -36,7 +36,7 @@
 }
 
 .esharq-pp-row.tone-warn {
-    border-inline-start-color: #22c9f0;
+    border-inline-start-color: #c9a227;
 }
 
 .esharq-pp-name {
@@ -95,7 +95,7 @@
 }
 
 .esharq-pp-cap.warn {
-    background: rgb(34 201 240 / 16%);
+    background: rgb(201 162 39 / 16%);
     color: #e0c565;
 }
 
@@ -105,8 +105,8 @@
 }
 
 .esharq-pp-cap.pending {
-    background: rgb(34 201 240 / 10%);
-    color: #22c9f0;
+    background: rgb(201 162 39 / 10%);
+    color: #c9a227;
 }
 
 .esharq-pp-cap.none {
@@ -124,7 +124,7 @@
 }
 
 .esharq-pp-type.continuous {
-    background: rgb(34 201 240 / 12%);
+    background: rgb(201 162 39 / 12%);
     color: #d3b544;
 }
 
@@ -143,7 +143,7 @@
 }
 
 .esharq-pp-search:focus-within {
-    box-shadow: inset 0 0 0 1px #22c9f066;
+    box-shadow: inset 0 0 0 1px #c9a22766;
 }
 
 .esharq-pp-search input {
@@ -194,7 +194,7 @@
 }
 
 .esharq-pp-tabs button.on {
-    background: #22c9f0;
+    background: #c9a227;
     color: #14140f;
     font-weight: 600;
 }

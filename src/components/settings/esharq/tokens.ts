@@ -11,10 +11,10 @@
  * في مكان واحد. القيم مختارة لتوحيد الإحساس عبر الأقسام الخمسة.
  */
 
-/** لون التمييز — سماوي إشراق، مأخوذ من شعارها ويميّزها عن أزرق ديسكورد. */
-export const ACCENT = "#22c9f0";
-export const ACCENT_SOFT = "#22c9f022";
-export const ACCENT_STRONG = "#0e88ac";
+/** لون التمييز — ذهب إشراق، يميّزه عن أزرق ديسكورد. */
+export const ACCENT = "#c9a227";
+export const ACCENT_SOFT = "#c9a22722";
+export const ACCENT_STRONG = "#a8851d";
 
 /** وحدة المباعدة الأساسية. كل الهوامش مضاعفاتها. */
 export const UNIT = 7;
@@ -37,5 +37,5 @@ export const SECTION_ORDER: Record<string, number> = {
 /** مدّة الانتقالات — موحّدة عبر الواجهة. */
 export const TRANSITION_MS = 140;
 
-/** درجات الأسطح، من الأعمق إلى الأفتح. */
+/** درجات الرمادي للأسطح، من الأعمق إلى الأفتح. */
 export const SURFACE = ["#0e0e11", "#17171b", "#1f1f25", "#2a2a31"] as const;

@@ -139,11 +139,11 @@
 }
 
 .esharq-tc-preset.on {
-    box-shadow: 0 0 0 2px var(--background-base-lowest, #0b0b0e), 0 0 0 4px #22c9f0;
+    box-shadow: 0 0 0 2px var(--background-base-lowest, #0b0b0e), 0 0 0 4px #c9a227;
 }
 
 .esharq-tc-preset:focus-visible {
-    outline: 2px solid #22c9f0;
+    outline: 2px solid #c9a227;
     outline-offset: 3px;
 }
 
@@ -180,7 +180,7 @@
 
 .esharq-tc-quick-btn:hover {
     background: #1d1d23;
-    box-shadow: inset 0 0 0 1px rgb(34 201 240 / 30%);
+    box-shadow: inset 0 0 0 1px rgb(201 162 39 / 30%);
 }
 
 .esharq-tc-quick-name {
@@ -299,8 +299,8 @@
 }
 
 .esharq-tc-choice.on {
-    background: rgb(34 201 240 / 12%);
-    box-shadow: inset 0 0 0 1px rgb(34 201 240 / 45%);
+    background: rgb(201 162 39 / 12%);
+    box-shadow: inset 0 0 0 1px rgb(201 162 39 / 45%);
 }
 
 /* ── ألوان النصّ والإجراءات ──────────────────────────────────────────────── */
@@ -362,8 +362,8 @@
 }
 
 .esharq-tc-mode.on {
-    background: rgb(34 201 240 / 8%);
-    box-shadow: inset 0 0 0 1px rgb(34 201 240 / 45%);
+    background: rgb(201 162 39 / 8%);
+    box-shadow: inset 0 0 0 1px rgb(201 162 39 / 45%);
 }
 
 .esharq-tc-mode-swatch {
@@ -446,9 +446,9 @@
 }
 
 .esharq-tc-chip.on {
-    background: rgb(34 201 240 / 14%);
-    box-shadow: inset 0 0 0 1px rgb(34 201 240 / 50%);
-    color: #a0eafd;
+    background: rgb(201 162 39 / 14%);
+    box-shadow: inset 0 0 0 1px rgb(201 162 39 / 50%);
+    color: #ecd384;
 }
 
 .esharq-tc-chip.all {
@@ -459,15 +459,15 @@
 .esharq-tc-choice:focus-visible,
 .esharq-tc-mode:focus-visible,
 .esharq-tc-quick-btn:focus-visible {
-    outline: 2px solid #22c9f0;
+    outline: 2px solid #c9a227;
     outline-offset: 2px;
 }
 
 /* ── معاينة ونماذج ──────────────────────────────────────────────────────── */
 
 .esharq-tc-quick-btn.on {
-    background: rgb(34 201 240 / 10%);
-    box-shadow: inset 0 0 0 1px rgb(34 201 240 / 40%);
+    background: rgb(201 162 39 / 10%);
+    box-shadow: inset 0 0 0 1px rgb(201 162 39 / 40%);
 }
 
 .esharq-tc-preview {
@@ -586,8 +586,8 @@
 }
 
 .esharq-tc-target.on {
-    background: rgb(34 201 240 / 9%);
-    box-shadow: inset 0 0 0 1px rgb(34 201 240 / 42%);
+    background: rgb(201 162 39 / 9%);
+    box-shadow: inset 0 0 0 1px rgb(201 162 39 / 42%);
 }
 
 .esharq-tc-target.all {
@@ -607,8 +607,8 @@
 }
 
 .esharq-tc-target.on .esharq-tc-target-box {
-    background: #22c9f0;
-    box-shadow: inset 0 0 0 1.5px #22c9f0;
+    background: #c9a227;
+    box-shadow: inset 0 0 0 1.5px #c9a227;
 }
 
 .esharq-tc-target.on .esharq-tc-target-box::after {
@@ -642,6 +642,6 @@
 }
 
 .esharq-tc-target:focus-visible {
-    outline: 2px solid #22c9f0;
+    outline: 2px solid #c9a227;
     outline-offset: 2px;
 }

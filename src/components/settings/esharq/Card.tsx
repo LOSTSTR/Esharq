@@ -172,7 +172,7 @@ export function NoticeStrip({ tone = "info", children }: {
     return (
         <div style={{
             borderInlineStart: `3px solid ${color}`,
-            background: tone === "danger" ? "rgb(242 63 67 / 7%)" : "rgb(34 201 240 / 8%)",
+            background: tone === "danger" ? "rgb(242 63 67 / 7%)" : "rgb(201 162 39 / 8%)",
             borderRadius: RADIUS / 2,
             padding: `${UNIT * 1.5}px ${UNIT * 2}px`,
             fontSize: 13,

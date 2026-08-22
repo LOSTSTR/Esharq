@@ -190,7 +190,7 @@ function EquicordSettings() {
                                 )
                     }
                     cardImage={ESHARQ_LOGO}
-                    backgroundColor="#22c9f0"
+                    backgroundColor="#ED87A9"
                 >
                     <DonateButtonComponent donated={true} />
                 </SpecialCard>
@@ -202,7 +202,7 @@ function EquicordSettings() {
                         "Support Esharq development by donating!"
                     )}
                     cardImage={ESHARQ_LOGO}
-                    backgroundColor="#4e74fc"
+                    backgroundColor="#c3a3ce"
                 >
                     <DonateButtonComponent />
                 </SpecialCard>
@@ -216,7 +216,7 @@ function EquicordSettings() {
                         "As a contributor to Esharq, you earned a special badge!"
                     )}
                     cardImage={ESHARQ_LOGO}
-                    backgroundColor="#8b5cfa"
+                    backgroundColor="#EDCC87"
                 >
                     <Button
                         variant="none"

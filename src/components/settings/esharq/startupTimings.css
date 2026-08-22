@@ -97,7 +97,7 @@
 }
 
 .esharq-st-ms.slow {
-    color: #22c9f0;
+    color: #c9a227;
     opacity: 1;
     font-weight: 600;
 }
@@ -131,7 +131,7 @@
 }
 
 .esharq-st-tabs button.on {
-    background: #22c9f0;
+    background: #c9a227;
     color: #14140f;
     font-weight: 600;
 }
@@ -214,7 +214,7 @@
 }
 
 .esharq-st-bar.split i.patch {
-    background: #22c9f0;
+    background: #c9a227;
     border-start-end-radius: 999px;
     border-end-end-radius: 999px;
 }

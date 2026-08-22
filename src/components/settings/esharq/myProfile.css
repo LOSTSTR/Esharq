@@ -57,7 +57,7 @@
 
 /* لون الحدّ يقول مصدر الشارة بلا قراءة. */
 .esharq-mp-badge.origin-esharq {
-    border-inline-start-color: #22c9f0;
+    border-inline-start-color: #c9a227;
 }
 
 .esharq-mp-badge.origin-upstream {
@@ -314,7 +314,7 @@
 
 .esharq-mp-scope-btn.on {
     background: rgb(34 201 240 / 14%);
-    color: #22c9f0;
+    color: #c9a227;
 }
 
 .esharq-mp-scope-note {

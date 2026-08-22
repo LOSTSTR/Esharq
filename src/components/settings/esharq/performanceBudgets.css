@@ -73,7 +73,7 @@
 }
 
 .esharq-pb-track i.near {
-    background: #22c9f0;
+    background: #c9a227;
 }
 
 .esharq-pb-track i.over {
@@ -118,7 +118,7 @@
 }
 
 .esharq-pb-input input:focus {
-    box-shadow: inset 0 0 0 1px #22c9f077;
+    box-shadow: inset 0 0 0 1px #c9a22777;
 }
 
 .esharq-pb-note {

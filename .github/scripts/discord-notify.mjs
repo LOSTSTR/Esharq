@@ -133,13 +133,9 @@ function run(cmd) {
     return execSync(cmd, { encoding: "utf8" }).trim();
 }
 
-// Shared by BOTH webhooks (plugins + updates) — the Esharq webhook avatar.
-//
-// 🔴 الاسم يحمل رقم نسخة عمداً: ديسكورد يُخزّن صورة الويب‑هوك **بحسب الرابط**،
-// فتبديل محتوى ملفٍّ بنفس الاسم قد يُبقي القديمة معروضةً مدّةً طويلة. تغيير
-// الاسم يكسر التخزين ويضمن ظهور الجديدة من أوّل رسالة.
+// Shared by BOTH webhooks (plugins + updates) — the EA webhook avatar.
 const ICON_URL =
-    "https://raw.githubusercontent.com/LOSTSTR/Esharq/main/.github/assets/notify-icon-v2.png";
+    "https://raw.githubusercontent.com/LOSTSTR/Esharq/main/.github/assets/notify-icon.png";
 
 // The Esharq emoji that heads every announcement. Keep this ID stable.
 const ICON = "<:esharqcloud:1521840260831641681>";

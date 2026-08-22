@@ -238,8 +238,8 @@
 }
 
 .esharq-ps-kind.metric {
-    background: rgb(34 201 240 / 20%);
-    color: #a0eafd;
+    background: rgb(201 162 39 / 20%);
+    color: #ecd384;
 }
 
 .esharq-ps-kind.sentry {
@@ -334,9 +334,9 @@
 }
 
 .esharq-ps-choice.on {
-    background: rgb(34 201 240 / 14%);
-    box-shadow: inset 0 0 0 1px rgb(34 201 240 / 48%);
-    color: #a0eafd;
+    background: rgb(201 162 39 / 14%);
+    box-shadow: inset 0 0 0 1px rgb(201 162 39 / 48%);
+    color: #ecd384;
 }
 
 .esharq-ps-select {
@@ -354,7 +354,7 @@
 
 .esharq-ps-choice:focus-visible,
 .esharq-ps-select:focus-visible {
-    outline: 2px solid #22c9f0;
+    outline: 2px solid #c9a227;
     outline-offset: 2px;
 }
 
