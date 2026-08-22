@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { applyArabicRelativeTime } from "@utils/arabicRelativeTime";
 import { EquicordDevs } from "@utils/constants";
 import {
     ARABIC_TABLE_GLOBAL, type ArabicMessageTable, installArabicTable,
@@ -11,6 +12,7 @@ import {
     MESSAGE_LOADER_REPLACEMENT } from "@utils/esharqLocale";
 import { forceGregorianForArabic } from "@utils/gregorianCalendar";
 import definePlugin from "@utils/types";
+import { moment, UserSettingsActionCreators } from "@webpack/common";
 
 // 🔴 البادئة `_` ليست تجميلاً: مُولِّد سجلّ الإضافات يستورد **كل مدخل** في
 // هذا المجلد ويُسجّله بـ`module.name`. وبلا البادئة سُجّل هذا الجدول إضافةً
@@ -79,6 +81,25 @@ export default definePlugin({
             }
         }
     ],
+
+    /**
+     * 🔴 هنا لا وقت الاستيراد — على عكس جدول الرسائل والتقويم.
+     *
+     * `moment` بحثٌ كسول في webpack، ولا وجود له قبل إقلاعه. والتأخير مقبول
+     * هنا وحده لأنّ المُدَد النسبية تُحسَب عند رسم الرسالة لا عند الإقلاع.
+     */
+    start() {
+        try {
+            const locale = UserSettingsActionCreators.PreloadedUserSettingsActionCreators
+                .getCurrentValue().localization.locale.value ?? "en-US";
+            // لغة ديسكورد هي الفيصل لا إعداد إضافاتنا: هذه مُدَدٌ داخل جمل
+            // ديسكورد نفسه، فمن يقرؤه بالإنجليزية يجب أن تبقى إنجليزية.
+            if (!/^ar/i.test(locale)) return;
+            applyArabicRelativeTime(moment);
+        } catch {
+            // قراءة الإعدادات قد تسبق تهيئتها: تبقى المدّة إنجليزية، لا انهيار.
+        }
+    },
 
     /** للتشخيص: كم مفتاحاً حمَّلنا فعلاً. */
     get tableSize() {
