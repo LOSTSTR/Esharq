@@ -52,7 +52,13 @@ async function pickGofileServer(): Promise<string> {
         const res = await safeFetch("https://api.gofile.io/servers");
         const json = (await res.json()) as GofileServersResponse;
 
-        const servers = json?.data?.servers?.map(s => s?.name).filter(Boolean) as string[] | undefined;
+        // 🔴 اسم الخادم يُركَّب في `https://${server}.gofile.io/…` — فهو **جزء من
+        // المضيف**. ومصدره ردّ طرفٍ ثالث، فاسمٌ مثل `x.com/a?` يصنع
+        // `https://x.com/a?.gofile.io/uploadFile` ويذهب بملفّ المستخدم إلى x.com.
+        // ولذلك يُقبل الاسم بمحارف التسمية وحدها لا بأنّه «نصّ غير فارغ».
+        const servers = json?.data?.servers
+            ?.map(s => s?.name)
+            .filter((n): n is string => typeof n === "string" && /^[a-z0-9-]{1,40}$/i.test(n));
         if (servers && servers.length > 0) {
             return servers[Math.floor(Math.random() * servers.length)];
         }

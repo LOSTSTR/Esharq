@@ -188,7 +188,9 @@ export default definePlugin({
     settings,
 
     chatBarButton: {
-        icon: EyeSlashIcon,
+        // الأيقونة تعكس الحالة لا تصفها: كانت «العين المشطوبة» ثابتةً فيبدو
+        // الوضع مُفعَّلاً وهو مُطفأ. دالّة لا مكوّن ثابت، فتُعاد قراءتها عند الرسم.
+        icon: () => (streamProofActive ? <EyeSlashIcon /> : <EyeIcon />),
         render: StreamProofButton,
     },
 

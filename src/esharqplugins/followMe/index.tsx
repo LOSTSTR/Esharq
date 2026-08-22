@@ -169,7 +169,7 @@ export default definePlugin({
     description: "Forces a user to follow you between voice channels when you have the Move Members permission. Right-click a user → Follow Me.",
     authors: [{ name: t("مؤلف غير معروف", "Unknown"), id: 0n }],
     tags: ["Voice", "Notifications"],
-    dependencies: ["HeaderBarAPI"],
+    dependencies: ["HeaderBarAPI", "ContextMenuAPI"],
     settings,
 
     headerBarButton: {

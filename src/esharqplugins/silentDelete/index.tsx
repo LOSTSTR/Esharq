@@ -6,7 +6,6 @@
 
 import { ApplicationCommandInputType, ApplicationCommandOptionType, sendBotMessage } from "@api/Commands";
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
-import { addMessagePopoverButton as addButton, removeMessagePopoverButton as removeButton } from "@api/MessagePopover";
 import { definePluginSettings } from "@api/Settings";
 import { BanRiskWarning } from "@utils/esharqBanWarning";
 import { t } from "@utils/esharqI18n";
@@ -203,23 +202,22 @@ export default definePlugin({
         }
     ],
 
-    start() {
-        addButton("SilentDelete", msg => {
+    // الواجهة التصريحية بدل `addMessagePopoverButton` المهجورة: تُسجَّل من كائن
+    // الإضافة فتظهر في إعدادات عناصر الواجهة ويستطيع المستخدم إخفاءها، ويسقط
+    // `start`/`stop` اليدويّان.
+    messagePopoverButton: {
+        icon: SilentDeleteIcon,
+        render(msg) {
             const mine = msg.author?.id === UserStore.getCurrentUser()?.id;
             if (!mine || msg.deleted) return null;
 
             return {
-                key: "silent-delete",
                 label: t("حذف صامت", "Silent Delete"),
                 icon: SilentDeleteIcon,
                 message: msg,
                 channel: ChannelStore.getChannel(msg.channel_id),
                 onClick: () => silentDeleteMessage(msg.channel_id, msg.id)
             };
-        }, SilentDeleteIcon);
-    },
-
-    stop() {
-        removeButton("SilentDelete");
+        }
     }
 });

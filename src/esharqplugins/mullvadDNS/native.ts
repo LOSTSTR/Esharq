@@ -14,6 +14,14 @@ export interface ShieldResolveResult {
 }
 
 const TIMEOUT_DEF = 5000;
+// حدود صلبة على ما يصل من الواجهة. `trackedDomains` إعدادٌ **يحرّره المستخدم**
+// سطراً سطراً، فقائمةٌ طويلة كانت تُطلق استعلاماتٍ متوازية بلا سقف من العملية
+// الرئيسية. والمهلة تأتي من الواجهة كذلك، فتُقيَّد بين ثانية وخمس عشرة.
+const MAX_PRELOAD_HOSTS = 100;
+const TIMEOUT_MIN = 1000;
+const TIMEOUT_MAX = 15000;
+const clampTimeout = (ms: number) =>
+    Number.isFinite(ms) ? Math.max(TIMEOUT_MIN, Math.min(ms, TIMEOUT_MAX)) : TIMEOUT_DEF;
 const DNS_HDR_LEN = 12;
 const CLASS_IN = 1;
 const TYPE_A = 1;
@@ -208,6 +216,7 @@ export const resolveDNS = async (
     proto: ResolveProtocol = "automatic",
     srv = ""
 ) => {
+    ms = clampTimeout(ms);
     if (proto === "plain_dns") return udpQuery(host, url, srv, fam, ms);
     const rDoh = await dohQuery(host, url, fam, ms);
     if (rDoh.success || proto === "doh" || !srv) return rDoh;
@@ -228,7 +237,7 @@ export const preloadDNS = async (
     proto: ResolveProtocol = "automatic",
     srv = ""
 ) => {
-    const res = await Promise.all(hosts.map(async h => {
+    const res = await Promise.all(hosts.slice(0, MAX_PRELOAD_HOSTS).map(async h => {
         const r = await resolveDNS(event, h, url, fam, ms, proto, srv);
         return [h, r.addresses] as const;
     }));

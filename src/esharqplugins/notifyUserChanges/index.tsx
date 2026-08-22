@@ -205,7 +205,10 @@ const PlatformIndicator = ({ user, wantMargin = true, wantTopMargin = false, sma
     );
 };
 
-export const settings = definePluginSettings({
+export let cachedUserIdList: string[] = [];
+let cachedUserIdsRaw: string | undefined;
+
+const settings = definePluginSettings({
     notifyStatus: {
         type: OptionType.BOOLEAN,
         description: "Notify on status changes",
@@ -234,7 +237,13 @@ export const settings = definePluginSettings({
 
 function getUserIdList() {
     try {
-        return settings.store.userIds.split(",").filter(Boolean);
+        // تُحفَظ النتيجة: الدالّة تُنادى مع كلّ تحديث حضور، وتقسيم النصّ في كلّ
+        // مرّة عملٌ مكرّر بلا داعٍ. المفتاح هو النصّ الخام، فتغييره وحده يُبطل الحفظ.
+        const raw = settings.store.userIds;
+        if (raw === cachedUserIdsRaw) return cachedUserIdList;
+        cachedUserIdsRaw = raw;
+        cachedUserIdList = raw.split(",").filter(Boolean);
+        return cachedUserIdList;
     } catch (e) {
         settings.store.userIds = "";
         return [];

@@ -139,6 +139,7 @@ export default definePlugin({
     name: "MuteAllServers",
     description: "Right-click a server → mute all servers and mark all as read in one click.",
     authors: [{ name: "Nightcord", id: 0n }],
+    dependencies: ["ContextMenuAPI"],
     tags: ["Servers", "Shortcuts"],
 
     start() {
