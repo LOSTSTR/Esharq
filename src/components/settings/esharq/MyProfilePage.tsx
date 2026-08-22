@@ -9,7 +9,7 @@ import "./myProfile.css";
 import { _getBadges } from "@api/Badges";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Switch } from "@components/Switch";
-import { getSelfServeBadges } from "@plugins/_api/badges";
+import { getEsharqEntitlements, getSelfServeBadges } from "@plugins/_api/badges";
 import {
     type BadgeKind, fetchRemote, hasLink, isHiddenLocally, onLinkChange,
     type RemoteState, setHiddenLocally, setRemote
@@ -300,12 +300,13 @@ export function MyProfilePage() {
     };
 
     // الشارات التي يملكها فعلاً — لا يُعرَض مفتاحٌ لشارةٍ لا يملكها.
-    const heldKinds: BadgeKind[] = [
-        ...(esharqBadges.some(b => b.id === "esharq_tier_badge") ? ["tier" as const] : []),
-        ...(esharqBadges.some(b => b.id === "esharq_user_badge") ? ["user" as const] : []),
-        ...(esharqBadges.some(b => b.id === "esharq_custom_badge") ? ["custom" as const] : []),
-        ...(selfServe.length > 0 ? ["selfserve" as const] : [])
-    ];
+    // 🔴 من **الاستحقاق** لا من المعروض: حسابُها من `_getBadges` كان يُسقط
+    // الشارة المخفيّة ومعها مفتاحُ إعادتها — فمن أخفى شارته لم يجد سبيلاً
+    // لإظهارها. رُئي على ملفّ حيّ بعد إخفاء «مستخدم إشراق».
+    const entitled = me == null ? null : getEsharqEntitlements(me.id);
+    const heldKinds: BadgeKind[] = entitled == null ? [] : ([
+        "tier", "user", "custom", "selfserve"
+    ] as const).filter(k => entitled[k]);
 
     const shownCount = selfServe.filter(b => b.surfaces.profile || b.surfaces.chat).length;
     const state = selfServe.length === 0

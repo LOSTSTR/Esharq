@@ -393,6 +393,22 @@ interface SelfServeEntry {
  * حالة شارة الخدمة الذاتية كما جاءت **من الخادم** — تقرؤها صفحة «ملفّك
  * الشخصيّ» لترسم مفاتيحها على الحقيقة لا على تخمين محلّيّ.
  */
+/**
+ * أيّ شارات إشراق **يستحقّها** هذا العضو — بصرف النظر عن إخفائها.
+ *
+ * 🔴 لا تُحسَب من `_getBadges`: ذاك يحترم `shouldShow`، فالشارة المخفيّة تسقط
+ * منه ⇒ يسقط معها مفتاحُ إظهارها من صفحة «ملفّي»، فلا يستطيع صاحبها إعادتها
+ * أبداً. المفتاح يجب أن يبقى ما دام الاستحقاق قائماً، لا ما دام الظهور قائماً.
+ */
+export function getEsharqEntitlements(userId: string) {
+    return {
+        tier: esharqTierOf(userId) !== null,
+        user: isEsharqMember(userId),
+        custom: userId in EsharqCustomBadges,
+        selfserve: getSelfServeBadges(userId).length > 0
+    };
+}
+
 export function getSelfServeBadges(userId: string) {
     const entry = EsharqSelfServeBadges[userId];
     if (entry == null) return [];
