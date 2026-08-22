@@ -22,6 +22,7 @@
  */
 
 import { Settings } from "@api/Settings";
+import * as ForkI18nShim from "@utils/forkI18nShim";
 import { Logger } from "@utils/Logger";
 import * as WebpackCommon from "@webpack/common";
 
@@ -29,7 +30,7 @@ import { PluginMeta } from "~plugins";
 
 import { resolveModule } from "./moduleMap";
 
-const logger = new Logger("CommunityPlugins", "#22c9f0");
+const logger = new Logger("CommunityPlugins", "#c9a227");
 
 /** يُقرأ عند كل استعمال، فلا يُثبَّت `undefined` قبل جهوز webpack. */
 const lazyReact: any = new Proxy({}, {
@@ -61,6 +62,28 @@ export function getLoaded(): readonly LoadedCommunityPlugin[] {
  * يُغيّرها البناء التالي. و`new Function` تُنشئ نطاقاً جذره عالميّ، فما تراه
  * الإضافة هو ما نُمرّره لها لا أكثر.
  */
+/**
+ * أسماء مُترجِمات الشوكات المعروفة — يُطابَق **آخر جزء من المسار** لا المسار
+ * كلّه، لأنّ العمق يختلف: `../autoTranslateNightcord` و`../../utils/i18n`.
+ *
+ * 🔴 يبقى ضيّقاً عن قصد: كلّ اسمٍ هنا قرأتُ مصدره وتحقّقتُ أنّ عقده
+ * `t(key) => key` بالإنجليزية. ولا يُضاف اسمٌ لم يُقرأ مصدره — البديل الخاطئ
+ * أسوأ من فشلٍ صريح، لأنّه يعمل ويكذب.
+ */
+const FORK_I18N = /^(autoTranslate\w*|testcordI18n|nightcordI18n|trashcordI18n)$/;
+
+/**
+ * بديلٌ لاستيرادٍ يخرج من مجلّد الإضافة، أو `undefined` إن لم نعرفه.
+ *
+ * ما لا نعرفه يبقى خطأً صريحاً: أن تسقط الإضافة بسببٍ مفهوم خيرٌ من أن تعمل
+ * بوحدةٍ فارغة اخترعناها لها.
+ */
+export function substituteEscapingImport(specifier: string): any {
+    const tail = specifier.replace(/\.(jsx?|tsx?)$/, "").split("/").filter(p => p !== "" && p !== "." && p !== "..").pop();
+    if (tail !== undefined && FORK_I18N.test(tail)) return ForkI18nShim;
+    return undefined;
+}
+
 /** حكمٌ على وحدةٍ واحدة تطلبها إضافةٌ خارجية. */
 export interface CompatItem {
     specifier: string;
@@ -68,7 +91,7 @@ export interface CompatItem {
      * `ok` تعمل · `blocked` مستحيلة في المُصيِّر (Node/إلكترون/العملية
      * الرئيسية) · `missing` اسمٌ لا نعرفه — غالباً وحدةٌ خاصّة بشوكة أخرى.
      */
-    status: "ok" | "blocked" | "missing";
+    status: "ok" | "substituted" | "blocked" | "missing";
     reason?: string;
 }
 
@@ -89,6 +112,19 @@ export function checkCompatibility(externals: string[]): {
     missing: number;
 } {
     const items: CompatItem[] = externals.map(specifier => {
+        if (specifier.startsWith(".")) {
+            // نسبيٌّ يخرج من المجلّد: إمّا نعرف بديله فنُعلنه، وإلّا فهو ناقص.
+            return substituteEscapingImport(specifier) !== undefined
+                ? {
+                    specifier, status: "substituted" as const,
+                    reason: "مُترجِم شوكةٍ أخرى — يُوضَع مكانه بديلٌ يُرجع النصّ الإنجليزي كما يفعل الأصل."
+                }
+                : {
+                    specifier, status: "missing" as const,
+                    reason: "ملفٌّ خارج مجلّد الإضافة، فلم يصل معها. انسخه داخل المجلّد ثمّ أعد الاستيراد."
+                };
+        }
+
         const r = resolveModule(specifier);
         if (r.ok) return { specifier, status: "ok" as const };
 
@@ -103,6 +139,7 @@ export function checkCompatibility(externals: string[]): {
 
     const blocked = items.filter(i => i.status === "blocked").length;
     const missing = items.filter(i => i.status === "missing").length;
+    // «مستبدَل» ليس عطلاً: الإضافة تعمل. يُعلَن ولا يُعَدّ فشلاً.
     return { ok: blocked === 0 && missing === 0, items, blocked, missing };
 }
 
@@ -185,6 +222,12 @@ function runPlugin(bundle: { id: string; name: string; modules: { path: string; 
             for (const candidate of candidates(base)) {
                 if (sources.has(candidate)) return execute(candidate);
             }
+            // 🔴 استيرادٌ **يخرج من مجلّد الإضافة**: شائعٌ في الشوكات، فملفّ
+            // المُترجِم يسكن بجوار مجلّدات الإضافات لا داخل أحدها، ولا يصل مع
+            // المجلّد المُستورَد. الإضافة سليمة وتسقط عند أوّل سطر بسببه.
+            const substitute = substituteEscapingImport(spec);
+            if (substitute !== undefined) return substitute;
+
             throw new Error(
                 `[${bundle.name}] ${from}: لا يوجد ملفّ لـ«${spec}» داخل الإضافة. ` +
                 `المُتاح: ${[...sources.keys()].join(" · ")}`

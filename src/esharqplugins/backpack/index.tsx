@@ -70,7 +70,7 @@ import { comboFromEvent, hasModifier, matchesCombo, prettyCombo } from "./hotkey
  * مخرجاً مضموناً في كل حال.
  */
 
-const logger = new Logger("Backpack", "#22c9f0");
+const logger = new Logger("Backpack", "#c9a227");
 
 /** المفاتيح المثبَّتة — قائمة `surface:id`. */
 const STORE_KEY = "Esharq_Backpack_pinned_v2";
@@ -539,6 +539,20 @@ function BackpackButton(props: UserAreaRenderProps) {
     const [open, setOpen] = useState(false);
     const anchor = useRef<HTMLDivElement>(null);
 
+    /**
+     * آخر ما ضُغط عليه — يُلتقط في طور الالتقاط فلا يفوتنا شيء.
+     *
+     * 🔴 لماذا نحتاجه: `Popout` يُغلق عند النقر خارجه ولا يمرّر الحدث، فلا سبيل
+     * إلى معرفة **أين** نُقر إلّا برصده بأنفسنا.
+     */
+    const lastDown = useRef<Node | null>(null);
+
+    useEffect(() => {
+        const onDown = (e: Event) => { lastDown.current = e.target as Node; };
+        document.addEventListener("pointerdown", onDown, true);
+        return () => document.removeEventListener("pointerdown", onDown, true);
+    }, []);
+
     const count = readAllSurfaces()
         .reduce((total, { surface, ids }) => total + ids.filter(id => showsInBackpack(surface, id)).length, 0);
 
@@ -547,7 +561,25 @@ function BackpackButton(props: UserAreaRenderProps) {
             targetElementRef={anchor}
             renderPopout={() => <BackpackPopout props={props} />}
             shouldShow={open}
-            onRequestClose={() => setOpen(false)}
+            onRequestClose={() => {
+                /**
+                 * 🔴 لا تُغلق الحقيبة على نقرةٍ داخل **لوحة إضافةٍ مُسقَطة**.
+                 *
+                 * كثيرٌ من الإضافات يفتح لوحته بـ`createPortal(..., document.body)`
+                 * — أي **خارج `#app-mount`** بالكامل، قِستُه على FakeDM: القيمة
+                 * `root.contains(panel)` كانت `false`. فلمّا كان زرّها داخل
+                 * الحقيبة، عدّت النقرةَ في لوحتها «نقرةً خارج الحقيبة» فأُغلقت،
+                 * فتفكّك الزرّ ومعه اللوحة — تُفتح ثمّ تختفي عند أوّل لمسة، ولا
+                 * يظهر خطأ في أيّ سجلّ. رأيتُ الأزرار تهبط 6 ← 1 عند الإفلات.
+                 *
+                 * وواجهة ديسكورد كلّها داخل `#app-mount` (طبقاتُه ونوافذُه
+                 * أيضاً)، فالاستثناء ضيّقٌ لا يُبطل الإغلاق الطبيعي.
+                 */
+                const target = lastDown.current;
+                const root = document.getElementById("app-mount");
+                if (target !== null && root !== null && !root.contains(target)) return;
+                setOpen(false);
+            }}
             position="top"
             align="left"
             spacing={8}

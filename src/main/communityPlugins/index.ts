@@ -171,7 +171,10 @@ function transpile(path: string, text: string): { code: string; } | { error: Fin
 
 /** قراءة الاسم والوصف من `definePlugin` — عرضٌ فقط، وفشلها لا يمنع شيئاً. */
 function readMeta(code: string) {
-    const pick = (key: string) => new RegExp(`${key}\\s*:\\s*["'\`]([^"'\`]{1,120})["'\`]`).exec(code)?.[1];
+    // 🔴 حدّ الكلمة ليس تجميلاً: بلا `(?<![\\w$])` تُطابق `name:` **داخل**
+    // `username:`، فقُرئ اسم الإضافة «Unknown User» من سطرٍ وسط الشيفرة
+    // (`username: "Unknown User"`) بدل «FakeDM» من `definePlugin`. رأيتُه.
+    const pick = (key: string) => new RegExp(`(?<![\\w$])${key}\\s*:\\s*["'\`]([^"'\`]{1,120})["'\`]`).exec(code)?.[1];
     const authors = [...code.matchAll(/name\s*:\s*["']([^"']{1,60})["']\s*,\s*id\s*:/g)].map(m => m[1]);
     return { name: pick("name"), description: pick("description"), authors };
 }
@@ -271,7 +274,15 @@ export function importFolder(root: string): ImportResult {
                     "if (__el === null) {",
                     "    __el = document.createElement('style');",
                     "    __el.id = __id;",
-                    "    document.head.appendChild(__el);",
+                    // 🔴 `document.head` **عدمٌ هنا**، وهذا ليس احتياطاً نظرياً:
+                    // `loadCommunityPlugins` تُنفَّذ في تمهيد المُصيِّر قبل
+                    // `DOMContentLoaded` (Vencord.ts) عمداً — لتُسجَّل الرقع قبل
+                    // إقلاع webpack. فالإلحاق المباشر يرمي «Cannot read
+                    // properties of null (reading 'appendChild')» وتسقط الإضافة
+                    // كلّها عند أوّل `import \"./style.css\"`. رآه مستخدم فعليّ.
+                    "    const __attach = () => (document.head || document.documentElement).appendChild(__el);",
+                    "    if (document.head || document.documentElement) __attach();",
+                    "    else document.addEventListener('DOMContentLoaded', __attach, { once: true });",
                     "}",
                     `__el.textContent = ${JSON.stringify(f.text)};`,
                     "module.exports = {};"
@@ -310,9 +321,25 @@ export function importFolder(root: string): ImportResult {
 
     // كلّ استيراد صار `require("...")` بعد الترجمة، فاستخراجها نصّياً دقيق
     // هنا — لا تخمين: ما لا يبدأ بنقطة فهو خارج الإضافة.
-    const externals = [...new Set(
+    const rawSpecifiers = [...new Set(
         built.flatMap(b => [...b.code.matchAll(/require\(["']([^"']+)["']\)/g)].map(m => m[1]))
-    )].filter(s => !s.startsWith(".")).sort();
+    )];
+
+    // 🔴 النسبيّ الذي **يخرج** من المجلّد يُحسَب خارجياً هو الآخر: ملفّه ليس
+    // في الحزمة ولن يكون، فحاله حال وحدةٍ خارجية تماماً — وإخفاؤه عن التقرير
+    // يجعل الإضافة تبدو سليمةً ثمّ تسقط عند التشغيل.
+    const escapes = (spec: string) => {
+        if (!spec.startsWith(".")) return false;
+        let depth = 0;
+        for (const piece of spec.split("/")) {
+            if (piece === "..") depth--;
+            else if (piece !== "." && piece !== "") depth++;
+            if (depth < 0) return true;
+        }
+        return false;
+    };
+
+    const externals = [...new Set(rawSpecifiers.filter(s => !s.startsWith(".") || escapes(s)))].sort();
 
     const entryCode = built.at(-1)?.code ?? "";
     const meta = readMeta(entryCode);

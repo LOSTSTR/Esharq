@@ -162,6 +162,19 @@ function PluginRow({ entry, loadError, onChanged }: {
                   * ولا أيّ وحدة. وهو تقريرٌ محليّ محض: يُحسَب من ملفّات على
                   * قرصه بخريطةٍ في حزمته، ولا يُرسَل شيءٌ إلى أحد.
                   */}
+                {/* الاستبدال يُعلَن ولو كان كلّ شيء يعمل: صاحب الجهاز يستحقّ
+                    أن يعرف أنّ وحدةً بُدّلت له، لا أن يكتشفه من سلوكٍ غريب. */}
+                {compat !== null && compat.items.some(i => i.status === "substituted") && (
+                    <div className="esharq-cp-pending">
+                        <b>{t("وحداتٌ بُدّلت:", "Modules substituted:")}</b>{" "}
+                        {compat.items.filter(i => i.status === "substituted").map(i => i.specifier).join(" · ")}
+                        <div className="esharq-cp-compat-why">
+                            {t("مُترجِم شوكةٍ أخرى لا يصل مع المجلّد. وُضع مكانه بديلٌ يُرجع النصّ الإنجليزي — وهو ما يفعله الأصل نفسه لمن لغته إنجليزية، فالإضافة تعمل كاملةً.",
+                                "Another fork's translator does not ship with the folder. A stand-in returns the English text — exactly what the original does for English users, so the plugin works fully.")}
+                        </div>
+                    </div>
+                )}
+
                 {compat !== null && !compat.ok && (
                     <div className={compat.blocked > 0 ? "esharq-cp-error" : "esharq-cp-pending"}>
                         <b>{compat.blocked > 0

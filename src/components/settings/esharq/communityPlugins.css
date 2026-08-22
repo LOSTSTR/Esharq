@@ -129,8 +129,8 @@
 }
 
 .esharq-cp-pending {
-    background: rgb(34 201 240 / 10%);
-    color: #22c9f0;
+    background: rgb(201 162 39 / 10%);
+    color: #c9a227;
 }
 
 .esharq-cp-empty {
@@ -164,8 +164,8 @@
 }
 
 .esharq-cp-finding.warning {
-    background: rgb(34 201 240 / 8%);
-    border-inline-start-color: #22c9f0;
+    background: rgb(201 162 39 / 8%);
+    border-inline-start-color: #c9a227;
 }
 
 .esharq-cp-finding-head {
