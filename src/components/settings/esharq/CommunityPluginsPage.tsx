@@ -6,12 +6,12 @@
 
 import "./communityPlugins.css";
 
-import { getLoaded } from "@api/CommunityPlugins";
+import { checkCompatibility, getLoaded } from "@api/CommunityPlugins";
 import { Settings } from "@api/Settings";
 import { openPluginModal } from "@components/settings/tabs/plugins/PluginModal";
 import { Switch } from "@components/Switch";
 import { t } from "@utils/esharqI18n";
-import { Alerts, useEffect, useState } from "@webpack/common";
+import { Alerts, React, useEffect, useState } from "@webpack/common";
 
 import { Card, NoticeStrip, StatRow } from "./Card";
 import { GateOverlay } from "./GateOverlay";
@@ -38,6 +38,11 @@ interface Entry {
     fileCount: number;
     bytes: number;
     sourcePath: string;
+    /**
+     * الوحدات الخارجية التي تطلبها — تُحسَب عند الاستيراد في العملية الرئيسية.
+     * افتراضيّ فارغ لأنّ الإضافات المستورَدة قبل هذه الميزة لا تحمله.
+     */
+    externals: string[];
 }
 
 const native = () => (window as any).VencordNative?.communityPlugins;
@@ -100,6 +105,13 @@ function PluginRow({ entry, loadError, onChanged }: {
         return name === undefined ? undefined : Vencord.Plugins.plugins[name];
     })();
 
+    // يُحسَب مرّةً لكل قائمة وحدات: الخريطة ثابتة، والنتيجة لا تتغيّر إلّا
+    // بإعادة الاستيراد — وهي تُبدّل `entry.externals` فتُعيد الحساب.
+    const compat = React.useMemo(
+        () => ((entry.externals ?? []).length === 0 ? null : checkCompatibility(entry.externals)),
+        [entry.externals]
+    );
+
     const toggle = async (value: boolean) => {
         setBusy(true);
         try {
@@ -140,6 +152,31 @@ function PluginRow({ entry, loadError, onChanged }: {
                     <span>{Math.max(1, Math.round(entry.bytes / 1024))} KB</span>
                     <span className="esharq-cp-hash" title={t("بصمة المصدر", "Source hash")}>{entry.hash.slice(0, 12)}</span>
                 </div>
+
+                {/*
+                  * تقرير التوافق: يُعرَض **قبل التفعيل** لا بعده.
+                  *
+                  * 🔴 لماذا يستحقّ مكاناً على البطاقة: إضافةٌ تطلب `fs` أو
+                  * `electron` لن تعمل مهما فعل المستخدم — وقبل هذا كان يكتشف
+                  * ذلك بعد تفعيلٍ وإعادة تشغيلٍ كاملة، بخطأٍ لا يقول أيّ سطر
+                  * ولا أيّ وحدة. وهو تقريرٌ محليّ محض: يُحسَب من ملفّات على
+                  * قرصه بخريطةٍ في حزمته، ولا يُرسَل شيءٌ إلى أحد.
+                  */}
+                {compat !== null && !compat.ok && (
+                    <div className={compat.blocked > 0 ? "esharq-cp-error" : "esharq-cp-pending"}>
+                        <b>{compat.blocked > 0
+                            ? t("لن تعمل كاملةً:", "Will not fully work:")
+                            : t("وحداتٌ لا نعرفها:", "Modules we don't know:")}</b>{" "}
+                        {compat.items.filter(i => i.status !== "ok").map(i => i.specifier).join(" · ")}
+                        <div className="esharq-cp-compat-why">
+                            {compat.blocked > 0
+                                ? t("هذه من Node أو من العملية الرئيسية، ولا تصلها أيّ إضافة داخل صفحة ديسكورد — ولا إضافات إشراق نفسها.",
+                                    "These come from Node or the main process, and no plugin inside the Discord page can reach them — not even Esharq's own.")
+                                : t("أسماءٌ خاصّة بشوكةٍ أخرى غالباً. استورد الإضافة التي تُكمّلها، أو احذف السطر إن كان لزينةٍ لا تُستعمل.",
+                                    "Most likely names specific to another fork. Import the plugin that completes it, or delete the line if it is unused.")}
+                        </div>
+                    </div>
+                )}
 
                 {loadError !== undefined && (
                     <div className="esharq-cp-error">

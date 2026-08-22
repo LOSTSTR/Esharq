@@ -61,9 +61,58 @@ export function getLoaded(): readonly LoadedCommunityPlugin[] {
  * يُغيّرها البناء التالي. و`new Function` تُنشئ نطاقاً جذره عالميّ، فما تراه
  * الإضافة هو ما نُمرّره لها لا أكثر.
  */
+/** حكمٌ على وحدةٍ واحدة تطلبها إضافةٌ خارجية. */
+export interface CompatItem {
+    specifier: string;
+    /**
+     * `ok` تعمل · `blocked` مستحيلة في المُصيِّر (Node/إلكترون/العملية
+     * الرئيسية) · `missing` اسمٌ لا نعرفه — غالباً وحدةٌ خاصّة بشوكة أخرى.
+     */
+    status: "ok" | "blocked" | "missing";
+    reason?: string;
+}
+
+/**
+ * تقرير التوافق **قبل التفعيل**.
+ *
+ * 🔴 لماذا هنا لا في العملية الرئيسية: الخريطة تسكن المُصيِّر، وهي وحدها من
+ * تعرف ما نشحنه. فالعملية الرئيسية تُحصي الأسماء (فالشيفرة المُترجَمة عندها)،
+ * وهذا الملفّ يحكم عليها. تقسيمٌ لا تكرار: مصدر الحقيقة واحد.
+ *
+ * والفائدة عمليّة: من يستورد إضافةً تطلب `fs` يرى ذلك في اللحظة، لا بعد
+ * إعادة تشغيلٍ كاملة ينتهي بخطأٍ أحمر لا يدلّه على السبب.
+ */
+export function checkCompatibility(externals: string[]): {
+    ok: boolean;
+    items: CompatItem[];
+    blocked: number;
+    missing: number;
+} {
+    const items: CompatItem[] = externals.map(specifier => {
+        const r = resolveModule(specifier);
+        if (r.ok) return { specifier, status: "ok" as const };
+
+        // «مستحيلة» تُميَّز عن «مجهولة»: الأولى لا حلّ لها بتاتاً في المُصيِّر،
+        // والثانية قد تُحلّ بإدراج الوحدة أو باستيراد الإضافة التي تُكمّلها.
+        const impossible = /^(node:)?(fs|path|os|crypto|child_process|http|https|net|dns|dgram|events|util|stream|zlib|worker_threads)(\/|$)/.test(specifier)
+            || specifier === "electron"
+            || specifier.startsWith("@main/");
+
+        return { specifier, status: impossible ? "blocked" as const : "missing" as const, reason: r.reason };
+    });
+
+    const blocked = items.filter(i => i.status === "blocked").length;
+    const missing = items.filter(i => i.status === "missing").length;
+    return { ok: blocked === 0 && missing === 0, items, blocked, missing };
+}
+
 function runPlugin(bundle: { id: string; name: string; modules: { path: string; code: string; }[]; }) {
-    /** ذاكرة الوحدات داخل الإضافة الواحدة — كي يعمل الاستيراد النسبيّ. */
+    /** ذاكرة الوحدات المُنفَّذة داخل الإضافة الواحدة. */
     const registry = new Map<string, any>();
+    /** شيفرة كل وحدة بمسارها، لتُنفَّذ **عند طلبها** لا بترتيب القراءة. */
+    const sources = new Map(bundle.modules.map(m => [m.path, m.code]));
+    /** ما هو قيد التنفيذ الآن — لكشف الدور بدل الوقوع في تكرار لا ينتهي. */
+    const running = new Set<string>();
 
     const normalise = (from: string, spec: string) => {
         if (!spec.startsWith(".")) return spec;
@@ -73,45 +122,85 @@ function runPlugin(bundle: { id: string; name: string; modules: { path: string; 
             if (piece === "..") parts.pop();
             else parts.push(piece);
         }
-        const joined = parts.join("/");
-        return joined.endsWith(".js") ? joined : `${joined}.js`;
+        return parts.join("/");
     };
 
-    let last: any;
+    /**
+     * يجرّب لواحق الملفّات وصيغة المجلد.
+     *
+     * 🔴 من يكتب `../util/icons` لا يكتب اللاحقة، ومن يكتب `./components`
+     * يقصد `components/index.js`. تثبيت `.js` وحدها كان يُفشل الثانية.
+     */
+    const candidates = (base: string) => [base, `${base}.js`, `${base}/index.js`];
 
-    for (const mod of bundle.modules) {
+    /**
+     * 🔴 التنفيذ **عند الطلب** لا بترتيب القراءة.
+     *
+     * كانت الوحدات تُنفَّذ مرتّبةً أبجدياً (`index.js` آخراً)، فوحدةٌ تستورد
+     * أخرى تسبقها في الأبجدية تعمل، ومن تستورد ما يليها تفشل بـ«لا أعرف
+     * الوحدة». مثالٌ حقيقيّ: `components/ChromeTab.js` يستورد `../util/icons`
+     * و«c» قبل «u» ⇒ يعمل قبله فلا يجده. والترتيب الأبجدي ليس ترتيب اعتماد.
+     *
+     * الآن `require` يُنفّذ ما يُطلَب إن لم يكن مُنفَّذاً بعد، فيصحّ أي ترتيب.
+     */
+    const execute = (path: string): any => {
+        if (registry.has(path)) return registry.get(path);
+
+        const code = sources.get(path);
+        if (code === undefined) return undefined;
+
+        if (running.has(path)) {
+            // دورٌ بين وحدتين: تُعاد الصادرات الجزئية كما يفعل CommonJS،
+            // فالبرنامج يعمل بدل أن يعلّق.
+            return registry.get(path) ?? {};
+        }
+
+        running.add(path);
         const exports: any = {};
         const module = { exports };
+        // يُسجَّل **قبل** التنفيذ حتى يرى الدورُ كائناً لا فراغاً.
+        registry.set(path, exports);
 
-        const require = (spec: string) => {
-            const relative = normalise(mod.path, spec);
-            if (registry.has(relative)) return registry.get(relative);
+        try {
+            // 🔴 `React` يُمرَّر صراحةً: JSX يُترجَم إلى `React.createElement`،
+            // و`React` ليس متغيّراً عالمياً في حزمتنا. فبدونه تفشل **كل** إضافة
+            // فيها JSX بـ«React is not defined». ويُمرَّر كسولاً لأنّ التحميل
+            // يقع قبل أن يُقلع webpack عند ديسكورد.
+            const fn = new Function(
+                "module", "exports", "require", "React",
+                `"use strict";\n${code}\n//# sourceURL=esharq-community/${bundle.name}/${path}`
+            );
+            fn(module, exports, makeRequire(path), lazyReact);
+        } finally {
+            running.delete(path);
+        }
 
-            const resolved = resolveModule(spec);
-            if (!resolved.ok) {
-                throw new Error(`[${bundle.name}] ${mod.path}: ${resolved.reason}`);
+        registry.set(path, module.exports);
+        return module.exports;
+    };
+
+    const makeRequire = (from: string) => (spec: string) => {
+        if (spec.startsWith(".")) {
+            const base = normalise(from, spec);
+            for (const candidate of candidates(base)) {
+                if (sources.has(candidate)) return execute(candidate);
             }
-            return resolved.value;
-        };
+            throw new Error(
+                `[${bundle.name}] ${from}: لا يوجد ملفّ لـ«${spec}» داخل الإضافة. ` +
+                `المُتاح: ${[...sources.keys()].join(" · ")}`
+            );
+        }
 
-        // 🔴 `React` يُمرَّر صراحةً: JSX يُترجَم إلى `React.createElement`، و`React`
-        // ليس متغيّراً عالمياً في حزمتنا. فبدونه تفشل **كل** إضافة فيها JSX بـ
-        // «React is not defined» — وهي أوّل ما يكتبه من يصنع واجهة. اكتُشف
-        // بقراءة الناتج المُحوَّل لا بالتخمين.
-        //
-        // ويُمرَّر **كسولاً**: التحميل يقع قبل أن يُقلع webpack عند ديسكورد، فقراءة
-        // `WebpackCommon.React` هنا تُثبّت `undefined` في نطاق الإضافة إلى الأبد.
-        const fn = new Function(
-            "module", "exports", "require", "React",
-            `"use strict";\n${mod.code}\n//# sourceURL=esharq-community/${bundle.name}/${mod.path}`
-        );
-        fn(module, exports, require, lazyReact);
+        const resolved = resolveModule(spec);
+        if (!resolved.ok) {
+            throw new Error(`[${bundle.name}] ${from}: ${resolved.reason}`);
+        }
+        return resolved.value;
+    };
 
-        registry.set(mod.path, module.exports);
-        last = module.exports;
-    }
-
-    return last;
+    // المدخل هو آخر ما رتّبه الجانب الأصليّ (`index.js` يُؤخَّر هناك).
+    const entry = bundle.modules[bundle.modules.length - 1]?.path;
+    return entry === undefined ? undefined : execute(entry);
 }
 
 /**

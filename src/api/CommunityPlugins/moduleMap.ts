@@ -20,42 +20,158 @@
  * لأن صفحة ديسكورد بلا Node أصلاً (`contextIsolation`). القرار قراره، والحدّ
  * حدُّ المنصّة.
  */
-
+/*
+ * وحداتٌ مُولَّدة آلياً: **كلّ** ما نشحنه فعلاً في المُصيِّر.
+ *
+ * تُستثنى ٢٦ ملفّاً قِستُ أنّها تصل إلى Node أو إلكترون (ملفّات `native` وما
+ * يشبهها). والقياس بالترجمة لا بالنصّ: محاولةٌ أولى تتبّعت استيراد الأنواع
+ * فأسقطت ٩٦٦ وحدة سليمة — و`@main/themes` مثالها، فهي تُبنى في المُصيِّر بلا
+ * مشكلة. وإدراج هذه الوحدات لا يزيد الحزمة بايتاً واحداً: قِستُ 10045 KB
+ * قبلها وبعدها، لأنّها مشحونةٌ سلفاً عبر `~plugins`.
+ */
+/*
+ * وحداتٌ مُولَّدة: كلّ ما نشحنه في المُصيِّر من `@api` و`@components` و`@utils`
+ * و`@shared`، عدا ما قِستُ أنّه يصل إلى Node أو إلكترون.
+ *
+ * 🔴 القياس بالترجمة لا بالنصّ: محاولةٌ أولى تتبّعت استيراد **الأنواع** فحكمت
+ * على 966 وحدة سليمة بالمنع — و`@main/themes` مثالها الفاضح، فهي تُبنى في
+ * المُصيِّر بلا مشكلة لأنّ ملفّها خالٍ من Node. الصواب أن تُترجَم الشيفرة
+ * أوّلاً (فتسقط الأنواع) ثمّ يُتتبَّع ما بقي.
+ */
+import * as C_api_AudioPlayer from "@api/AudioPlayer";
+import * as C_api_Backpack from "@api/Backpack";
 import * as Badges from "@api/Badges";
 import * as ChatButtons from "@api/ChatButtons";
 import * as Commands from "@api/Commands";
+import * as C_api_Commands_commandHelpers from "@api/Commands/commandHelpers";
+import * as C_api_Commands_types from "@api/Commands/types";
+import * as C_api_CommunityPlugins from "@api/CommunityPlugins";
+import * as C_api_CommunityPlugins_moduleMap from "@api/CommunityPlugins/moduleMap";
 import * as ContextMenu from "@api/ContextMenu";
 import * as DataStore from "@api/DataStore";
+import * as C_api_GifPickerContextMenu from "@api/GifPickerContextMenu";
+import * as C_api_HeaderBar from "@api/HeaderBar";
 import * as Api from "@api/index";
 import * as MemberListDecorators from "@api/MemberListDecorators";
 import * as MessageAccessories from "@api/MessageAccessories";
+import * as C_api_MessageDecorations from "@api/MessageDecorations";
 import * as MessageEvents from "@api/MessageEvents";
 import * as MessagePopover from "@api/MessagePopover";
 import * as MessageUpdater from "@api/MessageUpdater";
+import * as C_api_NicknameIcons from "@api/NicknameIcons";
 import * as Notices from "@api/Notices";
 import * as Notifications from "@api/Notifications";
+import * as C_api_Notifications_NotificationComponent from "@api/Notifications/NotificationComponent";
+import * as C_api_Notifications_notificationLog from "@api/Notifications/notificationLog";
+import * as C_api_Notifications_Notifications from "@api/Notifications/Notifications";
+import * as C_api_PluginManager from "@api/PluginManager";
+import * as C_api_ProfileCollections from "@api/ProfileCollections";
+import * as C_api_ProfileSections from "@api/ProfileSections";
 import * as ServerList from "@api/ServerList";
 import * as SettingsApi from "@api/Settings";
+import * as C_api_SettingsSync_cloudSetup from "@api/SettingsSync/cloudSetup";
+import * as C_api_SettingsSync_cloudSync from "@api/SettingsSync/cloudSync";
+import * as C_api_SettingsSync_offline from "@api/SettingsSync/offline";
+import * as C_api_SettingsSync_redact from "@api/SettingsSync/redact";
+import * as C_api_SettingsSync_types from "@api/SettingsSync/types";
 import * as Styles from "@api/Styles";
+import * as C_api_SurfaceClasses from "@api/SurfaceClasses";
+import * as C_api_Themes from "@api/Themes";
+import * as C_api_UserArea from "@api/UserArea";
+import * as C_api_UserSettingDefinitions from "@api/UserSettingDefinitions";
 import * as UserSettings from "@api/UserSettings";
+import * as C_components_Badge from "@components/Badge";
+import * as C_components_BaseText from "@components/BaseText";
+import * as C_components_Button from "@components/Button";
+import * as C_components_Card from "@components/Card";
+import * as C_components_CheckedTextInput from "@components/CheckedTextInput";
+import * as C_components_CodeBlock from "@components/CodeBlock";
+import * as C_components_Divider from "@components/Divider";
+import * as C_components_ErrorBoundary from "@components/ErrorBoundary";
+import * as C_components_ErrorCard from "@components/ErrorCard";
+import * as C_components_ExpandableCard from "@components/ExpandableCard";
+import * as C_components_Flex from "@components/Flex";
+import * as C_components_FormSwitch from "@components/FormSwitch";
+import * as C_components_Grid from "@components/Grid";
+import * as C_components_handleComponentFailed from "@components/handleComponentFailed";
+import * as C_components_Heading from "@components/Heading";
+import * as C_components_Heart from "@components/Heart";
+import * as C_components_Icons from "@components/Icons";
 import * as Components from "@components/index";
+import * as C_components_Link from "@components/Link";
+import * as C_components_margins from "@components/margins";
+import * as C_components_Notice from "@components/Notice";
+import * as C_components_Paragraph from "@components/Paragraph";
+import * as C_components_settings from "@components/settings";
+import * as C_components_settings_tabs_BaseTab from "@components/settings/tabs/BaseTab";
+import * as C_components_settings_tabs_plugins_components_Common from "@components/settings/tabs/plugins/components/Common";
+import * as C_components_settings_tabs_plugins_PluginCard from "@components/settings/tabs/plugins/PluginCard";
+import * as C_components_settings_tabs_plugins_PluginModal from "@components/settings/tabs/plugins/PluginModal";
+import * as C_components_Span from "@components/Span";
+import * as C_components_Switch from "@components/Switch";
+import * as C_components_TooltipContainer from "@components/TooltipContainer";
+import * as C_components_TooltipFallback from "@components/TooltipFallback";
+import * as C_shared_debounce from "@shared/debounce";
+import * as C_shared_IpcEvents from "@shared/IpcEvents";
+import * as C_shared_onceDefined from "@shared/onceDefined";
+import * as C_shared_SettingsStore from "@shared/SettingsStore";
+import * as C_shared_vencordUserAgent from "@shared/vencordUserAgent";
+import * as C_utils_apng from "@utils/apng";
+import * as C_utils_ChangeList from "@utils/ChangeList";
+// ─── نهاية المُولَّد ───
+// وحداتٌ قِستُها مطلوبةً في إضافات الشوكات الأخرى، وهي عندنا:
+// صفحات الإعدادات الثلاث المُستثناة أعلاه استثناءً عاماً، والوحدات
+// الافتراضية التي يحقنها بناؤنا (`external` في scripts/build/common.mjs).
+// قِست 107 استعمالات من 114 في شوكةٍ حقيقية تشير إلى ملفّاتٍ نشحنها نحن
+// أصلاً، وكانت تفشل لأنّها غير مُدرَجة وحسب. وهي في الحزمة سلفاً عبر
+// `~plugins`، فإدراجها لا يُضيف حجماً.
 import * as Clipboard from "@utils/clipboard";
 import * as Constants from "@utils/constants";
+import * as C_utils_cspViolations from "@utils/cspViolations";
 import * as Css from "@utils/css";
+import * as C_utils_dependencies from "@utils/dependencies";
 import * as DiscordUtils from "@utils/discord";
+import * as C_utils_esharqAI from "@utils/esharqAI";
+import * as C_utils_esharqBanWarning from "@utils/esharqBanWarning";
+import * as C_utils_esharqFont from "@utils/esharqFont";
+import * as C_utils_esharqFontData from "@utils/esharqFontData";
+import * as C_utils_esharqFontsData from "@utils/esharqFontsData";
 import * as EsharqI18n from "@utils/esharqI18n";
+import * as C_utils_esharqLocale from "@utils/esharqLocale";
+import * as C_utils_esharqModals from "@utils/esharqModals";
+import * as C_utils_esharqPrefs from "@utils/esharqPrefs";
+import * as C_utils_gregorianCalendar from "@utils/gregorianCalendar";
 import * as Guards from "@utils/guards";
+import * as C_utils_i18n from "@utils/i18n";
+import * as C_utils_i18n_types from "@utils/i18n/types";
 import * as Utils from "@utils/index";
+import * as C_utils_intlHash from "@utils/intlHash";
 import * as Lazy from "@utils/lazy";
+import * as C_utils_lazyReact from "@utils/lazyReact";
+import * as C_utils_localStorage from "@utils/localStorage";
 import * as LoggerModule from "@utils/Logger";
 import * as Margins from "@utils/margins";
+import * as C_utils_mergeDefaults from "@utils/mergeDefaults";
 import * as Misc from "@utils/misc";
 import * as ModalUtils from "@utils/modal";
+import * as C_utils_native from "@utils/native";
+import * as C_utils_onlyOnce from "@utils/onlyOnce";
+import * as C_utils_patches from "@utils/patches";
+import * as C_utils_Queue from "@utils/Queue";
 import * as ReactUtils from "@utils/react";
+import * as C_utils_sha256 from "@utils/sha256";
 import * as Text from "@utils/text";
+import * as C_utils_TTLMap from "@utils/TTLMap";
 import * as Types from "@utils/types";
+import * as C_utils_updater from "@utils/updater";
+import * as C_utils_web from "@utils/web";
+import * as C_utils_web_metadata from "@utils/web-metadata";
 import * as Webpack from "@webpack";
 import * as WebpackCommon from "@webpack/common";
+
+import * as C_git_hash from "~git-hash";
+import * as C_git_remote from "~git-remote";
+import * as C_plugins from "~plugins";
 
 /**
  * 🔴 يُلبِس كائنَ نطاق ESM ثوبَ وحدةِ CommonJS.
@@ -141,6 +257,103 @@ function buildMap(): Record<string, any> {
         // 🔴 كسولان: تُقرأ خصائصهما عند الاستعمال لا عند بناء الخريطة. الخريطة
         // تُبنى قبل أن يُقلع webpack عند ديسكورد، فقراءة `React` حينها تُعطي
         // `undefined` يُثبَّت في الخريطة إلى الأبد.
+
+        // حزمة أنواعٍ محضة: لا شيء منها يبقى بعد الترجمة، والفراغ هو الصواب —
+        // كما `@vencord/discord-types` نفسها أعلاه.
+        "@vencord/discord-types/webpack": {},
+
+        "@api/AudioPlayer": C_api_AudioPlayer,
+        "@api/Backpack": C_api_Backpack,
+        "@api/Commands/commandHelpers": C_api_Commands_commandHelpers,
+        "@api/Commands/types": C_api_Commands_types,
+        "@api/CommunityPlugins": C_api_CommunityPlugins,
+        "@api/CommunityPlugins/moduleMap": C_api_CommunityPlugins_moduleMap,
+        "@api/GifPickerContextMenu": C_api_GifPickerContextMenu,
+        "@api/HeaderBar": C_api_HeaderBar,
+        "@api/MessageDecorations": C_api_MessageDecorations,
+        "@api/NicknameIcons": C_api_NicknameIcons,
+        "@api/Notifications/NotificationComponent": C_api_Notifications_NotificationComponent,
+        "@api/Notifications/Notifications": C_api_Notifications_Notifications,
+        "@api/Notifications/notificationLog": C_api_Notifications_notificationLog,
+        "@api/PluginManager": C_api_PluginManager,
+        "@api/ProfileCollections": C_api_ProfileCollections,
+        "@api/ProfileSections": C_api_ProfileSections,
+        "@api/SettingsSync/cloudSetup": C_api_SettingsSync_cloudSetup,
+        "@api/SettingsSync/cloudSync": C_api_SettingsSync_cloudSync,
+        "@api/SettingsSync/offline": C_api_SettingsSync_offline,
+        "@api/SettingsSync/redact": C_api_SettingsSync_redact,
+        "@api/SettingsSync/types": C_api_SettingsSync_types,
+        "@api/SurfaceClasses": C_api_SurfaceClasses,
+        "@api/Themes": C_api_Themes,
+        "@api/UserArea": C_api_UserArea,
+        "@api/UserSettingDefinitions": C_api_UserSettingDefinitions,
+        "@components/Badge": C_components_Badge,
+        "@components/BaseText": C_components_BaseText,
+        "@components/Button": C_components_Button,
+        "@components/Card": C_components_Card,
+        "@components/CheckedTextInput": C_components_CheckedTextInput,
+        "@components/CodeBlock": C_components_CodeBlock,
+        "@components/Divider": C_components_Divider,
+        "@components/ErrorBoundary": C_components_ErrorBoundary,
+        "@components/ErrorCard": C_components_ErrorCard,
+        "@components/ExpandableCard": C_components_ExpandableCard,
+        "@components/Flex": C_components_Flex,
+        "@components/FormSwitch": C_components_FormSwitch,
+        "@components/Grid": C_components_Grid,
+        "@components/Heading": C_components_Heading,
+        "@components/Heart": C_components_Heart,
+        "@components/Icons": C_components_Icons,
+        "@components/Link": C_components_Link,
+        "@components/Notice": C_components_Notice,
+        "@components/Paragraph": C_components_Paragraph,
+        "@components/Span": C_components_Span,
+        "@components/Switch": C_components_Switch,
+        "@components/TooltipContainer": C_components_TooltipContainer,
+        "@components/TooltipFallback": C_components_TooltipFallback,
+        "@components/handleComponentFailed": C_components_handleComponentFailed,
+        "@components/margins": C_components_margins,
+        "@components/settings": C_components_settings,
+        "@components/settings/tabs/BaseTab": C_components_settings_tabs_BaseTab,
+        "@components/settings/tabs/plugins/PluginCard": C_components_settings_tabs_plugins_PluginCard,
+        "@components/settings/tabs/plugins/PluginModal": C_components_settings_tabs_plugins_PluginModal,
+        "@components/settings/tabs/plugins/components/Common": C_components_settings_tabs_plugins_components_Common,
+        "@shared/IpcEvents": C_shared_IpcEvents,
+        "@shared/SettingsStore": C_shared_SettingsStore,
+        "@shared/debounce": C_shared_debounce,
+        "@shared/onceDefined": C_shared_onceDefined,
+        "@shared/vencordUserAgent": C_shared_vencordUserAgent,
+        "@utils/ChangeList": C_utils_ChangeList,
+        "@utils/Queue": C_utils_Queue,
+        "@utils/TTLMap": C_utils_TTLMap,
+        "@utils/apng": C_utils_apng,
+        "@utils/cspViolations": C_utils_cspViolations,
+        "@utils/dependencies": C_utils_dependencies,
+        "@utils/esharqAI": C_utils_esharqAI,
+        "@utils/esharqBanWarning": C_utils_esharqBanWarning,
+        "@utils/esharqFont": C_utils_esharqFont,
+        "@utils/esharqFontData": C_utils_esharqFontData,
+        "@utils/esharqFontsData": C_utils_esharqFontsData,
+        "@utils/esharqLocale": C_utils_esharqLocale,
+        "@utils/esharqModals": C_utils_esharqModals,
+        "@utils/esharqPrefs": C_utils_esharqPrefs,
+        "@utils/gregorianCalendar": C_utils_gregorianCalendar,
+        "@utils/i18n": C_utils_i18n,
+        "@utils/i18n/types": C_utils_i18n_types,
+        "@utils/intlHash": C_utils_intlHash,
+        "@utils/lazyReact": C_utils_lazyReact,
+        "@utils/localStorage": C_utils_localStorage,
+        "@utils/mergeDefaults": C_utils_mergeDefaults,
+        "@utils/native": C_utils_native,
+        "@utils/onlyOnce": C_utils_onlyOnce,
+        "@utils/patches": C_utils_patches,
+        "@utils/sha256": C_utils_sha256,
+        "@utils/updater": C_utils_updater,
+        "@utils/web": C_utils_web,
+        "@utils/web-metadata": C_utils_web_metadata,
+        "~git-hash": C_git_hash,
+        "~git-remote": C_git_remote,
+        "~plugins": C_plugins,
+
         react: lazyNamespace(() => WebpackCommon.React),
         "react-dom": lazyNamespace(() => (WebpackCommon as any).ReactDOM)
     };
@@ -163,11 +376,53 @@ function buildMap(): Record<string, any> {
 
 let cache: Record<string, any> | null = null;
 
+/**
+ * جدول مسارات الشوكات الأخرى ⇒ ما يقابلها عندنا.
+ *
+ * 🔴 يبقى صغيراً عن قصد: أدخلتُ فيه ما **قِسته** مطلوباً في شيفرة حقيقية، لا
+ * ما قد يُطلَب. وكلّ مدخل يُتحقَّق أنّ هدفه موجودٌ في الخريطة قبل استعماله،
+ * فمدخلٌ بائد يسقط بنفسه بدل أن يُنتج وحدةً فارغة صامتة.
+ */
+const FORK_ALIASES: [RegExp, string][] = [
+    [/^@utils\/(testcord|nightcord|trashcord)I18n$/, "@utils/esharqI18n"],
+    [/^@vencordplugins\//, "@plugins/"],
+    [/^@vencord\/discord-types\/.+$/, "@vencord/discord-types"]
+];
+
+/**
+ * صيغٌ مختلفة لاسم الوحدة الواحدة.
+ *
+ * 🔴 `/index` ليست تفصيلاً: الخريطة تُولَّد بحذفها (فـ`x/index.ts` يصير `x`)،
+ * ومن يكتب `@equicordplugins/messageLoggerEnhanced/index` صراحةً كان يفشل رغم
+ * أنّ الملفّ عندنا. قِستُ ذلك في شوكةٍ حقيقية: خمسة استعمالات تفشل بلا سبب
+ * حقيقيّ. واللاحقة كذلك: `@utils/misc.js` هي `@utils/misc`.
+ */
+function* variants(specifier: string) {
+    const noExt = specifier.replace(/\.(jsx?|tsx?)$/, "");
+    yield noExt;
+    if (noExt.endsWith("/index")) yield noExt.slice(0, -6);
+    else yield `${noExt}/index`;
+
+    for (const [pattern, to] of FORK_ALIASES) {
+        if (pattern.test(noExt)) yield noExt.replace(pattern, to);
+    }
+}
+
+/** أقرب أسماء الخريطة إلى ما طُلب — ليُصلح المستخدم السطر بنفسه. */
+function nearest(specifier: string, map: Record<string, any>) {
+    const tail = specifier.split("/").pop()!.toLowerCase();
+    if (tail.length < 3) return [];
+    return Object.keys(map).filter(k => k.toLowerCase().endsWith(`/${tail}`)).slice(0, 3);
+}
+
 export function resolveModule(specifier: string): { ok: true; value: any; } | { ok: false; reason: string; } {
     cache ??= buildMap();
 
-    const clean = specifier.replace(/\.js$/, "");
-    if (Object.hasOwn(cache, clean)) return { ok: true, value: cache[clean] };
+    for (const candidate of variants(specifier)) {
+        if (Object.hasOwn(cache, candidate)) return { ok: true, value: cache[candidate] };
+    }
+
+    const clean = specifier.replace(/\.(jsx?|tsx?)$/, "");
 
     // مُعرّف عقدة معروف: نقول السبب الحقيقي بدل «غير موجود».
     if (/^(node:)?(fs|path|os|crypto|child_process|http|https|net|dns|dgram|events|util|stream|zlib|worker_threads)(\/|$)/.test(clean)) {
@@ -181,9 +436,21 @@ export function resolveModule(specifier: string): { ok: true; value: any; } | { 
         return { ok: false, reason: "«electron» غير متاحة في المُصيِّر — الواجهة المكشوفة هي `VencordNative` وحدها." };
     }
 
+    if (clean.startsWith("@main/")) {
+        return {
+            ok: false,
+            reason: `«${specifier}» من العملية الرئيسية، والإضافة تعمل في المُصيِّر. لا جسر بينهما إلّا ملفّ \`native.ts\` — وإضافات المجتمع لا تملك واحداً عمداً.`
+        };
+    }
+
+    // 🔴 الرسالة القديمة كانت تعِد بـ«@utils/* · @api/* · @components/*» —
+    // والمُحلِّل يُطابق **الاسم كاملاً** لا النمط. فمن قرأها ظنّ العطل في
+    // إضافته لا في اسمٍ غير مُدرَج. الآن نقول المُتاح عدداً، ونقترح الأقرب.
+    const close = nearest(clean, cache);
     return {
         ok: false,
-        reason: `لا أعرف الوحدة «${specifier}». المتاح: @utils/* · @api/* · @components/* · @webpack · @webpack/common · react.`
+        reason: `لا أعرف الوحدة «${specifier}». إشراق يُتيح ${Object.keys(cache).length} وحدة`
+            + (close.length ? `. هل تقصد: ${close.join(" · ")}؟` : "، وهذه ليست منها.")
     };
 }
 

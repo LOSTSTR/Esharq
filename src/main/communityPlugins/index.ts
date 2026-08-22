@@ -57,6 +57,14 @@ export interface CommunityEntry {
     sourcePath: string;
     /** خطأ منع التحميل آخر مرّة، إن وقع. */
     loadError?: string;
+    /**
+     * الوحدات الخارجية التي تطلبها الإضافة (بعد الترجمة، فالأنواع محذوفة).
+     *
+     * تُحسَب هنا لأنّ الشيفرة المُترجَمة هنا، ويُحكَم عليها في المُصيِّر حيث
+     * تسكن الخريطة — فيرى المستخدم **قبل التفعيل** ما سيعمل وما لن يعمل، بدل
+     * أن يكتشفه خطأً أحمر بعد إعادة التشغيل.
+     */
+    externals: string[];
 }
 
 interface Manifest extends Omit<CommunityEntry, "sourcePath"> {
@@ -223,7 +231,54 @@ export function importFolder(root: string): ImportResult {
 
     const built: { path: string; code: string; }[] = [];
     for (const f of result.accepted) {
-        if (!f.code) continue;
+        // 🔴 CSS تدخل الحزمة **وحدةً تُحقن**، ولا تُتخطّى.
+        //
+        // كانت تُقبَل في التحقّق وتُحفظ في `source/` ثمّ يتخطّاها البناء، فلا
+        // تصل الواجهة أصلاً و`import "./style.css"` يفشل بـ«لا يوجد ملفّ» —
+        // وهي أوّل ما يكتبه من يصنع إضافةً لها مظهر، فالمجلّد النموذجيّ
+        // `index.tsx` + `components/` + `util/` + `style.css`.
+        //
+        // تُترجَم إلى شيفرة تُنشئ `<style>` مرّةً واحدة بمعرّف مشتقّ من مسارها،
+        // فإعادة التحميل لا تُكرّرها. والنصّ يمرّ بـ`JSON.stringify` فلا يكسره
+        // اقتباسٌ ولا سطرٌ جديد.
+        if (!f.code) {
+            // JSON وحدةٌ تُصدّر بياناتها. مقبولة في التحقّق لكنّها ليست «شيفرة»،
+            // فكانت تُتخطّى مثل CSS و`import data from "./x.json"` يفشل.
+            // تُتحقَّق صحّتها هنا: ملفّ تالف يُرفَض عند الاستيراد لا وقت التشغيل.
+            if (/\.json$/i.test(f.path)) {
+                try {
+                    JSON.parse(f.text);
+                } catch (e: any) {
+                    return {
+                        ok: false,
+                        findings: [...findings, {
+                            severity: "error", rule: "syntax", file: f.path,
+                            message: `JSON غير صالح: ${e?.message ?? e}`,
+                            hint: "أصلح الملفّ ثم أعد الاستيراد."
+                        }]
+                    };
+                }
+                built.push({ path: f.path, code: `module.exports = ${f.text};` });
+                continue;
+            }
+            if (!/\.css$/i.test(f.path)) continue;
+            const styleId = `esharq-community-${id}-${f.path.replace(/[^a-z0-9]+/gi, "-")}`;
+            built.push({
+                path: f.path,
+                code: [
+                    `const __id = ${JSON.stringify(styleId)};`,
+                    "let __el = document.getElementById(__id);",
+                    "if (__el === null) {",
+                    "    __el = document.createElement('style');",
+                    "    __el.id = __id;",
+                    "    document.head.appendChild(__el);",
+                    "}",
+                    `__el.textContent = ${JSON.stringify(f.text)};`,
+                    "module.exports = {};"
+                ].join("\n")
+            });
+            continue;
+        }
         const out = transpile(f.path, f.text);
         if ("error" in out) return { ok: false, findings: [...findings, out.error] };
         built.push({ path: f.path.replace(/\.(tsx?|jsx?)$/i, ".js"), code: out.code });
@@ -253,6 +308,12 @@ export function importFolder(root: string): ImportResult {
         return { ok: false, findings: [...findings, { severity: "error", rule: "write-failed", message: `تعذّرت الكتابة: ${e?.message ?? e}` }] };
     }
 
+    // كلّ استيراد صار `require("...")` بعد الترجمة، فاستخراجها نصّياً دقيق
+    // هنا — لا تخمين: ما لا يبدأ بنقطة فهو خارج الإضافة.
+    const externals = [...new Set(
+        built.flatMap(b => [...b.code.matchAll(/require\(["']([^"']+)["']\)/g)].map(m => m[1]))
+    )].filter(s => !s.startsWith(".")).sort();
+
     const entryCode = built.at(-1)?.code ?? "";
     const meta = readMeta(entryCode);
     const folderName = root.split(/[\\/]/).filter(Boolean).at(-1) ?? "plugin";
@@ -269,7 +330,8 @@ export function importFolder(root: string): ImportResult {
         hash: digest,
         fileCount: result.accepted.length,
         bytes: result.accepted.reduce((n, f) => n + f.text.length, 0),
-        build: built.map(b => b.path)
+        build: built.map(b => b.path),
+        externals
     };
     writeManifest(manifest);
 
@@ -278,7 +340,9 @@ export function importFolder(root: string): ImportResult {
 
 function toEntry(m: Manifest): CommunityEntry {
     const { build, ...rest } = m;
-    return { ...rest, sourcePath: join(COMMUNITY_DIR, m.id, "source") };
+    // `externals` أُضيف بعد أن صار للناس إضافاتٌ مستورَدة، وبياناتها على القرص
+    // لا تحمله. بلا هذا الافتراضي يُقرأ `.length` من `undefined` في الواجهة.
+    return { ...rest, externals: m.externals ?? [], sourcePath: join(COMMUNITY_DIR, m.id, "source") };
 }
 
 // ── القراءة والإدارة ─────────────────────────────────────────────────────────
