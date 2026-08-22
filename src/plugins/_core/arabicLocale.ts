@@ -9,6 +9,7 @@ import {
     ARABIC_TABLE_GLOBAL, type ArabicMessageTable, installArabicTable,
     MESSAGE_LOADER_ANCHOR, MESSAGE_LOADER_PATTERN,
     MESSAGE_LOADER_REPLACEMENT } from "@utils/esharqLocale";
+import { forceGregorianForArabic } from "@utils/gregorianCalendar";
 import definePlugin from "@utils/types";
 
 // 🔴 البادئة `_` ليست تجميلاً: مُولِّد سجلّ الإضافات يستورد **كل مدخل** في
@@ -32,6 +33,10 @@ import arabicMessages from "./_arabicMessages.json";
 // النوعين ويرفض المُترجِم التحويل المباشر. والشكل مضمون من مُولِّدنا نفسه:
 // `buildArabicTable.mjs` يفحص كل جزء قبل الكتابة ويفشل على أي شكل آخر.
 installArabicTable(arabicMessages as unknown as ArabicMessageTable);
+
+// 🔴 وقت الاستيراد كذلك، وللسبب نفسه: ديسكورد ينسّق تواريخ قبل تشغيل الإضافات،
+// فالتأخير يترك أوّل ما يُرسَم هجريّاً ثمّ يتصحّح — وهو أسوأ من ثبات الخطأ.
+forceGregorianForArabic();
 
 /**
  * تعريب إشراق — يجعل **العربية لغةً يعرفها ديسكورد** ويمدّه بجدولها.
