@@ -8,6 +8,7 @@ import "./communityPlugins.css";
 
 import { getLoaded } from "@api/CommunityPlugins";
 import { Settings } from "@api/Settings";
+import { openPluginModal } from "@components/settings/tabs/plugins/PluginModal";
 import { Switch } from "@components/Switch";
 import { t } from "@utils/esharqI18n";
 import { Alerts, useEffect, useState } from "@webpack/common";
@@ -91,6 +92,14 @@ function PluginRow({ entry, loadError, onChanged }: {
 }) {
     const [busy, setBusy] = useState(false);
 
+    // كائن الإضافة المُسجَّل — لا يوجد إلّا بعد تحميلها فعلاً (أي بعد إعادة
+    // التشغيل). `registeredAs` قد يختلف عن اسم المجلد حين يتعارض اسمان.
+    const loadedPlugin = (() => {
+        const rec = getLoaded().find(l => l.id === entry.id);
+        const name = rec?.registeredAs;
+        return name === undefined ? undefined : Vencord.Plugins.plugins[name];
+    })();
+
     const toggle = async (value: boolean) => {
         setBusy(true);
         try {
@@ -147,6 +156,19 @@ function PluginRow({ entry, loadError, onChanged }: {
             <div className="esharq-cp-side">
                 <Switch checked={entry.enabled} disabled={busy} onChange={toggle} />
                 <div className="esharq-cp-actions">
+                    {/*
+                      * 🔴 إضافات المجتمع تُسجَّل بـ`hidden: true` لتُدار من هنا وحدها،
+                      * فلا تظهر في صفحة إضافات إشراق — ومعها اختفى **الطريق الوحيد**
+                      * إلى إعداداتها. من ثبّت إضافةً لها خيارات لم يجد كيف يبلغها.
+                      *
+                      * يُفتَح هنا نفس المُكوّن الذي تفتحه صفحة الإضافات
+                      * (`openPluginModal`) لا نافذةٌ مخترَعة: فأي خيار تدعمه تلك
+                      * الصفحة يعمل هنا بلا صيانة ثانية.
+                      */}
+                    {loadedPlugin !== undefined && (
+                        <button type="button" title={t("إعدادات الإضافة", "Plugin settings")}
+                            onClick={() => openPluginModal(loadedPlugin as any)}>⚙️</button>
+                    )}
                     <button type="button" title={t("افتح مجلد المصدر", "Open source folder")}
                         onClick={() => native()?.openFolder(entry.id)}>📂</button>
                     <button type="button" className="danger" title={t("حذف", "Remove")} onClick={del}>🗑</button>

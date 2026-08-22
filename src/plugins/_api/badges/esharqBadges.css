@@ -273,3 +273,17 @@ a[aria-label*="Esharq User"] img {
 a[aria-label*="Esharq User"]:hover img {
     transform: scale(1.14);
 }
+
+/* 🔴 لا تُحذف: يعتمد عليها مؤثّرا **gleam** و**silver** في الشارات التي
+   يختارها الداعمون. حُذفت مرّةً مع تصاميم الرتب القديمة فتوقّف المؤثّران
+   صامتَين — بلا خطأ في أي سجلّ، لأنّ حركةً مفقودة لا تُشتكى. */
+@keyframes esharq-coin-gleam {
+    0%,
+    100% {
+        background-position: 130% 130%;
+    }
+
+    50% {
+        background-position: -30% -30%;
+    }
+}
