@@ -204,7 +204,22 @@ export function SupportBundlePage() {
     const [expanded, setExpanded] = useState(false);
     const [bundle, setBundle] = useState(() => buildBundle());
 
-    // حال الحفظ يأتي من العملية الرئيسية (نداءٌ غير متزامن)، فيُدمج بعد أوّل رسم.
+    /**
+     * حال الحفظ تأتي من العملية الرئيسية (نداءٌ غير متزامن)، فتُدمج بعد البناء.
+     *
+     * 🔴 وتُعاد مع كل إعادة بناء: زرّ «أعد بناءها» كان يستدعي `buildBundle()`
+     * وحدها، وهي دالّة متزامنة لا تعرف هذا الحقل — فيختفي `settingsHealth` من
+     * التقرير ولا يعود إلّا بإغلاق الصفحة وفتحها. ومن ضغط الزرّ ليأخذ تقريراً
+     * محدَّثاً كان يأخذ تقريراً **أنقص**.
+     */
+    const refresh = () => {
+        const base = buildBundle();
+        setBundle(base);
+        (window as any).VencordNative?.settings?.getHealth?.()
+            .then((h: Bundle["settingsHealth"]) => setBundle(b => ({ ...b, settingsHealth: h })))
+            .catch(() => { /* واجهةٌ أقدم أو ويب — القسم يبقى غائباً */ });
+    };
+
     useEffect(() => {
         let alive = true;
         (window as any).VencordNative?.settings?.getHealth?.()
@@ -248,7 +263,7 @@ export function SupportBundlePage() {
                 <div className="esharq-sb-actions">
                     <button type="button" className="accent" onClick={copy}>{t("انسخ الحزمة", "Copy the bundle")}</button>
                     <button type="button" onClick={save}>{t("احفظها ملفّاً", "Save as a file")}</button>
-                    <button type="button" onClick={() => setBundle(buildBundle())}>{t("أعد بناءها", "Rebuild")}</button>
+                    <button type="button" onClick={refresh}>{t("أعد بناءها", "Rebuild")}</button>
                 </div>
             </Card>
 
