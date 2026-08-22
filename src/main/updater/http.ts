@@ -30,7 +30,14 @@ import { ASAR_FILE, serializeErrors } from "./common";
 const API_BASE = `https://api.github.com/repos/${gitRemote}`;
 let PendingUpdate: string | null = null;
 
-async function githubGet<T = any>(endpoint: string) {
+/**
+ * محاولة ثانية للانقطاع **الشبكيّ وحده**.
+ *
+ * 🔴 لا يُعاد على 4xx: ردّ 403 يعني نفاد حدّ الطلبات، وإعادة المحاولة تستهلك
+ * منه أكثر وتُبعد عودته. و404 لن يتغيّر بالتكرار. المُعاد عليه هو ما لم يصل
+ * أصلاً — انقطاع أو مهلة.
+ */
+async function githubGetOnce<T = any>(endpoint: string) {
     return fetchJson<T>(API_BASE + endpoint, {
         headers: {
             Accept: "application/vnd.github+json",
@@ -39,6 +46,17 @@ async function githubGet<T = any>(endpoint: string) {
             "User-Agent": VENCORD_USER_AGENT
         }
     });
+}
+
+async function githubGet<T = any>(endpoint: string) {
+    try {
+        return await githubGetOnce<T>(endpoint);
+    } catch (e: any) {
+        const message = String(e?.message ?? e);
+        // رمز حالة في النصّ ⇒ الطلب وصل ورُدّ: لا تُكرّره.
+        if (/\b(4\d\d|5\d\d)\b/.test(message)) throw e;
+        return await githubGetOnce<T>(endpoint);
+    }
 }
 
 async function calculateGitChanges() {
@@ -61,7 +79,16 @@ async function fetchUpdates() {
     if (hash === gitHash)
         return false;
 
-    const asset = data.assets.find(a => a.name === ASAR_FILE);
+    // حارس: بلا هذا يُقرأ `browser_download_url` من `undefined` فيُرمى
+    // TypeError نصّه لا يدلّ على شيء. الإصدار قد يفتقد أصلاً لعميلٍ بعينه.
+    const asset = data.assets?.find(a => a.name === ASAR_FILE);
+    if (!asset) {
+        throw new Error(
+            `Release "${data.name}" has no "${ASAR_FILE}" asset. ` +
+            "Your Discord client type may not have a published build."
+        );
+    }
+
     PendingUpdate = asset.browser_download_url;
 
     return true;

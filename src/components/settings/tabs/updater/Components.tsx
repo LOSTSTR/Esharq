@@ -149,7 +149,10 @@ export function Updatable(props: CommonProps) {
                 <>
                     <Span size="md" weight="medium" color="text-strong">{t("تعذّر التحقّق من التحديثات", "Error checking for updates")}</Span>
                     <ErrorCard className={Margins.top8} style={{ padding: "1em" }}>
-                        <p>{updateError.stderr || updateError.stdout || t("حدث خطأ غير معروف", "An unknown error occurred")}</p>
+                        {/* `message` لازمة: أخطاء مُحدِّث HTTP ليس فيها stderr ولا stdout، فكانت
+                              تُعرَض «غير معروف» ونصّها المفيد يُرمى. */}
+                        <p>{updateError.stderr || updateError.stdout || updateError.message
+                            || t("حدث خطأ غير معروف", "An unknown error occurred")}</p>
                     </ErrorCard>
                 </>
             ) : isOutdated ? (
