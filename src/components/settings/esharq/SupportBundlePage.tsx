@@ -62,6 +62,20 @@ interface Bundle {
     settingsHealth?: {
         path: string; exists: boolean; size: number; mtime: string | null;
         readable: string | null; lastWriteError: string | null;
+        /**
+         * 🔴 نتيجة القراءة **عند الإقلاع** — وهي السؤال الحقيقي.
+         *
+         * `readable` أعلاه يقرأ الملفّ لحظة التقرير، وقد يكون قد صار مقروءاً
+         * بعد أن فشل عند الإقلاع بثوانٍ. تقريرٌ حقيقيّ وصل بـ`readable: null`
+         * و`lastWriteError: null` وكلّ الإضافات مُطفأة — فالحقلان لم يقولا شيئاً.
+         *
+         * `loadedPluginEntries: 0` مع ملفٍّ حجمه عشرات الكيلوبايتات = دليل قاطع.
+         */
+        startupReadOk: boolean; startupReadError: string | null;
+        loadedPluginEntries: number;
+        /** أُنقِذت من نسخة الأمان ⇒ الأصل كان تالفاً وقد حُفظ بجواره. */
+        recoveredFromBackup: boolean;
+        loadedBytes: number;
     };
     /** سجلّ المشاكل — ما أبلغ عنه إشراق من أخطاء هذه الجلسة (`debug/esharqErrors.ts`). */
     issues: {

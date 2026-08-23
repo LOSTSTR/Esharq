@@ -1,6 +1,6 @@
 {
     "type": "fix",
-    "scope": "support",
-    "ar": "زرّ «أعد بناءها» في حزمة الدعم كان يُسقط قسم حال حفظ الإعدادات من التقرير، فيصل ناقصاً لمن يساعدك. صار يبقى.",
-    "en": "The Rebuild button in the support bundle was dropping the settings-health section, so the report arrived incomplete for whoever helps you. It now stays."
+    "scope": "settings",
+    "ar": "إعداداتك لم تعد تضيع. كان إغلاق ديسكورد أو انهياره أثناء حفظ الإعدادات يترك الملفّ مقطوعاً، فيُقلع إشراق بالافتراضات ويكتبها فوق اختياراتك. صار الحفظ لا يتجزّأ، ومعه نسخة أمان تُستعاد تلقائياً، والملفّ التالف يُحفَظ ولا يُمحى.",
+    "en": "Your settings can no longer be lost. Closing or crashing Discord mid-save used to leave the file truncated, so Esharq started on defaults and wrote them over your choices. Saving is now atomic, a safety copy is restored automatically, and a damaged file is kept rather than erased."
 }

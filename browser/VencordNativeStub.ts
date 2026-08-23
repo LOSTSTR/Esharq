@@ -181,7 +181,9 @@ window.VencordNative = {
         getHealth: async () => ({
             path: "LocalStorage", exists: localStorage.getItem("EquicordSettings") !== null,
             size: (localStorage.getItem("EquicordSettings") ?? "").length,
-            mtime: null, readable: null, lastWriteError: null
+            mtime: null, readable: null, lastWriteError: null,
+            startupReadOk: true, startupReadError: null,
+            loadedPluginEntries: 0, recoveredFromBackup: false, loadedBytes: 0
         }),
         openFolder: async () => Promise.reject("settings:openFolder is not supported on web"),
     },

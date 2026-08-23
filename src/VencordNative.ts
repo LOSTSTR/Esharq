@@ -64,6 +64,8 @@ export default {
         getHealth: () => invoke<{
             path: string; exists: boolean; size: number; mtime: string | null;
             readable: string | null; lastWriteError: string | null;
+            startupReadOk: boolean; startupReadError: string | null;
+            loadedPluginEntries: number; recoveredFromBackup: boolean; loadedBytes: number;
         }>(IpcEvents.GET_SETTINGS_HEALTH),
 
         openFolder: () => invoke<void>(IpcEvents.OPEN_SETTINGS_FOLDER),

@@ -154,8 +154,31 @@ export default definePlugin({
         const checkHealth = () => {
             if (warned) return;
             (window as any).VencordNative?.settings?.getHealth?.().then((h: any) => {
-                const reason = h?.lastWriteError ?? h?.readable;
-                if (!reason || warned) return;
+                if (warned || !h) return;
+
+                // 🔴 فشل **قراءة الإقلاع** أخطر من فشل الكتابة، ويُقدَّم عليه:
+                // العميل يعمل حينها بإعدادات فارغة، وأوّل تبديلٍ يكتب
+                // الافتراضات **فوق ملفّ المستخدم** فتضيع اختياراته نهائياً لا
+                // مؤقّتاً. فالتحذير هنا وقائيّ: يُقال قبل أن يلمس شيئاً.
+                if (h.startupReadOk === false) {
+                    warned = true;
+                    // 🔴 الحالتان مختلفتان ولا يصحّ خلطهما: من أُنقِذت إعداداته
+                    // لم يخسر إلّا آخر تغيير، وتخويفه بنصّ الكارثة إفزاعٌ بلا
+                    // سبب. ومن لم تُنقَذ إعداداته يعمل على افتراضاتٍ فعلاً.
+                    showNotice(
+                        h.recoveredFromBackup
+                            ? t(`كان ملفّ إعداداتك تالفاً (${h.startupReadError}) فاستعادها إشراق من نسخة الأمان — قد يكون آخر تغييرٍ أجريتَه ضاع وحده. النسخة التالفة محفوظة بجوار الملفّ إن احتجتَها.`,
+                                `Your settings file was damaged (${h.startupReadError}) and Esharq restored it from the safety copy — you may have lost only your most recent change. The damaged copy is kept next to the file if you need it.`)
+                            : t(`تعذّرت قراءة إعداداتك عند بدء التشغيل (${h.startupReadError}) ولا نسخة أمانٍ تُنقذها، فإشراق يعمل بالإعدادات الافتراضية. ملفّك القديم محفوظٌ بجواره ولم يُمحَ. الملفّ: ${h.path}`,
+                                `Esharq could not read your settings at startup (${h.startupReadError}) and no safety copy could recover them, so it is running on defaults. Your old file is kept next to it and was not erased. File: ${h.path}`),
+                        t("فهمت", "Got it"),
+                        () => popNotice()
+                    );
+                    return;
+                }
+
+                const reason = h.lastWriteError ?? h.readable;
+                if (!reason) return;
                 warned = true;
                 showNotice(
                     t(`تعذّر حفظ إعداداتك على القرص (${reason}). ستعود إلى حالتها السابقة بعد إعادة التشغيل. الملفّ: ${h.path}`,
