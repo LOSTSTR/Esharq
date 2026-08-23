@@ -36,7 +36,7 @@
 import { app, ipcMain, net } from "electron";
 
 import { IpcEvents } from "../shared/IpcEvents";
-import { RendererSettings } from "./settings";
+import { NativeSettings, RendererSettings, StartupRead } from "./settings";
 
 export type DnsMode = "off" | "automatic" | "secure";
 
@@ -223,8 +223,35 @@ async function testProvider(providerId: string, hostname: string): Promise<DnsTe
 
 const KEY = "esharqSecureDns";
 
+/**
+ * ترحيلٌ مرّة واحدة من موضعها القديم في إعدادات المُصيِّر.
+ *
+ * 🔴 نسخٌ لا نقل، ولا يُحذف القديم: نسخةٌ أقدم من إشراق تقرؤه من هناك، وحذفُه
+ * يُضيّع اختيار من رجع. والقديم سيُمحى وحده عند أوّل تبديلٍ من الواجهة — وهو
+ * العطل نفسه الذي نُصلحه، فلا خسارة في تركه.
+ */
+function migrateFromRendererSettings(): void {
+    if (NativeSettings.plain[KEY] !== undefined) return;
+
+    /**
+     * 🔴 لا يُرحَّل من قراءةٍ لم تنجح.
+     *
+     * إن تعثّرت قراءة `settings.json` هذا الإقلاع، فما في `RendererSettings`
+     * هو **نسخة الأمان** — قد تسبق اليوم الذي بدّل فيه صاحبها الـDNS. والترحيل
+     * يقع مرّةً واحدة إلى الأبد، فكان يقفل قيمة الأمس نهائياً: يعود الإعداد
+     * إلى «مطفأ» بلا رسالة ولا سبيل رجوع. تأجيلُه إقلاعاً واحداً لا يُكلّف
+     * شيئاً — الحارس يُعاد تقييمه من القرص في المرّة القادمة.
+     */
+    if (!StartupRead.ok) return;
+
+    const legacy = (RendererSettings.plain as any)?.[KEY];
+    if (legacy?.mode === undefined) return;
+    NativeSettings.store[KEY] = { mode: legacy.mode, providerId: legacy.providerId };
+}
+
 function saved(): { mode: DnsMode; providerId: string; } {
-    const raw = (RendererSettings.plain as any)?.[KEY];
+    migrateFromRendererSettings();
+    const raw = NativeSettings.plain[KEY];
     const mode: DnsMode = raw?.mode === "secure" || raw?.mode === "automatic" || raw?.mode === "off" ? raw.mode : "off";
     const providerId = typeof raw?.providerId === "string" && PROVIDERS.some(p => p.id === raw.providerId)
         ? raw.providerId
@@ -265,7 +292,8 @@ export function registerSecureDnsIpc() {
             return { ok: false, reason: "apply" };
         }
 
-        (RendererSettings as any).setData({ ...(RendererSettings.plain as any), [KEY]: { mode, providerId } });
+        // تُكتب في تخزين العملية الرئيسية — لا يمرّ عليه دفعُ المُصيِّر فلا يُدهَس.
+        NativeSettings.store[KEY] = { mode, providerId };
         return { ok: true, state: { ...state } };
     });
 
