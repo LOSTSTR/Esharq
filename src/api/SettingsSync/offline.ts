@@ -120,7 +120,15 @@ export async function exportSettings({ syncDataStore = true, type = "all", minif
     if (redaction.redacted.length > 0) {
         logger.info(`نُقّي ${redaction.redacted.length} مفتاحاً حسّاساً من النسخة:`, redaction.redacted);
     }
-    const quickCss = await VencordNative.quickCss.get();
+    /**
+     * 🔴 تُقرَأ **فقط لمن يحتاجها**، ويُرمى الفشل عندها وحدها.
+     *
+     * القراءة صارت ترمي عند العجز بدل أن تُعيد فراغاً كاذباً — وهذا صواب:
+     * نسخةٌ احتياطية تحمل تنسيقاتٍ فارغة تكذب على صاحبها. لكن نداءً واحداً بلا
+     * شرط كان سيمنع **نسخ الإعدادات وحدها** بسبب ملفٍّ لا تحتاجه أصلاً.
+     */
+    const needsQuickCss = type === "all" || type === "css";
+    const quickCss = needsQuickCss ? await VencordNative.quickCss.get() : "";
     let dataStore: any;
 
     if (syncDataStore) {

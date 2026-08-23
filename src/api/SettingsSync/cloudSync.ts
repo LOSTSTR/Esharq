@@ -78,51 +78,158 @@ async function saveLocalManifest(manifest: ManifestEntry[]) {
     await DataStore.set(MANIFEST_STORE_KEY, manifest);
 }
 
+/**
+ * مفاتيح دفتر المزامنة نفسه — **لا تُسافر أبداً**.
+ *
+ * 🔴 البيان المحلّي (`Vencord_cloudManifest`) يسكن نفس متجر `DataStore` الذي
+ * نرفعه كاملاً. فكان جهاز «أ» يرفع بيانه ضمن الحمولة، وجهاز «ب» يكتبه فوق
+ * بيانه هو. وبيان «أ» يقول إنّ نسخة السحابة من QuickCSS مُطبَّقة — فإن كان
+ * تطبيقها عند «ب» قد فشل، صار «ب» يزعم التطابق فلا يُعاد تنزيلها **أبداً**.
+ * وهذا بعينه ما أُضيف `SyncApplyError` لمنعه.
+ *
+ * وكذلك `Vencord_cloudApiVersions`: نسخةٌ قادمة من جهازٍ آخر تُحوّل هذا
+ * الجهاز إلى مسار واجهةٍ أقدم بلا سبب.
+ */
+const SYNC_BOOKKEEPING_KEYS: ReadonlySet<string> = new Set([MANIFEST_STORE_KEY, API_VERSION_STORE_KEY]);
+
 async function buildLocalData(): Promise<Map<string, Uint8Array>> {
     const encoder = new TextEncoder();
     const data = new Map<string, Uint8Array>();
 
     data.set("settings", encoder.encode(JSON.stringify(VencordNative.settings.get())));
 
-    const quickCss = await VencordNative.quickCss.get();
-    if (quickCss) data.set("quickCss", encoder.encode(quickCss));
+    // 🔴 القراءة صارت تُبلّغ بالعطل بدل أن تُعيد فراغاً. فقفلٌ عابر على ملفّ
+    // CSS — من مضادّ فيروسات أو مجلدٍ مُزامَن — كان يُسقط المزامنة **كلّها**،
+    // بما فيها الإعدادات وبيانات الإضافات. يُستثنى المفتاح وحده: لا يُرفَع،
+    // فتبقى نسخة السحابة كما هي ولا تُمحى بفراغ.
+    try {
+        const quickCss = await VencordNative.quickCss.get();
+        if (quickCss) data.set("quickCss", encoder.encode(quickCss));
+    } catch (e) {
+        logger.error("Could not read QuickCSS — excluded from this sync:", e);
+    }
 
     const dataStoreEntries = await DataStore.entries();
-    if (dataStoreEntries) data.set("dataStore", encoder.encode(JSON.stringify(dataStoreEntries)));
+    if (dataStoreEntries) {
+        const travelling = dataStoreEntries.filter(([k]) => !SYNC_BOOKKEEPING_KEYS.has(String(k)));
+        data.set("dataStore", encoder.encode(JSON.stringify(travelling)));
+    }
 
     return data;
 }
 
-async function applyDownloads(downloads: SyncResponse["downloads"]) {
-    if (downloads.length === 0) return false;
+/** فشل تطبيق تنزيلٍ أو أكثر — يمنع تسجيل البيان كي يُعاد لاحقاً. */
+class SyncApplyError extends Error {
+    /**
+     * @param settingsChanged هل طُبِّق **بعضُ** ما نُزِّل قبل الفشل؟
+     *
+     * 🔴 كان الرمي يمحو هذه الحقيقة: تُستورَد الإعدادات فعلاً وتصل القرص،
+     * ثمّ يفشل عنصرٌ بعدها فيُقال للمستخدم «تعذّرت المزامنة» وحدها. فيظنّ أنّ
+     * شيئاً لم يتغيّر، ولا يُعرَض عليه إعادة التشغيل التي يحتاجها ما تغيّر.
+     */
+    constructor(public readonly keys: string[], public readonly settingsChanged = false) {
+        super(`تعذّر تطبيق ${keys.length} عنصراً من المزامنة: ${keys.join(", ")}`);
+        this.name = "SyncApplyError";
+    }
+}
+
+interface ApplyResult {
+    settingsChanged: boolean;
+    /** مفاتيح أُجّلت عمداً — **يجب ألّا تُسجَّل في البيان** وإلّا لن تُعرَض ثانيةً. */
+    deferred: string[];
+}
+
+/** يُسقط من البيان ما لم يُطبَّق فعلاً، فيبقى الخلاف قائماً ويُعاد عرضه لاحقاً. */
+function withoutDeferred(manifest: ManifestEntry[], deferred: string[]) {
+    return deferred.length === 0 ? manifest : manifest.filter(e => !deferred.includes(e.key));
+}
+
+async function applyDownloads(
+    downloads: SyncResponse["downloads"],
+    opts: { userInitiated: boolean }
+): Promise<ApplyResult> {
+    if (downloads.length === 0) return { settingsChanged: false, deferred: [] };
 
     let settingsChanged = false;
     const decoder = new TextDecoder();
+    const failed: string[] = [];
+    const deferred: string[] = [];
 
     for (const dl of downloads) {
-        const text = decoder.decode(fromBase64(dl.value));
+        /**
+         * 🔴 كل مفتاحٍ في مصيدته، والفشل **يُسجَّل ويُرفَع للمنادي**.
+         *
+         * كان الفشل يُلتقَط ويُطبَع ثمّ يمضي التنفيذ إلى `saveLocalManifest`،
+         * فيُسجَّل أنّ ما لم يُطبَّق قد طُبِّق. وبعدها تتطابق البصمات فلا
+         * يُعاد تنزيله **أبداً** — يضيع بلا أن يعلم أحد.
+         *
+         * وفكّ الترميز **داخل** المصيدة لا قبلها: قيمةٌ مشوّهة كانت ترمي قبل
+         * الدخول إليها، فتُسقط كل ما بقي من العناصر بلا سطرٍ يُسمّي المفتاح.
+         */
+        try {
+            const text = decoder.decode(fromBase64(dl.value));
 
-        if (dl.key === "settings") {
-            try {
+            if (dl.key === "settings") {
                 await importSettings(JSON.stringify({ settings: JSON.parse(text) }), "all", true);
                 settingsChanged = true;
-            } catch (e) {
-                logger.error("Failed to apply settings download", e);
-            }
-        } else if (dl.key === "quickCss") {
-            await VencordNative.quickCss.set(text);
-            settingsChanged = true;
-        } else if (dl.key.startsWith("dataStore/")) {
-            const dsKey = dl.key.slice("dataStore/".length);
-            try {
+            } else if (dl.key === "quickCss") {
+                await VencordNative.quickCss.set(text);
+                settingsChanged = true;
+            } else if (dl.key === "dataStore") {
+                /**
+                 * 🔴 هذا هو المفتاح الذي **نرفعه فعلاً** — ولم يكن له فرعٌ
+                 * يُطابقه. الرفع يضع `data.set("dataStore", …)`، والتطبيق كان
+                 * يقبل `"dataStore/<مفتاح>"` وحدها — صيغةٌ **لا كاتب لها في
+                 * المستودع كلّه**. فكل تنزيلٍ لبيانات الإضافات يسقط بلا سطر
+                 * سجلّ، ثمّ يُسجَّل البيان أنّه طُبِّق فلا يُعاد أبداً.
+                 *
+                 * لكنّ الكتابة هنا تشمل **المتجر كلّه**، وكتابةُ الإضافات إلى
+                 * `DataStore` لا تُعلِّم الإعدادات بأنّها اتّسخت — فالإقلاع
+                 * التالي يسحب من السحابة ويدهس ما لم يُرفَع قطّ. لذلك لا
+                 * تُطبَّق الحمولة إلّا في حالين لا ثالث لهما:
+                 *   • استعادةٌ طلبها المستخدم بنفسه، أو
+                 *   • جهازٌ لا بيانات فيه أصلاً — فلا شيء يُدهَس.
+                 * وما عدا ذلك **يُؤجَّل ولا يُسجَّل**، فيُعرَض ثانيةً.
+                 */
+                const entries = JSON.parse(text);
+                if (!Array.isArray(entries)) throw new Error("dataStore ليس مصفوفة مداخل");
+
+                if (!opts.userInitiated) {
+                    const localKeys = (await DataStore.keys())
+                        .filter(k => !SYNC_BOOKKEEPING_KEYS.has(String(k)));
+                    if (localKeys.length > 0) {
+                        deferred.push(dl.key);
+                        logger.info(
+                            `Deferring the "dataStore" download: ${localKeys.length} local entries would be overwritten. ` +
+                            "It will be offered again, and applies on a sync you start yourself."
+                        );
+                        continue;
+                    }
+                }
+
+                const incoming = (entries as [string, unknown][])
+                    .filter(([k]) => !SYNC_BOOKKEEPING_KEYS.has(String(k)));
+                await DataStore.setMany(incoming);
+                settingsChanged = true;
+            } else if (dl.key.startsWith("dataStore/")) {
+                // صيغةٌ لكل مفتاحٍ على حدة — تبقى مقبولة لخادمٍ يحفظها هكذا.
+                const dsKey = dl.key.slice("dataStore/".length);
+                if (SYNC_BOOKKEEPING_KEYS.has(dsKey)) {
+                    deferred.push(dl.key);
+                    continue;
+                }
                 await DataStore.set(dsKey, JSON.parse(text));
-            } catch (e) {
-                logger.error(`Failed to apply dataStore download for ${dsKey}`, e);
+                settingsChanged = true;
             }
+        } catch (e) {
+            logger.error(`تعذّر تطبيق «${dl.key}» من المزامنة — لن يُسجَّل مُطبَّقاً:`, e);
+            failed.push(dl.key);
         }
     }
 
-    return settingsChanged;
+    if (failed.length > 0) throw new SyncApplyError(failed, settingsChanged);
+
+    return { settingsChanged, deferred };
 }
 
 function handleAuthFailure() {
@@ -202,8 +309,9 @@ async function putV2(manual?: boolean) {
     for (const err of response.errors)
         logger.error(`Sync error for ${err.key}: ${err.error}`);
 
-    const hadDownloads = await applyDownloads(response.downloads);
-    await saveLocalManifest(response.server_manifest);
+    const applied = await applyDownloads(response.downloads, { userInitiated: !!manual });
+    // ما أُجّل لا يُسجَّل: البيان يجب أن يبقى مخالفاً حتى يُطبَّق فعلاً.
+    await saveLocalManifest(withoutDeferred(response.server_manifest, applied.deferred));
 
     PlainSettings.cloud.settingsSyncVersion = Date.now();
     await VencordNative.settings.set(JSON.stringify(PlainSettings));
@@ -213,11 +321,11 @@ async function putV2(manual?: boolean) {
     if (manual) {
         showNotification({
             title: "Cloud Settings",
-            body: hadDownloads
+            body: applied.settingsChanged
                 ? "Settings synced! Click here to restart to fully apply changes."
                 : "Settings synchronized to the cloud!",
             color: "var(--green-360)",
-            onClick: hadDownloads ? (IS_WEB ? () => location.reload() : relaunch) : undefined,
+            onClick: applied.settingsChanged ? (IS_WEB ? () => location.reload() : relaunch) : undefined,
             noPersist: true,
         });
     }
@@ -245,8 +353,11 @@ async function getV2(shouldNotify: boolean, force: boolean) {
         return false;
     }
 
-    const settingsChanged = await applyDownloads(response.downloads);
-    await saveLocalManifest(response.server_manifest);
+    // الاستعادة التي يطلبها المستخدم بنفسه تأتي بـ`force` — وهي وحدها
+    // المأذون لها بالكتابة على متجر بيانات الإضافات كاملاً.
+    const applied = await applyDownloads(response.downloads, { userInitiated: force });
+    const { settingsChanged } = applied;
+    await saveLocalManifest(withoutDeferred(response.server_manifest, applied.deferred));
 
     PlainSettings.cloud.settingsSyncVersion = Date.now();
     await VencordNative.settings.set(JSON.stringify(PlainSettings));
@@ -469,10 +580,19 @@ export async function putCloudSettings(manual?: boolean) {
         }
     } catch (e: any) {
         logger.error("Failed to sync up", e);
+        // 🔴 الفشل الجزئي ليس فشلاً كاملاً: قد تكون الإعدادات وصلت القرص
+        // فعلاً قبل أن يتعثّر عنصرٌ بعدها. أن يُقال «تعذّرت المزامنة» وحدها
+        // يجعل المستخدم يظنّ أنّ شيئاً لم يتغيّر — ولا يُعرَض عليه إعادة
+        // التشغيل التي يحتاجها ما تغيّر بالفعل.
+        const partial = e instanceof SyncApplyError && e.settingsChanged;
         showNotification({
             title: "Cloud Settings",
-            body: `Could not synchronize settings to the cloud (${e.toString()}).`,
-            color: "var(--red-360)",
+            body: partial
+                ? `Some of your settings were applied, but not all (${e.toString()}). `
+                    + "Click here to restart so the applied ones take effect — the rest stays pending and will be offered again."
+                : `Could not synchronize settings to the cloud (${e.toString()}).`,
+            color: partial ? "var(--status-warning)" : "var(--red-360)",
+            onClick: partial ? (IS_WEB ? () => location.reload() : relaunch) : undefined,
         });
     }
 }
@@ -489,10 +609,19 @@ export async function getCloudSettings(shouldNotify = true, force = false) {
         return await getV1(shouldNotify, force);
     } catch (e: any) {
         logger.error("Failed to sync down", e);
+        // 🔴 الفشل الجزئي ليس فشلاً كاملاً: قد تكون الإعدادات وصلت القرص
+        // فعلاً قبل أن يتعثّر عنصرٌ بعدها. أن يُقال «تعذّرت المزامنة» وحدها
+        // يجعل المستخدم يظنّ أنّ شيئاً لم يتغيّر — ولا يُعرَض عليه إعادة
+        // التشغيل التي يحتاجها ما تغيّر بالفعل.
+        const partial = e instanceof SyncApplyError && e.settingsChanged;
         showNotification({
             title: "Cloud Settings",
-            body: `Could not synchronize settings from the cloud (${e.toString()}).`,
-            color: "var(--red-360)",
+            body: partial
+                ? `Some of your settings were applied, but not all (${e.toString()}). `
+                    + "Click here to restart so the applied ones take effect — the rest stays pending and will be offered again."
+                : `Could not synchronize settings from the cloud (${e.toString()}).`,
+            color: partial ? "var(--status-warning)" : "var(--red-360)",
+            onClick: partial ? (IS_WEB ? () => location.reload() : relaunch) : undefined,
         });
         return false;
     }
