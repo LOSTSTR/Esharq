@@ -36,25 +36,66 @@
             },
         });
 
-        require(["vs/editor/editor.main"], () => {
-            getCurrentCss().then((css) => {
-                var editor = monaco.editor.create(
-                    document.getElementById("container"),
-                    {
-                        value: css,
-                        language: "css",
-                        theme: getTheme(),
-                    }
-                );
-                editor.onDidChangeModelContent(() =>
-                    setCss(editor.getValue())
-                );
-                window.addEventListener("resize", () => {
-                    // make monaco re-layout
-                    editor.layout();
-                });
+        /*
+         * تُبنى الواجهة بعد قراءةٍ ناجحة **فقط**.
+         *
+         * 🔴 كان المحرّر يُفتَح بنصٍّ فارغ حين تفشل القراءة، فيُوهم صاحبه أنّ
+         * ثيمه ضاع — ثمّ أوّل حرفٍ يكتبه يُحفَظ فوق الملفّ فيضيع فعلاً.
+         */
+        function showEditor(css) {
+            var box = document.getElementById("container");
+            box.style.cssText = "";      // يعود إلى قياس الورقة النمطية
+            box.replaceChildren();
+            var editor = monaco.editor.create(box, {
+                value: css,
+                language: "css",
+                theme: getTheme(),
             });
-        });
+            editor.onDidChangeModelContent(() => setCss(editor.getValue()));
+            window.addEventListener("resize", () => editor.layout());
+        }
+
+        function showError(e) {
+            var box = document.getElementById("container");
+            box.style.cssText = "padding:24px;font:14px system-ui;color:#f2f3f5;line-height:1.8;background:#1e1e1e";
+
+            var ar = document.createElement("p");
+            ar.dir = "rtl";
+            ar.textContent = "تعذّرت قراءة ملفّ التنسيقات، فلم يُفتَح المحرّر كي لا يُكتَب فوقه. "
+                + "أغلق ما قد يمسك الملفّ (مضادّ فيروسات أو مزامنة سحابية) ثمّ أعد المحاولة.";
+            var en = document.createElement("p");
+            en.textContent = "QuickCSS could not be read, so the editor was not opened — that prevents it from "
+                + "overwriting your file. Close whatever is holding the file (antivirus or cloud sync), then retry.";
+            var detail = document.createElement("p");
+            detail.style.cssText = "opacity:.65;font-family:ui-monospace,monospace;font-size:12px";
+            detail.textContent = (e && e.message ? e.message : String(e));
+
+            /*
+             * 🔴 إعادةُ محاولةٍ **تعمل فعلاً**.
+             *
+             * `location.reload()` لا يُعيد تحميل عنوان `data:` — قِسته: تنجو
+             * متغيّرات النافذة بعد الضغط، أي أن شيئاً لم يحدث. والضغط على
+             * «افتح محرّر QuickCSS» ثانيةً يجد النافذة قائمةً فيُظهرها كما هي
+             * ولا يُعاد قراءة الملفّ. فالقراءة تُعاد هنا مباشرةً.
+             */
+            var retry = document.createElement("button");
+            retry.textContent = "إعادة المحاولة · Retry";
+            retry.style.cssText = "margin-top:12px;padding:8px 18px;font:inherit;cursor:pointer;"
+                + "border:1px solid #4e5058;border-radius:4px;background:#2b2d31;color:#f2f3f5";
+            retry.onclick = function () {
+                retry.disabled = true;
+                retry.textContent = "…";
+                load();
+            };
+
+            box.replaceChildren(ar, en, detail, retry);
+        }
+
+        function load() {
+            getCurrentCss().then(showEditor).catch(showError);
+        }
+
+        require(["vs/editor/editor.main"], load);
     </script>
 </body>
 

@@ -19,6 +19,7 @@
 import { Settings, SettingsStore, type ThemeActivationMode } from "@api/Settings";
 import { createAndAppendStyle } from "@utils/css";
 import { isNonNullish } from "@utils/guards";
+import { Logger } from "@utils/Logger";
 import { ThemeStore } from "@vencord/discord-types";
 import { PopoutWindowStore } from "@webpack/common";
 
@@ -49,7 +50,14 @@ async function toggle(isEnabled: boolean) {
                 style.disabled = !Settings.useQuickCss;
                 updatePopoutWindows();
             });
-            style.textContent = await VencordNative.quickCss.get();
+            // 🔴 لا يُترَك الرفض عارياً: القراءة صارت ترمي عند العجز بدل أن
+            // تُعيد فراغاً كاذباً، وبلا مصيدةٍ هنا يسقط في «رفضٌ غير مُلتقَط»
+            // مجهول المصدر، ويبقى عنصر الأنماط فارغاً بلا تفسير.
+            try {
+                style.textContent = await VencordNative.quickCss.get();
+            } catch (e) {
+                new Logger("QuickCSS").error("تعذّرت قراءة ملفّ التنسيقات — لم يُطبَّق:", e);
+            }
         }
     } else
         style.disabled = !isEnabled;

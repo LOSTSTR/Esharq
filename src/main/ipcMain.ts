@@ -24,10 +24,10 @@ import { debounce } from "@shared/debounce";
 import { IpcEvents } from "@shared/IpcEvents";
 import { app, BrowserWindow, dialog, ipcMain, nativeTheme, shell, systemPreferences } from "electron";
 import monacoHtml from "file://monacoWin.html?minify&base64";
-import { FSWatcher, mkdirSync, readFileSync, watch, writeFileSync } from "fs";
+import { existsSync, FSWatcher, mkdirSync, readFileSync, renameSync, unlinkSync, watch, writeFileSync } from "fs";
 import { open, readdir, readFile, unlink } from "fs/promises";
 import { release } from "os";
-import { join } from "path";
+import { basename, join } from "path";
 
 import { registerCspIpcHandlers } from "./csp/manager";
 import { getThemeInfo, stripBOM, UserThemeHeader } from "./themes";
@@ -41,9 +41,56 @@ mkdirSync(THEMES_DIR, { recursive: true });
 
 registerCspIpcHandlers();
 
-function readCss() {
-    return readFile(QUICK_CSS_PATH, "utf-8").catch(() => "");
+/**
+ * قراءة QuickCSS — **الغياب وحده يُعَدّ فراغاً**.
+ *
+ * 🔴 كانت `.catch(() => "")` تبتلع كل خطأ: قفلٌ عابر من مضادّ فيروسات أو
+ * مزامنة سحابية يُعيد نصّاً فارغاً، فيُفتح المحرّر **خالياً** ويظنّ صاحبه أنّ
+ * ثيمه ضاع — ثمّ أوّل حرفٍ يكتبه يُحفَظ فوق الملفّ فيمحوه فعلاً. قِسته:
+ * 7,619 بايتاً صارت 1.
+ *
+ * الآن يُميَّز الغياب (`ENOENT` — مستخدمٌ لم يكتب شيئاً بعد) عن العجز، والعجز
+ * **يُرمى** فيراه من طلبه بدل أن يُسلَّم فراغاً كاذباً.
+ */
+async function readCss() {
+    try {
+        return await readFile(QUICK_CSS_PATH, "utf-8");
+    } catch (e: any) {
+        if (e?.code === "ENOENT") return "";
+        console.error("[Esharq] تعذّرت قراءة quickCss:", e);
+        throw e;
+    }
 }
+
+/**
+ * كتابةٌ **ذرّية** لـQuickCSS: ملفٌّ مؤقّت ثمّ استبدال باسمه.
+ *
+ * 🔴 الحاجة هنا أشدّ منها في الإعدادات: هذا الملفّ يُعاد كتابته **مع كلّ
+ * ضغطة مفتاح** في المحرّر (بتجميعٍ 300 ملّي)، فنافذة القطع مفتوحة باستمرار.
+ * قِسته بقتل العملية أثناء الكتابة: **15 من 15** تركت الملفّ مقطوعاً.
+ * والمقطوع تقرؤه الدالّة أعلاه، ثمّ يُحفَظ فوقه فيضيع الثيم نهائياً.
+ *
+ * والارتداد إلى الكتابة المباشرة عند فشل الاستبدال يُبقي السلوك **لا أسوأ
+ * ممّا كان** في أضيق الحالات (ملفٌّ يمسكه غيرنا على ويندوز).
+ */
+function writeCssAtomic(css: string) {
+    const tmp = `${QUICK_CSS_PATH}.tmp`;
+    try {
+        writeFileSync(tmp, css);
+        renameSync(tmp, QUICK_CSS_PATH);
+    } catch {
+        try {
+            if (existsSync(tmp)) unlinkSync(tmp);
+        } catch { /* لا يمنع المحاولة التالية */ }
+        writeFileSync(QUICK_CSS_PATH, css);
+    }
+}
+
+// مخلَّفٌ من كتابةٍ قُطعت — لا يُقرأ أبداً، لكنّه يبقى في مجلدٍ يفتحه المستخدم.
+try {
+    const stale = `${QUICK_CSS_PATH}.tmp`;
+    if (existsSync(stale)) unlinkSync(stale);
+} catch { /* ممسوك الآن — يُستبدَل عند أوّل كتابة */ }
 
 async function listThemes(): Promise<UserThemeHeader[]> {
     const files = await readdir(THEMES_DIR).catch(() => []);
@@ -85,9 +132,7 @@ ipcMain.handle(IpcEvents.OPEN_EXTERNAL, (_, url) => {
 });
 
 ipcMain.handle(IpcEvents.GET_QUICK_CSS, () => readCss());
-ipcMain.handle(IpcEvents.SET_QUICK_CSS, (_, css) =>
-    writeFileSync(QUICK_CSS_PATH, css)
-);
+ipcMain.handle(IpcEvents.SET_QUICK_CSS, (_, css) => writeCssAtomic(css));
 
 ipcMain.handle(IpcEvents.GET_THEMES_LIST, () => listThemes());
 ipcMain.handle(IpcEvents.GET_THEME_DATA, (_, fileName) => getThemeData(fileName));
@@ -121,8 +166,35 @@ ipcMain.handle(IpcEvents.INIT_FILE_WATCHERS, ({ sender }) => {
 
     open(QUICK_CSS_PATH, "a+").then(fd => {
         fd.close();
-        quickCssWatcher = watch(QUICK_CSS_PATH, { persistent: false }, debounce(async () => {
-            sender.postMessage(IpcEvents.QUICK_CSS_UPDATE, await readCss());
+        /**
+         * 🔴 يُراقَب **المجلد** لا الملفّ.
+         *
+         * الكتابة صارت ذرّية (`.tmp` ثمّ `rename`)، والاستبدال يُنشئ عقدةً
+         * جديدة. و`inotify` على لينكس يتعلّق بالعقدة نفسها — فأوّل حفظٍ من
+         * المحرّر كان يقتل المراقبة صامتةً، ويتوقّف العرض الحيّ حتى إعادة
+         * التشغيل. (ويندوز غير متأثّر: يراقب المجلد الأب أصلاً — مقيس.)
+         * مراقبةُ المجلد تنجو من الاستبدال في كل نظام.
+         */
+        const quickCssName = basename(QUICK_CSS_PATH);
+        quickCssWatcher = watch(SETTINGS_DIR, { persistent: false }, debounce(async (_event: string, filename: string | null) => {
+            // يجاوره `settings.json` وتُكتب كثيراً — فيُرشَّح بالاسم.
+            // (اسمٌ فارغ نادرٌ جداً؛ نقرأ عندها احتياطاً لا إهمالاً.)
+            if (filename && filename !== quickCssName) return;
+
+            /**
+             * 🔴 مصيدةٌ حول القراءة.
+             *
+             * `readCss` صارت تُبلّغ بالعطل بدل أن تُعيد فراغاً — وهذه الدالّة
+             * غير متزامنة و`debounce` **يُهمل ما تُعيده**، فقفلُ مضادّ
+             * فيروسات لجزءٍ من ثانية كان يصير رفضاً غير مُعالَج في **العملية
+             * الرئيسية**. ولا يُرسَل فراغ عند الفشل: المُصيِّر يضعه في عنصر
+             * النمط فيمحو ثيم المستخدم من الشاشة.
+             */
+            try {
+                sender.postMessage(IpcEvents.QUICK_CSS_UPDATE, await readCss());
+            } catch (e) {
+                console.error("[Esharq] QuickCSS changed but could not be read — the previous CSS stays applied.", e);
+            }
         }, 50));
     }).catch(() => { });
 
@@ -132,7 +204,13 @@ ipcMain.handle(IpcEvents.INIT_FILE_WATCHERS, ({ sender }) => {
 
     if (IS_DEV) {
         rendererCssWatcher = watch(RENDERER_CSS_PATH, { persistent: false }, async () => {
-            sender.postMessage(IpcEvents.RENDERER_CSS_UPDATE, await readFile(RENDERER_CSS_PATH, "utf-8"));
+            // نفس السبب: رفضٌ غير مُعالَج في العملية الرئيسية عند إعادة بناءٍ
+            // يمسك الملفّ لحظة الحدث.
+            try {
+                sender.postMessage(IpcEvents.RENDERER_CSS_UPDATE, await readFile(RENDERER_CSS_PATH, "utf-8"));
+            } catch (e) {
+                console.error("[Esharq] renderer CSS changed but could not be read", e);
+            }
         });
     }
 
