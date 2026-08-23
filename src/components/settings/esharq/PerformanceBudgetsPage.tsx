@@ -6,7 +6,7 @@
 
 import "./performanceBudgets.css";
 
-import { Settings, useSettings } from "@api/Settings";
+import { PlainSettings, Settings, useSettings } from "@api/Settings";
 import { getPluginStartups } from "@debug/esharqStartup";
 import { t } from "@utils/esharqI18n";
 import { useEffect, useMemo, useRef, useState } from "@webpack/common";
@@ -82,8 +82,13 @@ function readBudgets(): Record<BudgetKey, number> {
 }
 
 function writeBudget(key: BudgetKey, value: number) {
+    // 🔴 النسخ من `PlainSettings` لا من الوكيل: قراءة `Settings.esharq` تُعيد
+    // كائناً مغلَّفاً بوكيل، ونشرُه يزرع الوكيل داخل شجرة الإعدادات — والوكيل
+    // لا يُستنسَخ، فيتوقّف **كلّ** حفظ إعدادٍ بعده. نفس العطل الذي منع تفعيل
+    // الإضافات على كل تثبيتٍ أوّل.
     const store = Settings as Record<string, any>;
-    store.esharq = { ...(store.esharq ?? {}), budgets: { ...(store.esharq?.budgets ?? {}), [key]: value } };
+    const current = (PlainSettings as Record<string, any>).esharq ?? {};
+    store.esharq = { ...current, budgets: { ...(current.budgets ?? {}), [key]: value } };
 }
 
 function heapMB(): number | null {
@@ -98,6 +103,23 @@ function BudgetRow({ label, hint, unit, value, budget, index, onBudget }: {
     value: number | null; budget: number; index: number;
     onBudget: (v: number) => void;
 }) {
+    /**
+     * نصّ الحقل **مسوّدةٌ محلّية**، لا القيمة المحفوظة مباشرةً.
+     *
+     * 🔴 كان الحقل مربوطاً بالقيمة المحفوظة، والكتابة تُرفَض إن لم تُنتج رقماً
+     * صالحاً. فمن مسح «60» ليكتب «90» أنتج مسحُه نصّاً فارغاً ⇒ `parseInt("")`
+     * = `NaN` ⇒ رُفض ⇒ لم تتغيّر القيمة المحفوظة ⇒ أعاد React رسم «60» في
+     * الحقل. فبدا **أنّ المسح لا يعمل**، وما يكتبه يُضاف إلى الرقم القديم:
+     * «60» ثمّ «90» تصير **«6090»** — وهو ما وصفه المستخدم حرفياً.
+     *
+     * بالمسوّدة يكتب ما يشاء ويمسح ما يشاء؛ وتُحفظ القيمة لحظة تصير صالحة،
+     * ويُعاد المحفوظ عند مغادرة الحقل فارغاً — فلا تضيع قيمةٌ بمسحةٍ عابرة.
+     */
+    const [draft, setDraft] = useState(String(budget));
+
+    // القيمة المحفوظة قد تتغيّر من خارج الحقل (استعادة الافتراضات مثلاً).
+    useEffect(() => { setDraft(String(budget)); }, [budget]);
+
     const off = budget === 0;
     const over = !off && value !== null && value > budget;
     const ratio = off || value === null || budget === 0 ? 0 : Math.min(1, value / budget);
@@ -120,11 +142,19 @@ function BudgetRow({ label, hint, unit, value, budget, index, onBudget }: {
                 <span className="esharq-pb-hint">{hint}</span>
                 <label className="esharq-pb-input">
                     {t("الحدّ", "Budget")}
-                    <input type="number" min={0} value={budget}
+                    <input type="number" min={0} value={draft}
                         aria-label={t(`حدّ ${label}`, `Budget for ${label}`)}
                         onChange={e => {
-                            const n = parseInt(e.currentTarget.value, 10);
+                            const text = e.currentTarget.value;
+                            setDraft(text);
+                            const n = parseInt(text, 10);
                             if (Number.isFinite(n) && n >= 0) onBudget(n);
+                        }}
+                        onBlur={() => {
+                            const n = parseInt(draft, 10);
+                            // حقلٌ فارغ أو نصٌّ غير صالح: يعود المحفوظ كما هو.
+                            if (!Number.isFinite(n) || n < 0) setDraft(String(budget));
+                            else setDraft(String(n));
                         }} />
                     <span>{unit}</span>
                 </label>
