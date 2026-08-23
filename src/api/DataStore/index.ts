@@ -24,8 +24,26 @@ export function promisifyRequest<T = undefined>(
     return new Promise<T>((resolve, reject) => {
         // @ts-expect-error - file size hacks
         request.oncomplete = request.onsuccess = () => resolve(request.result);
+
+        // `onabort` and `onerror` used to share one handler that read
+        // `request.error`. On an IDBTransaction that is wrong twice over: the
+        // error event bubbles up from the failing request and fires while
+        // `transaction.error` is still null, beating `abort` to the reject — so
+        // every failed write rejected with the VALUE null. A caller doing
+        // `catch (e) { log(e.message) }` then died on a TypeError instead of
+        // reporting the failure, and one that logged `e` logged nothing at all.
+        //
+        // The event's target is the request that actually failed, even after
+        // bubbling, so it still carries the real reason.
+        request.onerror = (e?: Event) => reject(
+            (e?.target as IDBRequest | undefined)?.error
+            ?? request.error
+            ?? new DOMException("IndexedDB request failed", "UnknownError")
+        );
         // @ts-expect-error - file size hacks
-        request.onabort = request.onerror = () => reject(request.error);
+        request.onabort = () => reject(
+            request.error ?? new DOMException("IndexedDB transaction aborted", "AbortError")
+        );
     });
 }
 
@@ -136,7 +154,13 @@ export function update<T = any>(
             // If I try to chain promises, the transaction closes in browsers
             // that use a promise polyfill (IE10/11).
             new Promise((resolve, reject) => {
-                store.get(key).onsuccess = function () {
+                const req = store.get(key);
+                // Only onsuccess ever settled this promise. A failed read left it
+                // pending forever, so every caller awaiting update() hung with no
+                // error and no timeout. Reject instead: the caller must learn the
+                // read failed, never be handed a fabricated empty value.
+                req.onerror = () => reject(req.error);
+                req.onsuccess = function () {
                     try {
                         store.put(updater(this.result), key);
                         resolve(promisifyRequest(store.transaction));

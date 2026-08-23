@@ -1,6 +1,6 @@
 {
     "type": "fix",
-    "scope": "updater",
-    "ar": "انتهت حلقة «تم التحديث — أعد التشغيل» التي كانت تتكرّر بلا نهاية. كان إشراق يقيس تأخّره بآخر تغييرٍ في المستودع بينما يُنزّل آخر إصدارٍ مبنيّ، وبينهما فجوةُ دقائق بعد كل دفع — فلا يلتقيان أبداً، ويُعاد تنزيل 35 ميغابايت في كل إقلاع. صار يقيس تأخّره بما سيصله فعلاً.",
-    "en": "The endless \"updated — restart\" loop is gone. Esharq measured how far behind it was against the repository's newest change while installing the newest built release, and the gap between them lasts minutes after every push — so the two never met, and 35 MB was re-downloaded on every launch. It now measures against what will actually reach you."
+    "scope": "datastore",
+    "ar": "إضافةٌ تنتظر بياناتها إلى الأبد لم تعد ممكنة. كان تخزين إشراق يستقرّ عند النجاح وحده: فإن تعثّرت قراءةٌ من قاعدة البيانات، بقي الطلب معلّقاً بلا خطأ ولا مهلة، وتجمّد كل ما بعده في تلك الإضافة. وكانت كتابةٌ فاشلة تُبلَّغ بقيمةٍ فارغة، فمن يعرض سببها يرى انهياراً بدل السبب. الآن يصل العطل باسمه ومعناه.",
+    "en": "A plugin waiting forever for its data is no longer possible. Esharq's storage settled only on success: if a database read failed, the request stayed pending with no error and no timeout, and everything after it in that plugin froze. A failed write reported an empty value, so anything showing its reason crashed instead. Failures now arrive with a name and a reason."
 }
