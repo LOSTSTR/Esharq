@@ -59,6 +59,15 @@ function writeAtomic(file: string, data: string) {
  * تُنسَخ حالةٌ فاسدة فوق نسخةٍ سليمة).
  */
 const backupOf = (file: string) => `${file}.bak`;
+/**
+ * الجيل الأقدم من نسخة الأمان.
+ *
+ * 🔴 لماذا جيلان: النسخة كانت تُؤخَذ بعد **كل** قراءةٍ ناجحة بلا شرط. فإن
+ * أقلع العميل مرّةً على ملفٍّ خسر محتواه — وقراءتُه تنجح، فهو JSON سليم —
+ * نُسخ الخاوي فوق النسخة السليمة وصار الضياع **دائماً**. بجيلين، لقطةٌ
+ * واحدة سيّئة لا تُتلف آخر ما يُوثَق به.
+ */
+const olderBackupOf = (file: string) => `${file}.bak.1`;
 
 /**
  * هل هذا **تلفٌ في المحتوى** أم **عجزٌ عابر عن القراءة**؟
@@ -112,7 +121,17 @@ export const StartupRead = {
     /** حجم ما قُرئ بالبايت، ليُقارَن بحجم الملفّ على القرص. */
     bytes: 0,
     /** أُنقِذت الإعدادات من نسخة الأمان — أي أنّ الأصل كان تالفاً. */
-    recovered: false
+    recovered: false,
+    /**
+     * الأصل **ما زال على القرص سليماً**، لكنّه تعذّر عن القراءة هذه الجلسة
+     * (قفلٌ عابر صمد أمام الإعادات)، فحُمّلت نسخة الأمان بدلاً منه.
+     *
+     * 🔴 في هذه الحال **يُمنَع الحفظ**. الملفّ الذي على القرص أحدث ممّا في
+     * الذاكرة، فأوّل تبديلٍ كان يكتب القديم فوق الجديد ويُضيّع جلسةً كاملة
+     * من اختيارات صاحبه — عقوبةً على قفلٍ دام جزءاً من ثانية. أن تُرفَض
+     * كتابةٌ واحدة ويُقال السبب، أهون من أن يُمحى ملفٌّ سليم.
+     */
+    holdWrites: false
 };
 
 function readSettings<T = object>(name: string, file: string): Partial<T> {
@@ -128,9 +147,33 @@ function readSettings<T = object>(name: string, file: string): Partial<T> {
         return parsed;
     };
 
+    /**
+     * قراءةٌ تُعاد قبل أن يُحكَم بالفشل.
+     *
+     * 🔴 قفلُ مضادّ فيروسات أو مجلدٍ مُزامَن يدوم أجزاءً من الثانية. وبلا
+     * إعادةٍ كان ذلك القفلُ العابر يُسقط الملفّ السليم إلى نسخة الأمس، ثمّ
+     * أوّل تبديلٍ يكتب الأمس فوق اليوم. ثلاث محاولات بانتظارٍ متزايد تُعبر
+     * القفل، ولا تُطيل الإقلاع إلّا حين يكون هناك عطلٌ فعلاً.
+     */
+    const parseWithRetry = (path: string) => {
+        for (let attempt = 0; ; attempt++) {
+            try {
+                return parse(path);
+            } catch (err: any) {
+                // التلف لا يُشفى بالإعادة، والغياب ليس عطلاً — كلاهما يُرمى فوراً.
+                if (attempt >= 2 || isContentCorruption(err) || err?.code === "ENOENT") throw err;
+                Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 40 * (attempt + 1));
+            }
+        }
+    };
+
     try {
-        const parsed = parse(file);
-        // نسخةُ أمانٍ **معروفة السلامة**، مرّة واحدة كلّ جلسة.
+        const parsed = parseWithRetry(file);
+        // نسخةُ أمانٍ **معروفة السلامة**، مرّة واحدة كلّ جلسة — والقديمة
+        // تُزاح جيلاً لا تُمحى.
+        try {
+            if (existsSync(backupOf(file))) copyFileSync(backupOf(file), olderBackupOf(file));
+        } catch { /* تعذّرت الإزاحة — لا يمنع الإقلاع */ }
         try {
             copyFileSync(file, backupOf(file));
         } catch { /* تعذّرت النسخة — لا يمنع الإقلاع */ }
@@ -143,9 +186,23 @@ function readSettings<T = object>(name: string, file: string): Partial<T> {
         // بلا هذه الخطوة كان تلفٌ عابر يُكلّف المستخدم **كلّ** اختياراته:
         // القراءة تفشل ⇒ افتراضات ⇒ أوّل تبديلٍ يكتبها فوق ملفّه. الآن يخسر
         // آخر تغييرٍ لا أكثر.
-        if (!missing) {
+        // 🔴 الغياب لم يعد يتخطّى التعافي.
+        //
+        // كان الشرط `if (!missing)`، فبعد أن يُعزَل ملفٌّ تالف يصير غائباً —
+        // والإقلاع التالي يقرأ `ENOENT` فيتخطّى نسخة الأمان كلّها ويعود
+        // بـ`{}`، **ويُبلّغ أنّ القراءة سليمة**. كل الإضافات والثيمات تختفي
+        // والتقرير أخضر. ومستخدمٌ جديد لا نسخةَ له أصلاً، فيمضي كما كان.
+        {
+            const fromBackup = () => {
+                try {
+                    return parseWithRetry(backupOf(file));
+                } catch {
+                    // الجيل الأقدم: يُجرَّب حين تكون الأحدث هي نفسها تالفة.
+                    return parseWithRetry(olderBackupOf(file));
+                }
+            };
             try {
-                const recovered = parse(backupOf(file));
+                const recovered = fromBackup();
                 // 🔴 التالف **يُحفَظ ولا يُحذَف**: هو الدليل الوحيد على ما جرى،
                 // وقد يحوي ما لا تحويه النسخة. الاسم بالتاريخ فلا يدوس بعضه بعضاً.
                 if (isContentCorruption(err)) {
@@ -159,6 +216,8 @@ function readSettings<T = object>(name: string, file: string): Partial<T> {
                     StartupRead.ok = false;
                     StartupRead.error = `${err?.code ?? "خطأ"}: ${err?.message ?? err} — استُعيدت من النسخة الاحتياطية`;
                     StartupRead.recovered = true;
+                    // الأصل لم يُعزَل ولم يغب ⇒ هو الأحدث، فلا يُكتب فوقه.
+                    StartupRead.holdWrites = !missing && !isContentCorruption(err) && existsSync(file);
                 }
                 return recovered;
             } catch { /* لا نسخة صالحة — نُكمل إلى الافتراضات */ }
@@ -202,20 +261,40 @@ export const RendererSettings = new SettingsStore(readSettings<Settings>("render
 let lastWriteError: string | null = null;
 
 RendererSettings.addGlobalChangeListener(() => {
-    try {
-        const json = JSON.stringify(RendererSettings.plain, null, 4);
-        writeAtomic(SETTINGS_FILE, json);
+    // ما في الذاكرة نسخةُ أمانٍ أقدم ممّا على القرص — الكتابة هنا محوٌ لا حفظ.
+    if (StartupRead.holdWrites) {
+        lastWriteError = "لم تُقرأ إعداداتك هذه الجلسة والملفّ الأصلي سليم على القرص، "
+            + "فأُوقف الحفظ لئلّا يُكتب فوقه ما هو أقدم منه. أعد تشغيل إشراق.";
+        console.error("[Esharq] settings write held back: startup read failed while the on-disk file is intact.");
+        return;
+    }
 
-        // 🔴 الكتابة قد «تنجح» ولا تصل القرص: مضادّ فيروسات يعترضها، أو مجلد
-        // مُزامَن يُعيد الملفّ القديم. نتحقّق من الحجم — رخيصٌ، والتبديل نادر.
+    const json = JSON.stringify(RendererSettings.plain, null, 4);
+
+    try {
+        writeAtomic(SETTINGS_FILE, json);
+    } catch (e: any) {
+        lastWriteError = `${e?.code ?? "خطأ"}: ${e?.message ?? e}`;
+        console.error("Failed to write renderer settings", e);
+        return;
+    }
+
+    // 🔴 الكتابة قد «تنجح» ولا تصل القرص: مضادّ فيروسات يعترضها، أو مجلد
+    // مُزامَن يُعيد الملفّ القديم. نتحقّق من الحجم — رخيصٌ، والتبديل نادر.
+    //
+    // وهذا التحقّق **في مصيدته وحده**: كان داخل مصيدة الكتابة، فإن تعثّر
+    // `statSync` على قفلٍ بعد كتابةٍ ناجحة قيل للمستخدم «لم تُحفَظ إعداداتك»
+    // وهي محفوظة — فيُطارد عطلاً لا وجود له، ويصل التقرير مسموماً.
+    try {
         const written = statSync(SETTINGS_FILE).size;
         const expected = Buffer.byteLength(json);
         lastWriteError = written === expected
             ? null
             : `الملفّ كُتب بحجم ${written} بايت والمتوقّع ${expected} — يعترضه شيءٌ خارج إشراق.`;
     } catch (e: any) {
-        lastWriteError = `${e?.code ?? "خطأ"}: ${e?.message ?? e}`;
-        console.error("Failed to write renderer settings", e);
+        // الكتابة نجحت؛ التحقّق وحده تعذّر. لا يُقال إنّ الحفظ فشل.
+        lastWriteError = null;
+        console.warn("[Esharq] settings were written but could not be verified", e);
     }
 });
 
@@ -244,6 +323,9 @@ ipcMain.handle(IpcEvents.GET_SETTINGS_HEALTH, () => {
         startupReadError: StartupRead.error,
         loadedPluginEntries: StartupRead.pluginEntries,
         recoveredFromBackup: StartupRead.recovered,
+        // الحفظ مُوقَف حمايةً لملفٍّ سليم لم يُقرأ — أهمّ سطرٍ في تقرير من
+        // يقول «إعداداتي لا تُحفَظ»، وبلا هذا الحقل يُشخَّص العطل خطأً.
+        writesHeld: StartupRead.holdWrites,
         loadedBytes: StartupRead.bytes
     };
 });
@@ -263,6 +345,19 @@ export interface NativeSettings {
         };
     };
     customCspRules: Record<string, string[]>;
+    /**
+     * اختيار الاتّصال المشفّر — **حالةٌ تملكها العملية الرئيسية**.
+     *
+     * 🔴 كانت تسكن شجرة إعدادات المُصيِّر، وتُكتب من هنا بـ`setData`. لكنّ
+     * المُصيِّر يأخذ لقطته عند الإقلاع ثمّ يرسل **الشجرة كاملةً** مع كل تبديل،
+     * وهي لا تعرف هذا المفتاح — فيُمحى. عملياً: يختار المستخدم DNS مشفّراً،
+     * يُبدّل أيّ إعدادٍ آخر، فيعود `off` بعد إعادة التشغيل. بلا رسالة.
+     *
+     * ولا جسر بين الاتّجاهين: `GET_SETTINGS` مرّةً عند الإقلاع، و`SET_SETTINGS`
+     * من المُصيِّر إلى هنا — ولا شيء يدفع من هنا إليه. فالحلّ ليس ترقيعاً في
+     * الدفع، بل أن تسكن الحالة تخزينها الصحيح.
+     */
+    esharqSecureDns?: { mode: string; providerId: string; };
 }
 
 const DefaultNativeSettings: NativeSettings = {
