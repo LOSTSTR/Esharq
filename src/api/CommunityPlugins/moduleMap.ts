@@ -111,11 +111,14 @@ import * as C_components_Span from "@components/Span";
 import * as C_components_Switch from "@components/Switch";
 import * as C_components_TooltipContainer from "@components/TooltipContainer";
 import * as C_components_TooltipFallback from "@components/TooltipFallback";
+import * as C_equicordplugins__core_concatenatedModules from "@equicordplugins/_core/concatenatedModules";
+import * as C_plugins__core_settings from "@plugins/_core/settings";
 import * as C_shared_debounce from "@shared/debounce";
 import * as C_shared_IpcEvents from "@shared/IpcEvents";
 import * as C_shared_onceDefined from "@shared/onceDefined";
 import * as C_shared_SettingsStore from "@shared/SettingsStore";
 import * as C_shared_vencordUserAgent from "@shared/vencordUserAgent";
+import * as Npm_streamparserJson from "@streamparser/json";
 import * as C_utils_apng from "@utils/apng";
 import * as C_utils_ChangeList from "@utils/ChangeList";
 // ─── نهاية المُولَّد ───
@@ -140,6 +143,7 @@ import * as EsharqI18n from "@utils/esharqI18n";
 import * as C_utils_esharqLocale from "@utils/esharqLocale";
 import * as C_utils_esharqModals from "@utils/esharqModals";
 import * as C_utils_esharqPrefs from "@utils/esharqPrefs";
+import * as ForkI18nShim from "@utils/forkI18nShim";
 import * as C_utils_gregorianCalendar from "@utils/gregorianCalendar";
 import * as Guards from "@utils/guards";
 import * as C_utils_i18n from "@utils/i18n";
@@ -168,6 +172,14 @@ import * as C_utils_web from "@utils/web";
 import * as C_utils_web_metadata from "@utils/web-metadata";
 import * as Webpack from "@webpack";
 import * as WebpackCommon from "@webpack/common";
+import * as C_webpack_common_components from "@webpack/common/components";
+import * as C_webpack_common_utils from "@webpack/common/utils";
+import * as Npm_fflate from "fflate";
+import * as Npm_gifenc from "gifenc";
+import * as Npm_gifuctJs from "gifuct-js";
+import * as Npm_idb from "idb";
+import * as Npm_nativeFileSystemAdapter from "native-file-system-adapter";
+import * as Npm_virtualMerge from "virtual-merge";
 
 import * as C_git_hash from "~git-hash";
 import * as C_git_remote from "~git-remote";
@@ -205,10 +217,86 @@ function asCjsModule(ns: any) {
  * `react` و`react-dom` يأتيان من ديسكورد نفسه لا من حزمتنا — وإلّا لكان في
  * الصفحة نسختان من React، وهو عطبٌ يظهر بأخطاء خطّافات غامضة.
  */
+/**
+ * جدول مطوّري شوكةٍ أخرى — يُصطنَع عند الطلب.
+ *
+ * 🔴 أكبر عطلٍ في إضافات المجتمع، وأخبثه: `import { TestcordDevs } from
+ * "@utils/constants"` — والوحدة **موجودة عندنا**، فيقول تقرير التوافق
+ * «سليمة»، ثمّ تسقط الإضافة وقت التشغيل لأنّ الاسم ليس فيها:
+ * `_constants.TestcordDevs.x2b` ⇒ «Cannot read properties of undefined».
+ * قِيس على ٥١٥ مجلداً حقيقياً: **٢٢٣ منها** تسقط هكذا، والتقرير صامت.
+ *
+ * والمفتاح في تلك الجداول **هو اسم صاحبه** (`x2b: { name: "x2b", id: … }`)،
+ * فإرجاع `{ name: المفتاح }` يُبقي النسبة صادقةً لا مُخترَعة. و`id: 0n`
+ * يجعل `PluginModal` يعرضه اسماً بلا حساب — وهو ما يفعله بأي مؤلّفٍ لا
+ * يعرف معرّفه.
+ *
+ * وهذا **الموضع الوحيد** في المُحلِّل الذي يُنشئ قيمةً بدل أن يُرجع قائمة،
+ * فيُعلَن في التقرير كما يُعلَن البديل، ولا يقع صامتاً.
+ */
+const unknownDevsTable = () => new Proxy({}, {
+    get: (_t, handle) => typeof handle === "string" ? { name: handle, id: 0n } : undefined,
+    has: () => true
+});
+
+/**
+ * `@utils/constants` كما تراه إضافة المجتمع: ثوابتنا كما هي، ويُضاف إليها
+ * جدولُ مطوّرين مُصطنَع لأي اسمٍ ينتهي بـ`Devs` لا نعرفه.
+ *
+ * 🔴 يُنسَخ بالانتشار لا يُغلَّف مباشرةً: `Proxy` على فضاء أسماء وحدة يكسر
+ * ثوابت اللغة (فضاء الأسماء غير قابل للتوسيع)، والنسخ آمنٌ هنا لأن
+ * `src/utils/constants.ts` **بلا واردات** فلا جالبَ كسولاً يُستدعى قبل أوانه.
+ */
+function constantsForCommunity(): any {
+    const own = { ...Constants } as Record<string, any>;
+    // 🔴 `has` يُطابق `get`: فاحص الأسماء يسأل بـ`in`، فلو لم يُطابقه لأنذر
+    // بأنّ `TestcordDevs` مفقودة وهي تعمل — إنذارٌ كاذب يُفقد التقرير قيمته.
+    const synthesised = (key: PropertyKey) => typeof key === "string" && /Devs$/.test(key);
+    return new Proxy(own, {
+        get(target, key) {
+            if (Reflect.has(target, key)) return Reflect.get(target, key);
+            return synthesised(key) ? unknownDevsTable() : undefined;
+        },
+        has(target, key) {
+            return Reflect.has(target, key) || synthesised(key);
+        }
+    });
+}
+
 function buildMap(): Record<string, any> {
     const map: Record<string, any> = {
         "@utils/types": Types,
-        "@utils/constants": Constants,
+        "@utils/constants": constantsForCommunity(),
+
+        /**
+         * مُترجِمات الشوكات الأخرى — **بالشِيم لا بمُترجِمنا**.
+         *
+         * 🔴 كان `FORK_ALIASES` يوجّهها إلى `@utils/esharqI18n`، وعقدُها
+         * `t(ar, en)`: خارج الوضع العربي تُرجع `en` — أي **`undefined`** حين
+         * تُستدعى بوسيطٍ واحد كما تفعل تلك الإضافات. فتُعرَض نصوصٌ فارغة بدل
+         * الإنجليزية. والشِيم موجودٌ ويفعل الصواب، لكنّه لم يكن في الخريطة
+         * فلا يصله إلّا الوارد النسبيّ. (التحذير مكتوبٌ في رأس الشِيم نفسه.)
+         */
+        "@utils/forkI18nShim": ForkI18nShim,
+        "@api/pluginI18n": ForkI18nShim,
+
+        /**
+         * وحداتٌ لها **توأمٌ موجود عندنا**، وكانت تُعَدّ مجهولة.
+         * ولا تُكلّف بايتاً: كلّها في حزمة المُصيِّر أصلاً.
+         */
+        "@plugins/_core/settings": C_plugins__core_settings,
+        "@plugins/_core/concatenatedModules": C_equicordplugins__core_concatenatedModules,
+        "@webpack/common/components": C_webpack_common_components,
+        "@webpack/common/utils": C_webpack_common_utils,
+
+        /** حزم npm نشحنها فعلاً — أُضيفت بلا كلفة (مقيسة واحدةً واحدة). */
+        "fflate": Npm_fflate,
+        "gifenc": Npm_gifenc,
+        "gifuct-js": Npm_gifuctJs,
+        "idb": Npm_idb,
+        "native-file-system-adapter": Npm_nativeFileSystemAdapter,
+        "@streamparser/json": Npm_streamparserJson,
+        "virtual-merge": Npm_virtualMerge,
         "@utils/esharqI18n": EsharqI18n,
         "@utils/css": Css,
         "@utils/Logger": LoggerModule,
@@ -384,7 +472,11 @@ let cache: Record<string, any> | null = null;
  * فمدخلٌ بائد يسقط بنفسه بدل أن يُنتج وحدةً فارغة صامتة.
  */
 const FORK_ALIASES: [RegExp, string][] = [
-    [/^@utils\/(testcord|nightcord|trashcord)I18n$/, "@utils/esharqI18n"],
+    // 🔴 إلى الشِيم لا إلى مُترجِمنا: `esharqI18n.t(ar, en)` تُرجع `en` خارج
+    // الوضع العربي، فوسيطٌ واحد ⇒ `undefined` ⇒ نصوصٌ فارغة في الإضافة.
+    [/^@utils\/(testcord|nightcord|trashcord)I18n$/, "@utils/forkI18nShim"],
+    [/^@api\/(plugin)?[Ii]18n$/, "@utils/forkI18nShim"],
+    [/^@streamparser\/json\/.+$/, "@streamparser/json"],
     [/^@vencordplugins\//, "@plugins/"],
     [/^@vencord\/discord-types\/.+$/, "@vencord/discord-types"]
 ];

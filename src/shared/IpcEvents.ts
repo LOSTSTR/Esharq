@@ -68,6 +68,7 @@ export const enum IpcEvents {
     COMMUNITY_SET_ENABLED = "EsharqCommunitySetEnabled",
     COMMUNITY_OPEN_FOLDER = "EsharqCommunityOpenFolder",
     COMMUNITY_READ_SOURCE = "EsharqCommunityReadSource",
+    COMMUNITY_RESCAN = "EsharqCommunityRescan",
     /** متزامن: يُقرأ قبل تمهيد ديسكورد كي تلحق الرقع. */
     COMMUNITY_GET_BUNDLE = "EsharqCommunityGetBundle",
 

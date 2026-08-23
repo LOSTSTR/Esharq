@@ -43,6 +43,11 @@ interface Entry {
      * افتراضيّ فارغ لأنّ الإضافات المستورَدة قبل هذه الميزة لا تحمله.
      */
     externals: string[];
+    /**
+     * الأسماء المطلوبة من كل وحدة خارجية.
+     * افتراضيّ غائب: ما استُورد قبل هذه الميزة لا يحمله، فيُعامَل كما كان.
+     */
+    importedNames?: Record<string, string[]>;
 }
 
 const native = () => (window as any).VencordNative?.communityPlugins;
@@ -90,10 +95,19 @@ function Findings({ findings }: { findings: Finding[]; }) {
     );
 }
 
-function PluginRow({ entry, loadError, onChanged }: {
+function PluginRow({ entry, loadError, onChanged, onRescan, rescanning }: {
     entry: Entry;
     loadError?: string;
     onChanged: () => void;
+    /**
+     * 🔴 إعادة الفحص تُدار من **الأب** لا من الصفّ.
+     *
+     * مفتاح الصفّ هو `entry.id`، وهو مشتقٌّ من بصمة المصدر. فلو غيّرت إعادةُ
+     * الفحص شيئاً لتغيّر المفتاح، ولفكّ React الصفّ وركّب غيره — فتضيع أي
+     * حالةٍ محليّة في اللحظة التي تنجح فيها العملية بالضبط.
+     */
+    onRescan: (id: string) => void;
+    rescanning: boolean;
 }) {
     const [busy, setBusy] = useState(false);
 
@@ -108,8 +122,14 @@ function PluginRow({ entry, loadError, onChanged }: {
     // يُحسَب مرّةً لكل قائمة وحدات: الخريطة ثابتة، والنتيجة لا تتغيّر إلّا
     // بإعادة الاستيراد — وهي تُبدّل `entry.externals` فتُعيد الحساب.
     const compat = React.useMemo(
-        () => ((entry.externals ?? []).length === 0 ? null : checkCompatibility(entry.externals)),
-        [entry.externals]
+        () => ((entry.externals ?? []).length === 0 ? null : checkCompatibility(entry.externals, entry.importedNames)),
+        [entry.externals, entry.importedNames]
+    );
+
+    /** وحداتٌ حُلّت لكن ينقصها اسمٌ تطلبه الإضافة — تسقط عند أوّل استعمال. */
+    const incompleteItems = React.useMemo(
+        () => (compat?.items ?? []).filter(i => (i.missingNames?.length ?? 0) > 0),
+        [compat]
     );
 
     const toggle = async (value: boolean) => {
@@ -175,12 +195,29 @@ function PluginRow({ entry, loadError, onChanged }: {
                     </div>
                 )}
 
-                {compat !== null && !compat.ok && (
+                {/* 🔴 «نظيفةٌ كذباً»: الوحدة تُحلّ والاسم ليس فيها.
+                    كان التقرير يقول «سليمة» ثمّ تسقط الإضافة عند أوّل استعمال
+                    على `undefined.something`. لا يُصلَح — اختراع قيمةٍ يجعلها
+                    تعمل وتكذب — لكنّه يُقال **قبل** التفعيل. */}
+                {incompleteItems.length > 0 && (
+                    <div className="esharq-cp-error">
+                        <b>{t("أسماءٌ مطلوبة لا نملكها:", "Names it needs that we don't have:")}</b>{" "}
+                        <span className="esharq-cp-swap">
+                            {incompleteItems.map(i => `${i.specifier} → ${(i.missingNames ?? []).join(", ")}`).join("  ·  ")}
+                        </span>
+                        <div className="esharq-cp-compat-why">
+                            {t("الوحدة موجودة عندنا لكنّ هذه الأسماء ليست فيها — غالباً أضافتها شوكةٌ أخرى لنفسها. الإضافة ستُحمَّل ثمّ تتعثّر عند أوّل استعمالٍ لها. لا نصنع بديلاً: بديلٌ مخترَع يعمل ويكذب.",
+                                "We do have the module, but not these names — most likely another fork added them for itself. The plugin will load and then fail the moment it uses one. We do not invent a stand-in: an invented one runs and lies.")}
+                        </div>
+                    </div>
+                )}
+
+                {compat !== null && !compat.ok && (compat.blocked > 0 || compat.missing > 0) && (
                     <div className={compat.blocked > 0 ? "esharq-cp-error" : "esharq-cp-pending"}>
                         <b>{compat.blocked > 0
                             ? t("لن تعمل كاملةً:", "Will not fully work:")
                             : t("وحداتٌ لا نعرفها:", "Modules we don't know:")}</b>{" "}
-                        {compat.items.filter(i => i.status !== "ok").map(i => i.specifier).join(" · ")}
+                        {compat.items.filter(i => i.status !== "ok" && i.status !== "substituted").map(i => i.specifier).join(" · ")}
                         <div className="esharq-cp-compat-why">
                             {compat.blocked > 0
                                 ? t("هذه من Node أو من العملية الرئيسية، ولا تصلها أيّ إضافة داخل صفحة ديسكورد — ولا إضافات إشراق نفسها.",
@@ -219,6 +256,24 @@ function PluginRow({ entry, loadError, onChanged }: {
                         <button type="button" title={t("إعدادات الإضافة", "Plugin settings")}
                             onClick={() => openPluginModal(loadedPlugin as any)}>⚙️</button>
                     )}
+                    {/*
+                      * 🔴 «افحص وأصلح»: يُعاد الاستيراد من النسخة المحفوظة
+                      * بمُحرّكٍ صار يعرف أكثر.
+                      *
+                      * ما استُورد قبل أن يتعلّم إشراق وحدةً جديدة يبقى على
+                      * حاله: حزمته المبنيّة قديمة، ولا يحمل جرد الأسماء
+                      * المطلوبة فلا يُفحَص فحصاً كاملاً. وكل تحديثٍ يُضيف
+                      * وحدةً يجعل إضافاتٍ كانت تسقط قابلةً للعمل — بلا أن
+                      * يعرف صاحبها.
+                      *
+                      * ويُقرأ `source/` لا مجلد المستخدم: البصمة تخرج مطابقة
+                      * فالمعرّف نفسه ⇒ لا بطاقة ثانية ولا حالة تفعيلٍ تضيع،
+                      * ولا يُكتب حرفٌ في مجلده.
+                      */}
+                    <button type="button" disabled={busy || rescanning}
+                        title={t("افحص وأصلح", "Scan and fix")}
+                        aria-label={t("افحص وأصلح", "Scan and fix")}
+                        onClick={() => onRescan(entry.id)}>{rescanning ? "…" : "🩹"}</button>
                     <button type="button" title={t("افتح مجلد المصدر", "Open source folder")}
                         onClick={() => native()?.openFolder(entry.id)}>📂</button>
                     <button type="button" className="danger" title={t("حذف", "Remove")} onClick={del}>🗑</button>
@@ -255,8 +310,13 @@ export function CommunityPluginsPage() {
                     "A section that runs plugins written by people outside Esharq.")}
                 slideLabel={t("اسحب لفتح القسم", "Slide to open the section")}
                 warnings={[
-                    t("هذه إضافات ليست من إشراق. نحن نوفّر الميزة التي تُشغّلها فقط — لا نكتبها ولا نُراجعها ولا نُحدّثها ولا نُصلحها.",
-                        "These plugins are not Esharq's. We only provide the feature that runs them — we don't write, review, update or fix them."),
+                    t("هذه إضافات ليست من إشراق. نحن نوفّر الميزة التي تُشغّلها فقط — لا نكتبها ولا نُراجعها ولا نُحدّثها.",
+                        "These plugins are not Esharq's. We only provide the feature that runs them — we don't write, review or update them."),
+                    // 🔴 كان البند الأوّل يقول «ولا نُصلحها» — وصار العميل يُصلح
+                    // فروق البنية فعلاً. تركُ الجملة يجعل وعدنا كاذباً أوّل مرّة،
+                    // فتُحدَّد حدود ما نفعله بدل أن يُنفى أصله.
+                    t("ونُصلح فروق البنية وحدها: أسماء وحداتٍ تختلف بين الشوكات، وصيغةَ استيرادٍ لا يفهمها مُترجِمنا. لا نُغيّر منطق الإضافة ولا نُصلح أعطالها، وما لا نعرف له مقابلاً نتركه ونقوله لك باسمه.",
+                        "And we only bridge structural differences: module names that differ between forks, and an import form our compiler does not understand. We never change a plugin's logic or fix its bugs, and anything we have no counterpart for is left alone and named for you."),
                     t("الإضافة تعمل داخل ديسكورد بصلاحيات أي إضافة، فتستطيع ما تستطيعه أي إضافة. لا تُشغّل إلّا ما تثق بمصدره أنت.",
                         "A plugin runs inside Discord with the same privileges as any plugin, so it can do whatever any plugin can. Only run what you trust."),
                     t("ما تستورده يبقى على جهازك وحده: لا يُرفَع ولا يُشارَك، ولا يصل إشراق ولا أي مستخدم آخر، ولا يدخل النسخ الاحتياطية ولا المزامنة.",
@@ -283,6 +343,10 @@ function CommunityPluginsContent({ onRelock }: { onRelock: () => void; }) {
     const [findings, setFindings] = useState<Finding[]>([]);
     const [importing, setImporting] = useState(false);
     const [justImported, setJustImported] = useState<string | null>(null);
+    /** معرّف الإضافة التي يجري فحصها الآن — يُحفَظ في الأب (انظر `onRescan`). */
+    const [rescanId, setRescanId] = useState<string | null>(null);
+    /** حصيلة آخر فحصٍ يدويّ: ما بُدّل وما تُرك. */
+    const [rescanResult, setRescanResult] = useState<{ name: string; findings: Finding[]; } | null>(null);
 
     const refresh = () => { native()?.list().then(setEntries).catch(() => setEntries([])); };
     useEffect(refresh, []);
@@ -294,6 +358,55 @@ function CommunityPluginsContent({ onRelock }: { onRelock: () => void; }) {
             </NoticeStrip>
         );
     }
+
+    /**
+     * إعادة فحصٍ وإصلاح لإضافةٍ مستورَدة — بعد موافقةٍ صريحة.
+     *
+     * 🔴 لا يقع تعديلٌ بلا إذن: التعديل يمسّ نسخةً من كود شخصٍ آخر، وصاحب
+     * الجهاز هو من يقرّر. والنصّ يقول حدود ما نفعله بالضبط، لا وعداً عامّاً.
+     */
+    const doRescan = (id: string) => {
+        const entry = entries?.find(e => e.id === id);
+        Alerts.show({
+            title: t("سنُعدّل نسخةً من الإضافة", "We will edit a copy of the plugin"),
+            body: (
+                <p style={{ textAlign: "center", lineHeight: 1.75 }}>
+                    {t(`الإصلاح يقع على النسخة التي يحتفظ بها إشراق. مجلدك الأصلي يُقرأ ولا يُكتَب فيه حرف.
+
+وما يُبدَّل فروقُ البنية وحدها: اسم وحدةٍ من شوكةٍ أخرى يُوضَع مكانه ما يقابله عندنا، وصيغةُ استيرادٍ لا يفهمها مُترجِمنا. لا يُضاف منطق ولا يُحذف سطرٌ يفعل شيئاً.
+
+وما لا نعرف له مقابلاً يبقى كما هو ويُقال لك باسمه — البديل المخترَع أسوأ من عطلٍ صريح، لأنّه يعمل ويكذب.
+
+كل هذا على جهازك: لا يُرفَع مصدرٌ ولا يُرسَل طلب. وسترى ما تغيّر قبل أن تُفعّل شيئاً.`,
+                        `The fix is applied to the copy Esharq keeps. Your original folder is read, never written to.
+
+Only structural differences change: a module name from another fork is replaced with its counterpart here, and an import form our compiler does not understand. No logic is added, and no working line is removed.
+
+Anything we have no counterpart for is left exactly as it is and named for you — an invented stand-in is worse than an honest failure, because it runs and lies.
+
+All of this is on your machine: no source is uploaded and no request is sent. And you will see what changed before you enable anything.`)}
+                </p>
+            ),
+            confirmText: t("افحص وأصلح", "Scan and fix"),
+            cancelText: t("اتركها كما هي", "Leave it as it is"),
+            onConfirm: async () => {
+                setRescanId(id);
+                setRescanResult(null);
+                try {
+                    const r = await native()!.rescan(id);
+                    setRescanResult({ name: entry?.name ?? id, findings: r.findings ?? [] });
+                } catch (e: any) {
+                    setRescanResult({
+                        name: entry?.name ?? id,
+                        findings: [{ severity: "error", rule: "failed", message: String(e?.message ?? e) }]
+                    });
+                } finally {
+                    setRescanId(null);
+                    refresh();
+                }
+            }
+        });
+    };
 
     const doImport = async () => {
         setImporting(true);
@@ -354,6 +467,35 @@ function CommunityPluginsContent({ onRelock }: { onRelock: () => void; }) {
                 )}
 
                 <Findings findings={findings} />
+
+                {/* 🔴 حصيلة الفحص اليدويّ **منفصلة** عن `findings`.
+                    `Findings` يُلوّن بالخطورة وحدها، فدسّ نتائج الإصلاح فيه
+                    يجعل النجاح يُعرَض بلون العطل. */}
+                {rescanResult !== null && (
+                    <div className="esharq-cp-rescan">
+                        <NoticeStrip tone={rescanResult.findings.some(f => f.severity === "error") ? "danger" : undefined}>
+                            {(() => {
+                                const fixes = rescanResult.findings.filter(f => f.rule.startsWith("fix:")).length;
+                                const failed = rescanResult.findings.some(f => f.severity === "error");
+                                if (failed) {
+                                    return t(`تعذّر فحص «${rescanResult.name}» — التفصيل أدناه.`,
+                                        `“${rescanResult.name}” could not be scanned — details below.`);
+                                }
+                                return fixes > 0
+                                    ? t(`فُحصت «${rescanResult.name}» وأُصلح ${fixes} موضعاً. أعد تشغيل ديسكورد ليسري.`,
+                                        `“${rescanResult.name}” was scanned and ${fixes} places were fixed. Restart Discord for it to take effect.`)
+                                    : t(`فُحصت «${rescanResult.name}» ولم نجد ما نعرف كيف نُصلحه. ما بقي مذكورٌ بسببه على بطاقتها.`,
+                                        `“${rescanResult.name}” was scanned and we found nothing we know how to fix. What remains is listed with its reason on its card.`);
+                            })()}
+                        </NoticeStrip>
+                        {/* مجلدك لا يُمَسّ — يُقال في كل مرّة، لا مرّةً في نصٍّ يُقرأ ثمّ يُنسى. */}
+                        <div className="esharq-cp-compat-why">
+                            {t("عُدّلت نسخة إشراق وحدها؛ مجلدك الأصلي كما تركتَه.",
+                                "Only Esharq's copy was edited; your original folder is exactly as you left it.")}
+                        </div>
+                        <Findings findings={rescanResult.findings} />
+                    </div>
+                )}
             </Card>
 
             <Card index={1}
@@ -370,7 +512,8 @@ function CommunityPluginsContent({ onRelock }: { onRelock: () => void; }) {
                 ) : (
                     <div className="esharq-cp-list">
                         {list.map(e => (
-                            <PluginRow key={e.id} entry={e} loadError={errorFor(e.id)} onChanged={refresh} />
+                            <PluginRow key={e.id} entry={e} loadError={errorFor(e.id)} onChanged={refresh}
+                                onRescan={doRescan} rescanning={rescanId === e.id} />
                         ))}
                     </div>
                 )}

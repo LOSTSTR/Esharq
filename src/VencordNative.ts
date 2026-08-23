@@ -213,7 +213,8 @@ export default {
         remove: (id: string) => invoke<boolean>(IpcEvents.COMMUNITY_REMOVE, id),
         setEnabled: (id: string, enabled: boolean) => invoke<boolean>(IpcEvents.COMMUNITY_SET_ENABLED, id, enabled),
         openFolder: (id: string) => invoke<void>(IpcEvents.COMMUNITY_OPEN_FOLDER, id),
-        readSource: (id: string) => invoke<{ path: string; text: string; }[]>(IpcEvents.COMMUNITY_READ_SOURCE, id)
+        readSource: (id: string) => invoke<{ path: string; text: string; }[]>(IpcEvents.COMMUNITY_READ_SOURCE, id),
+        rescan: (id: string) => invoke<CommunityImportResult>(IpcEvents.COMMUNITY_RESCAN, id)
     },
 
     pluginHelpers: PluginHelpers

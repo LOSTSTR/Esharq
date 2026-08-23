@@ -31,9 +31,19 @@ export function t(key: string): string {
     return key;
 }
 
+/**
+ * الاسم الذي تستعمله بعض الشوكات لنفس الدالّة (`@api/pluginI18n`).
+ *
+ * 🔴 الاسم جزءٌ من العقد: توجيه الوحدة إلى هذا الملفّ بلا تصدير `tPlugin`
+ * يترك `tPlugin` غير مُعرَّفة، فتسقط الإضافة كما لو لم تُوجَّه أصلاً.
+ * وقُرئ مصدرهم: `tPlugin(key)` تُرجع المفتاح حين تكون اللغة إنجليزية —
+ * نفس عقد `t` حرفاً بحرف.
+ */
+export const tPlugin = t;
+
 /** الشكل الخطّافيّ الذي تستعمله بعض إضافاتهم. */
 export function useTranslation() {
     return { t, lang: "en" as const };
 }
 
-export default { t, useTranslation };
+export default { t, tPlugin, useTranslation };

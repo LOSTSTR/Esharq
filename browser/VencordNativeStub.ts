@@ -59,7 +59,11 @@ window.VencordNative = {
         remove: async () => false,
         setEnabled: async () => false,
         openFolder: NOOP_ASYNC,
-        readSource: async () => []
+        readSource: async () => [],
+        rescan: async () => ({
+            ok: false,
+            findings: [{ severity: "error" as const, rule: "web", message: "إضافات المجتمع متاحة في تطبيق سطح المكتب فقط." }]
+        })
     },
 
     // الاتّصال المشفّر إعدادٌ لمُحوّل التطبيق — لا وجود له في المتصفّح.

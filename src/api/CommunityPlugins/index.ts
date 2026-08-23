@@ -88,6 +88,15 @@ export function substituteEscapingImport(specifier: string): any {
 export interface CompatItem {
     specifier: string;
     /**
+     * أسماءٌ تطلبها الإضافة من هذه الوحدة ولا تُصدّرها نسختنا.
+     *
+     * 🔴 هذا هو «النظيف كذباً»: الوحدة تُحلّ فيقول التقرير «سليمة»، ثمّ تسقط
+     * الإضافة وقت التشغيل على `undefined.something`. لا يُصلَح — اختراع
+     * قيمةٍ هنا يجعلها تعمل وتكذب — لكنّه **يُقال قبل التفعيل** بدل أن
+     * يُكتشَف خطأً أحمر بعد إعادة تشغيلٍ كاملة.
+     */
+    missingNames?: string[];
+    /**
      * `ok` تعمل · `blocked` مستحيلة في المُصيِّر (Node/إلكترون/العملية
      * الرئيسية) · `missing` اسمٌ لا نعرفه — غالباً وحدةٌ خاصّة بشوكة أخرى.
      */
@@ -105,12 +114,25 @@ export interface CompatItem {
  * والفائدة عمليّة: من يستورد إضافةً تطلب `fs` يرى ذلك في اللحظة، لا بعد
  * إعادة تشغيلٍ كاملة ينتهي بخطأٍ أحمر لا يدلّه على السبب.
  */
-export function checkCompatibility(externals: string[]): {
+export function checkCompatibility(externals: string[], importedNames?: Record<string, string[]>): {
     ok: boolean;
     items: CompatItem[];
     blocked: number;
     missing: number;
+    /** عدد الوحدات التي تُحلّ لكن ينقصها اسمٌ مطلوب. */
+    incomplete: number;
 } {
+    /** أيّ الأسماء المطلوبة لا تُصدّرها الوحدة التي حُلّت؟ */
+    const namesMissingFrom = (specifier: string, value: any): string[] => {
+        const wanted = importedNames?.[specifier];
+        if (wanted === undefined || wanted.length === 0 || value == null) return [];
+        return wanted.filter(n => {
+            // `default` له مسارٌ خاصّ: المُترجِم يقبل الوحدة كلّها بديلاً عنه.
+            if (n === "default") return false;
+            return !(n in value);
+        });
+    };
+
     const items: CompatItem[] = externals.map(specifier => {
         if (specifier.startsWith(".")) {
             // نسبيٌّ يخرج من المجلّد: إمّا نعرف بديله فنُعلنه، وإلّا فهو ناقص.
@@ -126,7 +148,12 @@ export function checkCompatibility(externals: string[]): {
         }
 
         const r = resolveModule(specifier);
-        if (r.ok) return { specifier, status: "ok" as const };
+        if (r.ok) {
+            const missingNames = namesMissingFrom(specifier, r.value);
+            return missingNames.length === 0
+                ? { specifier, status: "ok" as const }
+                : { specifier, status: "ok" as const, missingNames };
+        }
 
         // «مستحيلة» تُميَّز عن «مجهولة»: الأولى لا حلّ لها بتاتاً في المُصيِّر،
         // والثانية قد تُحلّ بإدراج الوحدة أو باستيراد الإضافة التي تُكمّلها.
@@ -139,8 +166,10 @@ export function checkCompatibility(externals: string[]): {
 
     const blocked = items.filter(i => i.status === "blocked").length;
     const missing = items.filter(i => i.status === "missing").length;
+    const incomplete = items.filter(i => (i.missingNames?.length ?? 0) > 0).length;
     // «مستبدَل» ليس عطلاً: الإضافة تعمل. يُعلَن ولا يُعَدّ فشلاً.
-    return { ok: blocked === 0 && missing === 0, items, blocked, missing };
+    // أمّا نقص الأسماء فعطلٌ مؤكَّد: الإضافة تسقط عند أوّل استعمال.
+    return { ok: blocked === 0 && missing === 0 && incomplete === 0, items, blocked, missing, incomplete };
 }
 
 function runPlugin(bundle: { id: string; name: string; modules: { path: string; code: string; }[]; }) {
@@ -168,7 +197,15 @@ function runPlugin(bundle: { id: string; name: string; modules: { path: string; 
      * 🔴 من يكتب `../util/icons` لا يكتب اللاحقة، ومن يكتب `./components`
      * يقصد `components/index.js`. تثبيت `.js` وحدها كان يُفشل الثانية.
      */
-    const candidates = (base: string) => [base, `${base}.js`, `${base}/index.js`];
+    const candidates = (base: string) => base === ""
+        // 🔴 `require(".")` من ملفٍّ في **جذر** الإضافة.
+        //
+        // `normalise("MemberCount.js", ".")` تُعيد نصّاً فارغاً، فكانت
+        // المرشّحات `["", ".js", "/index.js"]` — ولا واحدة تُطابق `index.js`،
+        // فتسقط الإضافة بـ«لا يوجد ملفّ لـ‹.›». وهي دلالة CommonJS المعروفة:
+        // المجلد يعني `index` الذي فيه. ومن مجلدٍ فرعيّ كانت تعمل أصلاً.
+        ? ["index.js"]
+        : [base, `${base}.js`, `${base}/index.js`];
 
     /**
      * 🔴 التنفيذ **عند الطلب** لا بترتيب القراءة.
@@ -203,11 +240,29 @@ function runPlugin(bundle: { id: string; name: string; modules: { path: string; 
             // و`React` ليس متغيّراً عالمياً في حزمتنا. فبدونه تفشل **كل** إضافة
             // فيها JSX بـ«React is not defined». ويُمرَّر كسولاً لأنّ التحميل
             // يقع قبل أن يُقلع webpack عند ديسكورد.
+            /**
+             * 🔴 ثوابت البناء تُمرَّر وسائطَ.
+             *
+             * `IS_WEB` و`IS_DISCORD_DESKTOP` و`VERSION` وأخواتها يستبدلها
+             * esbuild **وقت البناء** في حزمتنا. أمّا إضافة المجتمع فتُترجَم
+             * بـsucrase وحدها، فتبقى معرّفاتٍ حرّة — و`new Function` لا تراها،
+             * فتسقط بـ«IS_WEB is not defined» قبل أن تبدأ. والقيمة المُمرَّرة
+             * هي قيمة العميل الذي تعمل فيه فعلاً، وهي بعينها ما كان بناء
+             * صاحبها سيُعطيها.
+             */
             const fn = new Function(
                 "module", "exports", "require", "React",
+                "IS_WEB", "IS_DEV", "IS_STANDALONE", "IS_UPDATER_DISABLED", "IS_REPORTER",
+                "IS_DISCORD_DESKTOP", "IS_VESKTOP", "IS_EQUIBOP", "IS_EXTENSION", "IS_USERSCRIPT",
+                "VERSION", "BUILD_TIMESTAMP",
                 `"use strict";\n${code}\n//# sourceURL=esharq-community/${bundle.name}/${path}`
             );
-            fn(module, exports, makeRequire(path), lazyReact);
+            fn(
+                module, exports, makeRequire(path), lazyReact,
+                IS_WEB, IS_DEV, IS_STANDALONE, IS_UPDATER_DISABLED, IS_REPORTER,
+                IS_DISCORD_DESKTOP, IS_VESKTOP, IS_EQUIBOP, IS_EXTENSION, IS_USERSCRIPT,
+                VERSION, BUILD_TIMESTAMP
+            );
         } finally {
             running.delete(path);
         }

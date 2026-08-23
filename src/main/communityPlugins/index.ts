@@ -31,7 +31,7 @@ import { IpcEvents } from "@shared/IpcEvents";
 import { createHash } from "crypto";
 import { dialog, ipcMain, shell } from "electron";
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "fs";
-import { join, relative, sep } from "path";
+import { basename, join, relative, sep } from "path";
 import { transform } from "sucrase";
 
 import { type Finding, LIMITS, validate } from "./validate";
@@ -65,6 +65,20 @@ export interface CommunityEntry {
      * أن يكتشفه خطأً أحمر بعد إعادة التشغيل.
      */
     externals: string[];
+    /**
+     * الأسماء المطلوبة من كل وحدة خارجية — `{ "@api/HeaderBar": ["toggleCompactMode", …] }`.
+     *
+     * 🔴 لماذا لا تكفي أسماء الوحدات: `checkCompatibility` كان يحكم على
+     * **الوحدة** وحدها. فإضافةٌ تكتب
+     * `import { TestcordDevs } from "@utils/constants"` تُحلّ بنجاح — الوحدة
+     * عندنا — ثمّ تسقط وقت التشغيل لأن الاسم ليس فيها. تقريرٌ يقول «سليمة»
+     * وإضافةٌ لا تعمل: أسوأ من عطلٍ صريح. قِيس على ٥١٥ مجلداً حقيقياً:
+     * الحالة تتكرّر في مئاتٍ منها، وتقريرنا صامت عنها.
+     *
+     * تُستخرج من **المصدر قبل الترجمة** لا من ناتجها: صيغة `import` معلومة
+     * وثابتة، بينما أسماء المتغيّرات التي يُولّدها المُترجِم تفصيلٌ داخليّ.
+     */
+    importedNames?: Record<string, string[]>;
 }
 
 interface Manifest extends Omit<CommunityEntry, "sourcePath"> {
@@ -199,7 +213,78 @@ export async function pickAndImport(): Promise<ImportResult> {
     return importFolder(picked.filePaths[0]);
 }
 
-export function importFolder(root: string): ImportResult {
+/**
+ * لاحقة `?managed` على استيراد CSS.
+ *
+ * ── ما هي ────────────────────────────────────────────────────────────
+ * `import style from "./style.css?managed"` — صيغةُ عائلة Vencord: البناء
+ * يُحوّلها إلى وحدةٍ تُسجّل الورقة في `window.VencordStyles` وتُصدّر **اسمها
+ * نصّاً**، ثمّ تستعملها الإضافة `managedStyle: style` ليُشغّلها المُدير عند
+ * البدء ويُطفئها عند التوقّف.
+ *
+ * ── لماذا تسقط عندنا ─────────────────────────────────────────────────
+ * إضافة المجتمع تُترجَم بـsucrase وحدها، بلا إضافة esbuild التي تفهم
+ * اللاحقة. فيصل المُحدِّد إلى المُحمِّل كما هو ولا يُطابق ملفّاً:
+ * «لا يوجد ملفّ لـ‹./style.css?managed›». وهي **لا تظهر في تقرير التوافق
+ * أصلاً** لأنّها وارد داخليّ لا يخرج من المجلّد — فالإضافة تبدو سليمة تماماً
+ * ثمّ لا تعمل. قِيس: ‏٣١ مجلداً من ‏٥١٥، ‏٢٥ منها لا عائق فيها سواها.
+ *
+ * ── لماذا لا يكفي حذف اللاحقة ────────────────────────────────────────
+ * 🔴 لو صارت `./style.css` لأعادت وحدةُ CSS العادية `module.exports = {}`،
+ * فيُنادى `enableStyle({})` ويرمي `Style "[object Object]" does not exist`.
+ * فالحلّ أن تُصنَع وحدةٌ ثانية تُسجّل الورقة وتُصدّر اسمها — نسخةً حرفية من
+ * `scripts/build/module/style.js`، وهو ما يُنتجه بناؤنا نفسه.
+ *
+ * والمسار يحمل `.managed` لا `?managed`: علامة الاستفهام محرفٌ ممنوع في
+ * أسماء ملفّات ويندوز.
+ */
+const MANAGED_CSS = /require\((["'])((?:\.{1,2}\/)[^"']*\.css)\?managed\1\)/g;
+
+/** اسم الورقة كما سيراه `enableStyle` — مشتقٌّ من الإضافة ومسارها فلا يتصادم. */
+const managedStyleName = (id: string, rel: string) => `community/${id}/${rel}`;
+
+/**
+ * الأسماء التي تطلبها الإضافة من كل وحدة — من **الناتج المُترجَم**.
+ *
+ * 🔴 ولا تُقرأ من المصدر: `import { ChatBarButtonFactory }` قد يكون **نوعاً**
+ * لا قيمة، ولا فرق في الصيغة. والمُترجِم يمحو الأنواع، فما بقي في الناتج هو
+ * ما تستعمله الإضافة فعلاً وقت التشغيل. قِسته: القراءة من المصدر أنذرت
+ * كاذبةً على `ChatBarButtonFactory` و`ModalProps` و`NavContextMenuPatchCallback`.
+ *
+ * تُقرأ من **الناتج المُترجَم** لا من المصدر:
+ *   `import { a, b as c } from "m"`  ⇒ a, b
+ *   `import d from "m"`              ⇒ default
+ *   `import * as ns from "m"`        ⇒ لا شيء (فضاء الأسماء كلّه، لا اسم بعينه)
+ *
+ * ولا يُفحَص إلّا ما في المصدر: `require` الديناميّ أو الوصول بمفتاحٍ محسوب
+ * لا يُرى هنا، ويُقال ذلك بدل ادّعاء الإحاطة.
+ */
+function importedNamesOf(built: readonly { path: string; code: string; }[]): Record<string, string[]> {
+    const out: Record<string, Set<string>> = {};
+
+    for (const b of built) {
+        // sucrase تُخرج: var _x = require('m')  ثمّ الوصول `_x.name`.
+        const binds = new Map<string, string>();
+        for (const m of b.code.matchAll(/var\s+(_[A-Za-z0-9$_]*)\s*=\s*require\(["']([^"']+)["']\)/g)) {
+            binds.set(m[1], m[2]);
+        }
+        if (binds.size === 0) continue;
+
+        // تعبيرٌ **حرفيّ ثابت**: يلتقط كل `_شيء.اسم`، ثمّ يُرشَّح بالجدول.
+        // (البناء الديناميّ يحتاج هروباً داخل نصّ، وهو مصدر أخطاء صامتة.)
+        for (const m of b.code.matchAll(/(?<![A-Za-z0-9$_])(_[A-Za-z0-9$_]*)\.([A-Za-z_$][A-Za-z0-9_$]*)/g)) {
+            const spec = binds.get(m[1]);
+            if (spec === undefined) continue;
+            const name = m[2];
+            // `default` و`__esModule` من عمل المُترجِم لا من طلب الإضافة.
+            if (name === "default" || name === "__esModule") continue;
+            (out[spec] ??= new Set()).add(name);
+        }
+    }
+    return Object.fromEntries(Object.entries(out).map(([k, v]) => [k, [...v].sort()]));
+}
+
+export function importFolder(root: string, keepFolderName?: string): ImportResult {
     ensureDir();
 
     let raw: { path: string; bytes: Uint8Array; }[];
@@ -312,7 +397,84 @@ export function importFolder(root: string): ImportResult {
      * فيُنتقى آخر ملفّ **شيفرة**: `index.js` إن وُجد، وإلّا آخر `.js`.
      */
     const isCodeModule = (path: string) => /\.js$/i.test(path);
+
+    /**
+     * ── إصلاح `?managed` ─────────────────────────────────────────────────
+     * يقع **بعد** بناء الوحدات وقبل انتقاء المدخل، فلا يمسّ المصدر ولا
+     * البصمة: المعرّف يبقى كما هو، وحالة التفعيل لا تضيع، و`source/` يبقى
+     * أصلاً سليماً يُبنى منه ثانيةً متى شئنا.
+     */
+    const managedFixes: { file: string; specifier: string; to: string; }[] = [];
+    const cssTextByPath = new Map(result.accepted.filter(f => /\.css$/i.test(f.path)).map(f => [f.path, f.text]));
+
+    for (const b of built) {
+        if (!isCodeModule(b.path)) continue;
+        const rewritten = b.code.replace(MANAGED_CSS, (whole, q: string, rel: string) => {
+            // مسارٌ مُطلَق داخل الحزمة، لنعرف أيّ ملفّ CSS يُقصَد.
+            const parts = b.path.split("/").slice(0, -1);
+            for (const piece of rel.split("/")) {
+                if (piece === "." || piece === "") continue;
+                if (piece === "..") parts.pop();
+                else parts.push(piece);
+            }
+            const target = parts.join("/");
+            // لا يُصلَح ما لا نملك نصّه: يُترَك كما هو ليُقال في التقرير.
+            if (!cssTextByPath.has(target)) return whole;
+            managedFixes.push({ file: b.path, specifier: `${rel}?managed`, to: `${rel}.managed` });
+            return `require(${q}${rel}.managed${q})`;
+        });
+        if (rewritten !== b.code) b.code = rewritten;
+    }
+
+    // وحدةُ نمطٍ لكل ورقةٍ طُلبت بـ`?managed` — نسخةٌ حرفية من
+    // `scripts/build/module/style.js`، وهو ما يُنتجه بناؤنا لإضافاتنا.
+    for (const rel of new Set(managedFixes.map(f => {
+        const parts = f.file.split("/").slice(0, -1);
+        for (const piece of f.specifier.replace(/\?managed$/, "").split("/")) {
+            if (piece === "." || piece === "") continue;
+            if (piece === "..") parts.pop();
+            else parts.push(piece);
+        }
+        return parts.join("/");
+    }))) {
+        const name = managedStyleName(id, rel);
+        built.push({
+            path: `${rel}.managed`,
+            code: [
+                `const __name = ${JSON.stringify(name)};`,
+                "(window.VencordStyles ??= new Map()).set(__name, {",
+                "    name: __name,",
+                `    source: ${JSON.stringify(cssTextByPath.get(rel) ?? "")},`,
+                "    classNames: {},",
+                "    dom: null",
+                "});",
+                "module.exports = __name;"
+            ].join(String.fromCharCode(10))
+        });
+    }
+
+    if (managedFixes.length > 0) {
+        findings.push({
+            severity: "warning", rule: "fix:managed-css",
+            message: `بُدّلت ${managedFixes.length} إشارة «?managed» بوحدة نمطٍ مُدارة — ${managedFixes.map(f => f.specifier).join(" · ")}`,
+            hint: "لاحقةٌ تفهمها أدوات بناء الشوكات ولا يفهمها المُترجِم وحده. النسخة المُدارة وحدها عُدّلت؛ مجلدك لم يُمَسّ."
+        });
+    }
+
     let entryIndex = built.findIndex(b => /^index\.js$/.test(b.path));
+    if (entryIndex === -1) {
+        /**
+         * 🔴 «آخر ملفّ كود» تخمينٌ يُخطئ حين لا يكون المدخل آخر ما يُقرأ.
+         *
+         * والدليل في الشيفرة نفسها: `export default definePlugin` لا يكتبه
+         * إلّا المدخل — وهو ما استدلّ به الفاحص لقبول المجلد أصلاً
+         * (`fix:entry`). فلو اختار البناء ملفّاً غيره، قُبل المجلد ثمّ سقط
+         * بـ«الملفّ لا يُصدّر إضافة» — تناقضٌ بين خطوتين في مسارٍ واحد.
+         */
+        const marked = built.findIndex(b =>
+            isCodeModule(b.path) && /exports\s*\.\s*default\s*=/.test(b.code));
+        if (marked !== -1) entryIndex = marked;
+    }
     if (entryIndex === -1) {
         for (let i = built.length - 1; i >= 0; i--) {
             if (isCodeModule(built[i].path)) { entryIndex = i; break; }
@@ -364,7 +526,8 @@ export function importFolder(root: string): ImportResult {
 
     const entryCode = built.at(-1)?.code ?? "";
     const meta = readMeta(entryCode);
-    const folderName = root.split(/[\\/]/).filter(Boolean).at(-1) ?? "plugin";
+    // عند إعادة الفحص يكون الجذر هو `<id>/source`، واسمه ليس اسم مجلد صاحبه.
+    const folderName = keepFolderName ?? (basename(root) || "plugin");
 
     const manifest: Manifest = {
         id,
@@ -379,7 +542,11 @@ export function importFolder(root: string): ImportResult {
         fileCount: result.accepted.length,
         bytes: result.accepted.reduce((n, f) => n + f.text.length, 0),
         build: built.map(b => b.path),
-        externals
+        externals,
+        // يُحفَظ ما يخصّ الخارجيّ وحده: الداخليّ يُحلّ من الحزمة نفسها.
+        importedNames: Object.fromEntries(
+            Object.entries(importedNamesOf(built)).filter(([spec]) => externals.includes(spec))
+        )
     };
     writeManifest(manifest);
 
@@ -394,6 +561,38 @@ function toEntry(m: Manifest): CommunityEntry {
 }
 
 // ── القراءة والإدارة ─────────────────────────────────────────────────────────
+
+/**
+ * إعادة فحصٍ وإصلاح لإضافةٍ مستورَدة سلفاً — **من نسختها المحفوظة**.
+ *
+ * ── لماذا تلزم ────────────────────────────────────────────────────────
+ * ما استُورد قبل أن يتعلّم المُحرِّك شيئاً جديداً يبقى على حاله: حزمته
+ * المبنيّة قديمة، ولا يحمل جرد الأسماء المطلوبة فلا يُفحَص فحصاً كاملاً.
+ * وكل تحديثٍ لإشراق يُضيف وحدةً إلى الخريطة يجعل إضافاتٍ كانت تسقط قابلةً
+ * للعمل — بلا أن يعرف صاحبها.
+ *
+ * ── لماذا من `source/` لا من مجلد المستخدم ───────────────────────────
+ * 🔴 مسار المجلد الذي اختاره **لا يُحفَظ أصلاً** (اسمه وحده يُحفَظ)، وقد
+ * يكون نُقل أو حُذف. و`source/` نسخةٌ حرفية ممّا استُورد، فالبصمة المحسوبة
+ * منها **مطابقة** ⇒ المعرّف نفسه ⇒ لا بطاقة ثانية، ولا حالة تفعيلٍ تضيع،
+ * والمجلد نفسه يُعاد بناؤه في مكانه.
+ *
+ * ولا يُكتب حرفٌ في مجلد صاحبها: يُقرأ `source/` ويُكتب `build/`.
+ */
+export function rescan(id: string): ImportResult {
+    if (!/^[0-9a-f]{16}$/.test(id)) {
+        return { ok: false, findings: [{ severity: "error", rule: "bad-id", message: "معرّفٌ غير صالح." }] };
+    }
+    const previous = readManifest(id);
+    if (previous === null) {
+        return { ok: false, findings: [{ severity: "error", rule: "missing", message: "لا بيان لهذه الإضافة — أعد استيرادها من مجلدها." }] };
+    }
+    const sourceDir = join(COMMUNITY_DIR, id, "source");
+    if (!existsSync(sourceDir)) {
+        return { ok: false, findings: [{ severity: "error", rule: "missing", message: "نسخة المصدر المحفوظة غير موجودة — أعد استيرادها من مجلدها." }] };
+    }
+    return importFolder(sourceDir, previous.folderName);
+}
 
 export function list(): CommunityEntry[] {
     if (!existsSync(COMMUNITY_DIR)) return [];
@@ -482,6 +681,7 @@ export function registerCommunityPluginIpc() {
     ipcMain.handle(IpcEvents.COMMUNITY_SET_ENABLED, (_e, id: string, enabled: boolean) => setEnabled(id, enabled));
     ipcMain.handle(IpcEvents.COMMUNITY_OPEN_FOLDER, (_e, id: string) => openFolder(id));
     ipcMain.handle(IpcEvents.COMMUNITY_READ_SOURCE, (_e, id: string) => readSource(id));
+    ipcMain.handle(IpcEvents.COMMUNITY_RESCAN, (_e, id: string) => rescan(id));
 
     ipcMain.on(IpcEvents.COMMUNITY_GET_BUNDLE, e => {
         try {
