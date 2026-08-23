@@ -120,3 +120,20 @@
     opacity: 0.75;
     direction: ltr;
 }
+
+/*
+ * شريط إعلان جلسة التنصيف في صفحة الإضافات.
+ *
+ * 🔴 يسكن هنا لا في أوراق صفحة الإضافات: الجلسة شأن «تنصيف الانهيار»، وهذه
+ * الورقة تُحمَّل مع إشراق دائماً — فلا يعتمد الشريط على فتح صفحةٍ بعينها.
+ */
+.esharq-bisect-banner {
+    margin-block-end: 16px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-inline-start: 3px solid var(--status-warning, #f0b232);
+    background: var(--background-secondary, #2b2d31);
+    color: var(--text-normal, #dbdee1);
+    font-size: 14px;
+    line-height: 1.7;
+}

@@ -82,6 +82,39 @@ export function isHiddenByBisect(p: string) {
     return bisectHidden.has(p);
 }
 
+/**
+ * هل الجلسة **ما زالت** قائمة في هذه اللحظة؟
+ *
+ * 🔴 `bisectHidden` أعلاه لقطةٌ لحظة الإقلاع عمداً — لا تتغيّر حتى إعادة
+ * التشغيل، وإلّا اختلف ما تراه الواجهة عمّا بدأت به الإضافات. لكنّ الجلسة
+ * نفسها قد تنتهي أثناء الجلسة نفسها (يُلغيها المستخدم ويؤجّل إعادة التشغيل).
+ * فمن يقرأ اللقطة وحدها يقول له «أنهِ الجلسة» وقد انتهت — طريقٌ مسدود.
+ * هذه تُسأل عند العرض لتُقال الجملة الصحيحة.
+ */
+let liveSessionCache = { at: 0, value: false };
+
+export function isBisectSessionLive(): boolean {
+    // 🔴 يُستعلَم حيّاً في كل عرض — لا `useMemo` عند المُستدعي.
+    //
+    // قيسته: يُلغي المستخدم الجلسة ويؤجّل إعادة التشغيل، ثمّ يفتح صفحة
+    // الإضافات، فيجد المكوّن مُركَّباً سلفاً ولا تُعاد المُذكِّرة — فيبقى
+    // النصّ يقول «أنهِ الجلسة» وقد انتهت. طريقٌ مسدود.
+    //
+    // والاستعلام متزامن عبر IPC، وصفحة الإضافات تُعاد مع كل ضغطة مفتاح في
+    // البحث — فيُقيَّد بزمن. ثانيةٌ ونصف أقصر من أن يقرأ أحدٌ سطراً.
+    const now = Date.now();
+    if (now - liveSessionCache.at < 1500) return liveSessionCache.value;
+
+    let value = false;
+    try {
+        value = !!(globalThis as any).VencordNative?.bisect?.get?.();
+    } catch {
+        value = false;
+    }
+    liveSessionCache = { at: now, value };
+    return value;
+}
+
 export function isPluginEnabled(p: string) {
     // التنصيف يعلو على كل شيء — حتى `required`: الإضافة الضرورية قد تكون هي
     // الجانية، واستثناؤها يجعل البحث عاجزاً عن إيجادها.

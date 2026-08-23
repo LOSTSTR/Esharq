@@ -5,11 +5,12 @@
  */
 
 import { showNotice } from "@api/Notices";
-import { hasAnyVisibleSettings, isPluginEnabled, pluginRequiresRestart, startDependenciesRecursive, startPlugin, stopPlugin } from "@api/PluginManager";
+import { hasAnyVisibleSettings, isHiddenByBisect, isPluginEnabled, pluginRequiresRestart, startDependenciesRecursive, startPlugin, stopPlugin } from "@api/PluginManager";
 import { Settings, useSettings } from "@api/Settings";
 import { CogWheel, InfoIcon } from "@components/Icons";
 import { AddonCard } from "@components/settings/AddonCard";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { resolvePluginDescription } from "@utils/i18n";
 import { Logger } from "@utils/Logger";
 import { Plugin } from "@utils/types";
@@ -61,7 +62,25 @@ export function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, on
 
     const isEnabled = () => isPluginEnabled(plugin.name);
 
+    /**
+     * 🔴 جلسة تنصيفٍ جارية تُخفي هذه الإضافة.
+     *
+     * وهذا كان يُنتج مفتاحاً **يكذب**: `isPluginEnabled` يُرجع `false` لأنّ
+     * التنصيف يعلو على كل شيء، فالضغط يُسند `enabled = !false` أي `true` —
+     * وهي `true` في الإعدادات أصلاً، فيقصر مخزن الإعدادات ولا يكتب ولا يُنبّه.
+     * النتيجة: بطاقةٌ مُطفأة، وضغطةٌ لا تفعل شيئاً، ولا سطر يقول لماذا.
+     * وحتى الإضافات الضرورية تُطفأ هكذا — قِسته.
+     *
+     * الآن يُعطَّل المفتاح ويُقال السبب في التلميح، فلا يظنّ صاحبه أنّ إشراق
+     * تعطّل. وإنهاء الجلسة من صفحة «تنصيف الانهيار».
+     */
+    const hiddenByBisect = isHiddenByBisect(plugin.name);
+
     function toggleEnabled() {
+        // لا يُلمَس شيء ما دامت الجلسة تُخفيها: الإعدادات على حالها، والعرض
+        // وحده مُعطَّل — فكتابةٌ هنا تُفسد ما سيعود بعد انتهاء التنصيف.
+        if (hiddenByBisect) return;
+
         const wasEnabled = isEnabled();
 
         // If we're enabling a plugin, make sure all deps are enabled recursively.
@@ -151,19 +170,27 @@ export function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, on
         />
     ) : null;
 
+    // 🔴 اسم المصدر يبقى على شارته — لا يُمحى بشرحٍ آخر.
     const tooltip = pluginDetails?.title || "Unknown Plugin";
+
+    // والشرح يوضع على المفتاح نفسه، وهو ما يُحوّم عليه من يراه رمادياً.
+    const toggleTooltip = hiddenByBisect
+        ? t("مخفيّة مؤقّتاً بجلسة تنصيف انهيار. إعداداتك لم تتغيّر — تعود بعد إعادة تشغيل إشراق.",
+            "Temporarily hidden by a crash-bisect session. Your settings are untouched — it returns after you restart Esharq.")
+        : undefined;
 
     return (
         <AddonCard
             name={plugin.name}
             sourceBadge={sourceBadge}
             tooltip={tooltip}
+            toggleTooltip={toggleTooltip}
             description={displayDescription}
             tags={plugin.tags}
             isNew={isNew}
             enabled={isEnabled()}
             setEnabled={toggleEnabled}
-            disabled={disabled}
+            disabled={disabled || hiddenByBisect}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
             infoButton={

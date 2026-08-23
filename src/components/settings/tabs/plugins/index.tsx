@@ -19,7 +19,7 @@
 import "./styles.css";
 
 import * as DataStore from "@api/DataStore";
-import { isPluginEnabled, stopPlugin } from "@api/PluginManager";
+import { isBisectSessionLive, isHiddenByBisect,isPluginEnabled, stopPlugin } from "@api/PluginManager";
 import { useSettings } from "@api/Settings";
 import { Button } from "@components/Button";
 import { Card } from "@components/Card";
@@ -475,9 +475,46 @@ export default function PluginSettings() {
 
     const visiblePlugins = plugins.slice(0, visibleCount);
 
+    // عدد ما تُخفيه جلسة التنصيف — يُحسب مرّةً: المجموعة ثابتة طوال الجلسة.
+    //
+    // 🔴 يُعدّ ما **له بطاقة على هذه الصفحة** فقط. كان يمسح سجلّ الإضافات
+    // كلّه، وفيه ~١٦ إضافةً لا تُعرض أصلاً (`hidden` أو واجهاتٌ بلا إعدادات)،
+    // ونصفها يقع في مجموعة التنصيف — فيقول الشريط رقماً أكبر ممّا يستطيع
+    // صاحبه عدّه على الشاشة، ويظنّ أنّ شيئاً يُخفى عنه.
+    const bisectCount = useMemo(
+        () => Object.keys(Plugins).filter(name => {
+            if (!isHiddenByBisect(name)) return false;
+            const p = Plugins[name];
+            return !p?.hidden && !(!p?.settings?.def && name.endsWith("API"));
+        }).length,
+        []
+    );
+
+    // الجلسة قد تكون انتهت وبقي أثرها حتى إعادة التشغيل — تُسأل حيّةً في كل
+    // عرض (والدالّة تُقيّد نفسها زمنياً). بلا هذا يبقى النصّ على حال أوّل
+    // تركيبٍ للمكوّن، فيدلّ على جلسةٍ لم تعد موجودة.
+    const bisectLive = bisectCount > 0 && isBisectSessionLive();
+
     return (
         <SettingsTab>
             <ReloadRequiredCard required={changes.hasChanges} />
+
+            {/*
+              * 🔴 جلسة تنصيفٍ جارية تُطفئ نصف الإضافات — وحتى الضرورية منها.
+              * وبلا هذا الشريط لا يرى صاحبها سبباً واحداً: إعداداته سليمة على
+              * القرص، والمفاتيح لا تستجيب. يُقال السبب ويُدَلّ على مكان الإنهاء.
+              */}
+            {bisectCount > 0 && (
+                <ErrorBoundary noop>
+                    <div className="esharq-bisect-banner">
+                        {bisectLive
+                            ? t(`جلسة تنصيف انهيار جارية: ${bisectCount} إضافة مخفيّة مؤقّتاً ومفاتيحها مُعطَّلة. إعداداتك لم تتغيّر — أنهِ الجلسة من «الأمان والصحّة ← تنصيف الانهيار» ثمّ أعد تشغيل إشراق لتعود.`,
+                                `A crash-bisect session is running: ${bisectCount} plugins are temporarily hidden and their toggles disabled. Your settings are untouched — end the session from “Safety & Health → Crash Bisect”, then restart Esharq to bring them back.`)
+                            : t(`انتهت جلسة تنصيف الانهيار، لكن ${bisectCount} إضافة تبقى مخفيّة حتى إعادة التشغيل. إعداداتك لم تتغيّر — أعد تشغيل إشراق لتعود.`,
+                                `The crash-bisect session has ended, but ${bisectCount} plugins stay hidden until you restart. Your settings are untouched — restart Esharq to bring them back.`)}
+                    </div>
+                </ErrorBoundary>
+            )}
 
             <PluginsHeader
                 total={totalStockPlugins + totalUserPlugins}

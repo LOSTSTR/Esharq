@@ -38,6 +38,16 @@ interface Props {
     isNew?: boolean;
     sourceBadge?: ReactNode;
     tooltip?: string;
+    /**
+     * تلميحٌ على **المفتاح نفسه**.
+     *
+     * 🔴 `tooltip` أعلاه مربوطٌ بشارة المصدر (صورة ٢٢ بكسل)، لا بالمفتاح.
+     * فمن يرى مفتاحاً رمادياً ويمرّ عليه لا يُفسَّر له شيء — والمفتاح
+     * `disabled` فلا يُطلق أحداث تحويم أصلاً. ولو وُضع الشرح في `tooltip`
+     * لمحا اسم المصدر («إضافة إشراق») بدل أن يُضيف إليه. لذلك غلافٌ حول
+     * المفتاح: هو الذي يحمل التحويم، والمفتاح المُعطَّل بداخله.
+     */
+    toggleTooltip?: string;
     onMouseEnter?: MouseEventHandler<HTMLDivElement>;
     onMouseLeave?: MouseEventHandler<HTMLDivElement>;
 
@@ -49,7 +59,7 @@ interface Props {
     author?: ReactNode;
 }
 
-export function AddonCard({ disabled, isNew, sourceBadge, tooltip, name, tags, infoButton, footer, author, enabled, setEnabled, description, onMouseEnter, onMouseLeave }: Props) {
+export function AddonCard({ disabled, isNew, sourceBadge, tooltip, toggleTooltip, name, tags, infoButton, footer, author, enabled, setEnabled, description, onMouseEnter, onMouseLeave }: Props) {
     const titleRef = useRef<HTMLDivElement>(null);
     const titleContainerRef = useRef<HTMLDivElement>(null);
 
@@ -107,11 +117,25 @@ export function AddonCard({ disabled, isNew, sourceBadge, tooltip, name, tags, i
 
                 {infoButton}
 
-                <Switch
-                    checked={enabled}
-                    onChange={setEnabled}
-                    disabled={disabled}
-                />
+                {toggleTooltip ? (
+                    <Tooltip text={toggleTooltip}>
+                        {({ onMouseEnter, onMouseLeave }) => (
+                            <div onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+                                <Switch
+                                    checked={enabled}
+                                    onChange={setEnabled}
+                                    disabled={disabled}
+                                />
+                            </div>
+                        )}
+                    </Tooltip>
+                ) : (
+                    <Switch
+                        checked={enabled}
+                        onChange={setEnabled}
+                        disabled={disabled}
+                    />
+                )}
             </div>
 
             {/* 🔴 الفئات على البطاقة لا في المرشِّح وحده: يعرف القارئ نوع
