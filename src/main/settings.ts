@@ -196,6 +196,12 @@ RendererSettings.addGlobalChangeListener(() => {
     }
 });
 
+ipcMain.handle(IpcEvents.REPORT_SETTINGS_SAVE_FAILURE, (_, message: string) => {
+    // فشلٌ وقع في الواجهة قبل أن يصل القرص — يُسجَّل في نفس الحقل الذي تقرؤه
+    // حزمة الدعم، فلا فرق عند من يشخّص بين فشلٍ هنا أو هناك.
+    lastWriteError = `من الواجهة: ${String(message).slice(0, 300)}`;
+});
+
 ipcMain.handle(IpcEvents.GET_SETTINGS_HEALTH, () => {
     let exists = false, size = 0, mtime: string | null = null, readable: string | null = null;
     try {
@@ -222,8 +228,9 @@ ipcMain.handle(IpcEvents.GET_SETTINGS_HEALTH, () => {
 ipcMain.handle(IpcEvents.GET_SETTINGS_DIR, () => SETTINGS_DIR);
 ipcMain.on(IpcEvents.GET_SETTINGS, e => e.returnValue = RendererSettings.plain);
 
-ipcMain.handle(IpcEvents.SET_SETTINGS, (_, data: Settings, pathToNotify?: string) => {
-    RendererSettings.setData(data, pathToNotify);
+ipcMain.handle(IpcEvents.SET_SETTINGS, (_, data: Settings | string, pathToNotify?: string) => {
+    // الكائن يبقى مقبولاً: نداءٌ من واجهةٍ أقدم لا يجوز أن ينهار.
+    RendererSettings.setData(typeof data === "string" ? JSON.parse(data) : data, pathToNotify);
 });
 
 export interface NativeSettings {

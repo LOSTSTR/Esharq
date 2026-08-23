@@ -243,8 +243,84 @@ export const SettingsStore = new SettingsStoreClass(settings, {
 if (!IS_REPORTER) {
     SettingsStore.addGlobalChangeListener((_, path) => {
         SettingsStore.plain.cloud.settingsSyncVersion = Date.now();
-        VencordNative.settings.set(SettingsStore.plain, path);
+        // 🔴 الحفظ **وعدٌ**، ورفضُه بلا `catch` يسقط في «خطأٌ غير ملتقَط»:
+        // يُسجَّل مجهول المصدر ولا يعرف صاحبه أنّ إعداداته لم تُحفظ. رأيتُه في
+        // تقارير المستخدمين تسع مرّات بلا اسمٍ يدلّ عليه.
+        scanSettingsOnce();
+        Promise.resolve(VencordNative.settings.set(SettingsStore.plain, path))
+            .catch(e => reportSettingsSaveFailure(e, path));
     });
+}
+
+/**
+ * يمشي في شجرة الإعدادات بحثاً عن قيمٍ **لا يمثّلها JSON** — دالّة أو رمز.
+ *
+ * 🔴 لماذا يلزم بعد الإصلاح: الجسر صار يُرسل نصّاً، فمثل هذه القيمة لم تعد
+ * تُوقف الحفظ — لكنّها **تُحذَف صامتةً**، وهي دليلٌ على إضافةٍ تكتب في
+ * إعداداتها ما لا يُحفَظ. تسميتُها تُنهي البحث بدل التخمين بين 489 إضافة.
+ *
+ * يُمشى مرّة واحدة في الجلسة بعد أوّل حفظ — لا مع كلّ تبديل.
+ */
+function findUnserialisable(node: any, at = "", seen = new WeakSet(), out: string[] = []): string[] {
+    if (out.length >= 10 || node === null) return out;
+    const type = typeof node;
+    if (type === "function" || type === "symbol") { out.push(`${at} (${type})`); return out; }
+    if (type !== "object") return out;
+    if (seen.has(node)) { out.push(`${at} (مرجع دائريّ)`); return out; }
+    seen.add(node);
+    for (const key of Object.keys(node)) {
+        try {
+            findUnserialisable(node[key], at ? `${at}.${key}` : key, seen, out);
+        } catch { /* واصفٌ يرمي عند القراءة — يُتخطّى */ }
+    }
+    return out;
+}
+
+/**
+ * مسارات القيم التي لا يحفظها JSON في الإعدادات — للتشخيص.
+ *
+ * 🔴 تُصدَّر كي تدخل **حزمة الدعم مباشرةً**: الفحص الداخليّ لا يعمل إلّا عند
+ * أوّل تبديل، ومن يُنشئ تقريراً بلا أن يُبدّل شيئاً كان يُرسل تقريراً صامتاً
+ * عن أهمّ سؤال. الآن يُحسَب عند بناء التقرير فيصل دائماً.
+ */
+export function getUnserialisableSettingPaths(): string[] {
+    try {
+        return findUnserialisable(SettingsStore.plain);
+    } catch {
+        return [];
+    }
+}
+
+let scannedOnce = false;
+
+function scanSettingsOnce() {
+    if (scannedOnce) return;
+    scannedOnce = true;
+    try {
+        const bad = findUnserialisable(SettingsStore.plain);
+        if (bad.length === 0) return;
+        console.warn("[Esharq] قيمٌ في الإعدادات لا يحفظها JSON:", bad);
+        (window as any).VencordNative?.settings?.reportSaveFailure?.(
+            `قيمٌ لا تُحفَظ في الإعدادات: ${bad.join(" · ")}`
+        );
+    } catch { /* الفحص تشخيصيّ محض — لا يُعطّل شيئاً */ }
+}
+
+/**
+ * إبلاغٌ عن فشل حفظ الإعدادات من جانب الواجهة.
+ *
+ * الجسر يُرسل نصّاً الآن فلا يفشل الاستنساخ، ولم يبقَ إلّا ما يُفشل
+ * `JSON.stringify` نفسه: **مرجعٌ دائريّ** تضعه إضافةٌ في إعداداتها. نادرٌ،
+ * لكنّه لو وقع لأوقف الحفظ كلّه — فلا يُترَك صامتاً.
+ */
+function reportSettingsSaveFailure(e: any, path?: string) {
+    const message = String(e?.message ?? e);
+    console.error("[Esharq] تعذّر حفظ الإعدادات", path ? `(عند ${path})` : "", e);
+    try {
+        (window as any).VencordNative?.settings?.reportSaveFailure?.(
+            `${message}${path ? ` — عند «${path}»` : ""}`
+        );
+    } catch { /* واجهةٌ أقدم — يبقى في المِعراض */ }
 }
 
 /**

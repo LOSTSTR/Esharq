@@ -174,10 +174,13 @@ window.VencordNative = {
                 return {};
             }
         },
-        set: async (s: Settings) => localStorage.setItem("EquicordSettings", JSON.stringify(s)),
+        // يقبل النصّ والكائن معاً — الجسر يُرسل نصّاً منذ إصلاح الاستنساخ.
+        set: async (s: Settings | string) =>
+            localStorage.setItem("EquicordSettings", typeof s === "string" ? s : JSON.stringify(s)),
         getSettingsDir: async () => "LocalStorage",
         // على الويب لا ملفّ ولا قرص: التخزين المحلي هو الموضع كلّه، فلا
         // فشلَ كتابةٍ صامتاً يُرصَد. تُعاد قيمٌ صادقة بدل تعطيل النداء.
+        reportSaveFailure: async (_message: string) => { /* الويب: لا عملية رئيسية تُبلَّغ */ },
         getHealth: async () => ({
             path: "LocalStorage", exists: localStorage.getItem("EquicordSettings") !== null,
             size: (localStorage.getItem("EquicordSettings") ?? "").length,

@@ -30,6 +30,8 @@ export const enum IpcEvents {
     GET_SETTINGS_DIR = "VencordGetSettingsDir",
     /** حال حفظ الإعدادات على القرص — لتشخيص «إعداداتي تعود كما كانت». */
     GET_SETTINGS_HEALTH = "EsharqGetSettingsHealth",
+    /** الواجهة تُبلّغ أنّ إرسال الإعدادات فشل — وإلّا بقي الفشل عندها وحدها. */
+    REPORT_SETTINGS_SAVE_FAILURE = "EsharqReportSettingsSaveFailure",
     GET_SETTINGS = "VencordGetSettings",
     SET_SETTINGS = "VencordSetSettings",
     THEME_UPDATE = "VencordThemeUpdate",

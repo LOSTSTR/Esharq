@@ -1,6 +1,6 @@
 {
     "type": "fix",
     "scope": "settings",
-    "ar": "إعداداتك لم تعد تضيع. كان إغلاق ديسكورد أو انهياره أثناء حفظ الإعدادات يترك الملفّ مقطوعاً، فيُقلع إشراق بالافتراضات ويكتبها فوق اختياراتك. صار الحفظ لا يتجزّأ، ومعه نسخة أمان تُستعاد تلقائياً، والملفّ التالف يُحفَظ ولا يُمحى.",
-    "en": "Your settings can no longer be lost. Closing or crashing Discord mid-save used to leave the file truncated, so Esharq started on defaults and wrote them over your choices. Saving is now atomic, a safety copy is restored automatically, and a damaged file is kept rather than erased."
+    "ar": "إن كانت إضافاتك تعمل ثمّ تعود مُطفأة بعد إعادة التشغيل فقد انتهى ذلك: قيمةٌ واحدة تضعها أيّ إضافة كانت تُفشل حفظ الإعدادات كلّها بلا أيّ رسالة. صار الحفظ لا يعطبه شيء، وحزمة الدعم تُسمّي الإضافة المسؤولة إن تكرّر شيءٌ مشابه.",
+    "en": "If your plugins worked and then came back disabled after a restart, that is over: a single value written by any plugin could break all settings saving with no message at all. Saving can no longer be broken, and the support bundle now names the plugin responsible if anything similar recurs."
 }

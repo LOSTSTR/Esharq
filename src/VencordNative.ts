@@ -59,8 +59,26 @@ export default {
 
     settings: {
         get: () => sendSync<Settings>(IpcEvents.GET_SETTINGS),
-        set: (settings: Settings, pathToNotify?: string) => invoke<void>(IpcEvents.SET_SETTINGS, settings, pathToNotify),
+        /**
+         * 🔴 يُرسَل **نصّاً** لا كائناً — وهذا ليس تجميلاً.
+         *
+         * إلكترون ينسخ حمولة `invoke` ببنية structured clone، وهي تعجز عن أي
+         * دالّة أو وكيل أو كائن صنف. وكلّ تبديل إعدادٍ يُرسل شجرة الإعدادات
+         * **كاملة**، فقيمةٌ واحدة لا تُنسَخ — يضعها أي إضافة في إعداداتها —
+         * تُفشل النداء فلا يصل شيء إلى القرص. النتيجة: الإضافات تعمل في
+         * الجلسة ثمّ تعود مُطفأة بعد إعادة التشغيل، بلا أثرٍ في أي سجلّ.
+         *
+         * قِسته على عميل حيّ: زرعتُ دالّةً واحدة في الإعدادات فتوقّف الحفظ
+         * تماماً بنصّ «An object could not be cloned» — وهو نصّ الخطأ نفسه في
+         * تقارير المستخدمين، تسع مرّات عند أحدهم.
+         *
+         * والنصّ آمنٌ تماماً: الوجهة تكتب JSON أصلاً، فما لا يُمثَّل في JSON
+         * لا يُحفَظ اليوم ولا كان يُحفَظ قبله. لا خسارة، والفشل صار مستحيلاً.
+         */
+        set: (settings: Settings, pathToNotify?: string) =>
+            invoke<void>(IpcEvents.SET_SETTINGS, JSON.stringify(settings), pathToNotify),
         getSettingsDir: () => invoke<string>(IpcEvents.GET_SETTINGS_DIR),
+        reportSaveFailure: (message: string) => invoke<void>(IpcEvents.REPORT_SETTINGS_SAVE_FAILURE, message),
         getHealth: () => invoke<{
             path: string; exists: boolean; size: number; mtime: string | null;
             readable: string | null; lastWriteError: string | null;

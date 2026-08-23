@@ -6,7 +6,7 @@
 
 import "./supportBundle.css";
 
-import { PlainSettings, Settings } from "@api/Settings";
+import { getUnserialisableSettingPaths,PlainSettings, Settings } from "@api/Settings";
 import { getDroppedIssueCount, getIssues } from "@debug/esharqErrors";
 import { getPluginStartups } from "@debug/esharqStartup";
 import { copyToClipboard } from "@utils/clipboard";
@@ -77,6 +77,15 @@ interface Bundle {
         recoveredFromBackup: boolean;
         loadedBytes: number;
     };
+    /**
+     * قيمٌ في الإعدادات لا يحفظها JSON — بمسارها الكامل.
+     *
+     * 🔴 كانت واحدةٌ منها تُفشل **كلّ** حفظ قبل أن يُرسَل النصّ بدل الكائن،
+     * فتعمل إضافات المستخدم في الجلسة ثمّ تعود مُطفأة. صارت غير ضارّة، لكنّها
+     * تبقى دليلاً على إضافةٍ تكتب ما لا يُحفَظ — فتُسمَّى هنا بدل البحث بين
+     * 489 إضافة.
+     */
+    unserialisableSettings: string[];
     /** سجلّ المشاكل — ما أبلغ عنه إشراق من أخطاء هذه الجلسة (`debug/esharqErrors.ts`). */
     issues: {
         total: number;
@@ -165,6 +174,7 @@ function buildBundle(): Bundle {
             enabledNames: [...enabledNames].sort(),
             changedSettings: changedSettingKeys()
         },
+        unserialisableSettings: getUnserialisableSettingPaths(),
         patches: { declared, pending: patches.length, byPlugin },
         startup: {
             measuredPlugins: startups.length,
