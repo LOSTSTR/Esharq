@@ -64,11 +64,37 @@ export function prefsReady(): boolean {
     return (Settings.plugins as PluginStore)?.[LEGACY_PLUGIN] != null;
 }
 
+/**
+ * القيم الحالية **من الكائن الخام** لا من الوكيل.
+ *
+ * 🔴 هذا السطر هو الفرق بين عميلٍ يحفظ وعميلٍ لا يحفظ شيئاً أبداً.
+ *
+ * قراءة `Settings.esharq` تمرّ بوكيل `SettingsStore`، و**كل كائنٍ يُقرأ عبره
+ * يعود مغلَّفاً بوكيلٍ آخر**. فنشرُه (`{ ...store.esharq }`) ينسخ المفاتيح
+ * كما تراها: `badgeHidden` يصير **وكيلاً** داخل الكائن الجديد. وفكّ الغلاف في
+ * `set` يعمل على القيمة العليا وحدها، فيستقرّ الوكيل داخل شجرة الإعدادات.
+ *
+ * والوكيل **لا يُستنسَخ**: `structuredClone` يرفضه، وهو ما يفعله إلكترون لكل
+ * حمولة IPC. فكل حفظ إعدادٍ بعدها يرمي «An object could not be cloned»،
+ * ولا يصل القرص شيء — الإضافات تعمل في الجلسة وتعود مُطفأة بعد إعادة التشغيل.
+ *
+ * 🔴 ويُصيب **من ثبّت إشراق أوّل مرّة** بالذات: الترحيل أدناه يعمل مرّةً واحدة
+ * حين تكون `migrated` غائبة — أي على التثبيت الأوّل — فيزرع الوكيل من أوّل
+ * إقلاع. استنسختُه: تثبيتٌ نظيف ⇒ تفعيل إضافة ⇒ الخطأ نفسه بموضعه نفسه،
+ * والقيمة على القرص تبقى `false`.
+ *
+ * `PlainSettings` هو الكائن الخام بلا وكيل، فالنسخ منه لا يحمل شيئاً.
+ */
+function currentEsharq(): Record<string, unknown> {
+    const raw = (PlainSettings as Record<string, any>).esharq;
+    return raw && typeof raw === "object" ? { ...raw } : {};
+}
+
 /** الكتابة في موضع إشراق — كائن كامل، فلا تضيع بقيّة مفاتيحه. */
 export function writeEsharqPref(key: PrefKey, value: unknown): void {
     try {
         const store = Settings as Record<string, any>;
-        store.esharq = { ...(store.esharq ?? {}), [key]: value };
+        store.esharq = { ...currentEsharq(), [key]: value };
     } catch { /* مخزن غير جاهز — يُعاد المحاولة عند القراءة التالية */ }
 }
 
@@ -89,7 +115,7 @@ function migrateOnce(): void {
     }
 
     try {
-        store.esharq = { ...(store.esharq ?? {}), ...carried, migrated: true };
+        store.esharq = { ...currentEsharq(), ...carried, migrated: true };
     } catch { /* مخزن غير جاهز — تُقرأ القيم من موضعها القديم حتى المرّة القادمة */ }
 }
 

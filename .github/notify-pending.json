@@ -1,6 +1,6 @@
 {
     "type": "fix",
     "scope": "settings",
-    "ar": "الإصلاح السابق لم يكن في موضعه: نصّ الإعدادات كان يُبنى بعد عبور حاجز العزل لا قبله، فبقيت الإضافات تعود مُطفأة بعد إعادة التشغيل. صار يُبنى قبله، وجُرّب بأحد عشر نوعاً من القيم فلم يُوقف الحفظ واحدٌ منها.",
-    "en": "The previous fix was in the wrong place: the settings text was built after crossing the isolation boundary instead of before it, so plugins kept coming back disabled after a restart. It is now built before, and eleven kinds of value were tried against it without stopping a single save."
+    "ar": "من ثبّت إشراق أوّل مرّة لم يكن يستطيع تفعيل أيّ إضافة: قيمةٌ تُزرع في إعداداته عند أوّل إقلاع كانت تمنع حفظها كلّها، فتعمل الإضافات في الجلسة وتعود مُطفأة بعد إعادة التشغيل. زال السبب من مصدره، ووُضع حارسٌ يمنع تكراره من أيّ طريقٍ آخر.",
+    "en": "Anyone installing Esharq for the first time could not enable a single plugin: a value planted in their settings on first launch blocked every save, so plugins worked for the session and came back disabled after a restart. The cause is gone at its source, with a guard that prevents it returning by any other route."
 }

@@ -45,6 +45,51 @@ interface ProxyContext<T extends object = any> {
  * The SettingsStore allows you to easily create a mutable store that
  * has support for global and path-based change listeners.
  */
+/**
+ * يفكّ غلاف الوكيل **على كلّ العمق** قبل التخزين.
+ *
+ * 🔴 فكُّ المستوى الأعلى وحده لا يكفي، وهذا ليس احتياطاً نظرياً:
+ * `{ ...Settings.esharq }` ينسخ المفاتيح كما يراها الوكيل، فكلّ كائنٍ منها
+ * يعود **مغلَّفاً بوكيلٍ خاصّ به**. الكائن الناتج عاديّ في مستواه الأعلى
+ * فيمرّ الفحص، ويستقرّ الوكيل في عمق شجرة الإعدادات.
+ *
+ * وثمنُه كامل الميزة: الوكيل لا يُستنسَخ، وإلكترون ينسخ كلّ حمولة IPC — فيرمي
+ * «An object could not be cloned» عند **كل** حفظ إعداد، ولا يصل القرص شيء.
+ * الإضافات تعمل في الجلسة ثمّ تعود مُطفأة، بلا سطرٍ واحد يدلّ على السبب.
+ * استنسختُه على تثبيتٍ أوّل نظيف ووجدتُ الوكيل في `esharq.badgeHidden`.
+ *
+ * والمرور هنا رخيص: يقع عند **الإسناد** وحده، لا عند القراءة، وشجرة الإعدادات
+ * ضحلة. والكائنات الخالية من الوكلاء تُعاد كما هي بلا نسخ.
+ */
+function unwrapDeep(value: any, depth = 0): any {
+    if (depth > 8 || value === null || typeof value !== "object") return value;
+    if (value[SYM_IS_PROXY]) return unwrapDeep(value[SYM_GET_RAW_TARGET], depth + 1);
+
+    if (Array.isArray(value)) {
+        let changed = false;
+        const out = value.map(v => {
+            const u = unwrapDeep(v, depth + 1);
+            if (u !== v) changed = true;
+            return u;
+        });
+        return changed ? out : value;
+    }
+
+    // كائنٌ ذو نموذجٍ خاصّ (تاريخ، خريطة…) لا يُنسَخ مفتاحاً مفتاحاً.
+    const proto = Object.getPrototypeOf(value);
+    if (proto !== Object.prototype && proto !== null) return value;
+
+    let changed = false;
+    const out: Record<string, any> = {};
+    for (const key of Object.keys(value)) {
+        const v = value[key];
+        const u = unwrapDeep(v, depth + 1);
+        if (u !== v) changed = true;
+        out[key] = u;
+    }
+    return changed ? out : value;
+}
+
 export class SettingsStore<T extends object> {
     private pathListeners = new Map<string, Set<(newData: any) => void>>();
     private prefixListeners = new Map<string, Set<(newData: any, path: string) => void>>();
@@ -90,9 +135,7 @@ export class SettingsStore<T extends object> {
                 return v;
             },
             set(target, key: string, value) {
-                if (value?.[SYM_IS_PROXY]) {
-                    value = value[SYM_GET_RAW_TARGET];
-                }
+                value = unwrapDeep(value);
 
                 if (target[key] === value) {
                     return true;
