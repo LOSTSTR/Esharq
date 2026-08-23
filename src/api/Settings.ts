@@ -243,12 +243,25 @@ export const SettingsStore = new SettingsStoreClass(settings, {
 if (!IS_REPORTER) {
     SettingsStore.addGlobalChangeListener((_, path) => {
         SettingsStore.plain.cloud.settingsSyncVersion = Date.now();
-        // 🔴 الحفظ **وعدٌ**، ورفضُه بلا `catch` يسقط في «خطأٌ غير ملتقَط»:
-        // يُسجَّل مجهول المصدر ولا يعرف صاحبه أنّ إعداداته لم تُحفظ. رأيتُه في
-        // تقارير المستخدمين تسع مرّات بلا اسمٍ يدلّ عليه.
+        // 🔴 **رميان مختلفان، ولا يكفي أحد المصيدين**:
+        //
+        // 1. رفضٌ غير متزامن (فشل IPC) — يُلتقط بـ`.catch`.
+        // 2. رميٌ **متزامن**: `settings.set` يستدعي `JSON.stringify` قبل أن
+        //    يُرسل، وهي ترمي فوراً على **مرجعٍ دائريّ** تضعه إضافة. وهنا
+        //    المكيدة: `Promise.resolve(f())` يُقيّم `f()` **قبل** أن يلفّه،
+        //    فالرمي المتزامن يفلت من `.catch` كأنّه غير موجود — قِسته في node:
+        //    «أفلت من catch وانتشر». ثمّ لا يلتقطه أحد بعده، لأنّ `SettingsStore`
+        //    ينادي المستمعين عاريةً بلا try — فينتشر إلى **موضع الإسناد نفسه**،
+        //    أي أنّ كلّ كتابة إعدادٍ في الجلسة ترمي في وجه من كتبها.
+        //
+        // فالمصيدان معاً: `try` للمتزامن، و`.catch` لغير المتزامن.
         scanSettingsOnce();
-        Promise.resolve(VencordNative.settings.set(SettingsStore.plain, path))
-            .catch(e => reportSettingsSaveFailure(e, path));
+        try {
+            Promise.resolve(VencordNative.settings.set(JSON.stringify(SettingsStore.plain), path))
+                .catch(e => reportSettingsSaveFailure(e, path));
+        } catch (e) {
+            reportSettingsSaveFailure(e, path);
+        }
     });
 }
 
@@ -261,11 +274,15 @@ if (!IS_REPORTER) {
  *
  * يُمشى مرّة واحدة في الجلسة بعد أوّل حفظ — لا مع كلّ تبديل.
  */
-function findUnserialisable(node: any, at = "", seen = new WeakSet(), out: string[] = []): string[] {
+function findUnserialisable(node: any, at = "", seen = new Set<object>(), out: string[] = []): string[] {
     if (out.length >= 10 || node === null) return out;
     const type = typeof node;
     if (type === "function" || type === "symbol") { out.push(`${at} (${type})`); return out; }
     if (type !== "object") return out;
+    // 🔴 الدائريّ **مسارٌ** لا مجموعة: قيمةٌ يُشار إليها من فرعين مختلفين
+    // ليست دورةً — و`mergeDefaults` يُسند المصفوفات الافتراضية **بالمرجع**
+    // (`obj[key] ??= v`)، فمجموعةٌ مشتركة عبر الإخوة كانت تُبلّغ عن دورةٍ
+    // وهمية في تقرير الدعم وتُرسل من يقرؤه في طريقٍ مسدود.
     if (seen.has(node)) { out.push(`${at} (مرجع دائريّ)`); return out; }
     seen.add(node);
     for (const key of Object.keys(node)) {
@@ -273,6 +290,7 @@ function findUnserialisable(node: any, at = "", seen = new WeakSet(), out: strin
             findUnserialisable(node[key], at ? `${at}.${key}` : key, seen, out);
         } catch { /* واصفٌ يرمي عند القراءة — يُتخطّى */ }
     }
+    seen.delete(node);
     return out;
 }
 

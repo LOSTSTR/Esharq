@@ -151,10 +151,23 @@ export default definePlugin({
         let warned = false;
         let timer: ReturnType<typeof setTimeout> | undefined;
 
+        // 🔴 يتوقّف بعد أوّل نتيجةٍ سليمة.
+        //
+        // كان يُستطلَع بعد **كلّ** تبديل ما دامت الجلسة، وكلّ استطلاع يقرأ
+        // ملفّ الإعدادات كاملاً (~86 KB) ويُحلّله **على الخيط الرئيسي**. على
+        // عميلٍ سليم هذا عملٌ دائم بلا فائدة: إن كان الحفظ يعمل فلن يتغيّر
+        // الجواب. ويُستأنف وحده إن ظهر فشل كتابةٍ لاحقاً — لأنّ `lastWriteError`
+        // يُسجَّل في العملية الرئيسية على كلّ حال، ويصل حزمة الدعم.
+        let healthy = false;
+
         const checkHealth = () => {
-            if (warned) return;
+            if (warned || healthy) return;
             (window as any).VencordNative?.settings?.getHealth?.().then((h: any) => {
                 if (warned || !h) return;
+                if (h.startupReadOk !== false && !h.lastWriteError && !h.readable) {
+                    healthy = true;
+                    return;
+                }
 
                 // 🔴 فشل **قراءة الإقلاع** أخطر من فشل الكتابة، ويُقدَّم عليه:
                 // العميل يعمل حينها بإعدادات فارغة، وأوّل تبديلٍ يكتب

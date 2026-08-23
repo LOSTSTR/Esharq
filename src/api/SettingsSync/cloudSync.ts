@@ -206,7 +206,7 @@ async function putV2(manual?: boolean) {
     await saveLocalManifest(response.server_manifest);
 
     PlainSettings.cloud.settingsSyncVersion = Date.now();
-    await VencordNative.settings.set(PlainSettings);
+    await VencordNative.settings.set(JSON.stringify(PlainSettings));
 
     logger.info(`Sync complete: ${response.uploaded.length} uploaded, ${response.downloads.length} downloaded`);
 
@@ -249,7 +249,7 @@ async function getV2(shouldNotify: boolean, force: boolean) {
     await saveLocalManifest(response.server_manifest);
 
     PlainSettings.cloud.settingsSyncVersion = Date.now();
-    await VencordNative.settings.set(PlainSettings);
+    await VencordNative.settings.set(JSON.stringify(PlainSettings));
 
     logger.info(`Pulled ${response.downloads.length} keys from cloud`);
 
@@ -298,7 +298,7 @@ async function deleteV2() {
     await saveLocalManifest([]);
 
     PlainSettings.cloud.settingsSyncVersion = 0;
-    await VencordNative.settings.set(PlainSettings);
+    await VencordNative.settings.set(JSON.stringify(PlainSettings));
 
     logger.info("Settings deleted from cloud successfully");
     showNotification({
@@ -332,7 +332,7 @@ async function putV1(manual?: boolean) {
 
     const { written } = await res.json();
     PlainSettings.cloud.settingsSyncVersion = written;
-    VencordNative.settings.set(PlainSettings);
+    VencordNative.settings.set(JSON.stringify(PlainSettings));
 
     logger.info("Settings uploaded to cloud successfully");
 
@@ -412,7 +412,7 @@ async function getV1(shouldNotify: boolean, force: boolean) {
     await importSettings(settings, "all", true);
 
     PlainSettings.cloud.settingsSyncVersion = written;
-    VencordNative.settings.set(PlainSettings);
+    VencordNative.settings.set(JSON.stringify(PlainSettings));
 
     logger.info("Settings loaded from cloud successfully");
     if (shouldNotify)

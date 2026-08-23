@@ -575,7 +575,12 @@ function BackpackButton(props: UserAreaRenderProps) {
                  * وواجهة ديسكورد كلّها داخل `#app-mount` (طبقاتُه ونوافذُه
                  * أيضاً)، فالاستثناء ضيّقٌ لا يُبطل الإغلاق الطبيعي.
                  */
+                // 🔴 تُستهلك مرّةً ثمّ تُمحى: `onRequestClose` يقع أيضاً على
+                // Escape وعلى فقدان التركيز، ولا نقرة معهما. فلو بقي هدفُ آخر
+                // نقرةٍ محفوظاً لَظلّ Escape عاجزاً عن إغلاق الحقيبة حتى ينقر
+                // المستخدم داخل شجرة ديسكورد — إغلاقٌ يتعطّل بلا سبب ظاهر.
                 const target = lastDown.current;
+                lastDown.current = null;
                 const root = document.getElementById("app-mount");
                 if (target !== null && root !== null && !root.contains(target)) return;
                 setOpen(false);

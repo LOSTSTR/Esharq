@@ -78,7 +78,7 @@ export async function importSettings(data: string, type: BackupType = "all", clo
 
             if (parsed.settings) {
                 deepMerge(PlainSettings, parsed.settings);
-                await VencordNative.settings.set(PlainSettings);
+                await VencordNative.settings.set(JSON.stringify(PlainSettings));
             }
             if (parsed.quickCss) await VencordNative.quickCss.set(parsed.quickCss);
             if (parsed.dataStore) await DataStore.setMany(parsed.dataStore);
@@ -88,7 +88,7 @@ export async function importSettings(data: string, type: BackupType = "all", clo
             if (!parsed.settings) throw new Error("Plugin settings missing");
 
             deepMerge(PlainSettings, parsed.settings);
-            await VencordNative.settings.set(PlainSettings);
+            await VencordNative.settings.set(JSON.stringify(PlainSettings));
             break;
         }
         case "css": {

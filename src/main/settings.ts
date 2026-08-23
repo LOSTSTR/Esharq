@@ -61,6 +61,21 @@ function writeAtomic(file: string, data: string) {
 const backupOf = (file: string) => `${file}.bak`;
 
 /**
+ * هل هذا **تلفٌ في المحتوى** أم **عجزٌ عابر عن القراءة**؟
+ *
+ * 🔴 الفرق يقرّر مصير ملفّ المستخدم. `JSON.parse` يرمي `SyntaxError` بلا
+ * `code` ⇒ الملفّ نفسه تالف، فعزلُه صواب. أمّا `EACCES` أو `EBUSY` أو
+ * `EMFILE` (نفاد الواصفات عند الإقلاع) فالملفّ **سليم** ولم يُقرأ فحسب —
+ * وعزلُه حينها يُحوّل عطلاً يشفى وحده في الإقلاع التالي إلى **ضياعٍ دائم**،
+ * ولا سبيل للمستخدم إلى استعادته إلّا بإعادة تسميةٍ يدوية لا يعرفها.
+ *
+ * فلا يُعزَل إلّا ما ثبت تلفه.
+ */
+function isContentCorruption(err: any): boolean {
+    return err?.code === undefined && err instanceof SyntaxError;
+}
+
+/**
  * يُزيل ملفّاً مؤقّتاً بقي من كتابةٍ قُطعت.
  *
  * 🔴 ليس ضاراً — لا يُقرأ أبداً، وأوّل كتابةٍ ناجحة تستبدله — لكنّه يبقى في
@@ -133,9 +148,11 @@ function readSettings<T = object>(name: string, file: string): Partial<T> {
                 const recovered = parse(backupOf(file));
                 // 🔴 التالف **يُحفَظ ولا يُحذَف**: هو الدليل الوحيد على ما جرى،
                 // وقد يحوي ما لا تحويه النسخة. الاسم بالتاريخ فلا يدوس بعضه بعضاً.
-                try {
-                    renameSync(file, `${file}.corrupt-${new Date().toISOString().replace(/[:.]/g, "-")}`);
-                } catch { /* بقي مكانه — سيُستبدَل ذرّياً عند أول كتابة */ }
+                if (isContentCorruption(err)) {
+                    try {
+                        renameSync(file, `${file}.corrupt-${new Date().toISOString().replace(/[:.]/g, "-")}`);
+                    } catch { /* بقي مكانه — سيُستبدَل ذرّياً عند أول كتابة */ }
+                }
 
                 console.error(`[Esharq] ${name} settings were unreadable — recovered from the backup.`, err);
                 if (isRenderer) {
@@ -154,10 +171,16 @@ function readSettings<T = object>(name: string, file: string): Partial<T> {
         }
         if (!missing) {
             console.error(`Failed to read ${name} settings`, err);
-            // لا نسخة تُنقذ: يُحفَظ التالف كي لا تمحوه أوّل كتابة.
-            try {
-                renameSync(file, `${file}.corrupt-${new Date().toISOString().replace(/[:.]/g, "-")}`);
-            } catch { /* تعذّر — الكتابة الذرّية ستستبدله على أي حال */ }
+            // 🔴 لا يُعزَل إلّا التلف المُثبَت. عجزٌ عابر (`EACCES`/`EBUSY`/
+            // `EMFILE`) يُترَك الملفّ فيه مكانه: الإقلاع التالي يقرؤه فيشفى
+            // وحده. وعزلُه كان يجعل عطلاً عابراً **ضياعاً دائماً** — وأسوأ
+            // ما فيه أنّه يقع في أوّل إقلاعٍ بعد التحديث، حين لا نسخة أمانٍ
+            // بعد، فيرى المستخدم إعداداتٍ من مصنعها بلا طريق رجوع.
+            if (isContentCorruption(err)) {
+                try {
+                    renameSync(file, `${file}.corrupt-${new Date().toISOString().replace(/[:.]/g, "-")}`);
+                } catch { /* تعذّر — الكتابة الذرّية ستستبدله على أي حال */ }
+            }
         }
 
         return {};

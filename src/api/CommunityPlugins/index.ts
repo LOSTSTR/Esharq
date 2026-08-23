@@ -252,6 +252,68 @@ function runPlugin(bundle: { id: string; name: string; modules: { path: string; 
  * `plugins` تُمرَّر من `PluginManager` بدل استيرادها، فلا تدور الوحدتان حول
  * بعضهما (`~plugins` يستورد المدير، والمدير يستورد هذا).
  */
+/**
+ * فحص شكل التعريف **قبل** إدخاله في سجلّ الإضافات.
+ *
+ * ── لماذا هذا الفحص بالذات ────────────────────────────────────────────
+ * 🔴 عزلُنا ينتهي عند `plugins[name] = definition`. وما بعده نواةٌ تقرأ
+ * التعريف **بلا حماية**: `initPluginManager()` نداءٌ عارٍ في `Vencord.ts`،
+ * وفيه `p.dependencies?.forEach(…)` و`(p[key] as Function).bind(p)` و
+ * `Object.entries(p.settings.def)` و`for (const patch of p.patches)`.
+ * فحقلٌ بشكلٍ خاطئ — `patches: {}` أو `start: "x"` — يرمي هناك، فلا يُنفَّذ
+ * `initPluginManager` ولا `startAllPlugins` ولا `init`، ويُقلع العميل **بلا
+ * إضافة واحدة**. و`userProfileBadges.forEach` بعد البدء تفعل الشيء نفسه
+ * فتُجهض بقيّة الإضافات.
+ *
+ * وليست حالةَ خبثٍ فحسب: إضافةٌ **مشوّهة** تفعلها بالسهولة نفسها.
+ *
+ * فيُفحَص الشكل هنا — داخل الحماية القائمة لكلّ حزمة — فتُرفض الإضافة وحدها
+ * برسالةٍ تُقرأ، ولا تصل النواةَ قيمةٌ لا تحتمل شكلها. ولا يُمَسّ سطرٌ في
+ * نواة فينكورد، فلا يتغيّر سلوك إضافةٍ سليمة واحدة.
+ */
+function checkDefinitionShape(d: any): string | null {
+    const arrays = ["dependencies", "patches", "authors", "userProfileBadges", "commands"];
+    for (const key of arrays) {
+        if (d[key] != null && !Array.isArray(d[key])) {
+            return `الحقل «${key}» يجب أن يكون مصفوفة — وصل ${typeof d[key]}.`;
+        }
+    }
+
+    // نفس قائمة `pluginKeysToBind` في مدير الإضافات، وتُربَط بـ`.bind` بلا فحص.
+    const functions = [
+        "start", "stop", "flux",
+        "onBeforeMessageEdit", "onBeforeMessageSend", "onMessageClick",
+        "renderMemberListDecorator", "renderMessageAccessory", "renderMessageDecoration",
+        "renderNicknameIcon"
+    ];
+    for (const key of functions) {
+        if (d[key] != null && typeof d[key] !== "function" && key !== "flux") {
+            return `الحقل «${key}» يجب أن يكون دالّة — وصل ${typeof d[key]}.`;
+        }
+    }
+    if (d.flux != null && typeof d.flux !== "object") {
+        return `الحقل «flux» يجب أن يكون كائناً — وصل ${typeof d.flux}.`;
+    }
+
+    if (d.settings != null) {
+        if (typeof d.settings !== "object" || d.settings.def == null || typeof d.settings.def !== "object") {
+            return "الحقل «settings» يجب أن يأتي من `definePluginSettings` (كائنٌ فيه `def`).";
+        }
+    }
+
+    if (d.contextMenus != null && typeof d.contextMenus !== "object") {
+        return `الحقل «contextMenus» يجب أن يكون كائناً — وصل ${typeof d.contextMenus}.`;
+    }
+
+    // 🔴 `__proto__` اسماً: `Object.hasOwn` لا يراه، والإسناد يُبدّل نموذج
+    // السجلّ بدل أن يُضيف مفتاحاً — فيمشي `for…in` على مفاتيح موروثة.
+    if (d.name === "__proto__" || d.name === "constructor" || d.name === "prototype") {
+        return `الاسم «${d.name}» محجوز ولا يصلح اسماً لإضافة.`;
+    }
+
+    return null;
+}
+
 export function loadCommunityPlugins(plugins: Record<string, any>) {
     const native = (window as any).VencordNative?.communityPlugins;
     if (native == null) return;
@@ -276,6 +338,9 @@ export function loadCommunityPlugins(plugins: Record<string, any>) {
             if (definition == null || typeof definition !== "object" || typeof definition.name !== "string") {
                 throw new Error("الملفّ لا يُصدّر إضافة: المتوقَّع `export default definePlugin({ name, description, authors, ... })`.");
             }
+
+            const shapeError = checkDefinitionShape(definition);
+            if (shapeError !== null) throw new Error(shapeError);
 
             // 🔴 لا تدوس إضافةً قائمة: اسمٌ مكرّر يعني أن إضافة خارجية تحلّ محلّ
             // إضافة إشراق بلا أن يدري أحد. نُلحق لاحقةً ونقولها في السجلّ.

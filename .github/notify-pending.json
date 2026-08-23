@@ -1,6 +1,6 @@
 {
     "type": "fix",
     "scope": "settings",
-    "ar": "إن كانت إضافاتك تعمل ثمّ تعود مُطفأة بعد إعادة التشغيل فقد انتهى ذلك: قيمةٌ واحدة تضعها أيّ إضافة كانت تُفشل حفظ الإعدادات كلّها بلا أيّ رسالة. صار الحفظ لا يعطبه شيء، وحزمة الدعم تُسمّي الإضافة المسؤولة إن تكرّر شيءٌ مشابه.",
-    "en": "If your plugins worked and then came back disabled after a restart, that is over: a single value written by any plugin could break all settings saving with no message at all. Saving can no longer be broken, and the support bundle now names the plugin responsible if anything similar recurs."
+    "ar": "الإصلاح السابق لم يكن في موضعه: نصّ الإعدادات كان يُبنى بعد عبور حاجز العزل لا قبله، فبقيت الإضافات تعود مُطفأة بعد إعادة التشغيل. صار يُبنى قبله، وجُرّب بأحد عشر نوعاً من القيم فلم يُوقف الحفظ واحدٌ منها.",
+    "en": "The previous fix was in the wrong place: the settings text was built after crossing the isolation boundary instead of before it, so plugins kept coming back disabled after a restart. It is now built before, and eleven kinds of value were tried against it without stopping a single save."
 }

@@ -60,23 +60,22 @@ export default {
     settings: {
         get: () => sendSync<Settings>(IpcEvents.GET_SETTINGS),
         /**
-         * 🔴 يُرسَل **نصّاً** لا كائناً — وهذا ليس تجميلاً.
+         * 🔴 يستقبل **نصّاً جاهزاً**، والتحويل يقع في المُصيِّر لا هنا.
          *
-         * إلكترون ينسخ حمولة `invoke` ببنية structured clone، وهي تعجز عن أي
-         * دالّة أو وكيل أو كائن صنف. وكلّ تبديل إعدادٍ يُرسل شجرة الإعدادات
-         * **كاملة**، فقيمةٌ واحدة لا تُنسَخ — يضعها أي إضافة في إعداداتها —
-         * تُفشل النداء فلا يصل شيء إلى القرص. النتيجة: الإضافات تعمل في
-         * الجلسة ثمّ تعود مُطفأة بعد إعادة التشغيل، بلا أثرٍ في أي سجلّ.
+         * ── لماذا لا يكفي التحويل داخل هذه الدالّة ────────────────────
+         * هذا الملفّ يعمل في **عالم التمهيد** المعزول، ويُكشَف للصفحة عبر
+         * `contextBridge`. والجسر **ينسخ الوسائط عند عبورها** — فيرمي «An
+         * object could not be cloned» قبل أن يبدأ تنفيذ الدالّة أصلاً.
          *
-         * قِسته على عميل حيّ: زرعتُ دالّةً واحدة في الإعدادات فتوقّف الحفظ
-         * تماماً بنصّ «An object could not be cloned» — وهو نصّ الخطأ نفسه في
-         * تقارير المستخدمين، تسع مرّات عند أحدهم.
+         * وضعتُ `JSON.stringify` هنا أوّلاً فلم يمنع شيئاً، والدليل من حزمةٍ
+         * منشورة: موضع الرمي عند المستخدم هو `VencordNative.settings.set(
+         * vo.plain, t)` في المستمع نفسه — أي عند **الاستدعاء** لا داخله،
+         * وتكرّر 28 مرّة على البناء الذي ظننتُه مُصلَحاً.
          *
-         * والنصّ آمنٌ تماماً: الوجهة تكتب JSON أصلاً، فما لا يُمثَّل في JSON
-         * لا يُحفَظ اليوم ولا كان يُحفَظ قبله. لا خسارة، والفشل صار مستحيلاً.
+         * فالنصّ يُبنى في المُصيِّر، ويعبر الجسر نصّاً — والنصّ يُنسَخ دائماً.
          */
-        set: (settings: Settings, pathToNotify?: string) =>
-            invoke<void>(IpcEvents.SET_SETTINGS, JSON.stringify(settings), pathToNotify),
+        set: (settingsJson: string, pathToNotify?: string) =>
+            invoke<void>(IpcEvents.SET_SETTINGS, settingsJson, pathToNotify),
         getSettingsDir: () => invoke<string>(IpcEvents.GET_SETTINGS_DIR),
         reportSaveFailure: (message: string) => invoke<void>(IpcEvents.REPORT_SETTINGS_SAVE_FAILURE, message),
         getHealth: () => invoke<{

@@ -252,14 +252,17 @@ export function importFolder(root: string): ImportResult {
                 try {
                     JSON.parse(f.text);
                 } catch (e: any) {
-                    return {
-                        ok: false,
-                        findings: [...findings, {
-                            severity: "error", rule: "syntax", file: f.path,
-                            message: `JSON غير صالح: ${e?.message ?? e}`,
-                            hint: "أصلح الملفّ ثم أعد الاستيراد."
-                        }]
-                    };
+                    // 🔴 **تنبيهٌ لا رفض**: كنتُ أرفض المجلد كلّه، فمجلدٌ فيه
+                    // `tsconfig.json` بتعليقات `//` — وهو قالب TypeScript
+                    // الافتراضيّ — يُرفَض استيراده كلّه بسبب ملفٍّ لا تستورده
+                    // الإضافة أصلاً. الملفّ يُتخطّى وحده، ومن استورده فعلاً
+                    // يراه ناقصاً في تقرير التوافق.
+                    findings.push({
+                        severity: "warning", rule: "syntax", file: f.path,
+                        message: `JSON غير صالح — تُخطّي هذا الملفّ: ${e?.message ?? e}`,
+                        hint: "إن كانت الإضافة تستورده فأصلحه ثمّ أعد الاستيراد."
+                    });
+                    continue;
                 }
                 built.push({ path: f.path, code: `module.exports = ${f.text};` });
                 continue;
@@ -295,8 +298,26 @@ export function importFolder(root: string): ImportResult {
         built.push({ path: f.path.replace(/\.(tsx?|jsx?)$/i, ".js"), code: out.code });
     }
 
-    // المدخل آخر ما يُنفَّذ: بقيّة الملفّات تُعرَّف قبله فيجدها `require`.
-    const entryIndex = built.findIndex(b => /^index\.js$/.test(b.path));
+    /**
+     * المدخل آخر ما يُنفَّذ، والمُصيِّر يقرؤه بـ`modules.at(-1)`.
+     *
+     * 🔴 «آخر ملفّ» لم يعد يعني «آخر ملفّ **شيفرة**»: منذ صارت CSS وJSON
+     * وحدتين تدخلان `built`، صار مجلدٌ اسم مدخله `plugin.tsx` بجواره
+     * `style.css` يُرتَّب [plugin.js, style.css] — فلا يُطابق `^index\.js$`،
+     * ولا يُعاد ترتيبه، فيصير **ملفّ الأنماط** هو المدخل. النتيجة: الإضافة
+     * تسقط برسالة «الملفّ لا يُصدّر إضافة» تتّهم صاحبها، وبطاقتها تُعرَض بلا
+     * وصف. والتحقّق يُجيز صراحةً ملفَّ شيفرةٍ وحيداً **بأيّ اسم** مدخلاً
+     * (`validate.ts`)، فالحالة مشروعة لا شاذّة.
+     *
+     * فيُنتقى آخر ملفّ **شيفرة**: `index.js` إن وُجد، وإلّا آخر `.js`.
+     */
+    const isCodeModule = (path: string) => /\.js$/i.test(path);
+    let entryIndex = built.findIndex(b => /^index\.js$/.test(b.path));
+    if (entryIndex === -1) {
+        for (let i = built.length - 1; i >= 0; i--) {
+            if (isCodeModule(built[i].path)) { entryIndex = i; break; }
+        }
+    }
     if (entryIndex !== -1) built.push(...built.splice(entryIndex, 1));
 
     try {
