@@ -1,6 +1,6 @@
 {
     "type": "fix",
-    "scope": "settings",
-    "ar": "من ثبّت إشراق أوّل مرّة لم يكن يستطيع تفعيل أيّ إضافة: قيمةٌ تُزرع في إعداداته عند أوّل إقلاع كانت تمنع حفظها كلّها، فتعمل الإضافات في الجلسة وتعود مُطفأة بعد إعادة التشغيل. زال السبب من مصدره، ووُضع حارسٌ يمنع تكراره من أيّ طريقٍ آخر.",
-    "en": "Anyone installing Esharq for the first time could not enable a single plugin: a value planted in their settings on first launch blocked every save, so plugins worked for the session and came back disabled after a restart. The cause is gone at its source, with a guard that prevents it returning by any other route."
+    "scope": "updater",
+    "ar": "انتهت حلقة «تم التحديث — أعد التشغيل» التي كانت تتكرّر بلا نهاية. كان إشراق يقيس تأخّره بآخر تغييرٍ في المستودع بينما يُنزّل آخر إصدارٍ مبنيّ، وبينهما فجوةُ دقائق بعد كل دفع — فلا يلتقيان أبداً، ويُعاد تنزيل 35 ميغابايت في كل إقلاع. صار يقيس تأخّره بما سيصله فعلاً.",
+    "en": "The endless \"updated — restart\" loop is gone. Esharq measured how far behind it was against the repository's newest change while installing the newest built release, and the gap between them lasts minutes after every push — so the two never met, and 35 MB was re-downloaded on every launch. It now measures against what will actually reach you."
 }

@@ -31,6 +31,23 @@ const API_BASE = `https://api.github.com/repos/${gitRemote}`;
 let PendingUpdate: string | null = null;
 
 /**
+ * بصمة الإصدار الذي سيُنزَّل فعلاً.
+ *
+ * 🔴 بلا هذه البصمة كان السؤالان يقيسان شيئين مختلفين: «هل أنا متأخّر؟»
+ * يُقاس بـ`/compare/<بنائي>...HEAD` — أي **رأس الفرع** — بينما المُنزَّل هو
+ * `/releases/latest`. وبين الاثنين فجوةٌ دائمة: الدفع يُقدّم الرأس فوراً
+ * وبناءُ الإصدار يستغرق دقائق، وقد يفشل فتبقى الفجوة إلى الأبد.
+ *
+ * والنتيجة حلقةٌ لا تنتهي: العميل يرى التزاماتٍ بينه وبين الرأس ⇒ «متأخّر»
+ * ⇒ يُنزّل **الإصدار** (وهو أقدم من الرأس) ⇒ يطلب إعادة التشغيل ⇒ يُقلع ⇒
+ * ما زال متأخّراً عن الرأس ⇒ يُنزّل الحمولة نفسها من جديد… بلا نهاية، و35
+ * ميغابايت في كل دورة.
+ *
+ * فيُقاس التأخّر بما سيُنزَّل، لا بما لم يُبنَ بعد.
+ */
+let PendingHash: string | null = null;
+
+/**
  * محاولة ثانية للانقطاع **الشبكيّ وحده**.
  *
  * 🔴 لا يُعاد على 4xx: ردّ 403 يعني نفاد حدّ الطلبات، وإعادة المحاولة تستهلك
@@ -63,7 +80,8 @@ async function calculateGitChanges() {
     const isOutdated = await fetchUpdates();
     if (!isOutdated) return [];
 
-    const data = await githubGet(`/compare/${gitHash}...HEAD`);
+    // إلى **الإصدار** لا إلى الرأس: هذا ما سيصل المستخدم فعلاً.
+    const data = await githubGet(`/compare/${gitHash}...${PendingHash ?? "HEAD"}`);
 
     return data.commits.map((c: any) => ({
         hash: c.sha,
@@ -72,12 +90,39 @@ async function calculateGitChanges() {
     }));
 }
 
+/**
+ * هل يشير الاسمان إلى نفس الالتزام؟
+ *
+ * 🔴 المقارنة بالتساوي كانت **تفشل دائماً**، وهذا ليس احتمالاً بل حساب:
+ * البناء يحقن `gitHash` كاملاً (`git rev-parse HEAD` — أربعون حرفاً)، بينما
+ * إجراء النشر يُسمّي الإصدار بالمختصر (`git rev-parse --short HEAD` — سبعة).
+ * فـ`"cddddc6" === "cddddc6b3…"` كاذبة أبداً ⇒ المُحدِّث يرى نفسه متأخّراً
+ * **في كل مرّة**: يعرض التحديث، ويُطبَّق، ويُعيد المستخدم التشغيل، فيعود
+ * الطلب من جديد بلا نهاية. قِسته: الحزمة المنشورة تحمل
+ * `515eaf5c4ed724a8d41a349a217a336c092860eb` واسم الإصدار «Esharq cddddc6».
+ *
+ * فتُقارَن **البادئة** بطول الأقصر، بشرط ألّا يقلّ عن سبعة محارف ستّ عشرية —
+ * وهو أقصر ما يُصدره git، وأقلّ منه لا يُميّز التزاماً عن آخر.
+ */
+function sameCommit(a: string, b: string): boolean {
+    const x = a.trim().toLowerCase();
+    const y = b.trim().toLowerCase();
+    if (!/^[0-9a-f]{7,40}$/.test(x) || !/^[0-9a-f]{7,40}$/.test(y)) return false;
+    const n = Math.min(x.length, y.length);
+    return x.slice(0, n) === y.slice(0, n);
+}
+
 async function fetchUpdates() {
     const data = await githubGet("/releases/latest");
 
     const hash = data.name.slice(data.name.lastIndexOf(" ") + 1);
-    if (hash === gitHash)
+    if (sameCommit(hash, gitHash)) {
+        // لا تحديث ⇒ لا حمولة معلّقة. وبلا هذا التصفير يبقى رابطٌ قديم
+        // فيُطبَّق تحديثٌ لا داعي له عند أوّل نداء لاحق.
+        PendingUpdate = null;
+        PendingHash = null;
         return false;
+    }
 
     // حارس: بلا هذا يُقرأ `browser_download_url` من `undefined` فيُرمى
     // TypeError نصّه لا يدلّ على شيء. الإصدار قد يفتقد أصلاً لعميلٍ بعينه.
@@ -90,6 +135,7 @@ async function fetchUpdates() {
     }
 
     PendingUpdate = asset.browser_download_url;
+    PendingHash = hash;
 
     return true;
 }
@@ -99,6 +145,7 @@ async function applyUpdates() {
 
     const data = await fetchBuffer(PendingUpdate);
     writeFileSync(__dirname, data, { flush: true });
+    PendingHash = null;
 
     PendingUpdate = null;
 
