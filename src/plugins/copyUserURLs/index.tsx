@@ -40,6 +40,7 @@ const UserContextMenuPatch: NavContextMenuPatchCallback = (children, { user }: U
             label={t("نسخ رابط المستخدم", "Copy User URL")}
             action={() => copyToClipboard(`<https://discord.com/users/${user.id}>`)}
             icon={LinkIcon}
+            leadingAccessory={{ type: "icon", icon: LinkIcon }}
         />
     );
 };

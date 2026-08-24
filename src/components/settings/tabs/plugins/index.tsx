@@ -38,6 +38,7 @@ import { isTruthy } from "@utils/guards";
 import { Logger } from "@utils/Logger";
 import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
+import { PluginTarget } from "@utils/pluginTargets";
 import { useAwaiter, useCleanupEffect, useIntersection } from "@utils/react";
 import { PluginTag, PluginTags } from "@utils/types";
 import { Alerts, ConfirmModal, lodash, openModal, Parser, React, Select, TextInput, Toasts, Tooltip, useCallback, useMemo, useRef, useState } from "@webpack/common";
@@ -103,13 +104,14 @@ const enum SearchStatus {
     ESHARQ
 }
 
-export const ExcludedReasons: Record<"web" | "discordDesktop" | "vesktop" | "equibop" | "desktop" | "dev", string> = {
+export const ExcludedReasons: Record<PluginTarget, string> = {
     desktop: t("تطبيق Discord Desktop أو Vesktop/Equibop", "Discord Desktop or Vesktop/Equibop"),
     discordDesktop: t("تطبيق Discord Desktop", "Discord Desktop"),
     vesktop: t("تطبيقات Vesktop/Equibop", "Vesktop/Equibop"),
     equibop: t("تطبيقات Vesktop/Equibop", "Vesktop/Equibop"),
     web: t("تطبيقات Vesktop/Equibop ومتصفح Discord", "Vesktop/Equibop and Discord web"),
-    dev: t("إصدار المطورين من اشراق", "Esharq dev build")
+    dev: t("إصدار المطورين من اشراق", "Esharq dev build"),
+    browser: t("نسخة متصفح الويب من إشراق", "Web browser version of Esharq")
 };
 
 function ExcludedPluginsList({ search }: { search: string; }) {

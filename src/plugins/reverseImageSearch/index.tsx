@@ -17,8 +17,7 @@
 */
 
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
-import { Flex } from "@components/Flex";
-import { OpenExternalIcon } from "@components/Icons";
+import { OpenExternalIcon, SearchIcon } from "@components/Icons";
 import { Devs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
@@ -44,6 +43,7 @@ function makeSearchItem(src: string) {
             label={t("بحث بالصورة", "Search Image")}
             key="search-image"
             id="search-image"
+            leadingAccessory={{ type: "icon", icon: SearchIcon }}
         >
             {Object.keys(Engines).map((engine, i) => {
                 const key = "search-image-" + engine;
@@ -51,20 +51,8 @@ function makeSearchItem(src: string) {
                     <Menu.MenuItem
                         key={key}
                         id={key}
-                        label={
-                            <Flex alignItems="center" gap="0.5em">
-                                <img
-                                    style={{
-                                        borderRadius: "50%",
-                                    }}
-                                    aria-hidden="true"
-                                    height={16}
-                                    width={16}
-                                    src={`https://icons.duckduckgo.com/ip3/${new URL(Engines[engine]).host}.ico`}
-                                />
-                                {engine}
-                            </Flex>
-                        }
+                        label={engine}
+                        leadingAccessory={{ type: "image", src: `https://icons.duckduckgo.com/ip3/${new URL(Engines[engine]).host}.ico` }}
                         action={() => search(src, Engines[engine])}
                     />
                 );
@@ -72,12 +60,8 @@ function makeSearchItem(src: string) {
             <Menu.MenuItem
                 key="search-image-all"
                 id="search-image-all"
-                label={
-                    <Flex alignItems="center" gap="0.5em">
-                        <OpenExternalIcon height={16} width={16} />
-                        All
-                    </Flex>
-                }
+                label="All"
+                leadingAccessory={{ type: "icon", icon: OpenExternalIcon }}
                 action={() => Object.values(Engines).forEach(e => search(src, e))}
             />
         </Menu.MenuItem>

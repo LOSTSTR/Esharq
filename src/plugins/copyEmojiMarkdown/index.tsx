@@ -5,6 +5,7 @@
  */
 
 import { definePluginSettings } from "@api/Settings";
+import { CopyIcon } from "@components/Icons";
 import { Devs } from "@utils/constants";
 import { copyWithToast } from "@utils/discord";
 import { t } from "@utils/esharqI18n";
@@ -70,6 +71,7 @@ export default definePlugin({
                             t("نجح! تمّ نسخ ماركداون الإيموجي.", "Success! Copied emoji markdown.")
                         );
                     }}
+                    leadingAccessory={{ type: "icon", icon: CopyIcon }}
                 />
             );
         },

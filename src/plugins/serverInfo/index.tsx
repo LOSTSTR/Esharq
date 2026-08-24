@@ -6,6 +6,7 @@
 
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { definePluginSettings } from "@api/Settings";
+import { InfoIcon } from "@components/Icons";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin, { OptionType } from "@utils/types";
@@ -14,13 +15,14 @@ import { Menu } from "@webpack/common";
 
 import { openGuildInfoModal } from "./GuildInfoModal";
 
-const Patch: NavContextMenuPatchCallback = (children, { guild }: { guild: Guild; }) => {
+const makePatch: (showIcon: boolean) => NavContextMenuPatchCallback = showIcon => (children, { guild }: { guild: Guild; }) => {
     const group = findGroupChildrenByChildId("privacy", children);
 
     group?.push(
         <Menu.MenuItem
             id="vc-server-info"
             label={t("معلومات السيرفر", "Server Info")}
+            leadingAccessory={showIcon ? { type: "icon", icon: InfoIcon } : undefined}
             action={() => openGuildInfoModal(guild)}
         />
     );
@@ -57,8 +59,7 @@ export default definePlugin({
     searchTerms: ["guild", "info", "ServerProfile"],
     isModified: true,
     contextMenus: {
-        "guild-context": Patch,
-        "guild-header-popout": Patch
-    },
-    settings
+        "guild-context": makePatch(false),
+        "guild-header-popout": makePatch(true)
+    }
 });

@@ -103,6 +103,7 @@ export function buildExtraRoleContextMenuItems(role: Role, guild: Guild, popoutR
                     GuildSettingsActions.selectRole(role.id);
                 }}
                 icon={PencilIcon}
+                leadingAccessory={{ type: "icon", icon: PencilIcon }}
             />
         ),
         role.colorString && (
@@ -112,6 +113,7 @@ export function buildExtraRoleContextMenuItems(role: Role, guild: Guild, popoutR
                 label={t("نسخ لون الرتبة", "Copy Role Color")}
                 action={() => copyToClipboard(role.colorString!)}
                 icon={AppearanceIcon}
+                leadingAccessory={{ type: "icon", icon: AppearanceIcon }}
             />
         )
     ].filter(isTruthy);
@@ -130,6 +132,7 @@ export function buildExtraRoleContextMenuItems(role: Role, guild: Guild, popoutR
                     });
                 }}
                 icon={ImageIcon}
+                leadingAccessory={{ type: "icon", icon: ImageIcon }}
             />
         ),
         popoutRef && (
@@ -160,6 +163,7 @@ export function buildExtraRoleContextMenuItems(role: Role, guild: Guild, popoutR
                                 {...popoutProps}
                             >
                                 <div className={MenuItemClasses.label}>{t("عرض أعضاء الدور", "View Role Members")}</div>
+                                {/* FIXME: update to new icon style */}
                                 <div className={MenuItemClasses.iconContainer}>
                                     <RoleMembersIcon />
                                 </div>
@@ -198,6 +202,7 @@ export function openRoleContextMenu(event: React.MouseEvent<HTMLElement>, { guil
                     id="vc-better-role-context-copy-role-id"
                     label={getIntlMessage("COPY_ID_ROLE")}
                     icon={CopyIdIcon}
+                    leadingAccessory={{ type: "icon", icon: CopyIdIcon }}
                     action={() => copyToClipboard(role.id)}
                 />
             </Menu.Menu>

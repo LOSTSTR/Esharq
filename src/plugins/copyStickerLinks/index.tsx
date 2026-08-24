@@ -18,6 +18,7 @@
 
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { isPluginEnabled } from "@api/PluginManager";
+import { LinkIcon, TopRightArrow } from "@components/Icons";
 import ExpressionClonerPlugin from "@plugins/expressionCloner";
 import { Devs } from "@utils/constants";
 import { copyWithToast } from "@utils/discord";
@@ -45,6 +46,7 @@ function buildMenuItem(sticker: PartialSticker, addBottomSeparator: boolean) {
                     id="vc-copy-sticker-link"
                     key="vc-copy-sticker-link"
                     label={t("نسخ الرابط", "Copy Link")}
+                    leadingAccessory={{ type: "icon", icon: LinkIcon }}
                     action={() => copyWithToast(getUrl(sticker), t("تم نسخ الرابط!", "Link copied!"))}
                 />
 
@@ -52,6 +54,8 @@ function buildMenuItem(sticker: PartialSticker, addBottomSeparator: boolean) {
                     id="vc-open-sticker-link"
                     key="vc-open-sticker-link"
                     label={t("فتح الرابط", "Open Link")}
+                    leadingAccessory={{ type: "icon", icon: LinkIcon }}
+                    trailingIndicator={{ type: "icon", icon: TopRightArrow }}
                     action={() => VencordNative.native.openExternal(getUrl(sticker))}
                 />
             </Menu.MenuGroup>

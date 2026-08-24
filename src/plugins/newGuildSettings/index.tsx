@@ -105,6 +105,7 @@ const makeContextMenuPatch: (shouldAddIcon: boolean) => NavContextMenuPatchCallb
                 label={t("تطبيق NewGuildSettings", "Apply NewGuildSettings")}
                 id="vc-newguildsettings-apply"
                 icon={shouldAddIcon ? CogWheel : void 0}
+                leadingAccessory={shouldAddIcon ? { type: "icon", icon: CogWheel } : void 0}
                 action={() => applyDefaultSettings(guild.id)}
             />
         );
@@ -118,6 +119,7 @@ const makeContextMenuPatch: (shouldAddIcon: boolean) => NavContextMenuPatchCallb
                 label={t("تطبيق NewGuildSettings على المجلد", "Apply NewGuildSettings to Folder")}
                 id="vc-newguildsettings-apply-folder"
                 icon={shouldAddIcon ? CogWheel : void 0}
+                leadingAccessory={shouldAddIcon ? { type: "icon", icon: CogWheel } : void 0}
                 action={async () => {
                     for (const guildId of folder.guildIds) {
                         applyDefaultSettings(guildId);
