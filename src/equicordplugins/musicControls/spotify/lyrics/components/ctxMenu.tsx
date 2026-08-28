@@ -35,6 +35,7 @@ export function LyricsContextMenu() {
                 disabled={!currLyric?.text}
                 action={() => copyWithToast(currLyric!.text!, t("تمّ نسخ السطر!", "Lyric copied!"))}
                 icon={CopyIcon}
+                leadingAccessory={{ type: "icon", icon: CopyIcon }}
             />
 
             <Menu.MenuItem

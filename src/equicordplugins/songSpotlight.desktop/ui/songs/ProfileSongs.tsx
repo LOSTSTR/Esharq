@@ -111,6 +111,7 @@ export default function ProfileSongs({ user, isSideBar }: ProfileSongsProps) {
                                                 id="edit-songs"
                                                 label={t("تعديل الأغاني", "Edit songs")}
                                                 icon={PencilIcon}
+                                                leadingAccessory={{ type: "icon", icon: PencilIcon }}
                                                 action={() => openSettingsModal()}
                                             />
                                         )}
@@ -118,6 +119,7 @@ export default function ProfileSongs({ user, isSideBar }: ProfileSongsProps) {
                                             id="copy-link"
                                             label={t("نسخ JSON", "Copy JSON")}
                                             icon={LinkIcon}
+                                            leadingAccessory={{ type: "icon", icon: LinkIcon }}
                                             action={() => copyWithToast(JSON.stringify(data))}
                                         />
                                     </Menu.Menu>

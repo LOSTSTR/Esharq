@@ -6,6 +6,7 @@
 
 import { BaseText } from "@components/BaseText";
 import { Heading } from "@components/Heading";
+import { BookCheckIcon, OpenExternalIcon, PencilIcon, StarFilled, StarOutlined, TrashIcon, UnsendIcon, WindowTopOutlineIcon, XLargeBoldIcon } from "@components/Icons";
 import { Paragraph } from "@components/Paragraph";
 import { bookmarkFolderColors, bookmarkPlaceholderName, closeOtherTabs, closeTab, closeTabsToTheLeft, closeTabsToTheRight, createTab, getDiscordFolderIcon, getDiscordFolderIconNames, hasClosedTabs, isBookmarkFolder, openedTabs, reopenClosedTab, settings, toggleCompactTab } from "@equicordplugins/channelTabs/util";
 import { Bookmark, BookmarkFolder, Bookmarks, ChannelTabsProps, UseBookmarkMethods } from "@equicordplugins/channelTabs/util/types";
@@ -414,6 +415,8 @@ export function BookmarkContextMenu({ bookmarks, index, methods }: { bookmarks: 
                 {bookmarkNotificationDot && !isFolder &&
                     <Menu.MenuItem
                         id="mark-as-read"
+                        icon={BookCheckIcon}
+                        leadingAccessory={{ type: "icon", icon: BookCheckIcon }}
                         label={getIntlMessage("MARK_AS_READ")}
                         disabled={!ReadStateStore.hasUnread(bookmark.channelId)}
                         action={() => ReadStateUtils.ackChannel(ChannelStore.getChannel(bookmark.channelId))}
@@ -423,11 +426,15 @@ export function BookmarkContextMenu({ bookmarks, index, methods }: { bookmarks: 
                     ? <Menu.MenuItem
                         id="open-all-in-folder"
                         label={"Open All Bookmarks"}
+                        icon={StarFilled}
+                        leadingAccessory={{ type: "icon", icon: StarFilled }}
                         action={() => bookmark.bookmarks.forEach(b => createTab(b))}
                     />
                     : < Menu.MenuItem
                         id="open-in-tab"
                         label={"Open in New Tab"}
+                        icon={OpenExternalIcon}
+                        leadingAccessory={{ type: "icon", icon: OpenExternalIcon }}
                         action={() => createTab(bookmark)}
                     />
                 }
@@ -436,6 +443,8 @@ export function BookmarkContextMenu({ bookmarks, index, methods }: { bookmarks: 
                 <Menu.MenuItem
                     id="edit-bookmark"
                     label={t("تعديل الإشارة المرجعية", "Edit Bookmark")}
+                    icon={PencilIcon}
+                    leadingAccessory={{ type: "icon", icon: PencilIcon }}
                     action={() => {
                         const key = openModal(modalProps =>
                             <EditModal
@@ -457,6 +466,8 @@ export function BookmarkContextMenu({ bookmarks, index, methods }: { bookmarks: 
                 <Menu.MenuItem
                     id="delete-bookmark"
                     label={t("حذف الإشارة المرجعية", "Delete Bookmark")}
+                    icon={TrashIcon}
+                    leadingAccessory={{ type: "icon", icon: TrashIcon }}
                     action={() => {
                         if (isFolder) {
                             const key = openModal(modalProps =>
@@ -475,6 +486,8 @@ export function BookmarkContextMenu({ bookmarks, index, methods }: { bookmarks: 
                 <Menu.MenuItem
                     id="add-to-folder"
                     label={t("إضافة الإشارة إلى مجلد", "Add Bookmark to Folder")}
+                    icon={PencilIcon}
+                    leadingAccessory={{ type: "icon", icon: PencilIcon }}
                     disabled={isFolder}
                     action={() => {
                         const key = openModal(modalProps =>
@@ -502,6 +515,8 @@ export function BookmarkContextMenu({ bookmarks, index, methods }: { bookmarks: 
                     checked={showBookmarkBar}
                     id="show-bookmark-bar"
                     label={t("شريط الإشارات المرجعية", "Bookmark Bar")}
+                    icon={StarOutlined}
+                    leadingAccessory={{ type: "icon", icon: StarOutlined }}
                     action={() => {
                         settings.store.showBookmarkBar = !settings.store.showBookmarkBar;
                     }}
@@ -527,6 +542,8 @@ export function TabContextMenu({ tab }: { tab: ChannelTabsProps; }) {
                     <Menu.MenuItem
                         id="mark-as-read"
                         label={getIntlMessage("MARK_AS_READ")}
+                        icon={BookCheckIcon}
+                        leadingAccessory={{ type: "icon", icon: BookCheckIcon }}
                         disabled={!ReadStateStore.hasUnread(channel.id)}
                         action={() => ReadStateUtils.ackChannel(channel)}
                     />
@@ -535,6 +552,8 @@ export function TabContextMenu({ tab }: { tab: ChannelTabsProps; }) {
                     checked={compact}
                     id="toggle-compact-tab"
                     label={t("مُدمج", "Compact")}
+                    icon={WindowTopOutlineIcon}
+                    leadingAccessory={{ type: "icon", icon: WindowTopOutlineIcon }}
                     action={() => {
                         setCompact(compact => !compact);
                         toggleCompactTab(tab.id);
@@ -545,28 +564,38 @@ export function TabContextMenu({ tab }: { tab: ChannelTabsProps; }) {
                 <Menu.MenuItem
                     id="close-tab"
                     label={t("إغلاق التبويب", "Close Tab")}
+                    icon={XLargeBoldIcon}
+                    leadingAccessory={{ type: "icon", icon: XLargeBoldIcon }}
                     action={() => closeTab(tab.id)}
                 />
                 <Menu.MenuItem
                     id="close-other-tabs"
                     label={t("إغلاق التبويبات الأخرى", "Close Other Tabs")}
+                    icon={XLargeBoldIcon}
+                    leadingAccessory={{ type: "icon", icon: XLargeBoldIcon }}
                     action={() => closeOtherTabs(tab.id)}
                 />
                 <Menu.MenuItem
                     id="close-right-tabs"
                     label={t("إغلاق التبويبات على اليمين", "Close Tabs to the Right")}
+                    icon={XLargeBoldIcon}
+                    leadingAccessory={{ type: "icon", icon: XLargeBoldIcon }}
                     disabled={openedTabs.indexOf(tab) === openedTabs.length - 1}
                     action={() => closeTabsToTheRight(tab.id)}
                 />
                 <Menu.MenuItem
                     id="close-left-tabs"
                     label={t("إغلاق التبويبات على اليسار", "Close Tabs to the Left")}
+                    icon={XLargeBoldIcon}
+                    leadingAccessory={{ type: "icon", icon: XLargeBoldIcon }}
                     disabled={openedTabs.indexOf(tab) === 0}
                     action={() => closeTabsToTheLeft(tab.id)}
                 />
                 <Menu.MenuItem
                     id="reopen-closed-tab"
                     label={t("إعادة فتح التبويب المغلق", "Reopen Closed Tab")}
+                    icon={UnsendIcon}
+                    leadingAccessory={{ type: "icon", icon: UnsendIcon }}
                     disabled={!hasClosedTabs()}
                     action={() => reopenClosedTab()}
                 />
@@ -576,6 +605,8 @@ export function TabContextMenu({ tab }: { tab: ChannelTabsProps; }) {
                     checked={showBookmarkBar}
                     id="show-bookmark-bar"
                     label={t("شريط الإشارات المرجعية", "Bookmark Bar")}
+                    icon={StarOutlined}
+                    leadingAccessory={{ type: "icon", icon: StarOutlined }}
                     action={() => {
                         settings.store.showBookmarkBar = !settings.store.showBookmarkBar;
                     }}

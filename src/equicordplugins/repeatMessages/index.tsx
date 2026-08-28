@@ -99,6 +99,7 @@ const messageCtxPatch: NavContextMenuPatchCallback = (children, { msg }: { msg: 
             id="vc-repeat"
             label={shift ? t("تكرار ورد", "Repeat and Reply") : t("تكرار", "Repeat")}
             icon={RepeatMessageIcon}
+            leadingAccessory={{ type: "icon", icon: RepeatMessageIcon }}
             action={async () => repeatMessage(msg)}
         />
     ));

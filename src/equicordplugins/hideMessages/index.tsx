@@ -66,6 +66,7 @@ const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }: { m
             id="vc-hidemessages"
             label={t("إخفاء", "Hide")}
             icon={EyeIcon}
+            leadingAccessory={{ type: "icon", icon: EyeIcon }}
             action={() => hideMessage(message.id, message.channel_id)}
         />
     ));
@@ -85,6 +86,7 @@ const userCtxPatch: NavContextMenuPatchCallback = (children, { channel }: UserCo
             id="vc-hidemessages-dm"
             label={hidden ? "Unhide DM" : t("إخفاء الرسالة الخاصّة", "Hide DM")}
             icon={EyeIcon}
+            leadingAccessory={{ type: "icon", icon: EyeIcon }}
             action={() => toggleDm(channel.id)}
         />
     ));

@@ -139,11 +139,6 @@ export const settings = definePluginSettings({
         type: OptionType.COMPONENT,
         default: {}
     },
-    noPomeloNames: {
-        description: t("استخدام الأسماء المعروضة بدلاً من أسماء المستخدمين في الرسائل المباشرة", "Use display names instead of usernames in direct messages"),
-        type: OptionType.BOOLEAN,
-        default: false
-    },
     showStatusIndicators: {
         description: t("إظهار مؤشرات الحالة في الرسائل المباشرة", "Show status indicators in direct messages"),
         type: OptionType.BOOLEAN,

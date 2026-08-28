@@ -257,22 +257,25 @@ export function QuestFeaturesSetting(): JSX.Element {
             <SettingsNotice className={["notice-card-red", questFeatures.disableQuestsEverything ? "dimmed-settings-item" : undefined, questFeatures.allowChangingDangerousSettings ? undefined : "notice-card-solo", "no-bottom-margin"].filter(c => c !== undefined)}>
                 <SettingsParagraph>
                     {t(
-                        "طبّق Discord نظام حظر من المهام يقيّد وصولك — مؤقتاً أو دائماً — إلى إكمال المهام والمطالبة بمكافآتها إذا تبيّن أنك تكملها بوسائل غير رسمية. تعديل طريقة إكمال المهام مخالف لـ",
-                        "Discord has implemented a Quest Ban system which will temporarily or permanently limit your access to completing Quests and claiming their rewards if you are found to be completing them through unofficial means. Modifying the completion of Quests is against their "
+                        "من المعروف أن Discord يعاقب مستخدمي السكربتات أو الإضافات التي تعدّل طريقة إكمال المهام. تعديل طريقة إكمال المهام مخالف لـ",
+                        "Discord is known to punish users of scripts or plugins that modify the completion of Quests. Modifying the completion of Quests is against Discord's "
                     )}<a href="https://discord.com/safety/platform-manipulation-policy-explainer" target="_blank" rel="noreferrer">{t("شروط الخدمة", "Terms of Service")}</a>{t(".", ".")}
                 </SettingsParagraph>
                 <br />
                 <SettingsParagraph>
                     {t(
-                        "يبدو أن العقوبة تقتصر على فقدان الوصول إلى المهام ومكافآتها، لكن Discord قد يشدّدها في أي وقت.",
-                        "The punishment appears limited to loss of access to Quests and their rewards, but Discord may escalate at any time."
-                    )}
+                        "تتمثّل العقوبة في فقدان الوصول إلى المهام ومكافآتها مؤقتاً أو دائماً. ",
+                        "The punishment consists of a temporary or permanent loss of access to Quests and their rewards. "
+                    )}<strong>{t(
+                        "كما تتضمّن العقوبة مخالفةً في سِجلّ الحساب تدوم سنتين لكل مخالفة.",
+                        "The punishment also consists of an account standing violation which lasts 2 years per violation."
+                    )}</strong>
                 </SettingsParagraph>
                 <br />
                 <SettingsParagraph>
                     {t(
-                        "نظراً للأساليب المتعددة التي يستخدمها Discord لتتبع المستخدمين، لا توجد طريقة واقعية لتجنب الاكتشاف. إذا تابعت، فافهم أن Discord على الأرجح سيكتشف ذلك في مرحلة ما.",
-                        "Due to Discord's multiple tracking methods, there is no practical way to avoid detection. If you proceed, understand that Discord will likely detect it at some point."
+                        "نظراً للأساليب المتعددة التي يستخدمها Discord لتتبع المستخدمين، لا توجد طريقة واقعية لتجنّب الاكتشاف. إذا تابعت، فافهم أن Discord على الأرجح سيكتشف استخدامك في مرحلة ما.",
+                        "Due to the various methods Discord uses to track users, there's no way to realistically evade detection. If you proceed, understand that Discord likely will detect your use at some point."
                     )}
                 </SettingsParagraph>
                 <br />

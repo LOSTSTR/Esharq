@@ -24,6 +24,10 @@ export default definePluginI18n({
             "ar": "تسجيل الرسائل المحذوفة",
             "en": "Log deleted messages."
         },
+        "logDeletedAttachments": {
+            "ar": "تسجيل المرفقات المحذوفة",
+            "en": "Log deleted attachments."
+        },
         "collapseDeleted": {
             "ar": "طي الرسائل المحذوفة، مشابهاً لطي الرسائل المحجوبة",
             "en": "Collapse deleted messages by default."

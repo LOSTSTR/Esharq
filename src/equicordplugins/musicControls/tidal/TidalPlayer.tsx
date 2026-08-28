@@ -83,6 +83,7 @@ function CopyContextMenu({ name, path }: { name: string; path: string; }) {
                 label={`Copy ${name} Link`}
                 action={() => copyWithToast(path.replace("http://", "https://"))}
                 icon={LinkIcon}
+                leadingAccessory={{ type: "icon", icon: LinkIcon }}
             />
             <Menu.MenuItem
                 key={openId}
@@ -90,6 +91,7 @@ function CopyContextMenu({ name, path }: { name: string; path: string; }) {
                 label={`Open ${name} in Tidal`}
                 action={() => TidalStore.openExternal(path)}
                 icon={OpenExternalIcon}
+                leadingAccessory={{ type: "icon", icon: OpenExternalIcon }}
             />
         </Menu.Menu>
     );
@@ -223,6 +225,7 @@ function AlbumContextMenu({ track }: { track: PlayerState["track"]; }) {
                 label={t("عرض غلاف الألبوم", "View Album Cover")}
                 action={() => track?.imageSrc && openImageModal({ url: track.imageSrc })}
                 icon={ImageIcon}
+                leadingAccessory={{ type: "icon", icon: ImageIcon }}
             />
             <Menu.MenuControlItem
                 id="tdl-volume"

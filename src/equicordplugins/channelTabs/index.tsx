@@ -8,6 +8,7 @@ import "./style.css";
 
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
 import ErrorBoundary from "@components/ErrorBoundary";
+import { LinkIcon } from "@components/Icons";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
@@ -26,6 +27,8 @@ const contextMenuPatch: NavContextMenuPatchCallback = (children, props: { channe
         <Menu.MenuItem
             label={t("فتح في تبويب جديد", "Open in New Tab")}
             id="open-link-in-tab"
+            icon={LinkIcon}
+            leadingAccessory={{ type: "icon", icon: LinkIcon }}
             action={() => createTab({
                 guildId: channel.guild_id || "@me", // Normalize for DMs/Group Chats
                 channelId: channel.id

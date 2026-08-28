@@ -39,6 +39,7 @@ const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }) => 
             id="ec-trans"
             label={t("ترجمة", "Translate")}
             icon={Icon}
+            leadingAccessory={{ type: "icon", icon: Icon }}
             action={() => handleTranslate(message)}
         />
     ));

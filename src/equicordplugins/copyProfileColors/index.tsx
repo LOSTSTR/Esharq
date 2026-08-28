@@ -95,6 +95,7 @@ const userContextMenuPatch: NavContextMenuPatchCallback = (children, { user, gui
         <Menu.MenuItem
             id="CopyProfileColors"
             icon={ColorIcon}
+            leadingAccessory={{ type: "icon", icon: ColorIcon }}
             label={t("نسخ ألوان الملف الشخصي", "Copy Profile Colors")}
             action={() => copyProfileColors(user.id)}
         />
@@ -105,6 +106,7 @@ const userContextMenuPatch: NavContextMenuPatchCallback = (children, { user, gui
             <Menu.MenuItem
                 id="CopyServerProfileColors"
                 icon={ColorIcon}
+                leadingAccessory={{ type: "icon", icon: ColorIcon }}
                 label={t("نسخ ألوان ملف السيرفر", "Copy Server Profile Colors")}
                 action={() => copyProfileColors(user.id, effectiveGuildId)}
             />

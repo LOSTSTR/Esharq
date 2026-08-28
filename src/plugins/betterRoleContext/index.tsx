@@ -252,6 +252,7 @@ export default definePlugin({
                         label={t("نسخ لون الرتبة", "Copy Role Color")}
                         action={() => copyToClipboard(role.colorString!)}
                         icon={AppearanceIcon}
+                        leadingAccessory={{ type: "icon", icon: AppearanceIcon }}
                     />
                 );
             }
@@ -266,6 +267,7 @@ export default definePlugin({
                             GuildSettingsActions.selectRole(id);
                         }}
                         icon={PencilIcon}
+                        leadingAccessory={{ type: "icon", icon: PencilIcon }}
                     />
                 );
             }
@@ -278,6 +280,7 @@ export default definePlugin({
                         label={t("عرض أيقونة الرتبة", "View Role Icon")}
                         action={() => openRoleIconModal(role.id, roleIcon, role.name)}
                         icon={ImageIcon}
+                        leadingAccessory={{ type: "icon", icon: ImageIcon }}
                     />
 
                 );

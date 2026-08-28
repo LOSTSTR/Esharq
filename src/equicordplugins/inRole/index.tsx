@@ -96,6 +96,7 @@ export default definePlugin({
                         showInRoleModal(getMembersInRole(role.id, guild.id), role.id, channel.id);
                     }}
                     icon={InfoIcon}
+                    leadingAccessory={{ type: "icon", icon: InfoIcon }}
                 />
             );
         },
@@ -122,6 +123,7 @@ export default definePlugin({
                         showInRoleModal(getMembersInRole(role.id, guild.id), role.id, channel.id);
                     }}
                     icon={InfoIcon}
+                    leadingAccessory={{ type: "icon", icon: InfoIcon }}
                 />
             );
         }

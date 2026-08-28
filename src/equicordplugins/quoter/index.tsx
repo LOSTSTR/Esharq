@@ -79,6 +79,7 @@ export default definePlugin({
                     id="vc-quote"
                     label={t("اقتباس", "Quote")}
                     icon={QuoteIcon}
+                    leadingAccessory={{ type: "icon", icon: QuoteIcon }}
                     action={() => openModal(props => <QuoteModal message={message} {...props} />)}
                 />
             );

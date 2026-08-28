@@ -26,6 +26,7 @@ const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }: { m
             id="vc-trivia-ai"
             label={t("الإجابة بالذكاء الاصطناعي", "Answer With AI")}
             icon={RobotIcon}
+            leadingAccessory={{ type: "icon", icon: RobotIcon }}
             action={async () => {
                 const payload = await getPayload(message);
                 if (!payload) return;
