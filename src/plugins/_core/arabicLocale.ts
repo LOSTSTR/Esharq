@@ -10,7 +10,9 @@ import {
     ARABIC_TABLE_GLOBAL, type ArabicMessageTable, installArabicTable,
     MESSAGE_LOADER_ANCHOR, MESSAGE_LOADER_PATTERN,
     MESSAGE_LOADER_REPLACEMENT } from "@utils/esharqLocale";
+import { readGregorianDates } from "@utils/esharqPrefs";
 import { forceGregorianForArabic } from "@utils/gregorianCalendar";
+import { setGregorianDates } from "@utils/gregorianDates";
 import definePlugin from "@utils/types";
 import { moment, UserSettingsActionCreators } from "@webpack/common";
 
@@ -89,6 +91,14 @@ export default definePlugin({
      * هنا وحده لأنّ المُدَد النسبية تُحسَب عند رسم الرسالة لا عند الإقلاع.
      */
     start() {
+        // خيار تحويل التاريخ الهجريّ إلى ميلاديّ (مُطفأ افتراضياً): مستقلٌّ عن
+        // بوّابة اللغة أدناه فلا يُلغيه خروجُها المبكّر، وآمنٌ إن لم يُفعَّل.
+        try {
+            if (readGregorianDates()) setGregorianDates(true);
+        } catch {
+            // مخزن الإعدادات قد يسبق تهيئته — يُفعَّل لاحقاً من صفحة اللغة.
+        }
+
         try {
             const locale = UserSettingsActionCreators.PreloadedUserSettingsActionCreators
                 .getCurrentValue().localization.locale.value ?? "en-US";

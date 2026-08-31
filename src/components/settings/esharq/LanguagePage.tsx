@@ -11,7 +11,8 @@ import { FormSwitch } from "@components/FormSwitch";
 import { applyArabicFont, ARABIC_FONTS } from "@utils/esharqFont";
 import { t } from "@utils/esharqI18n";
 import { ARABIC_LOCALE, arabicTableSize } from "@utils/esharqLocale";
-import { readArabicFont, readPluginsArabic, writeEsharqPref } from "@utils/esharqPrefs";
+import { readArabicFont, readGregorianDates, readPluginsArabic, writeEsharqPref } from "@utils/esharqPrefs";
+import { setGregorianDates } from "@utils/gregorianDates";
 import { relaunch } from "@utils/native";
 import { Alerts, Forms, Select, UserSettingsActionCreators, useState } from "@webpack/common";
 
@@ -79,6 +80,7 @@ export function LanguagePage() {
     // معطوباً. الآن يُعرَض الفعل نفسه، ويبقى معروضاً إن أُغلق التنبيه.
     const [restartPending, setRestartPending] = useState(false);
     const [font, setFont] = useState(String(readArabicFont() ?? "tajawal"));
+    const [gregorian, setGregorian] = useState(readGregorianDates());
 
     const arabicOn = locale === ARABIC_LOCALE;
     const translated = arabicTableSize();
@@ -201,6 +203,31 @@ export function LanguagePage() {
                     {t("الخطوط مضمّنة في العميل — لا تُحمَّل من الشبكة ولا تُبلَّغ أي جهة.",
                         "The fonts ship inside the client — nothing is downloaded and nothing is reported anywhere.")}
                 </Forms.FormText>
+            </Card>
+
+            <Card
+                index={3}
+                title={t("تقويم التاريخ", "Date calendar")}
+                subtitle={t(
+                    "يعرض بعض إصدارات ديسكورد التواريخ بالتقويم الهجريّ عند اختيار العربية. فعّل هذا الخيار لعرضها بالتقويم الميلاديّ.",
+                    "Some Discord builds show dates in the Hijri calendar when Arabic is selected. Enable this to show them in the Gregorian calendar instead."
+                )}
+            >
+                <FormSwitch
+                    value={gregorian}
+                    onChange={(value: boolean) => {
+                        // يُطبَّق فوراً بلا إعادة تشغيل: تشغيلٌ/إيقافٌ للمراقب مباشرةً.
+                        writeEsharqPref("gregorianDates", value);
+                        setGregorian(value);
+                        setGregorianDates(value);
+                    }}
+                    title={t("عرض التواريخ بالميلادي بدل الهجري", "Show dates in Gregorian instead of Hijri")}
+                    description={t(
+                        "يحوّل طوابع الرسائل والفواصل من التقويم الهجري إلى الميلادي. يُطبَّق فوراً، ولا يمسّ ديسكورد نفسه.",
+                        "Converts message timestamps and date dividers from the Hijri to the Gregorian calendar. Applies instantly and does not modify Discord itself."
+                    )}
+                    hideBorder
+                />
             </Card>
         </div>
     );

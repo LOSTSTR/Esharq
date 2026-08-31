@@ -35,17 +35,23 @@ const PLUGIN = "DiscordArabicizer";
 const LEGACY_PLUGIN = "Settings";
 
 type PluginStore = Record<string, Record<string, unknown> | undefined> | undefined;
-type PrefKey = "pluginsArabic" | "arabicFont";
+type PrefKey = "pluginsArabic" | "arabicFont" | "gregorianDates";
 
 /** قيمة مخزّنة صراحةً في إضافة (أو undefined إن لم يلمسها المستخدم قط). */
 function storedInPlugin(plugin: string, key: string): unknown {
     return (PlainSettings.plugins as PluginStore)?.[plugin]?.[key];
 }
 
-/** المفتاح المقابل في الموضع الأقدم — اسمه مختلف للغة، ومطابق للخطّ. */
+/**
+ * المفتاح المقابل في الموضع الأقدم — اسمه مختلف للغة، ومطابق للخطّ.
+ * 🔴 `gregorianDates` مفتاحٌ جديد لا موضع قديم له، فيُطابَق باسمه نفسه:
+ * `inheritedValue` تبحث عنه في المواضع القديمة فلا تجده (لم يُخزَّن هناك قطّ)
+ * وتعود `undefined`، فيُقرأ من موضع إشراق مباشرةً بلا ترحيل.
+ */
 const LEGACY_KEY: Record<PrefKey, string> = {
     pluginsArabic: "arabicMode",
-    arabicFont: "arabicFont"
+    arabicFont: "arabicFont",
+    gregorianDates: "gregorianDates"
 };
 
 /** أحدث موضع قديم فيه قيمة صريحة لهذا المفتاح. */
@@ -142,4 +148,12 @@ export function readPluginsArabic(): boolean {
  */
 export function readArabicFont(): unknown {
     return read("arabicFont");
+}
+
+/**
+ * تحويل التواريخ الهجرية المعروضة إلى ميلادية. **مُطفأ افتراضياً** —
+ * ميزة اختيارية يُفعّلها المستخدم من صفحة اللغة. القيمة غير المحدَّدة = مُطفأ.
+ */
+export function readGregorianDates(): boolean {
+    return read("gregorianDates") === true;
 }
