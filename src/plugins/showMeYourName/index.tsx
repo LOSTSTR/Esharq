@@ -16,7 +16,7 @@ import { Heading } from "@components/Heading";
 import ircColors from "@plugins/ircColors";
 import mentionAvatars from "@plugins/mentionAvatars";
 import { Devs, EquicordDevs } from "@utils/constants";
-import { getCurrentChannel } from "@utils/discord";
+import { getCurrentChannel, getCurrentGuild } from "@utils/discord";
 import { t } from "@utils/esharqI18n";
 import { classNameFactory } from "@utils/index";
 import definePlugin, { OptionType } from "@utils/types";
@@ -386,7 +386,7 @@ interface messageProps {
 
 interface memberListProfileReactionProps {
     user: User | null | undefined;
-    type: "typingIndicator" | "membersList" | "profilesPopout" | "profilesTooltip" | "reactionsTooltip" | "reactionsPopout" | "voiceChannel" | "searchAutocomplete";
+    type: "typingIndicator" | "membersList" | "profilesPopout" | "profilesTooltip" | "reactionsTooltip" | "reactionsPopout" | "voiceChannel" | "searchAutocomplete" | "searchAutocompleteDropdown";
     guildId?: string;
     tags?: any;
     isHovered?: boolean;
@@ -399,6 +399,14 @@ interface activeNowNameProps {
 }
 
 type colorStringsType = { primaryColor: string | null, secondaryColor: string | null, tertiaryColor: string | null; } | null | undefined;
+
+function wrapFilterResults(options: { id: string, label: string; }[]) {
+    return options.map(item => {
+        const name = getTypingMemberListProfilesReactionsVoiceNameText({ user: UserStore.getUser(item.id), guildId: getCurrentGuild()?.id, type: "searchAutocompleteDropdown" });
+        item.label = name ?? item.label;
+        return item;
+    });
+}
 
 function addCustomNameResults(
     results: SearchUserResult[],
@@ -458,7 +466,7 @@ function getTypingMemberListProfilesReactionsVoiceName(
     const guildId = props.guildId || props.tags?.props?.displayProfile?.guildId || null;
     const member = guildId && user ? GuildMemberStore.getMember(guildId, user.id) : null;
     const author = user && member ? { ...user, ...member } : user || member || null;
-    const shouldHookless = ["typingIndicator", "reactionsTooltip", "profilesTooltip"].includes(type);
+    const shouldHookless = ["typingIndicator", "reactionsTooltip", "profilesTooltip", "searchAutocompleteDropdown"].includes(type);
     return renderUsername(author, null, null, type, "", shouldHookless, !!guildId, undefined, undefined, props.isHovered);
 }
 
@@ -665,7 +673,7 @@ function renderUsername(
     author: User | GuildMember | null,
     channelId: string | null,
     messageId: string | null,
-    type: "messages" | "replies" | "typingIndicator" | "mentions" | "membersList" | "profilesPopout" | "profilesTooltip" | "reactionsTooltip" | "reactionsPopout" | "voiceChannel" | "searchAutocomplete",
+    type: "messages" | "replies" | "typingIndicator" | "mentions" | "membersList" | "profilesPopout" | "profilesTooltip" | "reactionsTooltip" | "reactionsPopout" | "voiceChannel" | "searchAutocomplete" | "searchAutocompleteDropdown",
     mentionSymbol: string,
     hookless: boolean,
     inGuild: boolean,
@@ -678,7 +686,7 @@ function renderUsername(
     const isMention = type === "mentions";
     const isTyping = type === "typingIndicator";
     const isMember = type === "membersList";
-    const isAutocomplete = type === "searchAutocomplete";
+    const isAutocomplete = ["searchAutocomplete", "searchAutocompleteDropdown"].includes(type);
     const isProfile = type === "profilesPopout";
     const isReactionsPopout = type === "reactionsPopout";
     const isReactionsTooltip = type === "reactionsTooltip";
@@ -1201,7 +1209,7 @@ const settings = definePluginSettings({
     searchAutocomplete: {
         type: OptionType.BOOLEAN,
         default: true,
-        description: "Display the first available name listed in your custom name format in mention and search autocomplete",
+        description: "Display the first available name listed in your custom name format in mention and search autocomplete.",
     },
     profilePopout: {
         type: OptionType.BOOLEAN,
@@ -1618,11 +1626,19 @@ export default definePlugin({
             }
         },
         {
-            // Replace names in the from: and mentions: search filter suggestions.
+            // Replace names in the search filter suggestions.
             find: "hasOtherSearchFiltersVisible",
             replacement: {
                 match: /(\i)=(\i\.\i\.useName\((\i),\i,(\i)\))/,
                 replace: '$1=$self.getTypingMemberListProfilesReactionsVoiceNameText({user:$4,guildId:$3,type:"searchAutocomplete"})??$2'
+            }
+        },
+        {
+            // Replace names in the popup modal search filter suggestions.
+            find: "selectionMode:\"single\",formatOption",
+            replacement: {
+                match: /(?<=trailing:\i}},options:)(\i)(,placeholder)/,
+                replace: "$self.wrapFilterResults($1)$2"
             }
         },
         {
@@ -1686,4 +1702,5 @@ export default definePlugin({
     getTypingMemberListProfilesReactionsVoiceNameElement,
     matchableCustomName,
     addCustomNameResults,
+    wrapFilterResults,
 });
