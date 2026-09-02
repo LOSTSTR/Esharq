@@ -21,7 +21,7 @@ const ProfileCardClasses = findCssClassesLazy("cardsList", "firstCardContainer",
 const ProfileCardContainerClasses = findCssClassesLazy("innerContainer", "icons", "icon", "displayCount", "displayCountText", "displayCountTextColor", "breadcrumb");
 const ProfileCardOverlayClasses = findCssClassesLazy("overlay", "isPrivate", "outer");
 
-export function ProfilePopoutComponent({ id, isSideBar = false }: { id: string, isSideBar?: boolean; }) {
+export function ProfilePopoutComponent({ id, isSideBar = false, isRedesignEnabled = false }: { id: string, isSideBar?: boolean; isRedesignEnabled?: boolean; }) {
     const [repos, setRepos] = useState<GitHubRepo[]>([]);
     const [groups, setGroups] = useState<RepoGroup[]>([]);
     const [loading, setLoading] = useState(true);
@@ -121,7 +121,7 @@ export function ProfilePopoutComponent({ id, isSideBar = false }: { id: string, 
         </section>
     );
 
-    return isSideBar
+    return isSideBar && !isRedesignEnabled
         ? <div className={DMSideBarClasses.widgetPreviews}>{reposSection}</div>
         : reposSection;
 }

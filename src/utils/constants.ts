@@ -1444,6 +1444,14 @@ export const EquicordDevs = Object.freeze({
         name: "k304",
         id: 255004979637649408n
     },
+    ELJoOker: {
+        name: "ELJoOker",
+        id: 605894319408283678n
+    },
+    penguinwokrs: {
+        name: "penguinwokrs",
+        id: 385266832136863746n
+    },
 } satisfies Record<string, Dev>);
 
 // بذور رتب إشراق — احتياطٌ مُصرَّف يعمل بلا شبكة وبلا وميض عند الإقلاع.

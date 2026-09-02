@@ -8,8 +8,8 @@ import { definePluginI18n } from "@utils/i18n/types";
 
 export default definePluginI18n({
     "description": {
-        "ar": "يعرض اسم المستخدم الأصلي بجانب اللقب",
-        "en": "Shows the original username next to the display name."
+        "ar": "اعرض أيّ ترتيبٍ من الألقاب المخصّصة وألقاب الأصدقاء وألقاب الخوادم والأسماء المعروضة وأسماء المستخدمين في المحادثة.",
+        "en": "Display any permutation of custom nicknames, friend nicknames, server nicknames, display names, and usernames in chat."
     },
     "options": {
         "messages": {
@@ -23,6 +23,10 @@ export default definePluginI18n({
         "mentions": {
             "ar": "عرض تنسيق الاسم المخصص في الإشارات.",
             "en": "Show usernames in mentions."
+        },
+        "searchAutocomplete": {
+            "ar": "عرض أول اسم متاح في تنسيق الاسم المخصص في الإكمال التلقائيّ للإشارات والبحث.",
+            "en": "Display the first available name listed in your custom name format in mention and search autocomplete"
         },
         "typingIndicator": {
             "ar": "عرض أول اسم متاح في تنسيق الاسم المخصص في مؤشر الكتابة.",
