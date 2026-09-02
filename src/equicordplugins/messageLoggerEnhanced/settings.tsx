@@ -9,9 +9,10 @@ import { Button } from "@components/Button";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { t } from "@utils/esharqI18n";
 import { OptionType } from "@utils/types";
-import { Alerts, useState } from "@webpack/common";
+import { useState } from "@webpack/common";
 
-import { clearLogs, Native } from ".";
+import { Native } from ".";
+import { ClearLogsButton } from "./components/ClearLogsButton";
 import { ImageCacheDir, LogsDir } from "./components/FolderSelectInput";
 import { openLogModal } from "./components/LogsModal";
 import { blockedExts } from "./list";
@@ -296,23 +297,8 @@ export const settings = definePluginSettings({
 
     clearLogs: {
         type: OptionType.COMPONENT,
-        description: t("مسح السجلات", "Clear logs"),
-        component: () =>
-            <Button
-                variant="dangerPrimary"
-                onClick={() => Alerts.show({
-                    title: t("مسح السجلات", "Clear Logs"),
-                    body: t("هل أنت متأكد أنك تريد مسح جميع السجلات؟", "Are you sure you want to clear all logs?"),
-                    confirmVariant: "critical-primary",
-                    confirmText: t("مسح", "Clear"),
-                    cancelText: t("إلغاء", "Cancel"),
-                    onConfirm: async () => {
-                        await clearLogs();
-                    },
-                })}
-            >
-                {t("مسح السجلات", "Clear Logs")}
-            </Button>
+        description: t("مسح السجلات", "Clear Logs"),
+        component: () => <ClearLogsButton />
     },
 
 });

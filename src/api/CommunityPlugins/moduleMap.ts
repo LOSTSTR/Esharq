@@ -49,7 +49,6 @@ import * as C_api_CommunityPlugins from "@api/CommunityPlugins";
 import * as C_api_CommunityPlugins_moduleMap from "@api/CommunityPlugins/moduleMap";
 import * as ContextMenu from "@api/ContextMenu";
 import * as DataStore from "@api/DataStore";
-import * as C_api_GifPickerContextMenu from "@api/GifPickerContextMenu";
 import * as C_api_HeaderBar from "@api/HeaderBar";
 import * as Api from "@api/index";
 import * as MemberListDecorators from "@api/MemberListDecorators";
@@ -356,7 +355,6 @@ function buildMap(): Record<string, any> {
         "@api/Commands/types": C_api_Commands_types,
         "@api/CommunityPlugins": C_api_CommunityPlugins,
         "@api/CommunityPlugins/moduleMap": C_api_CommunityPlugins_moduleMap,
-        "@api/GifPickerContextMenu": C_api_GifPickerContextMenu,
         "@api/HeaderBar": C_api_HeaderBar,
         "@api/MessageDecorations": C_api_MessageDecorations,
         "@api/NicknameIcons": C_api_NicknameIcons,
