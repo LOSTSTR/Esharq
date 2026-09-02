@@ -116,12 +116,50 @@ export type MessageBranches = Readonly<Record<string, readonly MessagePart[]>>;
 /** الجدول كما يفهمه ديسكورد: مفتاح مُجزَّأ ← شجرة أجزاء. */
 export type ArabicMessageTable = Readonly<Record<string, readonly MessagePart[]>>;
 
+// 🔴 عزل ثنائي الاتجاه للجدول كلّه — نفس ما يفعله `t()` لسلاسل الإضافات
+// (RLI U+2067 … PDI U+2069)، لكن لرسائل ديسكورد نفسه.
+//
+// ── لماذا يلزم ────────────────────────────────────────────────────────
+// «ar» ليست في قائمة لغات ديسكورد، فلا يضبط لها اتجاه الصفحة RTL؛ تبقى
+// الحاوية LTR. والنصّ العربيّ الخالص يُقرأ صحيحاً فيها، لكنّ الرسالة
+// **المختلطة** (سعرٌ أو رقمٌ أو إنجليزيّ وسط العربيّ) يعيد خوارزم bidi
+// ترتيبَها بصرياً فتنكسر. قِيس حيّاً على خطط نيترو: «تبدأ الخطط من
+// {IDR 29,000} شهرياً…» تُعرَض «…شهرياً وألغِ متى شئت IDR تبدأ الخطط من
+// 29,000». ولفُّ الرسالة بـ RLI…PDI يفرض RTL ويعزلها عن اتجاه الحاوية،
+// فيُصلح كلّ الرسائل المختلطة دفعةً — لا رسالةً رسالة.
+const RLI = String.fromCharCode(0x2067);
+const PDI = String.fromCharCode(0x2069);
+const HAS_ARABIC = /[؀-ۿ]/;
+
+/** فحصٌ متدرّجٌ يلتقط العربيّ ولو كان داخل وسمٍ أو فرعِ جمع؛ يقصُر عند أوّل حرف. */
+function hasArabic(node: unknown): boolean {
+    if (typeof node === "string") return HAS_ARABIC.test(node);
+    if (Array.isArray(node)) {
+        for (const child of node) if (hasArabic(child)) return true;
+        return false;
+    }
+    if (node && typeof node === "object") {
+        for (const key of Object.keys(node)) if (hasArabic((node as Record<string, unknown>)[key])) return true;
+    }
+    return false;
+}
+
+/** يلفّ الرسالة بعازل RTL إن حوت عربياً — كـ`t()` تماماً. */
+function isolateRtl(parts: readonly MessagePart[]): readonly MessagePart[] {
+    return hasArabic(parts) ? [RLI, ...parts, PDI] : parts;
+}
+
 /**
  * يُثبّت الجدول على الكائن العام **قبل** تنفيذ أي وحدة رسائل.
  * الكود المُعدَّل يقرأه من هناك، فوجوده مبكراً شرط لا رفاهية.
+ *
+ * 🔴 يُعزَل كلّ نصٍّ عربيّ بـ RLI…PDI هنا (مرّةً عند التثبيت)، فلا تتشظّى
+ * الرسائل المختلطة في حاوية ديسكورد اللاتينية. انظر التعليق أعلاه.
  */
 export function installArabicTable(table: ArabicMessageTable): void {
-    (globalThis as Record<string, unknown>)[ARABIC_TABLE_GLOBAL] = table;
+    const isolated: Record<string, readonly MessagePart[]> = {};
+    for (const key of Object.keys(table)) isolated[key] = isolateRtl(table[key]);
+    (globalThis as Record<string, unknown>)[ARABIC_TABLE_GLOBAL] = isolated;
 }
 
 /** هل الجدول مُثبَّت؟ يُستعمل في التشخيص لا في المسار الساخن. */
