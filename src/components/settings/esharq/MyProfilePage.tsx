@@ -7,15 +7,25 @@
 import "./myProfile.css";
 
 import { _getBadges } from "@api/Badges";
+import { isPluginEnabled } from "@api/PluginManager";
 import ErrorBoundary from "@components/ErrorBoundary";
+import { FormSwitch } from "@components/FormSwitch";
 import { Switch } from "@components/Switch";
+import {
+    getIdentity, isFakeProfileOn, isValidCreatedAt, type LocalIdentity,
+    onIdentityChange, setFakeProfile, setIdentityField
+} from "@esharqplugins/myBadges/localIdentity";
+import {
+    clearOfficial, isOfficialOn, OFFICIAL_BADGES, OFFICIAL_GROUPS,
+    type OfficialGroup, onOfficialChange, selectedOfficialBadges, toggleOfficial
+} from "@esharqplugins/myBadges/officialBadges";
 import { getEsharqEntitlements, getSelfServeBadges } from "@plugins/_api/badges";
 import {
     type BadgeKind, fetchRemote, hasLink, isHiddenLocally, onLinkChange,
     type RemoteState, setHiddenLocally, setRemote
 } from "@plugins/_api/badges/control";
 import { t } from "@utils/esharqI18n";
-import { useEffect, useMemo, UserStore, useState } from "@webpack/common";
+import { useEffect, useMemo, useReducer, UserStore, useState } from "@webpack/common";
 
 import { Card, NoticeStrip } from "./Card";
 import { stagger } from "./motion";
@@ -262,7 +272,122 @@ function BadgeShowcase({ badge, index, busy, onToggle }: {
     );
 }
 
+/**
+ * منتقي شارات ديسكورد الرسمية — تبويبٌ لكل مجموعة، وشبكةُ بلاطاتٍ تُنقَر.
+ * الاختيار محلّيٌّ بحت: يُحفظ عندك ويرسمه عميلك وحده، ولا يُرسَل شيء.
+ */
+/**
+ * هويّتك المحلّية — ثلاثة حقول تُطبَّق فور الكتابة، والفارغ يعني «اترك الحقيقيّ».
+ */
+function LocalIdentityFields({ real }: { real: { name: string; tag: string; }; }) {
+    const [, bump] = useReducer((n: number) => n + 1, 0);
+    useEffect(() => onIdentityChange(bump), []);
+    const id = getIdentity();
+
+    const field = (
+        key: keyof LocalIdentity,
+        label: string,
+        placeholder: string,
+        invalid?: boolean
+    ) => (
+        <label className="esharq-mp-field">
+            <span className="esharq-mp-field-label">{label}</span>
+            <input
+                className={"esharq-mp-input" + (invalid ? " bad" : "")}
+                type="text"
+                value={id[key] ?? ""}
+                placeholder={placeholder}
+                spellCheck={false}
+                onChange={e => setIdentityField(key, e.currentTarget.value)}
+            />
+        </label>
+    );
+
+    const dateBad = !!id.createdAt && !isValidCreatedAt(id.createdAt);
+
+    return (
+        <>
+            <div className="esharq-mp-fields">
+                {field("displayName", t("الاسم المعروض", "Display name"), real.name)}
+                {field("username", t("اسم المستخدم", "Username"), real.tag)}
+                {field("createdAt", t("تاريخ إنشاء الحساب", "Account created"), "2015-05-13", dateBad)}
+            </div>
+            {dateBad && (
+                <NoticeStrip tone="danger">
+                    {t("التاريخ بصيغة YYYY-MM-DD ولا يكون في المستقبل.",
+                        "Use YYYY-MM-DD, and not a date in the future.")}
+                </NoticeStrip>
+            )}
+        </>
+    );
+}
+
+function OfficialBadgePicker() {
+    const [group, setGroup] = useState<OfficialGroup>("nitro");
+    // الاختيار يسكن خارج React، فنُعيد الرسم على تغيّره.
+    const [, bump] = useReducer((n: number) => n + 1, 0);
+    useEffect(() => onOfficialChange(bump), []);
+
+    const items = useMemo(() => OFFICIAL_BADGES.filter(x => x.group === group), [group]);
+    const chosen = selectedOfficialBadges().length;
+
+    return (
+        <>
+            <div className="esharq-mp-tabs">
+                {OFFICIAL_GROUPS.map(g => (
+                    <button
+                        key={g.key}
+                        type="button"
+                        className={"esharq-mp-tab" + (group === g.key ? " on" : "")}
+                        aria-pressed={group === g.key}
+                        onClick={() => setGroup(g.key)}>
+                        {t(g.ar, g.en)}
+                    </button>
+                ))}
+                {chosen > 0 && (
+                    <button type="button" className="esharq-mp-tab" onClick={clearOfficial}>
+                        {t("إلغاء الكلّ", "Clear all")}
+                    </button>
+                )}
+            </div>
+
+            <div className="esharq-mp-grid">
+                {items.map((badge, i) => {
+                    const on = isOfficialOn(badge.id);
+                    return (
+                        <button
+                            key={badge.id}
+                            type="button"
+                            className={"esharq-mp-badge esharq-mp-pick esharq-rise" + (on ? " on" : "")}
+                            style={stagger(i, 8)}
+                            aria-pressed={on}
+                            onClick={() => toggleOfficial(badge.id)}>
+                            <div className="esharq-mp-badge-art">
+                                {/* لا يُحمَّل إلا ما يُعرَض — والأيقونات من CDN ديسكورد نفسه. */}
+                                <img src={badge.icon} alt="" width={32} height={32} loading="lazy" />
+                            </div>
+                            <span className="esharq-mp-pick-name">{t(badge.ar, badge.en)}</span>
+                        </button>
+                    );
+                })}
+            </div>
+        </>
+    );
+}
+
 export function MyProfilePage() {
+    // عدّاد الاختيار وحالة الإضافة — يُقرآن مباشرةً فلا يكذبان على المستخدم.
+    const [, bumpOfficial] = useReducer((n: number) => n + 1, 0);
+    useEffect(() => {
+        // كلا المصدرين خارج React؛ بلا الاشتراك في الهويّة يبقى المفتاح
+        // يعرض حالةً قديمة فيُقلَب على غير ما يظنّ المستخدم.
+        const offBadges = onOfficialChange(bumpOfficial);
+        const offIdentity = onIdentityChange(bumpOfficial);
+        return () => { offBadges(); offIdentity(); };
+    }, []);
+    const officialCount = selectedOfficialBadges().length;
+    const fakeOn = isFakeProfileOn();
+    const badgesPluginOn = isPluginEnabled("MyBadges");
     const [busy, setBusy] = useState(false);
     const [opened, setOpened] = useState(false);
 
@@ -331,6 +456,46 @@ export function MyProfilePage() {
                         <div className="esharq-mp-tag">@{me.username}</div>
                     </div>
                 </div>
+            </Card>
+
+            <Card index={1}
+                title={t("ملفّك الشخصيّ المحلّي", "Your local profile")}
+                subtitle={t(
+                    "اسمٌ وتاريخُ إنشاءٍ تراهما أنت وحدك في كل مكان داخل العميل. والمفتاح أدناه يحكمها ويحكم الشارات معاً: أطفئه فيعود كل شيء طبيعياً في الحال، بلا إعادة تشغيل ولا فقدانِ ما اخترته.",
+                    "A name and creation date only you see, everywhere in the client. The switch below governs these and the badges alike: turn it off and everything returns to normal at once — no restart, and your picks are kept."
+                )}
+                badge={fakeOn ? t("مُفعَّل", "On") : t("مُطفأ", "Off")}
+                badgeTone={fakeOn ? "ok" : "info"}>
+                <FormSwitch
+                    value={fakeOn}
+                    onChange={(v: boolean) => setFakeProfile(v)}
+                    title={t("فعّل الملف الشخصيّ المحلّي", "Enable local profile")}
+                    description={t(
+                        "عند الإطفاء يعود اسمك وتاريخ إنشائك الحقيقيان وتختفي الشارات الرسمية.",
+                        "When off, your real name and creation date come back and the official badges disappear."
+                    )}
+                />
+                {/* الحقول تحت المفتاح مباشرةً: ما يحكمه المفتاح يجاوره لا يُفصَل عنه. */}
+                <div className={fakeOn ? "" : "esharq-mp-dimmed"}>
+                    <LocalIdentityFields real={{ name: me.globalName ?? me.username, tag: me.username }} />
+                </div>
+            </Card>
+
+            <Card index={1}
+                title={t("شارات ديسكورد الرسمية", "Official Discord badges")}
+                subtitle={t(
+                    "اختر ما تشاء — تُرسَم على ملفّك عندك وحدك. لا تُرسَل إلى ديسكورد ولا يراها أحد غيرك، ولا تُمَسّ حالة حسابك.",
+                    "Pick whichever you like — drawn on your profile, for you only. Nothing is sent to Discord, nobody else sees them, and your account state is untouched."
+                )}
+                badge={officialCount > 0 ? String(officialCount) : t("محلّية", "Local")}
+                badgeTone={officialCount > 0 ? "ok" : "info"}>
+                {!badgesPluginOn && (
+                    <NoticeStrip tone="danger">
+                        {t("إضافة MyBadges مُطفأة — فعّلها ليُرسَم اختيارك.",
+                            "The MyBadges plugin is off — enable it for your picks to be drawn.")}
+                    </NoticeStrip>
+                )}
+                <OfficialBadgePicker />
             </Card>
 
             {heldKinds.length > 0 && (

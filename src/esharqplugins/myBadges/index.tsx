@@ -17,6 +17,9 @@ import definePlugin, { OptionType } from "@utils/types";
 import { chooseFile } from "@utils/web";
 import { Button, showToast, Text, TextInput, Toasts, useEffect, UserStore, useState } from "@webpack/common";
 
+import { applyIdentity, isFakeProfileOn, loadIdentity, restoreIdentity } from "./localIdentity";
+import { loadOfficialSelection, selectedOfficialBadges } from "./officialBadges";
+
 const cl = classNameFactory("vc-mybadges-");
 const logger = new Logger("MyBadges");
 const STORE_KEY = "MyBadges_badges";
@@ -219,7 +222,7 @@ const settings = definePluginSettings({
 
 export default definePlugin({
     name: "MyBadges",
-    description: "Put any badge you like on your own profile, from a file on your device or a direct link. The badges are stored locally and drawn only by your client, so nobody else can see them. You choose the size.",
+    description: "Customise how your own profile looks to you: pick Discord's official badges or add your own, and set a local display name, username and account creation date. Everything is stored on your device and drawn only by your client — nothing is sent to Discord and nobody else sees it.",
     authors: [EquicordDevs.LOSTSTR],
     tags: ["Appearance", "Customisation", "Privacy"],
     enabledByDefault: false,
@@ -235,7 +238,8 @@ export default definePlugin({
         key: "MyBadges",
         description: t("شارة محلية", "Local badge"),
         // Yours and yours only: never drawn on anyone else's profile.
-        shouldShow: ({ userId }) => userId === UserStore.getCurrentUser()?.id && badges.length > 0,
+        shouldShow: ({ userId }) => userId === UserStore.getCurrentUser()?.id
+            && (badges.length > 0 || (isFakeProfileOn() && selectedOfficialBadges().length > 0)),
         // Read live, because _getBadges takes the position from THIS entry rather
         // than from the ones getBadges returns.
         get position() {
@@ -244,16 +248,25 @@ export default definePlugin({
         getBadges: () => {
             const size = Number(settings.store.badgeSize);
 
-            return badges.map((badge): ProfileBadge => ({
+            const style = { width: size, height: size, objectFit: "contain" } as const;
+
+            // الرسمية أوّلاً لتجاور شارات ديسكورد نفسها، ثمّ المخصّصة.
+            // المفتاح الرئيسيّ مُطفأ ⇒ لا شارات رسمية، وتبقى المخصّصة كما هي.
+            const official = (isFakeProfileOn() ? selectedOfficialBadges() : []).map((badge): ProfileBadge => ({
+                id: `vc-mybadges-official-${badge.id}`,
+                key: badge.id,
+                description: t(badge.ar, badge.en),
+                iconSrc: badge.icon,
+                props: { className: cl("badge"), style }
+            }));
+
+            return [...official, ...badges.map((badge): ProfileBadge => ({
                 id: `vc-mybadges-${badge.id}`,
                 key: badge.name,
                 description: badge.name,
                 iconSrc: badge.src,
-                props: {
-                    className: cl("badge"),
-                    style: { width: size, height: size, objectFit: "contain" }
-                }
-            }));
+                props: { className: cl("badge"), style }
+            }))];
         }
     }],
 
@@ -266,10 +279,15 @@ export default definePlugin({
         } catch (e) {
             logger.error("failed to load saved badges", e);
         }
+        await loadOfficialSelection();
+        await loadIdentity();
+        applyIdentity();
         notifyChanged();
     },
 
     stop() {
+        // الرجوع بالهويّة إلى حقيقتها قبل الخروج — وإلّا بقي الاسم المزيّف.
+        restoreIdentity();
         listeners.clear();
     }
 });
