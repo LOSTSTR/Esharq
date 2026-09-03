@@ -238,7 +238,7 @@ ipcMain.handle(IpcEvents.OPEN_MONACO_EDITOR, async () => {
     }
 
     monacoWin = new BrowserWindow({
-        title: "Equicord QuickCSS Editor",
+        title: "Esharq QuickCSS Editor",
         autoHideMenuBar: true,
         darkTheme: true,
         backgroundColor: nativeTheme.shouldUseDarkColors ? "#1e1e1e" : "white",
