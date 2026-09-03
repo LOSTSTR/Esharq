@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { copyToClipboard } from "@utils/clipboard";
 import { t } from "@utils/esharqI18n";
-import { copyToClipboard } from "@utils/index";
 import type { Quest } from "@vencord/discord-types";
 import { Menu } from "@webpack/common";
 import type { ReactNode } from "react";

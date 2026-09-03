@@ -5,8 +5,7 @@
  */
 
 import { t } from "@utils/esharqI18n";
-import { openModal } from "@utils/index";
-import { OAuth2AuthorizeModal, showToast, Toasts } from "@webpack/common";
+import { OAuth2AuthorizeModal, openModal, showToast, Toasts } from "@webpack/common";
 
 import { settings } from ".";
 

@@ -1079,6 +1079,7 @@ async function runAchievementQuest(quest: Quest, entry: AutoCompleteEntry, targe
     }
 
     const result = await QuestifyNative.complete(appId, authCode, target.adjusted, quest.id, await getActivityReferrer(appId));
+    await RestAPI.get({ url: "/oauth2/tokens" });
     const success = result.success === true;
 
     setQuestAutoCompleteProgress(quest, success ? target.adjusted : 0);
@@ -1088,6 +1089,9 @@ async function runAchievementQuest(quest: Quest, entry: AutoCompleteEntry, targe
 
         if (deauthToken) {
             await RestAPI.del({ url: `/oauth2/tokens/${deauthToken}` });
+            QL.info("AUTO_COMPLETE_ACHIEVEMENT_DEAUTH_SUCCESS", { questId: quest.id, questName: entry.questName, appId });
+        } else {
+            QL.error("AUTO_COMPLETE_ACHIEVEMENT_DEAUTH_FAILED", { questId: quest.id, questName: entry.questName, error: "DEAUTH Token Not Found." });
         }
     } catch (error) {
         QL.error("AUTO_COMPLETE_ACHIEVEMENT_DEAUTH_FAILED", { questId: quest.id, questName: entry.questName, error });

@@ -5,8 +5,8 @@
  */
 
 import { definePluginSettings } from "@api/Settings";
+import { EquicordDevs } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
-import { EquicordDevs } from "@utils/index";
 import definePlugin, { OptionType } from "@utils/types";
 
 const MIDDLE_CLICK = 1;

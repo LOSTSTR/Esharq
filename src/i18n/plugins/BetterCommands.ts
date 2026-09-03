@@ -15,10 +15,6 @@ export default definePluginI18n({
         "autoFillArguments": {
             "ar": "ملء الأمر تلقائياً بجميع المعطيات بدلاً من المطلوبة فقط",
             "en": "Auto-fill the command with all arguments instead of only the required ones."
-        },
-        "allowNewlinesInCommands": {
-            "ar": "السماح بالأسطر الجديدة في مدخلات الأوامر (CTRL + Shift + Enter)",
-            "en": "Allow new lines in command inputs (CTRL + Shift + Enter)."
         }
     }
 });
