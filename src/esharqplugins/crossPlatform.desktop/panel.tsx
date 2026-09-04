@@ -13,7 +13,7 @@ import { t } from "@utils/esharqI18n";
 import { RelationshipStore, useEffect, useMemo, useReducer, UserStore, useState } from "@webpack/common";
 
 import { buildPlatforms, PlatformModule } from "./platforms";
-import { Credentials, getCredentials, getLinks, onStoreChange, setCredential, setLink } from "./store";
+import { addPerson, Credentials, getCredentials, getLinks, onStoreChange, removePerson, setCredential, setLink } from "./store";
 import { PlatformId, ProbeResult } from "./types";
 
 /** أكثر ما يُعرض من الأصدقاء دفعةً واحدة؛ البحث يصل إلى البقيّة. */
@@ -89,20 +89,37 @@ function PlatformCard({ platform }: { platform: PlatformModule; }) {
 
 function FriendLinks({ platforms }: { platforms: readonly PlatformModule[]; }) {
     const [query, setQuery] = useState("");
+    const [pending, setPending] = useState("");
     const links = getLinks();
 
+    // 🔴 قائمة الأصدقاء وحدها لا تكفي. قِيس على حسابٍ حقيقيّ فجاء
+    // `relationshipCount = 0`، فكانت اللوحة فارغةً لا يُمكن استعمالها البتّة.
+    // فالمعروض الآن اتّحادُ الأصدقاء ومَن سبق ربطُه، ويُضاف أيّ معرّف يدوياً.
     const friendIds = RelationshipStore.getFriendIDs();
+    const linkedIds = Object.keys(links);
+    const allIds = useMemo(
+        () => [...new Set([...friendIds, ...linkedIds])],
+        [friendIds.join(","), linkedIds.join(",")]
+    );
+
     const named = useMemo(
-        () => friendIds
-            .map(id => ({ id, user: UserStore.getUser(id) }))
-            .filter(row => row.user !== undefined)
-            .map(row => ({ id: row.id, name: row.user.globalName || row.user.username }))
+        () => allIds
+            .map(id => {
+                const user = UserStore.getUser(id);
+                return { id, name: user ? (user.globalName || user.username) : id };
+            })
             .sort((a, b) => a.name.localeCompare(b.name)),
-        [friendIds.join(",")]
+        [allIds.join(",")]
     );
 
     const needle = query.toLowerCase();
-    const rows = named.filter(row => row.name.toLowerCase().includes(needle)).slice(0, MAX_ROWS);
+    const rows = named.filter(row => row.name.toLowerCase().includes(needle) || row.id.includes(needle)).slice(0, MAX_ROWS);
+
+    const isSnowflake = /^\d{17,20}$/.test(pending.trim());
+    const addPending = () => {
+        addPerson(pending.trim());
+        setPending("");
+    };
 
     return (
         <div className="esharq-xp-card">
@@ -111,25 +128,50 @@ function FriendLinks({ platforms }: { platforms: readonly PlatformModule[]; }) {
             </div>
             <p className="esharq-xp-hint">
                 {t(
-                    "لا توجد طريقة تعرف وحدها أنّ حساب صديقك على ستيم هو حسابه على ديسكورد، فالربط يدويّ. اترك الحقل فارغاً لفكّ الربط.",
+                    "لا شيء يعرف وحده أنّ حساب صديقك على ستيم هو حسابه على ديسكورد، فالربط يدويّ. اترك الحقل فارغاً لفكّ الربط.",
                     "Nothing can tell on its own that a Steam account belongs to your Discord friend, so linking is manual. Leave a field empty to unlink."
                 )}
             </p>
 
+            <div className="esharq-xp-add">
+                <input
+                    className="esharq-xp-input"
+                    placeholder={t("أضف بمعرّف ديسكورد، إن لم يكن في قائمتك", "Add by Discord user id, if not in your list")}
+                    value={pending}
+                    spellCheck={false}
+                    onChange={e => setPending(e.currentTarget.value)}
+                />
+                <Button size="small" disabled={!isSnowflake} onClick={addPending}>
+                    {t("أضف", "Add")}
+                </Button>
+            </div>
+
             <input
                 className="esharq-xp-input esharq-xp-search"
-                placeholder={t("ابحث في أصدقائك…", "Search your friends…")}
+                placeholder={t("ابحث…", "Search…")}
                 value={query}
                 onChange={e => setQuery(e.currentTarget.value)}
             />
 
-            {rows.length === 0 && (
+            {named.length === 0 && (
+                <p className="esharq-xp-hint">
+                    {t("لا أصدقاء محمّلون ولا روابط بعد. أضف معرّفاً بالأعلى للبدء.", "No friends loaded and nothing linked yet. Add an id above to start.")}
+                </p>
+            )}
+            {named.length > 0 && rows.length === 0 && (
                 <p className="esharq-xp-hint">{t("لا أحد يطابق البحث.", "Nobody matches that search.")}</p>
             )}
 
             {rows.map(row => (
                 <div className="esharq-xp-friend" key={row.id}>
-                    <span className="esharq-xp-friend-name">{row.name}</span>
+                    <div className="esharq-xp-friend-top">
+                        <span className="esharq-xp-friend-name">{row.name}</span>
+                        {links[row.id] && (
+                            <Button size="min" variant="secondary" onClick={() => removePerson(row.id)}>
+                                {t("أزل", "Remove")}
+                            </Button>
+                        )}
+                    </div>
                     <div className="esharq-xp-friend-fields">
                         {platforms.map(platform => (
                             <label className="esharq-xp-field" key={platform.id}>

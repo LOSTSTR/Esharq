@@ -69,17 +69,37 @@ export function setCredential(key: keyof Credentials, value: string): void {
 
 export const getLinks = (): Links => links;
 
-/** يربط حساباً على منصّة بمستخدم ديسكورد، أو يفكّ الربط بقيمة فارغة. */
+/**
+ * يربط حساباً على منصّة بمستخدم ديسكورد، أو يفكّ الربط بقيمة فارغة.
+ *
+ * 🔴 المُدخَل يبقى ولو خلا من كلّ المنصّات. أوّل نسخة كانت تحذفه، فكان زرّ
+ * «أضف» لا يفعل شيئاً: يُنشئ مُدخَلاً فارغاً فيُحذف في السطر نفسه. والحذف
+ * الآن فعلٌ صريح وحده — `removePerson`.
+ */
 export function setLink(discordId: string, platform: PlatformId, accountId: string): void {
     const trimmed = accountId.trim();
     const entry = { ...links[discordId] };
     if (trimmed) entry[platform] = trimmed;
     else delete entry[platform];
 
-    links = { ...links };
-    if (Object.keys(entry).length > 0) links[discordId] = entry;
-    else delete links[discordId];
+    links = { ...links, [discordId]: entry };
+    notify();
+    DataStore.set(LINKS_KEY, links).catch(e => logger.error("تعذّر حفظ الروابط", e));
+}
 
+/** يُدرج شخصاً بلا حسابات بعد، ليظهر صفُّه فتُملأ حقولُه. */
+export function addPerson(discordId: string): void {
+    if (links[discordId]) return;
+    links = { ...links, [discordId]: {} };
+    notify();
+    DataStore.set(LINKS_KEY, links).catch(e => logger.error("تعذّر حفظ الروابط", e));
+}
+
+/** يُزيل الشخص وكلّ حساباته. */
+export function removePerson(discordId: string): void {
+    if (!links[discordId]) return;
+    links = { ...links };
+    delete links[discordId];
     notify();
     DataStore.set(LINKS_KEY, links).catch(e => logger.error("تعذّر حفظ الروابط", e));
 }
