@@ -37,6 +37,16 @@ const ALLOWED_HOSTS = new Map([
     ["cdn.discordapp.com", ["api", "Discord CDN"]],
     ["media.discordapp.net", ["api", "Discord CDN"]],
     ["api.groq.com", ["api", "SummarizeAI / TsundereTalk — user's own API key"]],
+    // CrossPlatform — each key belongs to the user and is entered by them. The
+    // native bridge hard-codes these three api hosts and refuses every other one,
+    // so widening this list is not enough to widen what the plugin can reach.
+    ["api.steampowered.com", ["api", "CrossPlatform — user's own Steam Web API key"]],
+    ["api.hypixel.net", ["api", "CrossPlatform — user's own Hypixel key"]],
+    ["api.twitch.tv", ["api", "CrossPlatform — user's own Twitch OAuth token"]],
+    ["steamcommunity.com", ["link", "CrossPlatform — where the user creates a Steam key"]],
+    ["developer.hypixel.net", ["link", "CrossPlatform — where the user creates a Hypixel key"]],
+    ["dev.twitch.tv", ["link", "CrossPlatform — where the user creates a Twitch app"]],
+    ["twitch.tv", ["link", "CrossPlatform — the live stream a friend is watching"]],
     ["api.dictionaryapi.dev", ["api", "Define"]],
     ["en.wikipedia.org", ["api", "WikiLookup"]],
     ["lrclib.net", ["api", "LyricsStatus"]],
