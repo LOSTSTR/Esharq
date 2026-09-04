@@ -23,6 +23,7 @@ import { loadOfficialSelection, selectedOfficialBadges } from "./officialBadges"
 const cl = classNameFactory("vc-mybadges-");
 const logger = new Logger("MyBadges");
 const STORE_KEY = "MyBadges_badges";
+const SIZE_MIGRATED_KEY = "MyBadges_sizeMigrated";
 
 /** Anything bigger is a waste for a badge and bloats the local database. */
 const MAX_BYTES = 2 * 1024 * 1024;
@@ -101,7 +102,18 @@ async function pickFromDevice() {
     }
 }
 
+// 🔴 «مطابق» ليس رقماً، وهذا بيت القصيد: تُترك الشارة بلا نمطٍ مضمَّن فترث
+// صنف ديسكورد `badge__…` ومقاسَه. قِيس على عميل حيّ في ملفٍّ واحد: شارة
+// ديسكورد الأصلية 20×20 وشاراتُنا 22×22، والصنف واحدٌ في الاثنتين — فحذفُ
+// النمط وحده يُطابقها. والرقم المثبَّت يشيخ متى غيّر ديسكورد مقاسه، والوراثة
+// لا تشيخ.
+const MATCH_DISCORD = "match";
+
+/** مقاس شارة ديسكورد كما قِيس على عميل حيّ. للمعاينة وحدها، لا للحقن. */
+const DISCORD_BADGE_PX = 20;
+
 const SIZES = [
+    { value: MATCH_DISCORD, label: t("مطابق لديسكورد", "Match Discord") },
     { value: "16", label: "16px" },
     { value: "22", label: "22px" },
     { value: "28", label: "28px" },
@@ -113,7 +125,8 @@ function BadgeManager() {
     const list = useBadges();
     const [url, setUrl] = useState("");
     const [name, setName] = useState("");
-    const size = Number(settings.store.badgeSize);
+    // المعاينة ترسم بالمقاس الفعليّ، و«مطابق» يعني مقاس ديسكورد المقيس.
+    const size = Number(settings.store.badgeSize) || DISCORD_BADGE_PX;
 
     function addFromUrl() {
         const trimmed = url.trim();
@@ -201,11 +214,11 @@ function BadgeManager() {
 const settings = definePluginSettings({
     badgeSize: {
         type: OptionType.SELECT,
-        description: "How big your badges are drawn. Discord's own badges are 22px, so pick that to blend in, or a larger value to stand out.",
+        description: "How big your badges are drawn. Match Discord keeps them exactly the size Discord draws its own, which is what you want unless you deliberately want to stand out.",
         options: SIZES.map(s => ({
             label: s.label,
             value: s.value,
-            default: s.value === "22"
+            default: s.value === MATCH_DISCORD
         }))
     },
     atStart: {
@@ -246,9 +259,12 @@ export default definePlugin({
             return settings.store.atStart ? BadgePosition.START : BadgePosition.END;
         },
         getBadges: () => {
-            const size = Number(settings.store.badgeSize);
-
-            const style = { width: size, height: size, objectFit: "contain" } as const;
+            const raw = String(settings.store.badgeSize);
+            const size = Number(raw);
+            // بلا نمطٍ أصلاً ⇒ يرث مقاس ديسكورد. وأيّ رقم يفرض مقاسه بدله.
+            const props = raw === MATCH_DISCORD
+                ? { className: cl("badge") }
+                : { className: cl("badge"), style: { width: size, height: size, objectFit: "contain" } as const };
 
             // الرسمية أوّلاً لتجاور شارات ديسكورد نفسها، ثمّ المخصّصة.
             // المفتاح الرئيسيّ مُطفأ ⇒ لا شارات رسمية، وتبقى المخصّصة كما هي.
@@ -257,7 +273,7 @@ export default definePlugin({
                 key: badge.id,
                 description: t(badge.ar, badge.en),
                 iconSrc: badge.icon,
-                props: { className: cl("badge"), style }
+                props
             }));
 
             return [...official, ...badges.map((badge): ProfileBadge => ({
@@ -265,12 +281,24 @@ export default definePlugin({
                 key: badge.name,
                 description: badge.name,
                 iconSrc: badge.src,
-                props: { className: cl("badge"), style }
+                props
             }))];
         }
     }],
 
     async start() {
+        // ترحيلٌ لمرّة واحدة: «22» كانت الافتراضيّ القديم، وقامت على ادّعاءٍ
+        // خاطئ بأنّ شارات ديسكورد 22px — والقياس الحيّ يقول 20. فمن بقي على
+        // القيمة القديمة يُنقل إلى الوراثة، ومن اختار مقاساً آخر لا يُمسّ.
+        try {
+            if (!await DataStore.get(SIZE_MIGRATED_KEY)) {
+                if (String(settings.store.badgeSize) === "22") settings.store.badgeSize = MATCH_DISCORD;
+                await DataStore.set(SIZE_MIGRATED_KEY, true);
+            }
+        } catch (e) {
+            logger.error("failed to migrate badge size", e);
+        }
+
         try {
             const saved = await DataStore.get(STORE_KEY);
             if (Array.isArray(saved)) {
