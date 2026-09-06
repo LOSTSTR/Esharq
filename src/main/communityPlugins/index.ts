@@ -121,6 +121,9 @@ function idFor(hash: string) {
 /** مجلدات لا معنى لقراءتها، ووجودها لا يمنع الاستيراد. */
 const SKIP_DIRS = new Set([".git", "node_modules", "dist", "build", ".vscode", ".idea"]);
 
+/** وحدة العملية الرئيسة بأيّ لاحقة، في الجذر أو في مجلّد فرعيّ. */
+const NATIVE_MODULE = /(?:^|\/)(?:index\.)?native\.[cm]?[jt]sx?$/i;
+
 function collect(root: string): { path: string; bytes: Uint8Array; }[] {
     const out: { path: string; bytes: Uint8Array; }[] = [];
 
@@ -297,10 +300,36 @@ export function importFolder(root: string, keepFolderName?: string): ImportResul
     // ما لا يُعنينا لا يُحسَب على المستخدم: نتجاهل الملفّات غير المرشَّحة
     // (README، صور…) بدل رفض المجلد كلّه بسببها.
     const candidates = raw.filter(f => /\.(tsx?|jsx?|css|json)$/i.test(f.path));
-    const result = validate(candidates);
+
+    // 🔴 وحدة العملية الرئيسة لا تدخل الحزمة إطلاقاً.
+    //
+    // ربطُها يحدث **وقت بناء إشراق** عبر خريطة `VencordNative.pluginHelpers`،
+    // فإضافةٌ تُستورَد بعد البناء لا مدخل لها فيها أبداً. وكودُ الواجهة لا
+    // يستورد الملفّ أصلاً: الصيغة المتّبعة `typeof import("./native")` نوعٌ
+    // يمحوه المُحوِّل، فلا `require` له وقت التشغيل. أي أنّ ترجمة الملفّ
+    // وكتابته لا تُفيد شيئاً بحال.
+    //
+    // والضرر مقيسٌ لا متوهَّم: إضافةٌ مستورَدة كان ملفُّها `native.ts` سارقَ
+    // توكن كاملاً، فترجمناه وكتبناه `build/native.js` في مجلّد بيانات المالك
+    // حتى حجره مضادُّ الفيروسات. **الكتابة نفسها هي الأذى**، لا التنفيذ —
+    // فهو لا يُنفَّذ قطّ.
+    const native = candidates.filter(f => NATIVE_MODULE.test(f.path));
+    const safe = native.length === 0 ? candidates : candidates.filter(f => !NATIVE_MODULE.test(f.path));
+
+    const result = validate(safe);
     if (!result.ok) return { ok: false, findings: result.findings };
 
     const findings = [...result.findings];
+
+    // الاستبعاد يُقال، لا يُخفى: صاحب الإضافة يرى لماذا سقطت ميزةٌ عنده.
+    for (const f of native) {
+        findings.push({
+            severity: "warning",
+            rule: "native-excluded",
+            file: f.path,
+            message: "وحدة العملية الرئيسة لا تعمل في الإضافات المستورَدة، فلم تُنسخ ولم تُترجَم. وما يعتمد عليها من ميزات لن يعمل."
+        });
+    }
 
     // البصمة على **المصدر كما هو**، مرتّباً، فلا تتغيّر بترتيب القراءة.
     const hash = createHash("sha256");
