@@ -1,6 +1,5 @@
 {
     "_readme": "Arabic/English announcement text for commits whose message we cannot amend — upstream Equicord commits pulled in by a merge. Key is any unambiguous commit sha prefix. An override ALSO promotes an otherwise-skipped upstream commit (a 'PluginName: message' subject with no conventional prefix) into an «إصلاح · Fix» announcement showing the plugin name — so add one entry here for every upstream fix you want Esharq users to see. Commits we author ourselves should carry notify-ar:/notify-en: trailers instead; this file is only the fallback for foreign commits. Keys starting with _ are ignored.",
-
     "51cc856": {
         "ar": "دعم الوضع المضغوط في إضافة sric، فصار العرض صحيحاً لمن يستخدم تخطيط الرسائل المضغوط بدل المريح.",
         "en": "Added compact mode support to sric, so it renders correctly for anyone using the compact message layout instead of cozy."
@@ -9,7 +8,6 @@
         "ar": "تحديث بعض معرّفات المطوّرين في قائمة المساهمين.",
         "en": "Updated some developer IDs in the contributor list."
     },
-
     "519b20e0": {
         "ar": "عادت ميزات المهام (Quests) للعمل بعد تحديث ديسكورد.",
         "en": "Quest features work again after a Discord update."
@@ -57,5 +55,17 @@
     "43b01e0c": {
         "ar": "إصلاح عدّة رقعات مكسورة أخرى بعد تحديث ديسكورد.",
         "en": "Repaired several other broken patches after a Discord update."
+    },
+    "55a63684": {
+        "ar": "خيار جديد في Declutter يُزيل تأثيرات أسماء العرض المتحرّكة والمنسّقة من قائمة الأعضاء، فتصير القائمة أهدأ للقراءة.",
+        "en": "A new Declutter option removes animated and styled display names from the member list, so the list reads more calmly."
+    },
+    "26e7fb2a": {
+        "ar": "صار تخزين البيانات يتخطّى السجلّ التالف أو الضخم وحده بدل أن يُسقط كلّ السجلّات بسببه، فلا تضيع إعداداتك كلّها بسبب مدخلٍ واحد.",
+        "en": "The datastore now skips only a corrupt or oversized record instead of dropping every record because of it, so one bad entry no longer costs you all your settings."
+    },
+    "f5671d73": {
+        "ar": "مؤشّر الكتابة صار يستثني المستخدمين المتجاهَلين، فلا يظهر لك أنّ من تجاهلته يكتب.",
+        "en": "The typing indicator now excludes ignored users, so someone you ignored no longer shows as typing."
     }
 }

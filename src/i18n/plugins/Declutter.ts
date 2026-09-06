@@ -75,6 +75,10 @@ export default definePluginI18n({
         "removeFamilyCenterAboveDms": {
             "ar": "إزالة مركز العائلة فوق قائمة الرسائل الخاصّة.",
             "en": "Remove family center above DMs list."
+        },
+        "removeDisplayNameStyles": {
+            "ar": "إزالة تأثيرات أسماء العرض المتحرّكة والمنسّقة من قائمة الأعضاء.",
+            "en": "Remove animated/styled display names in the member list."
         }
     }
 });
