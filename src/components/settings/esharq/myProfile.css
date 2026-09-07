@@ -324,25 +324,118 @@
     color: var(--text-muted, #949ba4);
 }
 
+/* ── صفّ التحكّم بشارة واحدة ──────────────────────────────────────────
+   صفٌّ أفقيّ: الصورة كما يراها الناس، ثمّ الاسم وحالته بالكلمات، ثمّ الحالات
+   الأربع. والصورة أوّلاً عمداً — يرى صاحبها ما يُقرّر بشأنه قبل أن يُقرّر. */
+
 .esharq-mp-ctl {
     display: flex;
-    flex-direction: column;
-    gap: 9px;
-    padding: 14px 0 0;
-    border-top: 1px solid rgb(255 255 255 / 7%);
+    gap: 14px;
+    align-items: center;
+    padding: 12px;
+    margin-block-start: 10px;
+    background: rgb(255 255 255 / 2.5%);
+    border: 1px solid rgb(255 255 255 / 7%);
+    border-radius: 12px;
 }
 
-.esharq-mp-ctl-name {
-    margin-bottom: 8px;
+.esharq-mp-ctl-face {
+    flex: none;
+    inline-size: 44px;
+    block-size: 44px;
+}
+
+.esharq-mp-ctl-img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    background: #000;
+    border-radius: 50%;
+}
+
+/* الشارة المخفيّة تُطفأ، فتُقرأ الحالة من الصورة قبل قراءة الكلام.
+   المُرشِّح على الحاوية لا على الصورة: مُحدِّدٌ بصنفٍ واحد يُبقي الترتيب سليماً. */
+.esharq-mp-ctl-face.off {
+    filter: grayscale(100%);
+    opacity: 0.4;
+}
+
+/* لا صورة (شارةٌ لم تُحمَّل صورتها بعد) — دائرةٌ بمكانها لا فراغ يقفز. */
+.esharq-mp-ctl-blank {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    background: rgb(255 255 255 / 6%);
+    border-radius: 50%;
+}
+
+.esharq-mp-ctl-meta {
+    flex: 1;
+    min-inline-size: 0;
+}
+
+.esharq-mp-ctl-meta b {
+    display: block;
     font-size: 14px;
     font-weight: 600;
     color: var(--header-primary, #f2f3f5);
 }
 
-/* المفاتيح المعطَّلة في النطاق العامّ قبل وصول الإذن */
-.esharq-mp-choice input:disabled {
+.esharq-mp-ctl-meta small {
+    font-size: 12px;
+    color: var(--text-muted, #949ba4);
+}
+
+.esharq-mp-ctl-seg {
+    display: flex;
+    flex: none;
+    gap: 6px;
+}
+
+.esharq-mp-ctl-state {
+    padding: 7px 13px;
+    font-family: inherit;
+    font-size: 12px;
+    color: var(--text-muted, #949ba4);
+    background: rgb(0 0 0 / 22%);
+    border: 1px solid rgb(255 255 255 / 8%);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.esharq-mp-ctl-state:disabled {
     cursor: not-allowed;
     opacity: 0.45;
+}
+
+.esharq-mp-ctl-state:hover:not(:disabled) {
+    color: var(--text-default, #dbdee1);
+    border-color: rgb(255 255 255 / 16%);
+}
+
+.esharq-mp-ctl-state.on {
+    font-weight: 700;
+    color: #22c9f0;
+    background: rgb(34 201 240 / 10%);
+    border-color: rgb(34 201 240 / 35%);
+}
+
+/* «مخفيّ» حالةٌ سالبة، فلونها ينذر لا يؤكّد. */
+.esharq-mp-ctl-state.hide.on {
+    color: #f08a8a;
+    background: rgb(240 90 90 / 12%);
+    border-color: rgb(240 90 90 / 30%);
+}
+
+/* ضيّقٌ: الحالات تنزل سطراً بدل أن تُزاحم الاسم. */
+@media (width <= 640px) {
+    .esharq-mp-ctl {
+        flex-wrap: wrap;
+    }
+
+    .esharq-mp-ctl-seg {
+        flex: 1 0 100%;
+    }
 }
 
 /* ── منتقي شارات ديسكورد الرسمية ──────────────────────────────────────

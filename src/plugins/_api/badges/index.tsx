@@ -410,6 +410,28 @@ export function getEsharqEntitlements(userId: string) {
     };
 }
 
+/**
+ * صورة شارةٍ بعينها، لتُعرض في صفحة «ملفّي» بجوار مفتاح التحكّم بها.
+ *
+ * 🔴 تُبنى من الاستحقاق **لا من `_getBadges`** — للسبب نفسه أعلاه: ذاك يسقط
+ * الشارة المخفيّة، فتظهر لصاحبها دائرةٌ فارغة بجانب المفتاح الذي يُعيدها،
+ * وهو أسوأ ما يكون: يقرّر وهو لا يرى ما يقرّر بشأنه.
+ */
+export function esharqBadgeImage(userId: string, kind: "tier" | "user" | "custom" | "selfserve"): string | null {
+    switch (kind) {
+        case "tier": {
+            const tier = esharqTierOf(userId);
+            return tier === null ? null : tierIcon(tier);
+        }
+        case "user":
+            return tierIcon("user");
+        case "custom":
+            return EsharqCustomBadges[userId]?.image ?? null;
+        case "selfserve":
+            return getSelfServeBadges(userId)[0]?.image ?? null;
+    }
+}
+
 export function getSelfServeBadges(userId: string) {
     const entry = EsharqSelfServeBadges[userId];
     if (entry == null) return [];

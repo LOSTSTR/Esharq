@@ -19,7 +19,7 @@ import {
     clearOfficial, isOfficialOn, OFFICIAL_BADGES, OFFICIAL_GROUPS,
     type OfficialGroup, onOfficialChange, selectedOfficialBadges, toggleOfficial
 } from "@esharqplugins/myBadges/officialBadges";
-import { getEsharqEntitlements, getSelfServeBadges } from "@plugins/_api/badges";
+import { esharqBadgeImage, getEsharqEntitlements, getSelfServeBadges } from "@plugins/_api/badges";
 import {
     type BadgeKind, fetchRemote, hasLink, isHiddenLocally, onLinkChange,
     type RemoteState, setHiddenLocally, setRemote
@@ -89,10 +89,29 @@ const CONTROLLABLE: { kind: BadgeKind; ar: string; en: string; }[] = [
     { kind: "selfserve", ar: "شارتك الخاصّة", en: "Your own badge" }
 ];
 
-const SURFACES: { key: Surface; ar: string; en: string; }[] = [
-    { key: "profile", ar: "في الملفّ الشخصيّ", en: "On your profile" },
-    { key: "chat", ar: "في المحادثة", en: "In chat" }
-];
+/**
+ * الحالات الأربع للشارة الواحدة.
+ *
+ * 🔴 **أربعٌ لا ثلاث.** «الملفّ» و«المحادثة» ليسا متنافيين — الشارة تظهر في
+ * الاثنين معاً وهو الوضع الافتراضيّ. فلو عُرضت ثلاثة أزرارٍ يُختار منها واحد
+ * لضاعت الحالة الأشيع. وتحت الغطاء تبقى منطقيّتان مستقلّتان كما كانتا، فلا
+ * يتغيّر شيءٌ في التخزين ولا في الخادم — التغيير في العرض وحده.
+ */
+const STATES = [
+    { id: "both", profile: true, chat: true, ar: "الاثنان", en: "Both" },
+    { id: "profile", profile: true, chat: false, ar: "الملفّ", en: "Profile" },
+    { id: "chat", profile: false, chat: true, ar: "المحادثة", en: "Chat" },
+    { id: "none", profile: false, chat: false, ar: "مخفيّ", en: "Hidden" }
+] as const;
+
+type BadgeState = (typeof STATES)[number];
+
+/** وصفُ الحالة الحاليّة بكلمات، تحت اسم الشارة. */
+const STATE_LABEL = (profile: boolean, chat: boolean): string =>
+    profile && chat ? t("تظهر في الملفّ والمحادثة", "Shown on your profile and in chat")
+        : profile ? t("تظهر في الملفّ الشخصيّ وحده", "Shown on your profile only")
+            : chat ? t("تظهر في المحادثة وحدها", "Shown in chat only")
+                : t("لا تظهر في أيّ مكان", "Not shown anywhere");
 
 /**
  * بطاقة التحكّم.
@@ -104,7 +123,7 @@ const SURFACES: { key: Surface; ar: string; en: string; }[] = [
  * النطاق العامّ يحتاج رابطاً موقَّعاً من `/badge` — الخادم لا يثق بادّعاء
  * العميل، وإلّا غيّر أيّ أحدٍ شارات أيّ أحد.
  */
-function BadgeControl({ held }: { held: BadgeKind[]; }) {
+function BadgeControl({ held, userId }: { held: BadgeKind[]; userId: string | null; }) {
     const [scope, setScope] = useState<"local" | "global">("local");
     const [linked, setLinked] = useState(hasLink());
     const [remote, setRemoteState] = useState<RemoteState | null>(null);
@@ -143,6 +162,19 @@ function BadgeControl({ held }: { held: BadgeKind[]; }) {
         setRemoteState(await fetchRemote());
     };
 
+    /**
+     * ينقل الشارة إلى حالةٍ من الأربع بقلب ما تغيّر وحده.
+     *
+     * السطحان يُكتبان كلٌّ بنداءٍ مستقلّ على الخادم، فقلبُ ما لم يتغيّر نداءٌ
+     * زائد — وفي النطاق العامّ نداءٌ زائد يعني انتظاراً زائداً واحتمالَ فشلٍ
+     * زائداً بلا مقابل. والتسلسل مقصود: الثاني ينتظر الأوّل ليُقرأ الخادم مرّةً
+     * واحدة في النهاية.
+     */
+    const setState = async (kind: BadgeKind, next: BadgeState, now: { profile: boolean; chat: boolean; }) => {
+        if (next.profile !== now.profile) await flip(kind, "profile", next.profile);
+        if (next.chat !== now.chat) await flip(kind, "chat", next.chat);
+    };
+
     return (
         <>
             <div className="esharq-mp-scope">
@@ -176,30 +208,49 @@ function BadgeControl({ held }: { held: BadgeKind[]; }) {
 
             {error !== null && <NoticeStrip tone="danger">{error}</NoticeStrip>}
 
-            {CONTROLLABLE.filter(b => held.includes(b.kind)).map(badge => (
-                <div key={badge.kind} className="esharq-mp-ctl">
-                    <div className="esharq-mp-ctl-name">{t(badge.ar, badge.en)}</div>
-                    {SURFACES.map(surface => {
-                        const key = `${badge.kind}:${surface.key}`;
-                        const on = scope === "local"
-                            ? !isHiddenLocally(badge.kind, surface.key)
-                            : globalVisible(badge.kind, surface.key);
-                        const disabled = scope === "global" && (!linked || busyKey !== null);
-                        return (
-                            <label key={surface.key} className={"esharq-mp-choice" + (on ? " on" : "")}>
-                                <span>{t(surface.ar, surface.en)}</span>
-                                <input
-                                    type="checkbox"
-                                    checked={on}
+            {CONTROLLABLE.filter(b => held.includes(b.kind)).map(badge => {
+                const on = (surface: Surface) => scope === "local"
+                    ? !isHiddenLocally(badge.kind, surface)
+                    : globalVisible(badge.kind, surface);
+
+                const profile = on("profile");
+                const chat = on("chat");
+                const disabled = scope === "global" && (!linked || busyKey !== null);
+                const image = userId === null ? null : esharqBadgeImage(userId, badge.kind);
+
+                return (
+                    <div key={badge.kind} className="esharq-mp-ctl">
+                        <div className={"esharq-mp-ctl-face" + (!profile && !chat ? " off" : "")}>
+                            {image !== null
+                                ? <img className="esharq-mp-ctl-img" src={image} alt="" width={44} height={44} />
+                                : <span className="esharq-mp-ctl-blank" aria-hidden="true" />}
+                        </div>
+
+                        <div className="esharq-mp-ctl-meta">
+                            <b>{t(badge.ar, badge.en)}</b>
+                            <small>{STATE_LABEL(profile, chat)}</small>
+                        </div>
+
+                        <div className="esharq-mp-ctl-seg" role="group" aria-label={t(badge.ar, badge.en)}>
+                            {STATES.map(state => (
+                                <button
+                                    key={state.id}
+                                    type="button"
                                     disabled={disabled}
-                                    aria-busy={busyKey === key}
-                                    onChange={e => flip(badge.kind, surface.key, e.currentTarget.checked)}
-                                />
-                            </label>
-                        );
-                    })}
-                </div>
-            ))}
+                                    aria-pressed={state.profile === profile && state.chat === chat}
+                                    aria-busy={busyKey !== null && busyKey.startsWith(`${badge.kind}:`)}
+                                    className={
+                                        "esharq-mp-ctl-state"
+                                        + (state.id === "none" ? " hide" : "")
+                                        + (state.profile === profile && state.chat === chat ? " on" : "")
+                                    }
+                                    onClick={() => setState(badge.kind, state, { profile, chat })}
+                                >{t(state.ar, state.en)}</button>
+                            ))}
+                        </div>
+                    </div>
+                );
+            })}
         </>
     );
 }
@@ -503,7 +554,7 @@ export function MyProfilePage() {
                     title={t("أين تظهر شاراتك", "Where your badges appear")}
                     subtitle={t("اختر النطاق أوّلاً، ثمّ الموضع.", "Choose the scope first, then the place.")}
                     badge={t("جديد", "New")} badgeTone="info">
-                    <BadgeControl held={heldKinds} />
+                    <BadgeControl held={heldKinds} userId={me?.id ?? null} />
                 </Card>
             )}
 
