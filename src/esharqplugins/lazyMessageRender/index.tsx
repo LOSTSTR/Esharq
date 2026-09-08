@@ -4,13 +4,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { disableStyle, enableStyle, setStyleClassNames } from "@api/Styles";
+import { disableStyle, enableStyle } from "@api/Styles";
+import { fillStyleClassesWhenReady } from "@utils/esharqLateClasses";
 import definePlugin from "@utils/types";
-import { findCssClassesLazy } from "@webpack";
 
 import style from "./style.css?managed";
 
-const classes = findCssClassesLazy("messageListItem");
+// 🔴 وحدةُ الرسائل تُحمَّل كسولاً. ينظر التعليق في `@utils/esharqLateClasses`.
 
 export default definePlugin({
     name: "LazyMessageRender",
@@ -19,7 +19,7 @@ export default definePlugin({
     tags: ["Appearance", "Chat"],
 
     start() {
-        setStyleClassNames(style, { messageListItem: classes.messageListItem });
+        fillStyleClassesWhenReady([style], ["messageListItem"]);
         enableStyle(style);
     },
 

@@ -4,19 +4,21 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { disableStyle, enableStyle, setStyleClassNames } from "@api/Styles";
+import { disableStyle, enableStyle } from "@api/Styles";
 import { EquicordDevs } from "@utils/constants";
+import { fillStyleClassesWhenReady } from "@utils/esharqLateClasses";
 import definePlugin from "@utils/types";
-import { findCssClassesLazy } from "@webpack";
 
 import style from "./style.css?managed";
 
-// messageContent is Discord's mangled class for the chat message body.
-// Resolved here instead of hardcoding `[class*="messageContent-"]`, and fed
-// into the `[--messageContent]` placeholder in style.css. Graceful failure:
-// if it doesn't resolve, compileStyle leaves the placeholder in place — a
-// selector that matches nothing — so the fix is simply absent, never a crash.
-const classes = findCssClassesLazy("messageContent");
+// messageContent هو صنف ديسكورد المُصغَّر لمتن الرسالة، ويُغذّي العنصر النائب
+// `[--messageContent]` في style.css بدل تثبيت `[class*="messageContent-"]`.
+//
+// 🔴 كان يُقرأ داخل `start()` عبر `findCssClassesLazy`. ووحدةُ الرسائل تُحمَّل
+// **كسولاً**، فمن يُقلع على صفحة الأصدقاء لا تكون عنده بعد ⇒ الصنف `undefined`
+// ⇒ يُبقي `compileStyle` العنصرَ النائب، وهو مُحدِّدُ سمةٍ لا يطابق شيئاً.
+// ولا شيء يُعيد الترجمة لاحقاً، فالإضافة تبقى **حيّةً صامتة طوال الجلسة**.
+// قِيس حيّاً: فُتحت قناة حتى ظهرت عناصر الرسائل في DOM، والعنصر النائب باقٍ.
 
 export default definePlugin({
     name: "SmartBidi",
@@ -24,8 +26,8 @@ export default definePlugin({
     authors: [EquicordDevs.LOSTSTR],
     tags: ["Accessibility", "Appearance"],
     start() {
-        setStyleClassNames(style, { messageContent: classes.messageContent });
         enableStyle(style);
+        fillStyleClassesWhenReady([style], ["messageContent"]);
     },
     stop: () => disableStyle(style),
 });

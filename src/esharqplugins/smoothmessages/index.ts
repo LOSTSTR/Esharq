@@ -5,14 +5,16 @@
  */
 
 import { definePluginSettings } from "@api/Settings";
-import { disableStyle, enableStyle, setStyleClassNames } from "@api/Styles";
+import { disableStyle, enableStyle } from "@api/Styles";
+import { fillStyleClassesWhenReady } from "@utils/esharqLateClasses";
 import definePlugin, { OptionType } from "@utils/types";
-import { findCssClassesLazy } from "@webpack";
 
 import fadeStyle from "./fade.css?managed";
 import slideStyle from "./slide.css?managed";
 
-const messageClasses = findCssClassesLazy("messageListItem");
+// 🔴 وحدةُ الرسائل تُحمَّل كسولاً، فقراءةُ الصنف في `start()` تُرجع
+// `undefined` لمن يُقلع على صفحة الأصدقاء، ويبقى العنصر النائب طوال الجلسة.
+// ينظر التعليق في `@utils/esharqLateClasses`.
 
 function applyStyle() {
     disableStyle(fadeStyle);
@@ -37,9 +39,8 @@ export default definePlugin({
     settings,
 
     start() {
-        setStyleClassNames(fadeStyle, { messageListItem: messageClasses.messageListItem });
-        setStyleClassNames(slideStyle, { messageListItem: messageClasses.messageListItem });
         applyStyle();
+        fillStyleClassesWhenReady([fadeStyle, slideStyle], ["messageListItem"]);
     },
 
     stop() {
