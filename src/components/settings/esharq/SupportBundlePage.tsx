@@ -7,6 +7,7 @@
 import "./supportBundle.css";
 
 import { getUnserialisableSettingPaths,PlainSettings, Settings } from "@api/Settings";
+import { redactPath, scrubPaths } from "@api/SettingsSync/redact";
 import { getDroppedIssueCount, getIssues } from "@debug/esharqErrors";
 import { getPluginStartups } from "@debug/esharqStartup";
 import { copyToClipboard } from "@utils/clipboard";
@@ -106,6 +107,32 @@ interface Bundle {
 /** كم بلاغاً يدخل الحزمة — الأحدث أوّلاً، والباقي يبقى عدده مذكوراً. */
 const BUNDLED_ISSUES = 30;
 
+/*
+ * ── مسارات الجهاز لا تخرج ───────────────────────────────────────────────────
+ *
+ * 🔴 الصفحة تَعِد تحت «لا يخرج أبداً» بـ«مسارات جهازك»، ثمّ كانت تُخرج مساراً
+ * فيه **اسم مستخدم نظام التشغيل**. حال الحفظ تأتي من العملية الرئيسة وفيها
+ * `path: SETTINGS_FILE` كاملاً — `C:\Users\<الاسم>\AppData\Roaming\…` — ومعه
+ * ثلاثة نصوص خطأ من `fs` (`readable` و`startupReadError` و`lastWriteError`)
+ * كلٌّ منها من شكل `${code}: ${message}`، ورسالة `fs` تُضمّن المسار الكامل
+ * بنفسها: `EACCES: permission denied, open 'C:\Users\<الاسم>\…'`.
+ *
+ * فالوعد لا يُعاد صوغه — بل يُصدَّق. والقيمة التشخيصية لا تُفقد: يبقى **اسم
+ * الملفّ** ورمز الخطأ، وهما ما يُشخَّص بهما فعلاً؛ ولا يبقى من هو صاحبه.
+ */
+
+/** حال الحفظ كما تدخل الحزمة: بلا مسارٍ يدلّ على صاحب الجهاز. */
+function redactHealth(h: Bundle["settingsHealth"]): Bundle["settingsHealth"] {
+    if (!h) return h;
+    return {
+        ...h,
+        path: redactPath(h.path) ?? "<userData>",
+        readable: scrubPaths(h.readable),
+        lastWriteError: scrubPaths(h.lastWriteError),
+        startupReadError: scrubPaths(h.startupReadError)
+    };
+}
+
 /**
  * أي مفاتيح غيّرها المستخدم عن الافتراضي — **بأسمائها لا بقيمها**.
  *
@@ -204,7 +231,9 @@ function buildBundle(): Bundle {
                 kind: i.kind,
                 source: i.plugin ?? i.source,
                 count: i.count,
-                message: i.message
+                // نصّ الخطأ حرٌّ، وأثر التنفيذ فيه قد يحمل مساراً محلّياً —
+                // وهو داخلٌ في نفس الوعد، فيُنقّى بنفس المِحكّ.
+                message: scrubPaths(i.message) ?? i.message
             }))
         }
     };
@@ -248,14 +277,14 @@ export function SupportBundlePage() {
         const base = buildBundle();
         setBundle(base);
         (window as any).VencordNative?.settings?.getHealth?.()
-            .then((h: Bundle["settingsHealth"]) => setBundle(b => ({ ...b, settingsHealth: h })))
+            .then((h: Bundle["settingsHealth"]) => setBundle(b => ({ ...b, settingsHealth: redactHealth(h) })))
             .catch(() => { /* واجهةٌ أقدم أو ويب — القسم يبقى غائباً */ });
     };
 
     useEffect(() => {
         let alive = true;
         (window as any).VencordNative?.settings?.getHealth?.()
-            .then((h: Bundle["settingsHealth"]) => { if (alive) setBundle(b => ({ ...b, settingsHealth: h })); })
+            .then((h: Bundle["settingsHealth"]) => { if (alive) setBundle(b => ({ ...b, settingsHealth: redactHealth(h) })); })
             .catch(() => { /* واجهةٌ أقدم أو ويب — القسم يبقى غائباً */ });
         return () => { alive = false; };
     }, []);

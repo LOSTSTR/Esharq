@@ -10,7 +10,7 @@ import { chooseFile, saveFile } from "@utils/web";
 import { moment, Toasts } from "@webpack/common";
 
 import { DataStore } from "..";
-import { redactSecrets } from "./redact";
+import { type DataStoreEntry, redactDataStore, redactSecrets } from "./redact";
 
 type BackupType = "all" | "plugins" | "css" | "datastore";
 
@@ -116,10 +116,7 @@ export async function exportSettings({ syncDataStore = true, type = "all", minif
     const raw = VencordNative.settings.get();
     const redaction = redactSecrets(raw);
     const settings = redaction.value;
-    lastRedactedKeys = redaction.redacted;
-    if (redaction.redacted.length > 0) {
-        logger.info(`نُقّي ${redaction.redacted.length} مفتاحاً حسّاساً من النسخة:`, redaction.redacted);
-    }
+    const redactedKeys = [...redaction.redacted];
     /**
      * 🔴 تُقرَأ **فقط لمن يحتاجها**، ويُرمى الفشل عندها وحدها.
      *
@@ -129,22 +126,38 @@ export async function exportSettings({ syncDataStore = true, type = "all", minif
      */
     const needsQuickCss = type === "all" || type === "css";
     const quickCss = needsQuickCss ? await VencordNative.quickCss.get() : "";
-    let dataStore: any;
+    let dataStore: DataStoreEntry[] | undefined;
 
     if (syncDataStore) {
         try {
-            dataStore = (await Promise.all((await DataStore.keys<IDBValidKey>()).map(async (key): Promise<[IDBValidKey, unknown] | undefined> => { try { return [key, await DataStore.get<unknown>(key)]; } catch (error) { logger.warn(`Skipping unreadable DataStore record ${String(key)}:`, error); return undefined; } }))).filter((entry): entry is [IDBValidKey, unknown] => entry !== undefined);
+            dataStore = (await Promise.all((await DataStore.keys<IDBValidKey>()).map(async (key): Promise<DataStoreEntry | undefined> => { try { return [key, await DataStore.get<unknown>(key)]; } catch (error) { logger.warn(`Skipping unreadable DataStore record ${String(key)}:`, error); return undefined; } }))).filter((entry): entry is DataStoreEntry => entry !== undefined);
+
+            // 🔴 كان هذا المخزن يخرج **حرفياً**. والإعدادات وحدها كانت تُنقّى،
+            // بينما فيه توكنات التفويض وسرّ المزامنة ومفاتيح المنصّات — أي أنّ
+            // نسخة «الكلّ» كانت أخطر من نسخة الإضافات التي نُقّيت.
+            const dsRedaction = redactDataStore(dataStore);
+            dataStore = dsRedaction.value;
+            redactedKeys.push(...dsRedaction.redacted);
         } catch (err) {
             logger.error("Failed to read DataStore entries:", err);
+
+            // 🔴 يُطرَح المخزن **قبل** فحص السبب. لو تعثّرت التنقية نفسها لبقي
+            // في المتغيّر مخزنٌ خام غير منقّى، فالتفريغ أوّلاً يجعل الفشل
+            // يسقط دائماً في الجانب الآمن.
+            dataStore = undefined;
 
             if (type === "all") {
                 logger.warn("Skipping DataStore in backup due to size. Export DataStore separately if needed.");
                 toast(Toasts.Type.MESSAGE, "DataStore too large - exported without it. Use 'Export DataStore' separately if needed.");
-                dataStore = undefined;
             } else if (type === "datastore") {
                 throw new Error("DataStore is too large to export. Please clear some plugin data and try again.");
             }
         }
+    }
+
+    lastRedactedKeys = redactedKeys;
+    if (redactedKeys.length > 0) {
+        logger.info(`نُقّي ${redactedKeys.length} مفتاحاً حسّاساً من النسخة:`, redactedKeys);
     }
 
     switch (type) {
