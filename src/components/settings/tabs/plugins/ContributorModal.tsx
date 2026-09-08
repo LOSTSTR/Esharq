@@ -77,7 +77,7 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: Render
                 plugins.length
                     ? (
                         <Paragraph>
-                            {user.username} {t("قد", "has")} {ContributedHyperLink} {t(`في ${pluralise(plugins.length, "إضافة")}!`, `to ${pluralise(plugins.length, "plugin")}!`)}
+                            {user.username} {t("قد", "has")} {ContributedHyperLink} {t(`في ${pluralise(plugins.length, "إضافة", "إضافات")}!`, `to ${pluralise(plugins.length, "plugin")}!`)}
                         </Paragraph>
                     )
                     : (
