@@ -45,16 +45,17 @@ import { stagger } from "./motion";
  *
  * ## ولماذا يقع التبديل في الموقع لا هنا
  *
- * تغيير الحالة يحتاج سلطةً: **رابطٌ موقَّع** يُنتجه `/badge` في ديسكورد ويُثبت
- * الهويّة، ثم **يُعاد فحص دور الداعم** عند ديسكورد قبل الكتابة — لأن الرابط
- * يبقى صالحاً مدّته بينما الدور قد يُسحَب داخلها.
+ * تغيير الحالة يحتاج سلطةً: **رابطٌ موقَّع** يُنتجه `/visibility` (لكلّ عضو)
+ * أو `/badge` (للداعمين) في ديسكورد فيُثبت الهويّة، ثم **يُعاد فحص دور
+ * الداعم** عند ديسكورد قبل الكتابة — لأن الرابط يبقى صالحاً مدّته بينما
+ * الدور قد يُسحَب داخلها.
  *
  * والعميل لا يملك ذلك الرابط، وإعطاؤه سلطةً خاصّةً به يعني **باباً ثانياً
  * أضعف** إلى نفس البيانات. فالتبديل يُفتح في الموقع، والحالة هنا تُقرأ من
  * الخادم فتصدُق سواء بُدّلت من هنا أو من هناك.
  */
 
-/** صفحة التحكّم — السلطة هناك: رابط موقَّع من `/badge` ثم فحص الدور. */
+/** صفحة التحكّم — السلطة هناك: رابط موقَّع من `/visibility` أو `/badge` ثم فحص الدور. */
 const BADGE_CONTROL_URL = "https://esharq.org/badge";
 
 interface Badge {
@@ -129,8 +130,8 @@ const STATE_LABEL = (profile: boolean, chat: boolean): string =>
  * و**لدى إشراق بالكامل** يُكتب على الخادم فتختفي الشارة عن الناس جميعاً.
  * إخفاءٌ محليّ يتظاهر بأنّه عامّ خداعٌ للمستخدم، ولذلك يُسمّى كلٌّ باسمه.
  *
- * النطاق العامّ يحتاج رابطاً موقَّعاً من `/badge` — الخادم لا يثق بادّعاء
- * العميل، وإلّا غيّر أيّ أحدٍ شارات أيّ أحد.
+ * النطاق العامّ يحتاج رابطاً موقَّعاً: `/visibility` لكلّ عضو، و`/badge`
+ * للداعمين. الخادم لا يثق بادّعاء العميل، وإلّا غيّر أيّ أحدٍ شارات أيّ أحد.
  */
 function BadgeControl({ held, userId }: { held: BadgeKind[]; userId: string | null; }) {
     const [scope, setScope] = useState<"local" | "global">("local");
@@ -208,10 +209,17 @@ function BadgeControl({ held, userId }: { held: BadgeKind[]; userId: string | nu
                         "Applies to every Esharq user. What you hide here, nobody sees.")}
             </div>
 
+            {/*
+              * 🔴 الأمر المذكور هنا يجب أن يكون `/visibility` لا `/badge`.
+              *
+              * `/badge` محجوبٌ على الداعمين، فكان غير الداعم يقرأ التعليمة
+              * ويتّبعها فيُرفض — ويقف حيث بدأ ظانّاً أنّ الميزة ليست له.
+              * و`/visibility` مفتوحٌ لكلّ عضو، وهو الطريق الصحيح إلى الإذن.
+              */}
             {scope === "global" && !linked && (
                 <NoticeStrip tone="info">
-                    {t("اكتب /badge في أيّ قناة بخادم إشراق، وسيلتقط التطبيق إذنك تلقائياً (صالح ١٥ دقيقة).",
-                        "Type /badge in any channel in the Esharq server; the app picks up your authorisation automatically (valid 15 minutes).")}
+                    {t("اكتب /visibility في أيّ قناة بخادم إشراق، وسيلتقط التطبيق إذنك تلقائياً (صالح ١٥ دقيقة). الأمر متاح لكلّ الأعضاء، لا للداعمين وحدهم — وهو للإظهار والإخفاء فقط. أمّا تغيير صورة الشارة ونصّها فبالأمر /badge وهو للداعمين.",
+                        "Type /visibility in any channel in the Esharq server; the app picks up your authorisation automatically (valid 15 minutes). It is open to every member, not just supporters, and it only shows or hides. Changing a badge's image and text is /badge, which is for supporters.")}
                 </NoticeStrip>
             )}
 
@@ -603,8 +611,8 @@ export function MyProfilePage() {
                         )}
 
                         <NoticeStrip>
-                            {t("التبديل يجري في الموقع لأنه يحتاج إثبات أنك صاحب الشارة — رابطٌ موقَّع من /badge ثم فحصٌ لدورك عند ديسكورد. ولا نمنح العميل سلطةً ثانيةً أضعف على البيانات نفسها.",
-                                "The switch happens on the website because it must prove the badge is yours — a signed link from /badge, then a check of your role at Discord. We don't give the client a second, weaker authority over the same data.")}
+                            {t("التبديل يجري في الموقع لأنه يحتاج إثبات أنك صاحب الشارة — رابطٌ موقَّع من /badge أو /visibility، ثم فحصٌ لدورك عند ديسكورد. ولا نمنح العميل سلطةً ثانيةً أضعف على البيانات نفسها.",
+                                "The switch happens on the website because it must prove the badge is yours — a signed link from /badge or /visibility, then a check of your role at Discord. We don't give the client a second, weaker authority over the same data.")}
                         </NoticeStrip>
 
                         <NoticeStrip>
