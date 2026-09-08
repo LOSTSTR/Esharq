@@ -65,13 +65,19 @@ export function TempMailModal({ modalProps }: { modalProps: RenderModalProps; })
         return () => clearInterval(pollRef.current);
     }, [active]);
 
+    // 🔴 لا يُبتلع خطأ النطاقات: بلا نطاقٍ لا يُنشأ بريد، فكان المستخدم يرى
+    // «لا توجد نطاقات متاحة بعد» بلا سبب — وهو ما بدا وكأنّ الإضافة معطوبة
+    // بينما الخدمة كانت ترفض الطلب لسببٍ يمكن قوله.
     async function fetchDomains() {
         try {
             const d = await getDomains();
             const names = d.filter(x => x.isActive).map(x => x.domain);
             setDomains(names);
             if (names.length) setSelDomain(names[0]);
-        } catch (err) { logger.debug("Ignored error", err); }
+            else setError(t("لا نطاقات نشطة لدى الخدمة الآن. حاول لاحقاً.", "The service has no active domains right now. Try again later."));
+        } catch (e: any) {
+            setError(t("تعذّر جلب النطاقات: ", "Could not fetch domains: ") + e.message);
+        }
     }
 
     async function fetchInbox(acc: SavedAccount, silent = false) {
