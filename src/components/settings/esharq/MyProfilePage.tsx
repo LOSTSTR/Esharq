@@ -25,6 +25,7 @@ import {
     type RemoteState, setHiddenLocally, setRemote
 } from "@plugins/_api/badges/control";
 import { t } from "@utils/esharqI18n";
+import { esharqTierOf } from "@utils/misc";
 import { useEffect, useMemo, useReducer, UserStore, useState } from "@webpack/common";
 
 import { Card, NoticeStrip } from "./Card";
@@ -80,6 +81,14 @@ function isEsharqBadge(badge: Badge): boolean {
     const src = `${badge.description ?? ""} ${badge.iconSrc ?? badge.image ?? ""}`.toLowerCase();
     return src.includes("esharq") || src.includes("إشراق");
 }
+
+/** وسمُ الرتبة في أعلى بطاقة الملفّ — مختصرٌ لأنّه شارةٌ لا جملة. */
+const TIER_CHIP: Record<"owner" | "admin" | "tester" | "supporter", { ar: string; en: string; }> = {
+    owner: { ar: "مالك", en: "Owner" },
+    admin: { ar: "مدير", en: "Admin" },
+    tester: { ar: "مُختبِر", en: "Tester" },
+    supporter: { ar: "داعم", en: "Supporter" }
+};
 
 /** الشارات التي لها تحكّم، وأسماؤها كما يراها صاحبها. */
 const CONTROLLABLE: { kind: BadgeKind; ar: string; en: string; }[] = [
@@ -465,7 +474,18 @@ export function MyProfilePage() {
     }
 
     const esharqBadges = badges.filter(isEsharqBadge);
-    const isSupporter = selfServe.length > 0 || esharqBadges.length > 0;
+
+    // 🔴 الوسم من **الرتبة** لا من امتلاك شارةٍ ما.
+    //
+    // كان: `selfServe.length > 0 || esharqBadges.length > 0` — و`esharqBadges`
+    // تشمل شارة «مستخدم إشراق» التي يملكها **كلّ** عضو، فكان أيُّ عضوٍ عاديّ
+    // شارتُه ظاهرة يُوسَم «داعم». والدعمُ حالةٌ مدفوعة يحكمها دورُ الداعم عند
+    // الخادم، فلا يصحّ أن يمنحها العميلُ لنفسه بمجرّد وجود شارة.
+    const tier = esharqTierOf(me.id);
+    const isSupporter = tier === "supporter" || selfServe.length > 0;
+    const chip = tier !== null ? TIER_CHIP[tier]
+        : isSupporter ? TIER_CHIP.supporter
+            : { ar: "عضو", en: "Member" };
     const avatar = me.getAvatarURL?.(undefined, 128) ?? "";
 
     const openControl = () => {
@@ -498,8 +518,8 @@ export function MyProfilePage() {
             <Card index={0}
                 title={t("ملفّك الشخصيّ", "Your profile")}
                 subtitle={t("كما يراك إشراق.", "As Esharq sees you.")}
-                badge={isSupporter ? t("داعم", "Supporter") : t("عضو", "Member")}
-                badgeTone={isSupporter ? "ok" : "info"}>
+                badge={t(chip.ar, chip.en)}
+                badgeTone={tier !== null || isSupporter ? "ok" : "info"}>
                 <div className="esharq-mp-head">
                     {avatar !== "" && <img className="esharq-mp-avatar" src={avatar} alt="" width={72} height={72} />}
                     <div className="esharq-mp-who">
