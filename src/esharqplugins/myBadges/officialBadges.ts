@@ -92,6 +92,21 @@ export const OFFICIAL_GROUPS: readonly { key: OfficialGroup; ar: string; en: str
 
 /** المُختار حالياً — مُعرّفات فقط، فحذف شارةٍ من الكتالوج لا يُفسد المحفوظ. */
 let selected: string[] = [];
+
+/**
+ * 🔴 هل قُرئ المحفوظ؟ لا كتابة قبلها.
+ *
+ * `loadOfficialSelection()` لا تُنادى إلّا من `MyBadges.start()`، والإضافة
+ * مُطفأةٌ افتراضياً. وصفحة «ملفّك الشخصيّ» تفتح المنتقي بلا علاقةٍ بذلك،
+ * فكانت نقرةٌ واحدة تُشغّل `toggleOfficial` على `selected` وهو `[]` فتحفظ
+ * مصفوفةً فيها ذلك المعرّف وحده **فوق** اختيارٍ محفوظٍ لم يُقرأ — و
+ * `clearOfficial` تحفظ الفراغ فوقه. أي أنّ فتح الصفحة والنقر يمحو الاختيار.
+ *
+ * والراية تُرفع على مسار النجاح وحده: فشل القراءة يعني جهلاً بالمحفوظ،
+ * والكتابة على الجهل محوٌ.
+ */
+let loaded = false;
+
 const listeners = new Set<() => void>();
 
 function notify() {
@@ -112,13 +127,24 @@ export const isOfficialOn = (id: string): boolean => selected.includes(id);
 export const selectedOfficialBadges = (): OfficialBadge[] =>
     OFFICIAL_BADGES.filter(badge => selected.includes(badge.id));
 
+/** هل قُرئ الاختيار المحفوظ؟ تسأله الصفحة قبل أن ترسم منتقياً يُنقَر. */
+export const isOfficialLoaded = (): boolean => loaded;
+
 export function toggleOfficial(id: string): void {
+    if (!loaded) {
+        logger.warn("refusing to write the selection before the saved one was read");
+        return;
+    }
     selected = selected.includes(id) ? selected.filter(x => x !== id) : [...selected, id];
     notify();
     DataStore.set(STORE_KEY, selected).catch(e => logger.error("failed to save selection", e));
 }
 
 export function clearOfficial(): void {
+    if (!loaded) {
+        logger.warn("refusing to clear the selection before the saved one was read");
+        return;
+    }
     selected = [];
     notify();
     DataStore.set(STORE_KEY, selected).catch(e => logger.error("failed to clear selection", e));
@@ -129,6 +155,8 @@ export async function loadOfficialSelection(): Promise<void> {
     try {
         const saved = await DataStore.get(STORE_KEY);
         if (Array.isArray(saved)) selected = saved.filter(x => typeof x === "string");
+        // غيابُ المفتاح أوّلَ تشغيلٍ ليس فشلاً — الفراغ حينها هو المحفوظ حقّاً.
+        loaded = true;
     } catch (e) {
         logger.error("failed to load selection", e);
     }

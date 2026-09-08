@@ -12,11 +12,11 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { FormSwitch } from "@components/FormSwitch";
 import { Switch } from "@components/Switch";
 import {
-    getIdentity, isFakeProfileOn, isValidCreatedAt, type LocalIdentity,
+    getIdentity, isFakeProfileOn, isIdentityLoaded, isValidCreatedAt, type LocalIdentity,
     onIdentityChange, setFakeProfile, setIdentityField
 } from "@esharqplugins/myBadges/localIdentity";
 import {
-    clearOfficial, isOfficialOn, OFFICIAL_BADGES, OFFICIAL_GROUPS,
+    clearOfficial, isOfficialLoaded, isOfficialOn, OFFICIAL_BADGES, OFFICIAL_GROUPS,
     type OfficialGroup, onOfficialChange, selectedOfficialBadges, toggleOfficial
 } from "@esharqplugins/myBadges/officialBadges";
 import { esharqBadgeImage, getEsharqEntitlements, getSelfServeBadges } from "@plugins/_api/badges";
@@ -446,16 +446,39 @@ function OfficialBadgePicker() {
 export function MyProfilePage() {
     // عدّاد الاختيار وحالة الإضافة — يُقرآن مباشرةً فلا يكذبان على المستخدم.
     const [, bumpOfficial] = useReducer((n: number) => n + 1, 0);
+
+    const badgesPluginOn = isPluginEnabled("MyBadges");
+    // تُقرآن هنا لتُقارَنا داخل الأثر أدناه — انظر تعليق السباق.
+    const identityLoaded = isIdentityLoaded();
+    const officialLoaded = isOfficialLoaded();
+
     useEffect(() => {
         // كلا المصدرين خارج React؛ بلا الاشتراك في الهويّة يبقى المفتاح
         // يعرض حالةً قديمة فيُقلَب على غير ما يظنّ المستخدم.
         const offBadges = onOfficialChange(bumpOfficial);
         const offIdentity = onIdentityChange(bumpOfficial);
+
+        // 🔴 سباقُ التركيب: القراءة غير متزامنة، وقد تنتهي **بين** الرسم
+        // الأوّل وتركيب هذا الأثر — فيضيع الإشعار وتبقى البطاقة على «لم
+        // يُقرأ بعد» إلى الأبد. فنُعيد الفحص مرّةً بعد الاشتراك مباشرةً.
+        if (isIdentityLoaded() !== identityLoaded || isOfficialLoaded() !== officialLoaded) bumpOfficial();
+
         return () => { offBadges(); offIdentity(); };
     }, []);
+
+    /**
+     * 🔴 «جاهز» = الإضافة تعمل **و**المحفوظ قُرئ.
+     *
+     * الشرطان ضروريّان ولا يُغني أحدهما: الإضافة قد تكون مُفعَّلةً في
+     * الإعدادات و`start()` لم تُتمّ قراءتها بعد، وقد تُقرأ ثمّ تُطفأ الإضافة
+     * فلا يعود لِما يُكتَب أثرٌ يُرى. وبدون «قُرئ» تُرسَم حقولٌ فارغة تدعو
+     * صاحبها إلى محو هويّته بحرفٍ واحد.
+     */
+    const identityReady = badgesPluginOn && identityLoaded;
+    const officialReady = badgesPluginOn && officialLoaded;
+
     const officialCount = selectedOfficialBadges().length;
-    const fakeOn = isFakeProfileOn();
-    const badgesPluginOn = isPluginEnabled("MyBadges");
+    const fakeOn = identityReady && isFakeProfileOn();
     const [busy, setBusy] = useState(false);
     const [opened, setOpened] = useState(false);
 
@@ -543,21 +566,42 @@ export function MyProfilePage() {
                     "اسمٌ وتاريخُ إنشاءٍ تراهما أنت وحدك في كل مكان داخل العميل. والمفتاح أدناه يحكمها ويحكم الشارات معاً: أطفئه فيعود كل شيء طبيعياً في الحال، بلا إعادة تشغيل ولا فقدانِ ما اخترته.",
                     "A name and creation date only you see, everywhere in the client. The switch below governs these and the badges alike: turn it off and everything returns to normal at once — no restart, and your picks are kept."
                 )}
-                badge={fakeOn ? t("مُفعَّل", "On") : t("مُطفأ", "Off")}
-                badgeTone={fakeOn ? "ok" : "info"}>
-                <FormSwitch
-                    value={fakeOn}
-                    onChange={(v: boolean) => setFakeProfile(v)}
-                    title={t("فعّل الملف الشخصيّ المحلّي", "Enable local profile")}
-                    description={t(
-                        "عند الإطفاء يعود اسمك وتاريخ إنشائك الحقيقيان وتختفي الشارات الرسمية.",
-                        "When off, your real name and creation date come back and the official badges disappear."
-                    )}
-                />
-                {/* الحقول تحت المفتاح مباشرةً: ما يحكمه المفتاح يجاوره لا يُفصَل عنه. */}
-                <div className={fakeOn ? "" : "esharq-mp-dimmed"}>
-                    <LocalIdentityFields real={{ name: me.globalName ?? me.username, tag: me.username }} />
-                </div>
+                badge={!identityReady ? t("غير متاح", "Unavailable") : fakeOn ? t("مُفعَّل", "On") : t("مُطفأ", "Off")}
+                badgeTone={!identityReady ? "warn" : fakeOn ? "ok" : "info"}>
+                {/*
+                  * 🔴 لا مفتاح ولا حقول قبل أن يُقرأ المحفوظ.
+                  *
+                  * كانت البطاقة تُرسَم دائماً، و`MyBadges` مُطفأةٌ افتراضياً
+                  * فلا تُنادى `loadIdentity()` أصلاً. فيرى صاحبها مفتاحاً
+                  * مكتوباً عليه «مُفعَّل» (لأنّ تهيئة الوحدة `enabled = true`)
+                  * وحقولاً فارغة — ثمّ يكفي حرفٌ واحد ليُحفظ الفراغ فوق
+                  * هويّته المحفوظة. فالبطاقة الآن تشرح السبب بدل أن تُتلف.
+                  */}
+                {!identityReady ? (
+                    <NoticeStrip tone="danger">
+                        {!badgesPluginOn
+                            ? t("إضافة MyBadges مُطفأة، وهويّتك المحفوظة لم تُقرأ. فعّلها لتظهر حقولك كما حفظتها. وأخفينا الحقول الآن عمداً: الكتابة فيها قبل قراءة المحفوظ تمحوه.",
+                                "The MyBadges plugin is off, so your saved identity hasn't been read. Enable it to see your fields as you saved them. The fields are hidden on purpose: typing in them before the saved data is read would erase it.")
+                            : t("لم تُقرأ هويّتك المحفوظة بعد. إن بقيت هذه الرسالة، فقراءة التخزين المحلّي أخفقت — ولن نكتب فوق ما لا نستطيع قراءته.",
+                                "Your saved identity hasn't been read yet. If this message stays, reading local storage failed — and we won't write over what we can't read.")}
+                    </NoticeStrip>
+                ) : (
+                    <>
+                        <FormSwitch
+                            value={fakeOn}
+                            onChange={(v: boolean) => setFakeProfile(v)}
+                            title={t("فعّل الملف الشخصيّ المحلّي", "Enable local profile")}
+                            description={t(
+                                "عند الإطفاء يعود اسمك وتاريخ إنشائك الحقيقيان وتختفي الشارات الرسمية.",
+                                "When off, your real name and creation date come back and the official badges disappear."
+                            )}
+                        />
+                        {/* الحقول تحت المفتاح مباشرةً: ما يحكمه المفتاح يجاوره لا يُفصَل عنه. */}
+                        <div className={fakeOn ? "" : "esharq-mp-dimmed"}>
+                            <LocalIdentityFields real={{ name: me.globalName ?? me.username, tag: me.username }} />
+                        </div>
+                    </>
+                )}
             </Card>
 
             <Card index={1}
@@ -566,15 +610,25 @@ export function MyProfilePage() {
                     "اختر ما تشاء — تُرسَم على ملفّك عندك وحدك. لا تُرسَل إلى ديسكورد ولا يراها أحد غيرك، ولا تُمَسّ حالة حسابك.",
                     "Pick whichever you like — drawn on your profile, for you only. Nothing is sent to Discord, nobody else sees them, and your account state is untouched."
                 )}
-                badge={officialCount > 0 ? String(officialCount) : t("محلّية", "Local")}
-                badgeTone={officialCount > 0 ? "ok" : "info"}>
-                {!badgesPluginOn && (
+                badge={!officialReady ? t("غير متاح", "Unavailable") : officialCount > 0 ? String(officialCount) : t("محلّية", "Local")}
+                badgeTone={!officialReady ? "warn" : officialCount > 0 ? "ok" : "info"}>
+                {/*
+                  * 🔴 المنتقي لا يُرسَم قبل قراءة المحفوظ.
+                  *
+                  * كان التحذير وحده يُعرَض ثمّ يُرسَم المنتقي قابلاً للنقر —
+                  * والنقر يُشغّل `toggleOfficial` على `selected` وهو `[]`،
+                  * فيُحفظ معرّفٌ واحد فوق اختيارٍ كاملٍ لم يُقرأ. تحذيرٌ
+                  * بجوار زرٍّ يُتلف ليس حمايةً.
+                  */}
+                {!officialReady ? (
                     <NoticeStrip tone="danger">
-                        {t("إضافة MyBadges مُطفأة — فعّلها ليُرسَم اختيارك.",
-                            "The MyBadges plugin is off — enable it for your picks to be drawn.")}
+                        {!badgesPluginOn
+                            ? t("إضافة MyBadges مُطفأة، واختيارك المحفوظ لم يُقرأ. فعّلها ليظهر اختيارك ويُرسَم. وأخفينا المنتقي عمداً: النقر قبل قراءة المحفوظ يمحوه.",
+                                "The MyBadges plugin is off, so your saved picks haven't been read. Enable it for them to appear and be drawn. The picker is hidden on purpose: clicking before the saved picks are read would erase them.")
+                            : t("لم يُقرأ اختيارك المحفوظ بعد. إن بقيت هذه الرسالة، فقراءة التخزين المحلّي أخفقت — ولن نكتب فوق ما لا نستطيع قراءته.",
+                                "Your saved picks haven't been read yet. If this message stays, reading local storage failed — and we won't write over what we can't read.")}
                     </NoticeStrip>
-                )}
-                <OfficialBadgePicker />
+                ) : <OfficialBadgePicker />}
             </Card>
 
             {heldKinds.length > 0 && (

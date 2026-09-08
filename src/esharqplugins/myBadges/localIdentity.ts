@@ -45,6 +45,28 @@ export interface LocalIdentity {
 let identity: LocalIdentity = {};
 /** المفتاح الرئيسيّ: يحكم الهويّة **والشارات** معاً. */
 let enabled = true;
+
+/**
+ * 🔴 هل قُرئ المحفوظ؟ لا كتابة قبلها.
+ *
+ * `MyBadges` مُطفأةٌ افتراضياً (`enabledByDefault: false`)، و`loadIdentity()`
+ * لا تُنادى إلّا من `start()`. وصفحة «ملفّك الشخصيّ» تُفتح من شجرة الإعدادات
+ * بلا علاقةٍ بذلك. فكان يُرى — والإضافة مُطفأة — `identity` وهو `{}`،
+ * فيكفي حرفٌ واحد يُكتب في حقل ليَسري `setIdentityField` على الفراغ ويحفظه
+ * **فوق** هويّةٍ محفوظةٍ لم تُقرأ قطّ. أي أنّ مجرّد فتح الصفحة والكتابة
+ * يمحو ما بناه صاحبها.
+ *
+ * والراية تُرفع على **مسار النجاح وحده**: فشل القراءة يعني أنّنا لا نعلم
+ * المحفوظ، والكتابة حينئذٍ تمحوه. فالرفض أسلم، والمستخدم يرى السبب في
+ * الصفحة بدل أن يفقد بياناته بصمت.
+ *
+ * ولماذا يبقى `enabled = true` ولا يصير `false`؟ لأنّه ليس موضع الخطر:
+ * الخطر في كتابة `{}` فوق المحفوظ، وقد سدّته هذه الراية. أمّا تصفيره فيُطفئ
+ * الميزة على كلّ من لم يمسّ المفتاح قطّ — إذ لا مفتاح له في المخزن،
+ * فتُبقيه `loadIdentity()` على قيمة التهيئة — فيكون ضرراً بلا مقابل.
+ */
+let loaded = false;
+
 const listeners = new Set<() => void>();
 
 /** الاسم الحقيقيّ قبل أيّ تبديل — به وحده نستطيع الرجوع. */
@@ -67,8 +89,18 @@ export const getIdentity = (): LocalIdentity => ({ ...identity });
 
 export const isFakeProfileOn = (): boolean => enabled;
 
+/**
+ * هل قُرئ المحفوظ؟ تسأله الصفحة قبل أن ترسم مفتاحاً أو حقلاً — فمفتاحٌ
+ * يعرض قيمةً لم تُقرأ يكذب، وحقلٌ فارغٌ يدعو صاحبه إلى محو هويّته.
+ */
+export const isIdentityLoaded = (): boolean => loaded;
+
 /** يُشغّل الكلّ أو يُرجعه طبيعياً فوراً — بلا إعادة تشغيل. */
 export function setFakeProfile(on: boolean): void {
+    if (!loaded) {
+        logger.warn("refusing to write the master switch before the saved value was read");
+        return;
+    }
     enabled = on;
     notify();
     if (on) applyIdentity();
@@ -105,16 +137,57 @@ function pushName(username: string, globalName: string) {
     }
 }
 
-/** ديسكورد قد يدهس الاسم عند جهوز البوّابة، فنُعيده حينها. */
+/**
+ * ديسكورد قد يدهس الاسم عند جهوز البوّابة، فنُعيده حينها.
+ *
+ * 🔴 المستمع يُفَكّ اشتراكه دائماً، ويُفحص `enabled` **في جسمه هو**.
+ *
+ * كان الاشتراك بلا فكّ و`watching` بلا تصفير، فيبقى المستمع حيّاً بعد
+ * `stop()` وبعد إطفاء المفتاح. وكان ينادي `applyName()` مباشرةً — والحارس
+ * `if (!enabled) return` في `applyIdentity()` وحده — فيمرّ من فوقه.
+ * و`identity` لا يُمسح، فتعود القيم المزيّفة على كلّ `CONNECTION_OPEN`
+ * (انقطاع شبكة، نومٌ واستيقاظ) بعد أن أطفأها صاحبها.
+ *
+ * والأسوأ: `restoreName()` يصفّر `realName`، فيلتقط `realName ??=` عند
+ * العودة **الاسم الحقيقيّ** مرساةً جديدة — أي أنّ طريق الرجوع يُعاد كتابته
+ * بصمت، ولا يبقى بعد `stop()` من ينادي `restoreIdentity()` أصلاً.
+ */
 let watching = false;
+/** يد فكّ الاشتراك — وجودها يعني أنّ المستمع قائم. */
+let unwatch: (() => void) | null = null;
+
 function watchOverwrites() {
     if (watching) return;
     watching = true;
+
+    // مرجعٌ مسمّى لا دالّةٌ سهميّة طائرة: `unsubscribe` يُطابق **بالمرجع**،
+    // فبلا الإمساك به لا سبيل إلى فكّ ما اشتُرك.
+    const onConnectionOpen = () => {
+        // الحارس هنا لا عند المُنادي — فلا يبقى طريقٌ يلتفّ حوله.
+        if (!enabled) return;
+        applyName();
+    };
+
     try {
-        FluxDispatcher.subscribe("CONNECTION_OPEN", () => applyName());
+        FluxDispatcher.subscribe("CONNECTION_OPEN", onConnectionOpen);
+        unwatch = () => FluxDispatcher.unsubscribe("CONNECTION_OPEN", onConnectionOpen);
     } catch (e) {
         logger.debug("subscribe skipped", e);
+        // فشل الاشتراك ⇒ لا تدّعِ أنّه قائم، وإلّا لم يُحاوَل مرّةً أخرى أبداً.
+        watching = false;
+        unwatch = null;
     }
+}
+
+/** يفكّ المستمع ويُصفّر الراية، فيصحّ تشغيلٌ ⇄ إطفاءٌ ⇄ تشغيل. */
+function stopWatching() {
+    try {
+        unwatch?.();
+    } catch (e) {
+        logger.debug("unsubscribe skipped", e);
+    }
+    unwatch = null;
+    watching = false;
 }
 
 function applyName() {
@@ -184,6 +257,8 @@ export function applyIdentity(): void {
 /** يُرجع كل شيء إلى حقيقته — يُستدعى عند إطفاء الإضافة. */
 export function restoreIdentity(): void {
     try {
+        // 🔴 الفكّ **أوّلاً**: مستمعٌ حيٌّ أثناء الرجوع قد يُعيد ما رجعنا عنه.
+        stopWatching();
         restoreName();
         restoreDate();
     } catch (e) {
@@ -193,6 +268,14 @@ export function restoreIdentity(): void {
 
 /** يحفظ حقلاً ويُطبّق فوراً. الحقل الفارغ يعني «اترك الحقيقي». */
 export function setIdentityField(key: keyof LocalIdentity, value: string): void {
+    // 🔴 الحارس الحاسم: بلا قراءةٍ سابقة يكون `identity` هو `{}`، والنشرُ
+    // عليه ثمّ حفظُه محوٌ لكلّ ما حُفظ. الرفض هنا لأنّه المكان الذي لا
+    // يستطيع أيّ مُنادٍ — صفحةً كان أو غيرها — أن يلتفّ حوله.
+    if (!loaded) {
+        logger.warn("refusing to write identity before the saved one was read");
+        return;
+    }
+
     const next = value.trim();
     identity = { ...identity, [key]: next || undefined };
 
@@ -212,6 +295,9 @@ export async function loadIdentity(): Promise<void> {
         if (typeof on === "boolean") enabled = on;
         const saved = await DataStore.get(STORE_KEY);
         if (saved && typeof saved === "object") identity = saved as LocalIdentity;
+        // مفتاحٌ غائبٌ ليس فشلاً: أوّل تشغيلٍ لا محفوظ فيه، فالفراغ هو الحقّ.
+        // والرفع هنا — بعد القراءتين وقبل أيّ `catch` — فلا تُرفع على فشل.
+        loaded = true;
     } catch (e) {
         logger.error("failed to load identity", e);
     }
