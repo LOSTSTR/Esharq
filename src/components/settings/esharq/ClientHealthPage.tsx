@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { pluginRequiresRestart } from "@api/PluginManager";
 import { useSettings } from "@api/Settings";
 import { Button } from "@components/Button";
 import { Flex } from "@components/Flex";
@@ -48,8 +49,28 @@ import { RADIUS, SURFACE, UNIT } from "./tokens";
  *
  * أهمّ إشارة: **إضافة مُفعَّلة لم تبدأ**. `startPlugin` يلتقط الاستثناء
  * ويُسجّله في الكونسول ويُبقي `started` على `false`
- * (`api/PluginManager.ts:238`)، فلا يرى المستخدم شيئاً — لكنّ الفرق بين
+ * (`api/PluginManager.ts:305`)، فلا يرى المستخدم شيئاً — لكنّ الفرق بين
  * «مُفعَّلة في الإعدادات» و«بدأت فعلاً» يكشفه بلا أي طبقة مراقبة.
+ *
+ * ## 🔴 لكنّ ذلك الفرق وحده ليس تهمة
+ *
+ * `toggleEnabled` يكتب `enabled` ويعود **بلا تشغيل** متى كانت
+ * `pluginRequiresRestart(plugin)` صادقة (`tabs/plugins/PluginCard.tsx:105`)،
+ * وهي صادقة لكل إضافةٍ لها رقعة — أي لأكثرها. فمن فعّل إضافةً للتوّ يقع في
+ * `enabled && !started` وهو في تمام العافية: ينتظر إعادة تشغيل لا غير.
+ * وصفحةٌ تقول له «تشغيلها انفجر، والسبب في كونسول المطوّر» تُرسله يبحث عن
+ * عطلٍ لا وجود له — وتُسمّم كل تقرير حالة يُنسخ منها.
+ *
+ * ولذلك تُقسَم الحالتان:
+ * - **ينتظر إعادة تشغيل**: `requiresRestart` ولا شاهد على انفجاره ⇒ يُقال
+ *   محايداً بلا لون خطر.
+ * - **عطل حقيقي**: إمّا لا يحتاج إعادة تشغيل أصلاً (فلو فُعِّل لبدأ فوراً)،
+ *   وإمّا يشهد عليه سطر `Failed to start` في سجلّ المشاكل — وهو نفس السطر
+ *   الذي يكتبه `startPlugin` عند الالتقاط، ويستخرج منه `classify` اسم
+ *   الإضافة (`debug/esharqErrors.ts:149`).
+ *
+ * والميل عند الشكّ إلى **الصمت لا الاتّهام**: من أفرغ السجلّ يرى «ينتظر
+ * إعادة تشغيل» بدل تهمة كاذبة.
  */
 
 interface PluginState {
@@ -57,6 +78,11 @@ interface PluginState {
     enabled: boolean;
     started: boolean;
     required: boolean;
+    /**
+     * تفعيلها من صفحة الإضافات **لا يُشغّلها**؛ تنتظر إعادة التشغيل.
+     * صادقة لكل ما له رقعة (`api/PluginManager.ts:193`) — أي لأكثرها.
+     */
+    requiresRestart: boolean;
     /** واجهة تخدم غيرها ولا تفعل شيئاً وحدها. */
     api: boolean;
     patchCount: number;
@@ -72,6 +98,7 @@ function readPlugins(): PluginState[] {
         enabled: plugin.required === true || settings[plugin.name]?.enabled === true,
         started: plugin.started === true,
         required: plugin.required === true,
+        requiresRestart: pluginRequiresRestart(plugin),
         // اللاحقة `API` اصطلاح ثابت في هذا المستودع (15 إضافة تحمله).
         api: plugin.name.endsWith("API"),
         patchCount: plugin.patches?.length ?? 0
@@ -167,7 +194,17 @@ export function ClientHealthPage() {
         "cloud.authenticated", "plugins.Settings.arabicMode"
     ]);
 
-    const plugins = useMemo(readPlugins, [settings]);
+    // 🔴 بلا `useMemo` عن قصد. `useSettings` يُعيد `SettingsStore.store`، وهو
+    // وكيلٌ يُبنى مرّةً واحدة في المُنشئ (`shared/SettingsStore.ts:191`) ولا
+    // يُستبدل إلّا في `setData`. فمصفوفة اعتماد `[settings]` **لا تبطُل أبداً**:
+    // المكوّن يُعاد عرضه عند كل تبديل (المستمعون يعملون)، لكنّ الأرقام تبقى
+    // على حال أوّل تركيب — بينما صفوف القوالب و«CSS المخصّص» والسحابة تُقرأ في
+    // العرض مباشرةً فتتحدّث، فيبدو نصف الصفحة حيّاً ونصفها مجمّداً.
+    //
+    // والقراءة مرورٌ واحد على سجلّ الإضافات لا يستحقّ ذاكرةً تُخطئ أكثر ممّا
+    // توفّر. وفوق ذلك `started` تتغيّر **بلا أي تغيّر في الإعدادات** (إضافة
+    // تبدأ متأخّرة، أو تُشغَّل تبعيّةً)، فلا مفتاح اعتماد يصفها أصلاً.
+    const plugins = readPlugins();
 
     // السجلّ يتراكم بعد أوّل عرض. يُقرأ بطلبٍ لا بمؤقّت يدور في الخلفية:
     // صفحةُ تشخيصٍ تستهلك دورةً كل ثانية تصير هي نفسها عطلاً يُشتكى منه.
@@ -182,10 +219,22 @@ export function ClientHealthPage() {
     }, [issues]);
 
     const enabled = plugins.filter(p => p.enabled);
-    // 🔴 الإشارة الأهمّ: مُفعَّلة في الإعدادات ولم تبدأ ⇒ `start()` انفجر.
-    // ولا تُحتسب التي لا `start` لها: تلك «بدأت» بلا عمل تفعله.
-    const stalled = enabled.filter(p => !p.started);
     const running = enabled.filter(p => p.started);
+
+    // أسماء ما شهد السجلّ بانفجاره: `startPlugin` يكتب `Failed to start X`
+    // عند الالتقاط، و`classify` يستخرج منه اسم الإضافة.
+    const failedToStart = useMemo(
+        () => new Set(issues.flatMap(i => i.kind === "start" && i.plugin ? [i.plugin] : [])),
+        [issues]
+    );
+
+    // 🔴 «مُفعَّلة ولم تبدأ» حالتان لا حالة — انظر رأس الملفّ. والقسمة هنا،
+    // لا في العرض، كي يرثها تقرير الحالة وشارة البطاقة والفحوص معاً.
+    const notStarted = enabled.filter(p => !p.started);
+    /** انفجرت فعلاً: لا إعادة تشغيل تنتظرها، أو السجلّ يشهد عليها. */
+    const stalled = notStarted.filter(p => !p.requiresRestart || failedToStart.has(p.name));
+    /** فُعِّلت في هذه الجلسة وتنتظر إعادة تشغيل — لا عطل فيها. */
+    const restartPending = notStarted.filter(p => p.requiresRestart && !failedToStart.has(p.name));
     const requiredRunning = running.filter(p => p.required);
     const apiRunning = running.filter(p => !p.required && p.api);
     const chosenRunning = running.filter(p => !p.required && !p.api);
@@ -222,8 +271,11 @@ export function ClientHealthPage() {
         `Esharq       : ${gitHash.slice(0, 7)}`,
         `Platform     : ${platform}`,
         `Discord build: ${build}`,
-        `Plugins      : ${enabled.length} enabled of ${plugins.length}`,
+        `Plugins      : ${enabled.length} enabled of ${plugins.length}, ${running.length} started`,
+        // 🔴 السطران منفصلان قصداً: خلطهما كان يُدرج إضافةً سليمة تنتظر إعادة
+        // تشغيل تحت «Stalled» في كل تذكرة دعم، فيُطارَد عطلٌ لا وجود له.
         `Stalled      : ${stalled.length}${stalled.length ? ` (${stalled.map(p => p.name).join(", ")})` : ""}`,
+        `Restart wait : ${restartPending.length}${restartPending.length ? ` (${restartPending.map(p => p.name).join(", ")})` : ""}`,
         `Patches      : ${declaredPatches} declared from ${patchedPlugins.length} plugins, ${pendingPatches} pending`,
         `Themes       : ${themeCount} enabled`,
         `QuickCSS     : ${settings.useQuickCss ? "on" : "off"}`,
@@ -236,7 +288,7 @@ export function ClientHealthPage() {
             "--- Problem log (this session, newest first) ---",
             ...issues.map(i => `[${i.level}] ${i.plugin ?? i.source} (${i.kind}) x${i.count}: ${i.message.replace(/\n/g, " | ")}`)
         ])
-    ].join("\n"), [plugins, stalled, build, arabicKeys, themeCount, settings, issues, droppedIssues]);
+    ].join("\n"), [plugins, enabled, running, stalled, restartPending, build, arabicKeys, themeCount, settings, issues, droppedIssues]);
 
     return (
         <SettingsTab>
@@ -286,8 +338,35 @@ export function ClientHealthPage() {
                 </Card>
             )}
 
+            {/* 🔴 بطاقة محايدة لا بطاقة عطل: هذه انتظارٌ عاديّ، وتلوينها
+                بالأحمر يُرسل صاحبها إلى كونسول المطوّر بلا سبب. */}
+            {restartPending.length > 0 && (
+                <Card
+                    index={2}
+                    title={t("إضافات تنتظر إعادة التشغيل", "Plugins waiting for a restart")}
+                    subtitle={t(
+                        "فعّلتَها في هذه الجلسة، وهي من النوع الذي لا يسري إلّا بعد إعادة التشغيل — غالباً لأنّها تُعدّل شيفرة ديسكورد نفسها. لا خلل فيها.",
+                        "You enabled these this session, and they are the kind that only takes effect after a restart — usually because they patch Discord's own code. Nothing is wrong with them."
+                    )}
+                    badge={String(restartPending.length)}
+                    badgeTone="info"
+                >
+                    {restartPending.map((plugin, index) => (
+                        <StatusRow
+                            key={plugin.name}
+                            index={index}
+                            title={plugin.name}
+                            detail={plugin.patchCount > 0
+                                ? t(`${plugin.patchCount} رقعة مُعلَنة`, `${plugin.patchCount} patches declared`)
+                                : undefined}
+                            state={{ text: t("تنتظر إعادة التشغيل", "Needs a restart"), tone: "idle" }}
+                        />
+                    ))}
+                </Card>
+            )}
+
             <Card
-                index={2}
+                index={3}
                 title={t("سجلّ المشاكل", "Problem log")}
                 subtitle={t(
                     "كل خطأ وتحذير أبلغ عنه إشراق منذ فتح ديسكورد: رقعة لم تُحدث أثراً، باحث لم يجد وحدته، إضافة انفجرت، مكوّن انهار. يُسجَّل هنا بدل أن يمرّ في الكونسول ويضيع.",
@@ -360,7 +439,7 @@ export function ClientHealthPage() {
             </Card>
 
             <Card
-                index={3}
+                index={4}
                 title={t("نظرة سريعة", "At a glance")}
                 subtitle={t(
                     "أرقام هذه الجلسة كما هي الآن.",
@@ -369,8 +448,10 @@ export function ClientHealthPage() {
             >
                 <StatRow items={[
                     {
+                        // 🔴 `running.length` لا `enabled - stalled`: الطرح كان
+                        // يحسب المنتظِر لإعادة التشغيل عاملاً، وهو لم يبدأ بعد.
                         label: t("إضافات تعمل", "Plugins running"),
-                        value: `${enabled.length - stalled.length} / ${plugins.length}`
+                        value: `${running.length} / ${plugins.length}`
                     },
                     { label: t("رقع مُعلَنة", "Patches declared"), value: String(declaredPatches) },
                     { label: t("قوالب مُفعَّلة", "Themes enabled"), value: String(themeCount) },
@@ -379,7 +460,7 @@ export function ClientHealthPage() {
             </Card>
 
             <Card
-                index={4}
+                index={5}
                 title={t("ما الذي يعمل", "What is running")}
                 subtitle={t(
                     "الرقم أعلاه مفتوحاً: عشرٌ لا خيار لك فيها، وواجهاتٌ تخدم غيرها، وما اخترته أنت.",
@@ -423,7 +504,7 @@ export function ClientHealthPage() {
             </Card>
 
             <Card
-                index={5}
+                index={6}
                 title={t("الفحوص", "Checks")}
                 subtitle={t(
                     "كل سطر يُقرأ من حالة حيّة، لا من إعداد محفوظ.",
@@ -433,10 +514,15 @@ export function ClientHealthPage() {
                 <StatusRow
                     index={0}
                     title={t("تشغيل الإضافات", "Plugin start-up")}
-                    detail={t(
-                        `${enabled.length} مُفعَّلة، منها ${enabled.length - stalled.length} بدأت`,
-                        `${enabled.length} enabled, ${enabled.length - stalled.length} of them started`
-                    )}
+                    detail={restartPending.length > 0
+                        ? t(
+                            `${enabled.length} مُفعَّلة، منها ${running.length} بدأت و${restartPending.length} تنتظر إعادة التشغيل`,
+                            `${enabled.length} enabled, ${running.length} started, ${restartPending.length} waiting for a restart`
+                        )
+                        : t(
+                            `${enabled.length} مُفعَّلة، منها ${running.length} بدأت`,
+                            `${enabled.length} enabled, ${running.length} of them started`
+                        )}
                     state={healthy
                         ? { text: t("سليم", "Healthy"), tone: "ok" }
                         : { text: t("فيه خلل", "Degraded"), tone: "warn" }}
@@ -479,7 +565,7 @@ export function ClientHealthPage() {
             </Card>
 
             <Card
-                index={6}
+                index={7}
                 title={t("البيئة", "Environment")}
                 subtitle={t(
                     "انسخ هذا حين تطلب المساعدة — يختصر أسئلةً كثيرة.",

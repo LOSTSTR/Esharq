@@ -8,22 +8,54 @@ import "./motion.css";
 
 import { Button } from "@components/Button";
 import { t } from "@utils/esharqI18n";
-import { React, useEffect, useState } from "@webpack/common";
+import { React, useEffect, useRef, useState } from "@webpack/common";
 
 import { countUpFrames, stagger } from "./motion";
 import { ACCENT, ACCENT_SOFT, RADIUS, SURFACE, TRANSITION_MS, UNIT } from "./tokens";
 
 /**
- * رقم يتسلّق إلى قيمته مرّة واحدة عند الظهور.
+ * أصغر صعودٍ يستحقّ تسلّقاً. ما دونه يُكتب فوراً.
+ *
+ * تفعيل إضافةٍ يزيد العدّاد واحداً، وتبعيّاتها تزيده اثنتين أو ثلاثاً —
+ * فأربعة سقفٌ يسع النقرة الواحدة وما تجرّه، ولا يسع «إعادة الضبط الافتراضي».
+ */
+const COUNT_UP_MIN_JUMP = 5;
+
+/**
+ * رقم يتسلّق إلى قيمته عند الظهور، وعند القفزات الكبيرة وحدها.
  *
  * 🔴 لا يتسلّق عند كل تغيّر: تفعيل إضافة يزيد العدّاد واحداً، وتسلّق من 74
  * إلى 75 حركة بلا معنى. الهدف إبراز الرقم حين تُفتح الصفحة، لا الاحتفال
  * بكل نقرة.
+ *
+ * 🔴 لكنّ «لا يتسلّق» ليست «لا يتغيّر». كان الأثر مصفوفةَ اعتمادٍ فارغة،
+ * فيبقى `shown` على قيمة أوّل تركيبٍ إلى الأبد: يضغط صاحبُه «تعطيل كل
+ * الإضافات» — الزرّ في هذا الرأس نفسه — فتهبط النسبة المئوية بجانب الرقم
+ * ويثبت الرقم مكانه. رقمان متجاوران يتناقضان، وأحدهما كاذب.
+ *
+ * فالقسمة: الصعود الكبير يُتسلَّق، وما عداه يُكتب في الحال — والاثنان
+ * يصدقان.
+ *
+ * 🔴 والهبوط يُكتب دائماً بلا حركة. `countUpFrames` يبني إطاراته **من الصفر
+ * إلى الهدف** (`motion.ts:61`)، فتشغيله على هبوطٍ من 74 إلى 40 يُري العينَ
+ * سقوطاً إلى الصفر ثمّ تسلّقاً إلى 40 — حركةٌ تكذب على اتّجاه التغيّر نفسه.
  */
 function CountUp({ value }: { value: number; }) {
     const [shown, setShown] = useState(value);
+    // آخر هدفٍ عُرِض. و`shown` لا يصلح مقياساً: يتغيّر مع كل إطار أثناء
+    // التسلّق نفسه، فيقيس الفرق إلى منتصف الحركة لا إلى ما قبلها.
+    const previous = useRef<number | null>(null);
 
     useEffect(() => {
+        const from = previous.current;
+        previous.current = value;
+
+        // بعد أوّل تركيب: لا يُتسلَّق إلّا الصعود الكبير. وما عداه — الفرق
+        // الصغير وكلّ هبوط — يُكتب بلا حركة، لكنّه **يُكتب**.
+        if (from !== null && value - from < COUNT_UP_MIN_JUMP) {
+            return setShown(value);
+        }
+
         const frames = countUpFrames(value);
         if (frames.length <= 1) return setShown(value);
 
@@ -38,9 +70,10 @@ function CountUp({ value }: { value: number; }) {
             setShown(frames[index]);
         }, 16);
 
+        // تسلّقٌ جارٍ وقيمةٌ جديدة تصل ⇒ يُلغى المؤقّت القديم قبل أن يبدأ
+        // الجديد، وإلّا كتب مؤقّتان على العدّاد نفسه.
         return () => clearInterval(id);
-        // مرّة واحدة عند التركيب — انظر التعليق أعلاه.
-    }, []);
+    }, [value]);
 
     return <>{shown.toLocaleString()}</>;
 }

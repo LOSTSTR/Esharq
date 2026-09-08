@@ -6,11 +6,12 @@
 
 import "./themeCreator.css";
 
-import { useSettings } from "@api/Settings";
+import { PlainSettings, useSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Switch } from "@components/Switch";
 import { IS_WINDOWS } from "@utils/constants";
 import { t } from "@utils/esharqI18n";
+import type { Theme } from "@vencord/discord-types";
 import { findByCodeLazy } from "@webpack";
 import { Button, ClientThemesBackgroundStore, Slider, ThemeStore, useEffect, useMemo, useRef, UserStore, useState, useStateFromStores } from "@webpack/common";
 
@@ -62,6 +63,41 @@ import {
 /** تبديل وضع ديسكورد نفسه — إعدادُه هو، لا إعدادنا. */
 const saveClientTheme = findByCodeLazy('type:"UNSYNCED_USER_SETTINGS_UPDATE', '"system"===');
 
+/**
+ * أسماء أوضاع ديسكورد الأربعة كما يسمّيها هو.
+ *
+ * 🔴 أربعة لا اثنان: `ThemeStore.theme` يردّ `light | dark | darker | midnight`
+ * (`@vencord/discord-types`). وتسطيحُها إلى «فاتح أو داكن» يجعل صاحب Onyx
+ * يقرأ عن نفسه «داكن» — وهو ليس عليه.
+ *
+ * والأسماء المعروضة هي أسماء ديسكورد نفسه (Ash · Onyx)، لا ترجمةً من عندنا
+ * للاسم الداخليّ: صاحبها يبحث عنها في «المظهر» عند ديسكورد بهذه الأسماء.
+ * ومصدرها في هذا المستودع `equicordplugins/commandPalette/commands/discordActions.tsx:21-25`.
+ */
+const THEME_NAMES: Record<Theme, { ar: string; en: string; }> = {
+    light: { ar: "فاتح", en: "Light" },
+    darker: { ar: "رماديّ (Ash)", en: "Ash" },
+    dark: { ar: "داكن", en: "Dark" },
+    midnight: { ar: "أسود (Onyx)", en: "Onyx" }
+};
+
+/**
+ * المادّة التي أُنشئت بها نافذةُ ديسكورد القائمة.
+ *
+ * 🔴 شريط «أعد التشغيل» كان معلّقاً على **وجود مادّةٍ مختارة**، لا على
+ * **تغيّر الاختيار**. فمن ضبط Mica قبل شهرٍ وأعاد التشغيل يومها ظلّ الشريط
+ * الأحمر يطالبه بإعادة تشغيلٍ نفّذها فعلاً — تحذيرٌ دائم لا يزول، وهو أسوأ من
+ * غيابه: من رأى تحذيراً لا يزول كفّ عن قراءة التحذيرات.
+ *
+ * والمقارنة تحتاج القيمة التي **قرأتها العملية الرئيسة عند إنشاء النافذة**
+ * (`main/patcher.ts:120-121`). ولا واجهةَ أصليّة تردّها، لكنّ هذه الوحدة
+ * تُحمَّل من `plugins/_core/settings.tsx` عند إقلاع إشراق — قبل أن يبلغ
+ * المستخدمُ أيّ مِقبض — فقراءتها هنا مرّةً واحدة تلتقط حالة النافذة نفسها.
+ */
+const MATERIAL_AT_LAUNCH: string = (() => {
+    try { return (PlainSettings as any)?.windowsMaterial ?? "none"; } catch { return "none"; }
+})();
+
 /* ── لبنات ───────────────────────────────────────────────────────────────── */
 
 function Row({ label, hint, children }: { label: string; hint?: string; children?: React.ReactNode; }) {
@@ -90,14 +126,45 @@ function ValueSlider({ value, onChange, min = 0, max = 100, unit = "%" }: {
     unit?: string;
 }) {
     const span = max - min;
+
+    /**
+     * 🔴 `Slider` مكوّنٌ صنفيّ **غير مُتحكَّمٍ به**.
+     *
+     * لا `value` عنده أصلاً: يقرأ `initialValue` مرّةً واحدة عند التركيب ثمّ
+     * لا ينظر إليه ثانية (`@vencord/discord-types` — `components.d.ts:290`).
+     * فكلّ ضبطٍ يأتي من **خارج** المِقبض — زرٌّ جاهز، أو «كل الأسطح»، أو
+     * «صفّر الأسطح» — كان يُحرّك الرقم المكتوب ويترك الإبهام مكانه. فيضغط
+     * صاحبه «متوازن» فيقرأ ٢٥٪ في خمسة عشر موضعاً، والأباهيم الخمسة عشر لم
+     * تتزحزح: رقمان متناقضان لضبطٍ واحد، ولا يدري أيّهما الصادق.
+     *
+     * والعلاج الوحيد لمكوّنٍ كهذا إعادةُ تركيبه بمفتاح. والشرط أن يثبت
+     * المفتاح **أثناء السحب**، وإلّا تركّب المِقبض من جديد تحت الإصبع فانقطع
+     * السحب في كل حركة — عطلٌ أسوأ من الأوّل.
+     *
+     * والتمييز هنا: نحفظ آخر قيمةٍ بعثها المِقبض نفسه. فإن عادت القيمة
+     * مساويةً لها فهي **صداه هو** راجعاً عبر الحالة، ولا يُحرَّك المفتاح؛ وإن
+     * خالفتها فهي من الخارج، فيُعاد التركيب على القيمة الجديدة.
+     */
+    const echo = useRef(value);
+    const generation = useRef(0);
+    if (value !== echo.current) {
+        generation.current++;
+        echo.current = value;
+    }
+
     return (
         <Slider
+            key={generation.current}
             initialValue={value}
             minValue={min}
             maxValue={max}
             markers={[min, min + span / 4, min + span / 2, min + (span * 3) / 4, max]}
             stickToMarkers={false}
-            onValueChange={v => onChange(Math.round(v))}
+            onValueChange={v => {
+                const next = Math.round(v);
+                echo.current = next;
+                onChange(next);
+            }}
             onValueRender={v => `${Math.round(v)}${unit}`}
             className="esharq-tc-slider"
         />
@@ -105,7 +172,50 @@ function ValueSlider({ value, onChange, min = 0, max = 100, unit = "%" }: {
 }
 
 function ColorField({ value, fallback, onChange }: { value: string; fallback: string; onChange: (hex: string) => void; }) {
-    const hex = parseHex(value) ?? fallback;
+    const hex = parseHex(value);
+
+    /**
+     * 🔴 لا تُعرَض قيمة `fallback` على أنّها اللون المختار.
+     *
+     * كان الحقل يضع `fallback` مكان القيمة الغائبة، فتُظهر تجاوزاتُ النصّ
+     * السّتّة مربّعاً أبيض و`#ffffff` مكتوباً — وعنوان البطاقة فوقها يقول
+     * «اتركه فارغاً ليتبع النصّ لونَ ثيمك». فالعين ترى لوناً مضبوطاً والنصّ
+     * يقول غير مضبوط، والصادق منهما `buildTextCss` الذي لا يكتب لها شيئاً
+     * (`themeCreator/engine.ts:507-512`).
+     *
+     * وأثر الكذبة أسوأ منها: منتقي اللون كان يحمل `#ffffff` أصلاً، فمن فتحه
+     * واختار الأبيض **قصداً** لم يُغيّر شيئاً، فلا حدث `change` ولا تجاوزٌ
+     * يُكتَب. لونٌ واحد من ستّة عشر مليوناً كان يستحيل ضبطه، بلا رسالةٍ ولا
+     * سبب.
+     *
+     * فالحقل الآن يقول «غير محدّد» صراحةً، والضبط خطوةٌ يقصدها صاحبها — وبها
+     * يصير الأبيض قابلاً للاختيار كأيّ لونٍ آخر.
+     */
+    if (hex === null) {
+        return (
+            <div className="esharq-tc-colour-pair">
+                <span
+                    aria-hidden="true"
+                    style={{
+                        inlineSize: 44,
+                        blockSize: 34,
+                        borderRadius: 8,
+                        border: "1px dashed var(--border-medium, #ffffff1f)",
+                        background: "repeating-linear-gradient(45deg, #ffffff0f 0 5px, transparent 5px 10px)"
+                    }}
+                />
+                <code className="esharq-tc-code">{t("غير محدّد", "Not set")}</code>
+                <Button
+                    size={Button.Sizes.SMALL}
+                    look={Button.Looks.LINK}
+                    color={Button.Colors.PRIMARY}
+                    onClick={() => onChange(fallback)}>
+                    {t("عيّن لوناً", "Set a colour")}
+                </Button>
+            </div>
+        );
+    }
+
     return (
         <div className="esharq-tc-colour-pair">
             <input
@@ -196,12 +306,32 @@ function ThemeCreatorPageInner() {
 
     /** مادّة النافذة إعدادٌ أصليّ (يُقرأ عند إنشاء النافذة)، لا جزءٌ من حالتنا. */
     const native = useSettings(["windowsMaterial"]);
-    const canFrost = IS_WINDOWS && !IS_WEB && (() => {
+
+    /**
+     * 🔴 `useMemo` ليس تحسيناً هنا، بل شرطُ صحّة.
+     *
+     * `supportsWindowsMaterial` تُنفَّذ بـ`ipcRenderer.sendSync`
+     * (`VencordNative.ts:112`)، وهي **تُجمّد خيط العرض** حتى تردّ العملية
+     * الرئيسة. وكانت تُستدعى في جسم المكوّن مباشرةً، أي عند **كل رسمة** — وهذه
+     * الصفحة تُعيد الرسم مع كل حركة إصبعٍ على أيّ من مقابضها الخمسة عشر. فكان
+     * السحب يوقف الخيط عشرات المرّات في الثانية على رحلةٍ بين عمليتين، وجوابها
+     * لا يتغيّر أبداً: قدرةُ الجهاز لا تتبدّل أثناء فتح الصفحة.
+     */
+    const canFrost = useMemo(() => {
+        if (!IS_WINDOWS || IS_WEB) return false;
         try { return VencordNative.native.supportsWindowsMaterial(); } catch { return false; }
-    })();
+    }, []);
 
     /** الوضع الحيّ عند ديسكورد — من مخزنه لا من إعداداتنا، فيتحدّث لو بدّله من مكانٍ آخر. */
     const discordTheme = useStateFromStores([ThemeStore], () => ThemeStore.theme);
+    /**
+     * `isLight` يصلح لسؤالٍ **ثنائيٍّ حقّاً** وحده: أفاتحٌ هو أم لا؟ وذلك سؤال
+     * فحص التباين، فـ`darker` و`midnight` كلاهما داكن (`api/Themes.ts:76`).
+     *
+     * 🔴 ولا يصلح مصدراً يُعاد منه بناء الوضع: `isLight ? "light" : "dark"`
+     * تُحوّل Ash وOnyx إلى `dark` وتكتبها عند ديسكورد — فيفقد صاحبها وضعه
+     * ولا سبيل إلى ردّه. فما يُكتَب يُكتب من `discordTheme` خاماً.
+     */
     const isLight = discordTheme === "light";
 
     /**
@@ -255,7 +385,7 @@ function ThemeCreatorPageInner() {
         update({ enabled });
     }
 
-    function setDiscordMode(mode: "dark" | "light") {
+    function setDiscordMode(mode: Theme) {
         try { saveClientTheme({ theme: mode }); } catch { /* إعداد ديسكورد، وقد يتغيّر موضعه */ }
     }
 
@@ -317,7 +447,16 @@ function ThemeCreatorPageInner() {
 
     const activeSurfaces = state.glass ? SURFACES.filter(s => (state.surfaces[s.key] ?? 0) > 0).length : 0;
     const first = state.surfaces[SURFACES[0].key] ?? 0;
-    const uniformSurface = SURFACES.every(s => (state.surfaces[s.key] ?? 0) === first) ? first : 0;
+    /**
+     * 🔴 `null` علامةَ الاختلاف، لا `0`.
+     *
+     * كانت `0` تُستعمل علامةً على «الأسطح غير متساوية»، و`0` نفسها هي قيمة
+     * «صلب» الحقيقية. فمن اختار «منفتح» (٥٥٪) ثمّ حرّك سطحاً واحداً أضاءت له
+     * بطاقةُ **«صلب — أعلى تباين»** وضعاً قائماً، وأربعةَ عشرَ سطحاً تحتها على
+     * ٥٥٪ من الشفافية. علامةٌ تصلح قيمةً ليست علامة.
+     */
+    const uniformSurface: number | null =
+        SURFACES.every(s => (state.surfaces[s.key] ?? 0) === first) ? first : null;
 
     return (
         <>
@@ -414,10 +553,19 @@ function ThemeCreatorPageInner() {
                                 )}
                             </span>
                         </div>
-                        {/* إعادة حفظ الوضع الحاليّ نفسه تمسح التدرّج — وهي الطريقة
-                            التي يعتمدها ديسكورد نفسه، لا حيلةً من عندنا. */}
+                        {/* 🔴 `discordTheme` خاماً، لا `isLight ? "light" : "dark"`.
+                            إعادةُ حفظ الوضع الحاليّ **نفسه** هي ما يمسح التدرّج، وهي
+                            طريقة ديسكورد لا حيلةً من عندنا — وكذلك تفعل الإضافة
+                            الأصلية (`plugins/clientTheme/components/Settings.tsx:89`:
+                            `setDiscordTheme(currentTheme)`).
+
+                            والسطر القديم لم يكن يُعيد حفظ الوضع الحاليّ، بل يمرّ به
+                            على منطقٍ ثنائيّ يُخرج أحد قيمتين: فمن كان على Ash أو Onyx
+                            كتب له الزرُّ `dark`. فيُطفأ التدرّج ويُفقَد وضعه معه، بلا
+                            تنبيهٍ ولا رجعة — وهو يظنّ أنّه ضغط زرّ إطفاءٍ لا زرّ
+                            تبديل. */}
                         <Button size={Button.Sizes.SMALL} color={Button.Colors.RED}
-                            onClick={() => setDiscordMode(isLight ? "light" : "dark")}>
+                            onClick={() => setDiscordMode(discordTheme)}>
                             {t("أطفئ ثيم Nitro", "Turn off the Nitro theme")}
                         </Button>
                     </div>
@@ -450,16 +598,27 @@ function ThemeCreatorPageInner() {
                 title={t("المظهر الأساس", "Base appearance")}
                 subtitle={t("الوضع الذي يُبنى لونك فوقه — وهو إعداد ديسكورد نفسه، يبقى كما تتركه ولو أزلت إشراق.",
                     "The mode your colour is built on — Discord's own setting, which stays as you leave it even if you remove Esharq.")}
-                badge={isLight ? t("فاتح", "Light") : t("داكن", "Dark")}>
+                badge={t(THEME_NAMES[discordTheme]?.ar ?? discordTheme, THEME_NAMES[discordTheme]?.en ?? discordTheme)}>
                 <div className="esharq-tc-modes">
                     {([
+                        // 🔴 الأربعة كلّها معروضة — والسؤال الذي منع عرضها حُسم بالقياس:
+                        // هل ينطبق سلّم إشراق (المحصور في `.theme-dark`) على Ash وOnyx؟
+                        // قِيس على عميل حيّ: `darker` تحمل ["theme-dark","theme-darker"]
+                        // و`midnight` تحمل ["theme-dark","theme-midnight"] — فالسلّم ينطبق
+                        // على الثلاثة. ولولا القياس لبقيت البطاقتان محجوبتين بلا سبب.
                         { key: "dark", ar: "داكن", en: "Dark", hintAr: "أسطحٌ عميقة ونصٌّ فاتح.", hintEn: "Deep surfaces with light text.", swatch: "#1e1f22" },
+                        { key: "darker", ar: "رماديّ (Ash)", en: "Ash", hintAr: "أعمقُ من الداكن قليلاً.", hintEn: "A shade deeper than Dark.", swatch: "#131416" },
+                        { key: "midnight", ar: "أسود (Onyx)", en: "Onyx", hintAr: "أسودُ خالص، أوفرُ للشاشات المضيئة ذاتياً.", hintEn: "Pure black, kinder to OLED screens.", swatch: "#000000" },
                         { key: "light", ar: "فاتح", en: "Light", hintAr: "أسطحٌ ساطعة ونصٌّ داكن.", hintEn: "Bright surfaces with dark text.", swatch: "#ffffff" }
                     ] as const).map(mode => (
                         <button
                             key={mode.key}
                             type="button"
-                            className={"esharq-tc-mode" + ((mode.key === "light") === isLight ? " on" : "")}
+                            // 🔴 مقارنةٌ بالقيمة الخام، لا بمنطقٍ ثنائيّ.
+                            // `(mode.key === "light") === isLight` كانت تُضيء «داكن»
+                            // لصاحب Ash وOnyx، فيقرأ عن نفسه ما ليس عليه — ثم يظنّ
+                            // أنّ الزرّ لا يعمل حين يضغطه فلا «يتغيّر» شيء ظاهر.
+                            className={"esharq-tc-mode" + (mode.key === discordTheme ? " on" : "")}
                             onClick={() => setDiscordMode(mode.key)}>
                             <span className="esharq-tc-mode-swatch" style={{ background: mode.swatch }} />
                             <span className="esharq-tc-mode-text">
@@ -469,6 +628,20 @@ function ThemeCreatorPageInner() {
                         </button>
                     ))}
                 </div>
+
+                {/* لا بطاقة مضيئة الآن، فيلزم قولُ السبب: بطاقتان معروضتان وأربعةُ
+                    أوضاع موجودة. والصمت هنا يُقرأ عطلاً.
+
+                    ولا تُعرض بطاقتان لـAsh وOnyx: هذه البطاقات تقول ما يفعله
+                    اختيارُها، وسلّم المنشئ مكتوبٌ لـ`.theme-dark` و`.theme-light`
+                    وحدهما (`themeCreator/engine.ts:190-192`) — فبطاقةٌ تنقل صاحبها
+                    إلى وضعٍ لم يُقَس أثرُ المنشئ فيه تَعِد بما لم يُتحقَّق منه. */}
+                {discordTheme !== "dark" && discordTheme !== "light" && (
+                    <NoticeStrip>
+                        {t(`أنت على وضع «${THEME_NAMES[discordTheme]?.ar ?? discordTheme}» من أوضاع ديسكورد الأربعة، ولذلك لا تُضيء أيٌّ من البطاقتين. وهما تضبطان الوضعين الأساسيين — واختيار إحداهما يبدّل وضعك الحاليّ.`,
+                            `You are on Discord's “${THEME_NAMES[discordTheme]?.en ?? discordTheme}” mode, which is why neither tile is lit. These two set the base modes — picking one replaces the mode you are on.`)}
+                    </NoticeStrip>
+                )}
             </Card>
 
             <Card index={3}
@@ -495,9 +668,18 @@ function ThemeCreatorPageInner() {
                             `alpha 0.45` بتمويه 40px — ومع ذلك لا يرى صاحبها فرقاً،
                             لأن ما تحتها أسودُ النافذة نفسه. فالمقبض يعمل والنتيجة
                             غير مرئية، وهو أسوأ أنواع الأعطال: لا رسالة ولا سبب. */}
+                        {/* 🔴 النصّان مختلفان لأن المعروض مختلف.
+                            صفّ «شفافية النافذة» مشروطٌ بـ`canFrost`، أي ويندوز
+                            وحده. وكان النصّ يقول لكلّ أحد «فعّل شفافية النافذة
+                            **أدناه**» — فيبحث صاحب لينكس وماك ولوحة الويب عن مِقبضٍ
+                            غير مرسوم، فيظنّه مخفيّاً أو نفسه أعمى. وإحالةٌ إلى ما
+                            ليس موجوداً أسوأ من لا إحالة. */}
                         <NoticeStrip>
-                            {t("الشفافية تُظهر ما خلفها — فإن لم يكن خلف ديسكورد شيء لن ترى فرقاً. اختر صورة خلفية من البطاقة التالية، أو فعّل «شفافية النافذة» أدناه ليظهر سطح مكتبك.",
-                                "Transparency reveals what is behind it — with nothing behind Discord you will see no difference. Either pick a background image in the next card, or turn on window transparency below to reveal your desktop.")}
+                            {canFrost
+                                ? t("الشفافية تُظهر ما خلفها — فإن لم يكن خلف ديسكورد شيء لن ترى فرقاً. اختر صورة خلفية من البطاقة التالية، أو فعّل «شفافية النافذة» أدناه ليظهر سطح مكتبك.",
+                                    "Transparency reveals what is behind it — with nothing behind Discord you will see no difference. Either pick a background image in the next card, or turn on window transparency below to reveal your desktop.")
+                                : t("الشفافية تُظهر ما خلفها — فإن لم يكن خلف ديسكورد شيء لن ترى فرقاً. اختر صورة خلفية من البطاقة التالية ليظهر تحتها شيء. (وشفافية النافذة نفسها ميزةُ ويندوز، ولا يُتيحها نظامك.)",
+                                    "Transparency reveals what is behind it — with nothing behind Discord you will see no difference. Pick a background image in the next card so there is something to reveal. (Making the window itself translucent is a Windows feature your system doesn't offer.)")}
                         </NoticeStrip>
 
                         {canFrost && (
@@ -518,10 +700,18 @@ function ThemeCreatorPageInner() {
                             </Row>
                         )}
 
-                        {canFrost && (native.windowsMaterial ?? "none") !== "none" && (
+                        {/* 🔴 الشرط «تغيّر الاختيار»، لا «وُجد اختيار».
+                            كان الشريط الأحمر يظهر ما دامت مادّةٌ مختارة، فمن ضبط
+                            Mica وأعاد التشغيل يومها ظلّ يُطالَب بإعادة تشغيلٍ
+                            نفّذها — إنذارٌ دائم لا يُطفأ، فيتعلّم صاحبه تجاهله، ثم
+                            يتجاهل معه الإنذار الصادق حين يجيء. */}
+                        {canFrost && (native.windowsMaterial ?? "none") !== MATERIAL_AT_LAUNCH && (
                             <NoticeStrip tone="danger">
-                                {t("اخترتَ شفافية النافذة — لن تظهر حتى تُغلق ديسكورد وتفتحه من جديد. (ويندوز يقرأ هذا عند إنشاء النافذة، لا بعده.)",
-                                    "You chose window transparency — it won't appear until you fully close and reopen Discord. (Windows reads this when the window is created, not after.)")}
+                                {(native.windowsMaterial ?? "none") === "none"
+                                    ? t("أطفأتَ شفافية النافذة — لن تزول عن نافذتك حتى تُغلق ديسكورد وتفتحه من جديد. (ويندوز يقرأ هذا عند إنشاء النافذة، لا بعده.)",
+                                        "You turned window transparency off — it won't leave your window until you fully close and reopen Discord. (Windows reads this when the window is created, not after.)")
+                                    : t("غيّرتَ شفافية النافذة — لن تظهر حتى تُغلق ديسكورد وتفتحه من جديد. (ويندوز يقرأ هذا عند إنشاء النافذة، لا بعده.)",
+                                        "You changed window transparency — it won't appear until you fully close and reopen Discord. (Windows reads this when the window is created, not after.)")}
                             </NoticeStrip>
                         )}
 
@@ -543,8 +733,12 @@ function ThemeCreatorPageInner() {
                         </div>
 
                         <Row label={t("كل الأسطح", "All surfaces")} hint={t(`يضبط الـ${SURFACES.length} كلّها معاً.`, `Sets all ${SURFACES.length} together.`)}>
+                            {/* مِقبضٌ يضبط ولا يقرأ: حين تختلف الأسطح فلا قيمة واحدة
+                                تُمثّلها، فيقف على قيمة أوّلها — قيمةٌ حقيقيّة من
+                                المجموعة، لا صفرٌ يقفز إليه المِقبض كلّما مُسّ سطحٌ
+                                واحد. */}
                             <ValueSlider
-                                value={uniformSurface}
+                                value={uniformSurface ?? first}
                                 onChange={v => update({ surfaces: Object.fromEntries(SURFACES.map(s => [s.key, v])) })}
                             />
                         </Row>

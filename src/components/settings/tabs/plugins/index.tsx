@@ -386,9 +386,22 @@ export default function PluginSettings() {
      * بنقرة واحدة.
      */
     function restoreDefaultConfiguration() {
+        // 🔴 المقارنة بالمحفوظ لا بـ`isPluginEnabled`.
+        //
+        // `isPluginEnabled` تُرجع صواباً للإضافة **التابعة** كذلك — و
+        // `initPluginManager` يضع `isDependency` على كلّ واجهة تُسحب تلقائياً
+        // في كلّ إقلاع. وتلك لا تُعلن `required` ولا `enabledByDefault`، فكانت
+        // تُحسب «مختلفة عن الافتراضيّ» دائماً. فيُقال لمن لم يمسّ شيئاً إنّ
+        // عشرات الإضافات ستتغيّر، ثمّ يُكتب `enabled = false` في ملفّه لواجهاتٍ
+        // يُعيد المُحمِّل تفعيلها في الإقلاع التالي — تغييرٌ يُلغي نفسه.
+        // والفرع الصادق «إعداداتك مطابقة للافتراضي أصلاً» كان لا يُبلَغ أبداً.
+        //
+        // و`required` مستثناة: مُفعَّلةٌ قسراً مهما كُتب في الإعدادات، فعرضُها
+        // على المستخدم كأنّها ستتغيّر وعدٌ لا يتحقّق.
         const changed = Object.keys(Plugins).filter(name => {
-            const wanted = Boolean(Plugins[name].required || Plugins[name].enabledByDefault);
-            return isPluginEnabled(name) !== wanted;
+            if (Plugins[name].required) return false;
+            const wanted = Boolean(Plugins[name].enabledByDefault);
+            return Boolean(settings.plugins[name]?.enabled) !== wanted;
         });
 
         if (changed.length === 0) {
