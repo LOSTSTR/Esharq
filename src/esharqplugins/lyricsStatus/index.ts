@@ -4,10 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import * as DataStore from "@api/DataStore";
 import { definePluginSettings } from "@api/Settings";
 import { getUserSettingLazy } from "@api/UserSettings";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
+import { CustomStatus } from "@vencord/discord-types";
 import { FluxDispatcher } from "@webpack/common";
 
 const logger = new Logger("LyricsStatus");
@@ -104,11 +106,66 @@ function getCurrentLine(lines: SyncedLine[], posMs: number): string | null {
 
 const CustomStatusSetting = getUserSettingLazy("status", "customStatus")!;
 
+// The user's own custom status, captured before we ever overwrite it and kept in DataStore so a
+// session that ends without stop() (crash, reload mid-song) can still hand it back on the next
+// start. Same pattern as PerformanceBoost's ORIG_COMPACT_KEY / ORIG_GIF_KEY.
+const ORIGINAL_STATUS_KEY = "LyricsStatus_originalCustomStatus";
+
+type StoredStatus = CustomStatus & { createdAtMs?: string; };
+
+let originalStatus: StoredStatus | null = null;
+let originalLoaded = false;
+// True only while the status on screen is one we wrote. Guards against overwriting a status the
+// user set themselves while the music was paused.
+let statusIsOurs = false;
+
+// getSetting() may hand back a non-plain object; DataStore (IndexedDB) can only store a
+// structured-cloneable one, and updateSetting is fed plain objects everywhere else in the repo.
+function plainCopy(value: any): StoredStatus | null {
+    if (!value || typeof value !== "object") return null;
+    const copy: StoredStatus = {
+        text: value.text ?? "",
+        expiresAtMs: String(value.expiresAtMs ?? "0"),
+        emojiId: String(value.emojiId ?? "0"),
+        emojiName: value.emojiName ?? "",
+    };
+    if (value.createdAtMs != null) copy.createdAtMs = String(value.createdAtMs);
+    return copy;
+}
+
+async function loadOriginalStatus() {
+    if (originalLoaded) return;
+
+    let current: StoredStatus | null = null;
+    try {
+        current = plainCopy(CustomStatusSetting?.getSetting?.());
+    } catch (e) {
+        logger.warn("Could not read the current custom status:", e);
+    }
+    originalStatus = current;
+    originalLoaded = true;
+
+    try {
+        const stored = await DataStore.get<StoredStatus | null>(ORIGINAL_STATUS_KEY);
+        // A stored original always wins: if the last session was interrupted mid-song, what is
+        // live right now is a lyric *we* wrote, not the user's status.
+        if (stored !== undefined) {
+            originalStatus = stored;
+            statusIsOurs = true; // that session left a lyric on screen; it is ours to take back
+        } else {
+            await DataStore.set(ORIGINAL_STATUS_KEY, current);
+        }
+    } catch (e) {
+        logger.warn("Could not persist the original custom status:", e);
+    }
+}
+
 let lastSentLine: string | null = null;
 
 function setStatus(text: string) {
     if (text === lastSentLine) return;
     lastSentLine = text;
+    statusIsOurs = true;
     CustomStatusSetting?.updateSetting({
         text: text.slice(0, 128),
         expiresAtMs: "0",
@@ -118,10 +175,34 @@ function setStatus(text: string) {
     });
 }
 
-function clearStatus() {
+// Called on every pause as well as on stop, so it must never destroy anything the user owns.
+function restoreStatus(reason: "paused" | "stopped") {
     lastSentLine = null;
-    CustomStatusSetting?.updateSetting({
-        text: settings.store.customMessage || "",
+
+    // The status on screen is the user's own (they set one while paused, or we never wrote):
+    // leave it exactly as it is.
+    if (!statusIsOurs) return;
+    statusIsOurs = false;
+
+    // The placeholder only stands in for a lyric while the music is stopped. Disabling the
+    // plugin must leave no trace of it, so that path always hands the real status back.
+    const custom = settings.store.customMessage;
+    if (reason === "paused" && custom) {
+        CustomStatusSetting?.updateSetting({
+            text: custom,
+            expiresAtMs: "0",
+            emojiId: "0",
+            emojiName: "",
+            createdAtMs: String(Date.now()),
+        });
+        statusIsOurs = true; // the placeholder is ours too
+        return;
+    }
+
+    // Put back exactly what the user had. Had they none, write the blank status — the same value
+    // this plugin used to write unconditionally, and a shape Discord is known to accept.
+    CustomStatusSetting?.updateSetting(originalStatus ?? {
+        text: "",
         expiresAtMs: "0",
         emojiId: "0",
         emojiName: "",
@@ -184,7 +265,7 @@ function onSpotifyPlayerState(e: SpotifyPlayerState) {
         }
     }
 
-    if (!isPlaying && settings.store.clearOnStop) clearStatus();
+    if (!isPlaying && settings.store.clearOnStop) restoreStatus("paused");
 }
 
 export default definePlugin({
@@ -194,8 +275,13 @@ export default definePlugin({
     authors: [{ name: "Sharp", id: 0n }],
     settings,
 
-    start() {
+    async start() {
         active = true;
+        // Capture the user's real custom status *before* subscribing or ticking, so nothing can
+        // overwrite it in between.
+        await loadOriginalStatus();
+        if (!active) return; // stopped while we were awaiting DataStore
+
         FluxDispatcher.subscribe("SPOTIFY_PLAYER_STATE", onSpotifyPlayerState as any);
         // 2000ms, not 500: tick() only re-picks the current lyric line and sets the
         // status, and a status line does not need sub-second precision — lyric lines
@@ -210,7 +296,14 @@ export default definePlugin({
         lyricsAbortController = null;
         FluxDispatcher.unsubscribe("SPOTIFY_PLAYER_STATE", onSpotifyPlayerState as any);
         if (intervalId !== null) { clearInterval(intervalId); intervalId = null; }
-        if (settings.store.clearOnStop) clearStatus();
+        if (settings.store.clearOnStop) {
+            restoreStatus("stopped");
+            // Restored, so the saved copy has done its job; a later start() captures afresh.
+            // If clearOnStop is off we leave a lyric on screen, so the copy must stay.
+            originalStatus = null;
+            originalLoaded = false;
+            DataStore.del(ORIGINAL_STATUS_KEY).catch(e => logger.warn("Could not clear the saved custom status:", e));
+        }
         currentLines = null;
         lyricsCache.clear();
         lastSentLine = null;

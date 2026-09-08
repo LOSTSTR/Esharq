@@ -29,6 +29,36 @@ let origIsFriend: Function | null = null;
 let origGetFriendIDs: Function | null = null;
 let origGetMutable: Function | null = null;
 
+// getMutableRelationships() hands out the store's live map **by reference**, and its writers
+// (Discord itself, and plugins such as ImplicitRelationships) rely on that — returning a copy
+// would silently swallow their writes. So we keep injecting, but remember exactly what we
+// wrote, and take every injected entry back out on removal and on stop().
+const injected = new Map<string, RelationshipType>();
+
+function realRelationshipMap(): Map<string, number> | null {
+    try {
+        const store = RelationshipStore as any;
+        const fn = origGetMutable ?? store.getMutableRelationships;
+        return typeof fn === "function" ? fn.call(store) : null;
+    } catch (err) { logger.debug("Ignored error", err); return null; }
+}
+
+// Undo one injection — only when the map still holds the exact value we wrote, so a real
+// relationship Discord created in the meantime is never deleted by us.
+function dropInjected(userId: string, map: Map<string, number> | null | undefined) {
+    const written = injected.get(userId);
+    if (written === undefined) return;
+    injected.delete(userId);
+    if (map && map.get(userId) === written) map.delete(userId);
+}
+
+function dropAllInjected() {
+    if (!injected.size) return;
+    const map = realRelationshipMap();
+    for (const id of [...injected.keys()]) dropInjected(id, map);
+    try { (RelationshipStore as any).emitChange?.(); } catch (err) { logger.debug("Ignored error", err); }
+}
+
 function patchStore() {
     const store = RelationshipStore as any;
     if (!origGetRelType && typeof store.getRelationshipType === "function") {
@@ -60,8 +90,9 @@ function patchStore() {
         store.getMutableRelationships = function () {
             const real = origGetMutable!.call(this);
             for (const [id, s] of fakeState) {
-                if (s === "accepted") real.set(id, RelationshipType.FRIEND);
-                if (s === "pending") real.set(id, RelationshipType.INCOMING_REQUEST);
+                const type = s === "accepted" ? RelationshipType.FRIEND : RelationshipType.INCOMING_REQUEST;
+                real.set(id, type);
+                injected.set(id, type);
             }
             return real;
         };
@@ -69,6 +100,7 @@ function patchStore() {
 }
 
 function unpatchStore() {
+    dropAllInjected();
     const store = RelationshipStore as any;
     if (origGetRelType) { store.getRelationshipType = origGetRelType; origGetRelType = null; }
     if (origIsFriend) { store.isFriend = origIsFriend; origIsFriend = null; }
@@ -174,6 +206,7 @@ async function doFakeFriendRequest(userId: string) {
 
 async function removeFake(userId: string) {
     fakeState.delete(userId);
+    dropInjected(userId, realRelationshipMap());
     try { FluxDispatcher.dispatch({ type: "RELATIONSHIP_REMOVE", relationship: { id: userId } }); } catch (err) { logger.debug("Ignored error", err); }
 }
 
@@ -382,7 +415,16 @@ export default definePlugin({
         removeContextMenuPatch("user-context", userContextPatch);
         removeContextMenuPatch("guild-context", guildContextPatch);
         unpatchAcceptFriend();
-        unpatchStore();
+
+        // Our RELATIONSHIP_ADD/UPDATE dispatches made the *real* store record each fake, so
+        // dropping the patches is not enough: tell it to forget them, exactly as removeFake
+        // does. Every id in fakeState had a real relationship type of NONE when it was added.
+        const fakes = [...fakeState.keys()];
         fakeState.clear();
+        for (const id of fakes) {
+            try { FluxDispatcher.dispatch({ type: "RELATIONSHIP_REMOVE", relationship: { id } }); } catch (err) { logger.debug("Ignored error", err); }
+        }
+
+        unpatchStore(); // also removes anything we wrote into the live relationship map
     },
 });

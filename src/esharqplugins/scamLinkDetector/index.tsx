@@ -10,6 +10,7 @@ import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
 import { Message } from "@vencord/discord-types";
+import { Constants, RestAPI } from "@webpack/common";
 
 const logger = new Logger("ScamLinkDetector", "#ff4444");
 
@@ -17,8 +18,12 @@ const SCAM_LIST_URL = "https://raw.githubusercontent.com/Discord-AntiScam/scam-l
 
 let scamLinks: Set<string> = new Set();
 let lastFetchTime = 0;
+let lastFailureTime = 0;
 let fetchPromise: Promise<void> | null = null;
 const CACHE_DURATION = 15 * 60 * 1000;
+// A failed fetch must not disable the plugin for the rest of the session — but it must not
+// re-hit the network on every single message either.
+const RETRY_DELAY = 60 * 1000;
 
 interface IMessageCreate {
     type: "MESSAGE_CREATE";
@@ -49,9 +54,10 @@ const settings = definePluginSettings({
 
 async function fetchScamList(): Promise<void> {
     const now = Date.now();
-    if (now - lastFetchTime < CACHE_DURATION && scamLinks.size > 0) {
-        return;
-    }
+    // Fresh enough — nothing to do.
+    if (scamLinks.size > 0 && now - lastFetchTime < CACHE_DURATION) return;
+    // Failed recently — back off, but come back to it.
+    if (now - lastFailureTime < RETRY_DELAY) return;
 
     if (fetchPromise) {
         if (settings.store.enableDebugLogs) {
@@ -68,6 +74,7 @@ async function fetchScamList(): Promise<void> {
 
             if (!response.ok) {
                 logger.error(`Failed to fetch scam list: ${response.status} ${response.statusText}`);
+                lastFailureTime = Date.now();
                 return;
             }
 
@@ -77,11 +84,13 @@ async function fetchScamList(): Promise<void> {
                 .filter(line => line && !line.startsWith("#"));
 
             scamLinks = new Set(lines);
-            lastFetchTime = now;
+            lastFetchTime = Date.now();
+            lastFailureTime = 0;
 
             logger.info(`Successfully loaded ${scamLinks.size} scam domains from AntiScam database`);
         } catch (error) {
             logger.error("Error fetching scam list:", error);
+            lastFailureTime = Date.now();
         } finally {
             fetchPromise = null;
         }
@@ -182,10 +191,18 @@ export default definePlugin({
             if (message.author?.bot) return;
 
             if (scamLinks.size === 0) {
-                if (settings.store.enableDebugLogs) {
-                    logger.debug("Scam list not loaded yet, skipping check");
+                // The fetch in start() can fail (offline at launch). Retry here rather than
+                // staying silently disabled for the whole session.
+                await fetchScamList();
+                if (scamLinks.size === 0) {
+                    if (settings.store.enableDebugLogs) {
+                        logger.debug("Scam list not loaded yet, skipping check");
+                    }
+                    return;
                 }
-                return;
+            } else {
+                // No-op until the 15-minute cache expires — what CACHE_DURATION was written for.
+                void fetchScamList();
             }
 
             if (settings.store.enableDebugLogs) {
@@ -208,20 +225,27 @@ export default definePlugin({
                 `⚠️ **Scam Link Detected**\n\nThis message from **${message.author.username}** contains known scam/malicious links:\n${domainList}\n\nThese domains are flagged in the Discord AntiScam database. Do not click them!`
             );
 
+            // RestAPI, not fetch(): a bare fetch carries no Authorization header, and it only
+            // rejects on network failure — a 401/403 would resolve and be reported as success.
+            let deleteFailure: string | null = null;
             if (settings.store.blockMessage) {
                 try {
                     logger.info(`Attempting to delete scam message ${message.id}...`);
-                    await fetch(`/api/v9/channels/${channelId}/messages/${message.id}`, {
-                        method: "DELETE"
-                    });
+                    await RestAPI.del({ url: Constants.Endpoints.MESSAGE(channelId, message.id) });
                     logger.info(`Successfully deleted scam message ${message.id}`);
-                } catch (error) {
-                    logger.error("Failed to delete scam message:", error);
+                } catch (error: any) {
+                    deleteFailure = String(error?.status ?? error?.statusCode ?? "N/A");
+                    logger.error(`Failed to delete scam message ${message.id} (status ${deleteFailure}):`, error);
                 }
             }
 
+            const failureNote = deleteFailure === null ? "" : "\n\n" + t(
+                `⚠️ تعذّر حذف هذه الرسالة (الرمز ${deleteFailure}) — تحقّق من امتلاكك صلاحية «إدارة الرسائل» في هذه القناة.`,
+                `⚠️ Could not delete this message (status ${deleteFailure}) — check that you have the Manage Messages permission in this channel.`
+            );
+
             sendBotMessage(channelId, {
-                content: warningMessage
+                content: warningMessage + failureNote
             });
         }
     },
