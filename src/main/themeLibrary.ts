@@ -41,9 +41,23 @@ export { fileNameFor, parseThemes } from "./themeLibraryParse";
 const SITE = "https://betterdiscord.app";
 
 /** ترويسةُ متصفّحٍ عاديّ: بعض المواقع تردّ صفحةً مختلفة لعميلٍ بلا هويّة. */
+/**
+ * 🔴 `accept-language` ليست تجميلاً — بدونها **يُرفض الطلب**.
+ *
+ * قِيس لا خُمِّن (٢٠٢٦-٠٩-٠٩): بهذه الترويسة **٥ من ٥** نجحت ورجع ١١٣ ثيماً،
+ * وبدونها **صفرٌ من ٥** — كلّها `500` بجسمٍ نصُّه «404 Not Found». والموقع
+ * SvelteKit خلف Cloudflare، ويردّ على طلبٍ بلا لغةٍ مفضّلة كأنّ المسار غير
+ * موجود. وأُقصيت البدائل واحدةً واحدة: `accept-encoding` وحدها لا تكفي،
+ * و`sec-fetch` وحدها لا تكفي، وقبولٌ عامٌّ بدل `text/html` يُفشلها كذلك.
+ *
+ * ⚠️ ولهذا كان `curl` ينجح بينما يفشل العميل: curl لا يُرسلها افتراضياً…
+ * بل الموقع يقبله لسببٍ آخر. الدرس أنّ نجاح `curl` **ليس دليلاً** على أنّ
+ * طلبنا سينجح — يُقاس الطلبُ نفسه من حيث يُرسَل.
+ */
 const HEADERS = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
-    accept: "text/html,application/xhtml+xml"
+    accept: "text/html,application/xhtml+xml",
+    "accept-language": "en-US,en;q=0.9"
 };
 
 export type LibraryResult =

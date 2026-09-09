@@ -202,11 +202,18 @@ function ThemeLibraryPageInner() {
             {failed !== null && (
                 <Card index={1}
                     title={t("تعذّر فتح المعرض", "Couldn't open the gallery")}
+                    // 🔴 ثلاث حالات لا اثنتان. كان `http` يُعرَض برسالة «تحقّق من
+                    // اتّصالك» — فيُرسَل المستخدم يفحص شبكةً سليمة بينما الخادم هو
+                    // الذي ردّ بخطأ. وقد وقع هذا فعلاً: ردّ المعرض `500` وشبكة
+                    // المستخدم لا غبار عليها.
                     subtitle={failed === "shape"
                         ? t("المعرض فُتح لكنّ شكل صفحته تغيّر، فلم نتعرّف على ثيماته.",
                             "The gallery opened but its page shape changed, so we couldn't read its themes.")
-                        : t("لم يُجب المعرض. تحقّق من اتّصالك ثم أعد المحاولة.",
-                            "The gallery didn't answer. Check your connection and try again.")}
+                        : failed === "http"
+                            ? t("ردّ المعرض بخطأ. المشكلة عنده لا عندك — أعد المحاولة بعد قليل.",
+                                "The gallery answered with an error. The problem is on their side, not yours — try again shortly.")
+                            : t("لم نصل إلى المعرض. تحقّق من اتّصالك ثم أعد المحاولة.",
+                                "We couldn't reach the gallery. Check your connection and try again.")}
                     badge={t("خطأ", "Error")} badgeTone="danger">
                     <Button onClick={() => { refresh(); refreshInstalled(); }}>{t("أعد المحاولة", "Try again")}</Button>
                 </Card>
