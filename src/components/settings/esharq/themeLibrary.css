@@ -18,7 +18,7 @@
     min-inline-size: 0;
     padding: 9px 14px;
     border-radius: 9px;
-    border: 1px solid var(--border-medium, #ffffff1f);
+    border: 1px solid var(--border-medium, var(--esharq-line));
     background: var(--input-background, #1e1f22);
     color: var(--text-default, #f2f3f5);
     font-size: 14px;
@@ -36,21 +36,21 @@
     border-radius: 999px;
     border: 0;
     font-size: 12px;
-    background: #17171b;
-    box-shadow: inset 0 0 0 1px #ffffff0f;
+    background: var(--esharq-surface-1);
+    box-shadow: inset 0 0 0 1px var(--esharq-line);
     color: inherit;
     cursor: pointer;
     transition: background 0.14s ease, box-shadow 0.14s ease;
 }
 
 .esharq-tl-tag:hover {
-    background: #1d1d23;
+    background: var(--esharq-surface-1-hover);
 }
 
 .esharq-tl-tag.on {
     background: rgb(201 162 39 / 14%);
     box-shadow: inset 0 0 0 1px rgb(201 162 39 / 50%);
-    color: #ecd384;
+    color: var(--esharq-on-accent);
 }
 
 .esharq-tl-tag:focus-visible {
@@ -72,8 +72,8 @@
     flex-direction: column;
     border-radius: 14px;
     overflow: hidden;
-    background: #15151a;
-    box-shadow: inset 0 0 0 1px #ffffff0a;
+    background: var(--esharq-surface-0);
+    box-shadow: inset 0 0 0 1px var(--esharq-line);
     transition: box-shadow 0.16s ease, transform 0.16s cubic-bezier(0.22, 1.2, 0.36, 1);
 }
 
@@ -90,7 +90,7 @@
     inline-size: 100%;
     flex: 0 0 auto;
     overflow: hidden;
-    background: #101014;
+    background: var(--esharq-surface-0);
 }
 
 .esharq-tl-shot img {
@@ -150,7 +150,7 @@
     padding: 3px 9px;
     border-radius: 999px;
     font-size: 10.5px;
-    background: #ffffff0d;
+    background: var(--esharq-tint-strong);
     opacity: 0.7;
 }
 
@@ -165,7 +165,7 @@
     font-size: 12px;
     padding: 5px 12px;
     border-radius: 999px;
-    background: #ffffff0d;
+    background: var(--esharq-tint-strong);
     opacity: 0.6;
 }
 
@@ -209,7 +209,7 @@
     flex: 0 0 auto;
     padding: 9px 12px;
     border-radius: 9px;
-    border: 1px solid var(--border-medium, #ffffff1f);
+    border: 1px solid var(--border-medium, var(--esharq-line));
     background: var(--input-background, #1e1f22);
     color: var(--text-default, #f2f3f5);
     font-size: 13px;
@@ -222,7 +222,7 @@
     gap: 14px;
     margin-top: 8px;
     padding-top: 8px;
-    border-block-start: 1px solid #ffffff0a;
+    border-block-start: 1px solid var(--esharq-line);
     font-family: var(--font-code, monospace);
     font-size: 10.5px;
     opacity: 0.45;

@@ -12,7 +12,7 @@
     gap: 6px;
     margin-bottom: 18px;
     padding-bottom: 14px;
-    border-block-end: 1px solid #ffffff0f;
+    border-block-end: 1px solid var(--esharq-line);
 }
 
 .esharq-tab {
@@ -32,14 +32,14 @@
 }
 
 .esharq-tab:hover {
-    background: #ffffff0a;
+    background: var(--esharq-tint);
     opacity: 0.85;
 }
 
 .esharq-tab.on {
     background: rgb(201 162 39 / 12%);
     box-shadow: inset 0 0 0 1px rgb(201 162 39 / 38%);
-    color: #ecd384;
+    color: var(--esharq-on-accent);
     opacity: 1;
 }
 
@@ -55,22 +55,22 @@
     font-size: 10.5px;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
-    background: #ffffff14;
+    background: var(--esharq-tint-strong);
 }
 
 .esharq-tab-count.ok {
     background: rgb(35 165 90 / 18%);
-    color: #4ac07a;
+    color: var(--esharq-on-positive);
 }
 
 .esharq-tab-count.warn {
     background: rgb(201 162 39 / 20%);
-    color: #ecd384;
+    color: var(--esharq-on-accent);
 }
 
 .esharq-tab-count.danger {
     background: rgb(242 63 67 / 18%);
-    color: #ff9a9d;
+    color: var(--esharq-on-danger);
 }
 
 @media (prefers-reduced-motion: reduce) {

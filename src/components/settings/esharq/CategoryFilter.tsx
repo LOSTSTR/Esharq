@@ -85,7 +85,7 @@ export function CategoryFilter({ categories, counts, selected, onChange, label }
                     background: "rgb(0 0 0 / 12%)",
                     border: `1px solid ${open ? ACCENT : "rgb(160 168 178 / 20%)"}`,
                     fontSize: 16,
-                    color: "var(--text-normal)"
+                    color: "var(--text-default)"
                 }}
             >
                 <span>

@@ -318,7 +318,7 @@ function TransmissionCard({ index, diskPatched }: { index: number; diskPatched: 
             <button type="button" onClick={flushTransmission}
                 style={{
                     width: "100%", marginTop: UNIT * 2, padding: `${UNIT * 1.2}px`, borderRadius: 9,
-                    border: "none", cursor: "pointer", background: SURFACE[3], color: "var(--text-normal)", fontSize: 13
+                    border: "none", cursor: "pointer", background: SURFACE[3], color: "var(--text-default)", fontSize: 13
                 }}>
                 {t("✓ تطبيق على المكالمة الجارية", "✓ Apply to the current call")}
             </button>
@@ -473,7 +473,7 @@ export function VoiceLabPage() {
                 <button type="button"
                     style={{
                         width: "100%", padding: `${UNIT * 1.5}px`, borderRadius: 9, border: "none", cursor: "pointer",
-                        background: testing ? ACCENT : SURFACE[3], color: testing ? "#14140f" : "var(--text-normal)",
+                        background: testing ? ACCENT : SURFACE[3], color: testing ? "#14140f" : "var(--text-default)",
                         fontWeight: 600, fontSize: 14
                     }}
                     onClick={async () => {

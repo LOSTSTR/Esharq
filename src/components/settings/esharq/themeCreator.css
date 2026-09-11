@@ -15,7 +15,7 @@
 }
 
 .esharq-tc-row + .esharq-tc-row {
-    border-block-start: 1px solid #ffffff0a;
+    border-block-start: 1px solid var(--esharq-line);
 }
 
 .esharq-tc-row-text {
@@ -64,7 +64,7 @@
     inline-size: 150px;
     block-size: 88px;
     border-radius: 12px;
-    box-shadow: inset 0 0 0 1px #ffffff1a, 0 8px 22px #00000059;
+    box-shadow: inset 0 0 0 1px var(--esharq-line), 0 8px 22px #00000059;
     flex: 0 0 auto;
 }
 
@@ -74,7 +74,7 @@
     font-family: var(--font-code, monospace);
     font-size: 13px;
     font-weight: 700;
-    color: #fff;
+    color: var(--text-strong);
     text-shadow: 0 1px 3px #000, 0 0 10px #000;
     direction: ltr;
 }
@@ -100,7 +100,7 @@
 .esharq-tc-name {
     padding: 8px 12px;
     border-radius: 8px;
-    border: 1px solid var(--border-medium, #ffffff1f);
+    border: 1px solid var(--border-medium, var(--esharq-line));
     background: var(--input-background, #1e1f22);
     color: var(--text-default, #f2f3f5);
     font-size: 14px;
@@ -128,7 +128,7 @@
     inline-size: 28px;
     block-size: 28px;
     border-radius: 999px;
-    border: 1px solid #ffffff26;
+    border: 1px solid var(--esharq-line);
     padding: 0;
     cursor: pointer;
     transition: transform 0.14s cubic-bezier(0.22, 1.2, 0.36, 1), box-shadow 0.14s ease;
@@ -171,15 +171,15 @@
     border-radius: 10px;
     border: 0;
     text-align: start;
-    background: #17171b;
-    box-shadow: inset 0 0 0 1px #ffffff0a;
+    background: var(--esharq-surface-1);
+    box-shadow: inset 0 0 0 1px var(--esharq-line);
     color: inherit;
     cursor: pointer;
     transition: background 0.16s ease, box-shadow 0.16s ease;
 }
 
 .esharq-tc-quick-btn:hover {
-    background: #1d1d23;
+    background: var(--esharq-surface-1-hover);
     box-shadow: inset 0 0 0 1px rgb(201 162 39 / 30%);
 }
 
@@ -203,8 +203,8 @@
 .esharq-tc-surface {
     padding: 14px 16px 6px;
     border-radius: 12px;
-    background: #15151a;
-    box-shadow: inset 0 0 0 1px #ffffff0a;
+    background: var(--esharq-surface-0);
+    box-shadow: inset 0 0 0 1px var(--esharq-line);
 }
 
 .esharq-tc-surface-head {
@@ -241,8 +241,8 @@
     flex: 0 0 auto;
     border-radius: 12px;
     overflow: hidden;
-    background: #101014;
-    box-shadow: inset 0 0 0 1px #ffffff0f;
+    background: var(--esharq-surface-0);
+    box-shadow: inset 0 0 0 1px var(--esharq-line);
     font-size: 12px;
     opacity: 1;
 }
@@ -287,15 +287,15 @@
     border-radius: 999px;
     border: 0;
     font-size: 12px;
-    background: #17171b;
-    box-shadow: inset 0 0 0 1px #ffffff0f;
+    background: var(--esharq-surface-1);
+    box-shadow: inset 0 0 0 1px var(--esharq-line);
     color: inherit;
     cursor: pointer;
     transition: background 0.14s ease, box-shadow 0.14s ease;
 }
 
 .esharq-tc-choice:hover {
-    background: #1d1d23;
+    background: var(--esharq-surface-1-hover);
 }
 
 .esharq-tc-choice.on {
@@ -350,15 +350,15 @@
     border-radius: 12px;
     border: 0;
     text-align: start;
-    background: #17171b;
-    box-shadow: inset 0 0 0 1px #ffffff0a;
+    background: var(--esharq-surface-1);
+    box-shadow: inset 0 0 0 1px var(--esharq-line);
     color: inherit;
     cursor: pointer;
     transition: background 0.16s ease, box-shadow 0.16s ease;
 }
 
 .esharq-tc-mode:hover {
-    background: #1d1d23;
+    background: var(--esharq-surface-1-hover);
 }
 
 .esharq-tc-mode.on {
@@ -371,7 +371,7 @@
     block-size: 34px;
     flex: 0 0 auto;
     border-radius: 9px;
-    box-shadow: inset 0 0 0 1px #ffffff26;
+    box-shadow: inset 0 0 0 1px var(--esharq-line);
 }
 
 .esharq-tc-mode-text {
@@ -417,7 +417,7 @@
 }
 
 .esharq-tc-warn-text b {
-    color: #ff9a9d;
+    color: var(--esharq-on-danger);
 }
 
 /* ── الأهداف ─────────────────────────────────────────────────────────────── */
@@ -434,21 +434,21 @@
     border-radius: 999px;
     border: 0;
     font-size: 12.5px;
-    background: #17171b;
-    box-shadow: inset 0 0 0 1px #ffffff0f;
+    background: var(--esharq-surface-1);
+    box-shadow: inset 0 0 0 1px var(--esharq-line);
     color: inherit;
     cursor: pointer;
     transition: background 0.14s ease, box-shadow 0.14s ease;
 }
 
 .esharq-tc-chip:hover {
-    background: #1d1d23;
+    background: var(--esharq-surface-1-hover);
 }
 
 .esharq-tc-chip.on {
     background: rgb(201 162 39 / 14%);
     box-shadow: inset 0 0 0 1px rgb(201 162 39 / 50%);
-    color: #ecd384;
+    color: var(--esharq-on-accent);
 }
 
 .esharq-tc-chip.all {
@@ -474,8 +474,8 @@
     margin-top: 16px;
     padding: 22px 18px;
     border-radius: 12px;
-    background: #101014;
-    box-shadow: inset 0 0 0 1px #ffffff0a;
+    background: var(--esharq-surface-0);
+    box-shadow: inset 0 0 0 1px var(--esharq-line);
     text-align: center;
     font-size: 20px;
     font-weight: 700;
@@ -483,7 +483,7 @@
 
 /* المعاينة تُري التدرّج على الحروف نفسها كما سيظهر، لا مستطيلاً ملوّناً. */
 .esharq-tc-preview.gradient {
-    background-color: #101014;
+    background-color: var(--esharq-surface-0);
 
     /* كروميوم 120+ يفهم غير المسبوقة، وهذا البناء أحدث منها بكثير.
        أمّا `-webkit-text-fill-color` فلا مقابل قياسيّاً لها. */
@@ -510,7 +510,7 @@
     inline-size: 100%;
     padding: 8px 12px;
     border-radius: 8px;
-    border: 1px solid var(--border-medium, #ffffff1f);
+    border: 1px solid var(--border-medium, var(--esharq-line));
     background: var(--input-background, #1e1f22);
     color: var(--text-default, #f2f3f5);
     font-size: 13.5px;
@@ -574,15 +574,15 @@
     border-radius: 10px;
     border: 0;
     text-align: start;
-    background: #17171b;
-    box-shadow: inset 0 0 0 1px #ffffff0a;
+    background: var(--esharq-surface-1);
+    box-shadow: inset 0 0 0 1px var(--esharq-line);
     color: inherit;
     cursor: pointer;
     transition: background 0.14s ease, box-shadow 0.14s ease;
 }
 
 .esharq-tc-target:hover {
-    background: #1d1d23;
+    background: var(--esharq-surface-1-hover);
 }
 
 .esharq-tc-target.on {
@@ -591,7 +591,7 @@
 }
 
 .esharq-tc-target.all {
-    background: #15151a;
+    background: var(--esharq-surface-0);
 }
 
 /* مربّع اختيارٍ مرسوم: الحالة تُرى قبل أن تُقرأ. */
@@ -601,7 +601,7 @@
     margin-block-start: 2px;
     flex: 0 0 auto;
     border-radius: 4px;
-    box-shadow: inset 0 0 0 1.5px #fff3;
+    box-shadow: inset 0 0 0 1.5px var(--esharq-line);
     position: relative;
     transition: background 0.14s ease, box-shadow 0.14s ease;
 }

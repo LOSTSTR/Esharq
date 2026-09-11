@@ -9,7 +9,7 @@ import "./motion.css";
 import { React } from "@webpack/common";
 
 import { stagger } from "./motion";
-import { ACCENT, ACCENT_SOFT, RADIUS, SURFACE, UNIT } from "./tokens";
+import { ACCENT, ACCENT_SOFT, ACCENT_TEXT, RADIUS, SURFACE, UNIT } from "./tokens";
 
 /**
  * بطاقة إشراق — **الوحدة البنائية لكل صفحة**.
@@ -27,10 +27,17 @@ import { ACCENT, ACCENT_SOFT, RADIUS, SURFACE, UNIT } from "./tokens";
  */
 export type BadgeTone = "ok" | "danger" | "warn" | "info";
 
+/**
+ * 🔴 ألوان النصّ هنا تتبع الثيم، وألوان الخلفية تبقى شفّافةً فوقه.
+ *
+ * `--status-positive` و`--status-danger` مضبوطتان للشارات المصمتة لا للنصّ
+ * الصغير فوق تعبئةٍ شفّافة: قِيس تباين الأخضر على تعبئته ٣٫٤ في الثيم الفاتح،
+ * تحت الحدّ ٤٫٥. فالنصّ يأخذ درجةً أغمق تُعرَّف في `surfaces.css`.
+ */
 const BADGE_TONES: Record<BadgeTone, { fg: string; bg: string; }> = {
-    ok: { fg: "var(--status-positive, #23a55a)", bg: "rgb(35 165 90 / 14%)" },
-    danger: { fg: "var(--status-danger, #f23f43)", bg: "rgb(242 63 67 / 14%)" },
-    warn: { fg: ACCENT, bg: ACCENT_SOFT },
+    ok: { fg: "var(--esharq-on-positive)", bg: "rgb(35 165 90 / 14%)" },
+    danger: { fg: "var(--esharq-on-danger)", bg: "rgb(242 63 67 / 14%)" },
+    warn: { fg: ACCENT_TEXT, bg: ACCENT_SOFT },
     info: { fg: "var(--text-muted)", bg: SURFACE[3] }
 };
 
@@ -122,10 +129,12 @@ export function StatusRow({ title, detail, state, index = 0 }: {
     state: { text: string; tone: "ok" | "warn" | "danger" | "idle"; };
     index?: number;
 }) {
+    // اللون نصٌّ ونقطةٌ معاً، فيُؤخذ من درجات النصّ لا من ألوان الشارات:
+    // تلك تبهت على سطحٍ فاتح، وهذه مضبوطةٌ للقراءة في الثيمين.
     const color = state.tone === "ok"
-        ? "var(--status-positive, #23a55a)"
-        : state.tone === "danger" ? "var(--status-danger, #f23f43)"
-            : state.tone === "warn" ? ACCENT : "var(--text-muted)";
+        ? "var(--esharq-on-positive)"
+        : state.tone === "danger" ? "var(--esharq-on-danger)"
+            : state.tone === "warn" ? ACCENT_TEXT : "var(--text-muted)";
 
     return (
         <div style={{

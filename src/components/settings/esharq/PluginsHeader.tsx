@@ -11,7 +11,7 @@ import { t } from "@utils/esharqI18n";
 import { React, useEffect, useRef, useState } from "@webpack/common";
 
 import { countUpFrames, stagger } from "./motion";
-import { ACCENT, ACCENT_SOFT, RADIUS, SURFACE, TRANSITION_MS, UNIT } from "./tokens";
+import { ACCENT, ACCENT_SOFT, ACCENT_TEXT, RADIUS, SURFACE, TRANSITION_MS, UNIT } from "./tokens";
 
 /**
  * أصغر صعودٍ يستحقّ تسلّقاً. ما دونه يُكتب فوراً.
@@ -122,7 +122,10 @@ function Tile({ value, label, hint, highlight, index }: {
                 fontSize: 26,
                 fontWeight: 700,
                 lineHeight: 1.15,
-                color: highlight ? ACCENT : "var(--header-primary)"
+                // 🔴 `--header-primary` قِيس ميّتاً في ديسكورد الحاليّ: يُرجع
+                // فراغاً، فكان الرقم الكبير يرث لونه بلا قصد. و`--text-strong`
+                // هو الحيّ المقابل، وقِيس في الثيمين.
+                color: highlight ? ACCENT_TEXT : "var(--text-strong)"
             }}>
                 {value}
             </div>

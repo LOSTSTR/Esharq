@@ -25,8 +25,8 @@
     padding: 12px;
     border: none;
     border-radius: 10px;
-    background: #2a2a31;
-    color: var(--text-normal);
+    background: var(--esharq-surface-3);
+    color: var(--text-default);
     font-size: 13.5px;
     cursor: pointer;
     transition: background 0.16s ease, transform 0.09s ease;
@@ -38,7 +38,7 @@
 }
 
 .esharq-cb-btn:hover:not(:disabled) {
-    background: #34343d;
+    background: var(--esharq-surface-3-hover);
 }
 
 .esharq-cb-btn:active:not(:disabled) {
@@ -58,7 +58,7 @@
 
 .esharq-cb-btn.danger {
     background: rgb(242 63 67 / 16%);
-    color: #ff9a9d;
+    color: var(--esharq-on-danger);
     font-weight: 600;
 }
 
@@ -68,7 +68,7 @@
 
 .esharq-cb-btn.ok {
     background: rgb(35 165 90 / 16%);
-    color: #7fd8a4;
+    color: var(--esharq-on-positive);
     font-weight: 600;
 }
 
@@ -116,7 +116,7 @@
     font-size: 11px;
     padding: 3px 10px;
     border-radius: 999px;
-    background: #1f1f25;
+    background: var(--esharq-surface-2);
     opacity: 0.75;
     direction: ltr;
 }
@@ -132,8 +132,8 @@
     padding: 12px 16px;
     border-radius: 8px;
     border-inline-start: 3px solid var(--status-warning, #f0b232);
-    background: var(--background-secondary, #2b2d31);
-    color: var(--text-normal, #dbdee1);
+    background: var(--background-base-lowest, #2b2d31);
+    color: var(--text-default, #dbdee1);
     font-size: 14px;
     line-height: 1.7;
 }

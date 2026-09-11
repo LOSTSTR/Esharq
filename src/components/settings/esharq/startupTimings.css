@@ -31,7 +31,7 @@
 }
 
 .esharq-st-row:hover {
-    background: #ffffff08;
+    background: var(--esharq-tint);
 }
 
 .esharq-st-emoji {
@@ -58,7 +58,7 @@
     display: block;
     block-size: 5px;
     border-radius: 999px;
-    background: #ffffff0f;
+    background: var(--esharq-tint-strong);
     overflow: hidden;
 
     /* الشريط يُملأ من اليسار دائماً كالسجلّ الذي بجواره، فلا ينقلب اتّجاهه
@@ -97,7 +97,7 @@
 }
 
 .esharq-st-ms.slow {
-    color: #c9a227;
+    color: var(--esharq-on-accent);
     opacity: 1;
     font-weight: 600;
 }
@@ -119,15 +119,15 @@
     padding: 6px 13px;
     border: none;
     border-radius: 999px;
-    background: #1f1f25;
-    color: var(--text-normal);
+    background: var(--esharq-surface-2);
+    color: var(--text-default);
     font-size: 12.5px;
     cursor: pointer;
     transition: background 0.16s ease, color 0.16s ease;
 }
 
 .esharq-st-tabs button:hover {
-    background: #2a2a31;
+    background: var(--esharq-surface-3);
 }
 
 .esharq-st-tabs button.on {
@@ -140,12 +140,12 @@
     font-size: 10.5px;
     padding: 1px 6px;
     border-radius: 999px;
-    background: #00000038;
+    background: var(--esharq-tint-strong);
     font-variant-numeric: tabular-nums;
 }
 
 .esharq-st-tabs button.on .esharq-st-tabcount {
-    background: #00000024;
+    background: var(--esharq-tint-strong);
 }
 
 .esharq-st-empty {
@@ -226,13 +226,13 @@
     padding: 9px;
     border: none;
     border-radius: 9px;
-    background: #1f1f25;
-    color: var(--text-normal);
+    background: var(--esharq-surface-2);
+    color: var(--text-default);
     font-size: 12.5px;
     cursor: pointer;
     transition: background 0.16s ease;
 }
 
 .esharq-st-more:hover {
-    background: #2a2a31;
+    background: var(--esharq-surface-3);
 }

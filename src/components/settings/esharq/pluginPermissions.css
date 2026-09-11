@@ -21,13 +21,13 @@
     flex-wrap: wrap;
     padding: 10px 13px;
     border-radius: 9px;
-    background: #17171b;
+    background: var(--esharq-surface-1);
     border-inline-start: 3px solid transparent;
     transition: background 0.14s ease;
 }
 
 .esharq-pp-row:hover {
-    background: #1d1d23;
+    background: var(--esharq-surface-1-hover);
 }
 
 .esharq-pp-row.tone-danger {
@@ -55,14 +55,14 @@
     font-size: 10px;
     padding: 1px 7px;
     border-radius: 999px;
-    background: #2a2a31;
+    background: var(--esharq-surface-3);
     color: var(--text-muted);
     font-weight: 400;
 }
 
 .esharq-pp-flag.req {
     background: rgb(88 101 242 / 20%);
-    color: #a8b1ff;
+    color: var(--esharq-on-info);
 }
 
 .esharq-pp-caps {
@@ -79,7 +79,7 @@
     padding: 2px 9px;
     border-radius: 999px;
     white-space: nowrap;
-    background: #2a2a31;
+    background: var(--esharq-surface-3);
     color: var(--text-muted);
     cursor: help;
 }
@@ -91,22 +91,22 @@
 
 .esharq-pp-cap.danger {
     background: rgb(242 63 67 / 18%);
-    color: #ff9a9d;
+    color: var(--esharq-on-danger);
 }
 
 .esharq-pp-cap.warn {
     background: rgb(201 162 39 / 16%);
-    color: #e0c565;
+    color: var(--esharq-on-accent);
 }
 
 .esharq-pp-cap.info {
     background: rgb(88 101 242 / 16%);
-    color: #a8b1ff;
+    color: var(--esharq-on-info);
 }
 
 .esharq-pp-cap.pending {
     background: rgb(201 162 39 / 10%);
-    color: #c9a227;
+    color: var(--esharq-on-accent);
 }
 
 .esharq-pp-cap.none {
@@ -119,13 +119,13 @@
     padding: 2px 9px;
     border-radius: 999px;
     white-space: nowrap;
-    background: #ffffff0a;
+    background: var(--esharq-tint);
     color: var(--text-muted);
 }
 
 .esharq-pp-type.continuous {
     background: rgb(201 162 39 / 12%);
-    color: #d3b544;
+    color: var(--esharq-on-accent);
 }
 
 /* ── بحث ومرشِّحات ──────────────────────────────────────────────────────── */
@@ -137,8 +137,8 @@
     margin-top: 16px;
     padding: 10px 14px;
     border-radius: 11px;
-    background: #17171b;
-    box-shadow: inset 0 0 0 1px #ffffff10;
+    background: var(--esharq-surface-1);
+    box-shadow: inset 0 0 0 1px var(--esharq-line);
     transition: box-shadow 0.16s ease;
 }
 
@@ -152,14 +152,14 @@
     border: none;
     background: none;
     outline: none;
-    color: var(--text-normal);
+    color: var(--text-default);
     font-size: 13.5px;
 }
 
 .esharq-pp-search button {
     border: none;
-    background: #2a2a31;
-    color: var(--text-normal);
+    background: var(--esharq-surface-3);
+    color: var(--text-default);
     border-radius: 999px;
     inline-size: 22px;
     block-size: 22px;
@@ -182,15 +182,15 @@
     padding: 6px 13px;
     border: none;
     border-radius: 999px;
-    background: #1f1f25;
-    color: var(--text-normal);
+    background: var(--esharq-surface-2);
+    color: var(--text-default);
     font-size: 12.5px;
     cursor: pointer;
     transition: background 0.16s ease, color 0.16s ease;
 }
 
 .esharq-pp-tabs button:hover {
-    background: #2a2a31;
+    background: var(--esharq-surface-3);
 }
 
 .esharq-pp-tabs button.on {
@@ -203,7 +203,7 @@
     font-size: 10.5px;
     padding: 1px 6px;
     border-radius: 999px;
-    background: #00000038;
+    background: var(--esharq-tint-strong);
     font-variant-numeric: tabular-nums;
 }
 

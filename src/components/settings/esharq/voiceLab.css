@@ -20,8 +20,8 @@
     width: 124px;
     height: 124px;
     border-radius: 50%;
-    background: radial-gradient(circle at 50% 42%, #24242b 0%, #16161a 72%, #101014 100%);
-    box-shadow: inset 0 0 0 1px #ffffff0f, 0 6px 18px #00000059;
+    background: radial-gradient(circle at 50% 42%, var(--esharq-surface-3) 0%, var(--esharq-surface-2) 72%, var(--esharq-surface-0) 100%);
+    box-shadow: inset 0 0 0 1px var(--esharq-line), 0 6px 18px #00000059;
     display: grid;
     place-items: center;
 }
@@ -31,8 +31,8 @@
     width: 96px;
     height: 96px;
     border-radius: 50%;
-    background: #1b1b21;
-    box-shadow: inset 0 0 0 1px #ffffff14;
+    background: var(--esharq-surface-1);
+    box-shadow: inset 0 0 0 1px var(--esharq-line);
     cursor: grab;
 
     /* السحب لمسةً يجب ألّا يُمرّر الصفحة تحت الإصبع. */
@@ -47,7 +47,7 @@
 }
 
 .esharq-knob:focus-visible {
-    box-shadow: inset 0 0 0 1px #ffffff14, 0 0 0 2px var(--esharq-knob-accent);
+    box-shadow: inset 0 0 0 1px var(--esharq-line), 0 0 0 2px var(--esharq-knob-accent);
 }
 
 .esharq-knob::before {
@@ -91,7 +91,7 @@
     position: relative;
     height: 8px;
     border-radius: 999px;
-    background: #ffffff12;
+    background: var(--esharq-tint-strong);
     overflow: hidden;
 }
 
@@ -117,8 +117,8 @@
     padding: 7px 10px;
     border: none;
     border-radius: 8px;
-    background: #ffffff0d;
-    color: var(--text-normal);
+    background: var(--esharq-tint-strong);
+    color: var(--text-default);
     font-size: 13px;
     cursor: pointer;
     transition: background 140ms ease, color 140ms ease;
@@ -130,7 +130,7 @@
 }
 
 .esharq-seg > button:hover:not(:disabled) {
-    background: #ffffff17;
+    background: var(--esharq-tint-strong);
 }
 
 .esharq-seg > button.on {
@@ -157,8 +157,8 @@
     height: 34px;
     border: none;
     border-radius: 8px;
-    background: #ffffff0d;
-    color: var(--text-normal);
+    background: var(--esharq-tint-strong);
+    color: var(--text-default);
     font-size: 14px;
     cursor: pointer;
     transition: background 140ms ease;
@@ -170,7 +170,7 @@
 }
 
 .esharq-pbtn:hover:not(:disabled) {
-    background: #ffffff1c;
+    background: var(--esharq-tint-strong);
 }
 
 /* ── حقل رقمي بمفتاح ─────────────────────────────────────────────────────── */
@@ -181,7 +181,7 @@
 }
 
 .esharq-numcard {
-    background: #ffffff08;
+    background: var(--esharq-tint);
     border-radius: 9px;
     padding: 12px 14px;
 }
@@ -210,8 +210,8 @@
     padding: 6px 9px;
     border: none;
     border-radius: 7px;
-    background: #00000038;
-    color: var(--text-normal);
+    background: var(--esharq-tint-strong);
+    color: var(--text-default);
     font-size: 14px;
     font-variant-numeric: tabular-nums;
 }

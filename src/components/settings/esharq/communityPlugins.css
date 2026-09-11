@@ -20,8 +20,8 @@
     gap: 14px;
     padding: 14px 16px;
     border-radius: 10px;
-    background: #17171b;
-    box-shadow: inset 0 0 0 1px #ffffff0d;
+    background: var(--esharq-surface-1);
+    box-shadow: inset 0 0 0 1px var(--esharq-line);
 
     /* الحدّ على **بداية السطر** لا يساره، فينقلب مع العربية. */
     border-inline-start: 3px solid transparent;
@@ -29,12 +29,12 @@
 }
 
 .esharq-cp-row:hover {
-    background: #1c1c22;
+    background: var(--esharq-surface-1);
 }
 
 .esharq-cp-row.on {
     border-inline-start-color: #23a55a;
-    background: #171c19;
+    background: rgb(35 165 90 / 8%);
 }
 
 .esharq-cp-main {
@@ -95,18 +95,18 @@
 }
 
 .esharq-cp-actions button {
-    background: #2a2a31;
+    background: var(--esharq-surface-3);
     border: none;
     border-radius: 7px;
     padding: 5px 8px;
     font-size: 13px;
     cursor: pointer;
-    color: var(--text-normal);
+    color: var(--text-default);
     transition: background 0.15s ease;
 }
 
 .esharq-cp-actions button:hover {
-    background: #34343d;
+    background: var(--esharq-surface-3-hover);
 }
 
 .esharq-cp-actions button.danger:hover {
@@ -130,7 +130,7 @@
 
 .esharq-cp-pending {
     background: rgb(201 162 39 / 10%);
-    color: #c9a227;
+    color: var(--esharq-on-accent);
 }
 
 .esharq-cp-empty {

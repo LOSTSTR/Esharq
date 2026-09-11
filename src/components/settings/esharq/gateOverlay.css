@@ -69,7 +69,7 @@
     inset: 0 0 auto;
     block-size: 45%;
     border-radius: 20px 20px 0 0;
-    background: linear-gradient(180deg, #ffffff0a, transparent);
+    background: linear-gradient(180deg, var(--esharq-tint), transparent);
     pointer-events: none;
 }
 
@@ -134,18 +134,18 @@
 }
 
 .esharq-gate-warn li::marker {
-    color: rgb(242 63 67 / 70%);
+    color: var(--esharq-on-danger);
 }
 
 .esharq-gate-warn li {
     font-size: 13px;
     line-height: 1.7;
-    color: #f5b7b9;
+    color: var(--esharq-on-danger);
 }
 
 .esharq-gate-warn li b,
 .esharq-gate-warn li strong {
-    color: #ff9a9d;
+    color: var(--esharq-on-danger);
 }
 
 .esharq-gate-foot {

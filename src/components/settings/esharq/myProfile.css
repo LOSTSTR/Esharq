@@ -17,7 +17,7 @@
     inline-size: 72px;
     block-size: 72px;
     border-radius: 999px;
-    box-shadow: 0 0 0 3px #ffffff10, 0 6px 18px #00000059;
+    box-shadow: 0 0 0 3px var(--esharq-line), 0 6px 18px #00000059;
 }
 
 .esharq-mp-name {
@@ -46,13 +46,13 @@
     gap: 14px;
     padding: 12px 14px;
     border-radius: 11px;
-    background: #17171b;
+    background: var(--esharq-surface-1);
     border-inline-start: 3px solid transparent;
     transition: background 0.16s ease, opacity 0.2s ease;
 }
 
 .esharq-mp-badge:hover {
-    background: #1d1d23;
+    background: var(--esharq-surface-1-hover);
 }
 
 /* لون الحدّ يقول مصدر الشارة بلا قراءة. */
@@ -76,7 +76,7 @@
     block-size: 46px;
     flex: 0 0 auto;
     border-radius: 10px;
-    background: #ffffff08;
+    background: var(--esharq-tint);
     overflow: hidden;
 }
 
@@ -108,7 +108,7 @@
 }
 
 .esharq-mp-origin.esharq {
-    color: #d3b544;
+    color: var(--esharq-on-accent);
     opacity: 0.9;
 }
 
@@ -207,7 +207,7 @@
     border-radius: 999px;
     font-size: 12px;
     background: rgb(242 63 67 / 12%);
-    color: #ff9a9d;
+    color: var(--esharq-on-danger);
 }
 
 .esharq-mp-choices {
@@ -225,14 +225,14 @@
     gap: 16px;
     padding: 14px 16px;
     border-radius: 12px;
-    background: #17171b;
-    box-shadow: inset 0 0 0 1px #ffffff0a;
+    background: var(--esharq-surface-1);
+    box-shadow: inset 0 0 0 1px var(--esharq-line);
     cursor: pointer;
     transition: background 0.16s ease, box-shadow 0.16s ease;
 }
 
 .esharq-mp-choice:hover {
-    background: #1d1d23;
+    background: var(--esharq-surface-1-hover);
 }
 
 .esharq-mp-choice.on {
@@ -265,8 +265,8 @@
 .esharq-mp-cases.many .esharq-mp-showcase {
     padding: 18px 16px;
     border-radius: 14px;
-    background: #15151a;
-    box-shadow: inset 0 0 0 1px #ffffff0a;
+    background: var(--esharq-surface-0);
+    box-shadow: inset 0 0 0 1px var(--esharq-line);
 }
 
 /* مع الكثرة تصغر الدائرة قليلاً كي تبقى الصفحة مقروءةً بلا تمرير طويل. */
@@ -292,7 +292,7 @@
     gap: 4px;
     padding: 4px;
     border-radius: 11px;
-    background: rgb(255 255 255 / 4%);
+    background: var(--esharq-tint);
 }
 
 .esharq-mp-scope-btn {
@@ -309,12 +309,12 @@
 }
 
 .esharq-mp-scope-btn:hover {
-    color: var(--text-normal, #dbdee1);
+    color: var(--text-default, #dbdee1);
 }
 
 .esharq-mp-scope-btn.on {
     background: rgb(34 201 240 / 14%);
-    color: #c9a227;
+    color: var(--esharq-on-accent);
 }
 
 .esharq-mp-scope-note {
@@ -334,8 +334,8 @@
     align-items: center;
     padding: 12px;
     margin-block-start: 10px;
-    background: rgb(255 255 255 / 2.5%);
-    border: 1px solid rgb(255 255 255 / 7%);
+    background: var(--esharq-tint);
+    border: 1px solid var(--esharq-line);
     border-radius: 12px;
 }
 
@@ -349,7 +349,7 @@
     inline-size: 100%;
     block-size: 100%;
     object-fit: cover;
-    background: #000;
+    background: var(--esharq-surface-0);
     border-radius: 50%;
 }
 
@@ -365,7 +365,7 @@
     display: block;
     inline-size: 100%;
     block-size: 100%;
-    background: rgb(255 255 255 / 6%);
+    background: var(--esharq-tint-strong);
     border-radius: 50%;
 }
 
@@ -378,7 +378,7 @@
     display: block;
     font-size: 14px;
     font-weight: 600;
-    color: var(--header-primary, #f2f3f5);
+    color: var(--text-strong, #f2f3f5);
 }
 
 .esharq-mp-ctl-meta small {
@@ -397,8 +397,8 @@
     font-family: inherit;
     font-size: 12px;
     color: var(--text-muted, #949ba4);
-    background: rgb(0 0 0 / 22%);
-    border: 1px solid rgb(255 255 255 / 8%);
+    background: var(--esharq-tint-strong);
+    border: 1px solid var(--esharq-line);
     border-radius: 8px;
     cursor: pointer;
 }
@@ -410,19 +410,19 @@
 
 .esharq-mp-ctl-state:hover:not(:disabled) {
     color: var(--text-default, #dbdee1);
-    border-color: rgb(255 255 255 / 16%);
+    border-color: var(--esharq-line);
 }
 
 .esharq-mp-ctl-state.on {
     font-weight: 700;
-    color: #22c9f0;
+    color: var(--esharq-on-cyan);
     background: rgb(34 201 240 / 10%);
     border-color: rgb(34 201 240 / 35%);
 }
 
 /* «مخفيّ» حالةٌ سالبة، فلونها ينذر لا يؤكّد. */
 .esharq-mp-ctl-state.hide.on {
-    color: #f08a8a;
+    color: var(--esharq-on-danger);
     background: rgb(240 90 90 / 12%);
     border-color: rgb(240 90 90 / 30%);
 }
@@ -454,8 +454,8 @@
     padding: 7px 15px;
     border: 0;
     border-radius: 999px;
-    background: #17171b;
-    box-shadow: inset 0 0 0 1px #ffffff0a;
+    background: var(--esharq-surface-1);
+    box-shadow: inset 0 0 0 1px var(--esharq-line);
     color: var(--text-default, #dbdee1);
     font: inherit;
     font-size: 13px;
@@ -465,13 +465,13 @@
 }
 
 .esharq-mp-tab:hover {
-    background: #1d1d23;
+    background: var(--esharq-surface-1-hover);
 }
 
 .esharq-mp-tab.on {
     background: rgb(34 201 240 / 8%);
     box-shadow: inset 0 0 0 1px rgb(34 201 240 / 30%);
-    color: #22c9f0;
+    color: var(--esharq-on-cyan);
 }
 
 .esharq-mp-grid {
@@ -522,15 +522,15 @@
 .esharq-mp-field-label {
     font-size: 12px;
     font-weight: 600;
-    color: var(--header-secondary, #b5bac1);
+    color: var(--text-muted, #b5bac1);
 }
 
 .esharq-mp-input {
     padding: 10px 12px;
     border: 0;
     border-radius: 10px;
-    background: #17171b;
-    box-shadow: inset 0 0 0 1px #ffffff0a;
+    background: var(--esharq-surface-1);
+    box-shadow: inset 0 0 0 1px var(--esharq-line);
     color: var(--text-default, #dbdee1);
     font: inherit;
     font-size: 13.5px;

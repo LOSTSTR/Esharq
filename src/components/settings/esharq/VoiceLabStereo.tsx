@@ -42,7 +42,7 @@ function Btn({ label, tone = "plain", disabled, onClick }: {
     onClick: () => void;
 }) {
     const bg = tone === "accent" ? ACCENT : tone === "danger" ? "rgb(242 63 67 / 15%)" : SURFACE[3];
-    const fg = tone === "accent" ? "#14140f" : tone === "danger" ? "var(--status-danger, #f23f43)" : "var(--text-normal)";
+    const fg = tone === "accent" ? "#14140f" : tone === "danger" ? "var(--esharq-on-danger)" : "var(--text-default)";
     return (
         <button type="button" disabled={disabled} onClick={onClick}
             style={{
