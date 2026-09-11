@@ -198,11 +198,25 @@ export function uninstall(): void {
 }
 
 /** يُعيد الرسم بعد تغيّر اللقطة، بلا إعادة تركيب. */
+/**
+ * يُعيد الرسم بعد تغيّر اللقطة، بلا إعادة تركيب.
+ *
+ * 🔴 **والمحو يُمحى فعلاً.** كانت الدالّة تكتب ولا تمسح: من ضغط «امحُ اللقطة»
+ * يُقال له «مُحيت» بينما اللوحة والإطار المحقونان باقيان في سجلّه إلى أن
+ * يُعيد تشغيل العميل. الزرّ الوحيد الذي وُضع للتراجع كان لا يتراجع.
+ *
+ * وكذلك بعد التقاطةٍ جديدة: ما كُتب من اللقطة القديمة يُرفَع أوّلاً ثمّ يُكتب
+ * الجديد، وإلّا بقي القديم لأنّ الحقل «مشغول» فلا يُكتب فوقه.
+ */
 export function refresh(): void {
     profileCache = null;
     if (!restoreProfileStore) return;
+
+    unpatchUserRecord();
+
     const snap = getSnapshot();
     if (snap) patchUserRecord(snap);
+
     (UserProfileStore as any).emitChange?.();
     (UserStore as any).emitChange?.();
 }

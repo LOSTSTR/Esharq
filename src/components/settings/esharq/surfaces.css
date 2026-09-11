@@ -51,7 +51,16 @@
      * فطبقةٌ بيضاء فوق سطحٍ أبيض لا يراها أحد.
      */
     --esharq-tint: rgb(255 255 255 / 3%);
-    --esharq-tint-strong: rgb(255 255 255 / 8%);
+    --esharq-tint-strong: rgb(255 255 255 / 6%);
+
+    /*
+     * 🔴 درجةُ التحويم **ثالثةٌ مستقلّة**، لا مرادفٌ لما قبلها.
+     *
+     * أوّل مسحٍ كان له درجتان فقط، فانطبق أساسُ الزرّ وتحويمُه على المتغيّر
+     * نفسه — وانهار أثر التحويم في مختبر الصوت: يمرّ المؤشّر فلا يتغيّر شيء.
+     * والتحويم ليس زينة؛ هو ما يقول للمستخدم إنّ هذا الشيء يُضغَط.
+     */
+    --esharq-tint-hover: rgb(255 255 255 / 11%);
     --esharq-line: rgb(255 255 255 / 7%);
 
     /*
@@ -63,6 +72,21 @@
     --esharq-on-accent: #d3b544;
     --esharq-on-info: #a8b1ff;
     --esharq-on-cyan: #22c9f0;
+
+    /*
+     * 🔴 درجةٌ **أهدأ** من أختها، لا نسخةٌ منها.
+     *
+     * أوّل مسحٍ وحّد نصّ التحذير وعريضَه في متغيّرٍ واحد، فذاب الفرق بينهما
+     * وصار العريض لا يبرز. والتشديد معنى لا زينة: من يقرأ تحذيراً يحتاج أن
+     * يرى أيّ كلمةٍ فيه هي المهمّة.
+     */
+    --esharq-on-danger-soft: #f5b7b9;
+
+    /* لوح البوّابة الزجاجيّ — شبه شفّاف فوق ما خلفه. */
+    --esharq-glass: rgb(20 20 25 / 72%);
+
+    /* نصاعة شارات الفئات المُولَّدة — انظر `categoryColor` في CategoryFilter. */
+    --esharq-tag-l: 62%;
 }
 
 /*
@@ -80,11 +104,15 @@
     --esharq-surface-2-hover: #eaeaee;
     --esharq-surface-3-hover: #d9d9e1;
     --esharq-tint: rgb(0 0 0 / 4%);
-    --esharq-tint-strong: rgb(0 0 0 / 8%);
+    --esharq-tint-strong: rgb(0 0 0 / 7%);
+    --esharq-tint-hover: rgb(0 0 0 / 12%);
     --esharq-line: rgb(0 0 0 / 8%);
     --esharq-on-danger: #b42a2e;
     --esharq-on-positive: #1a7a44;
     --esharq-on-accent: #8a6d10;
     --esharq-on-info: #3d47b8;
     --esharq-on-cyan: #0b7c99;
+    --esharq-on-danger-soft: #c4595c;
+    --esharq-glass: rgb(252 252 253 / 82%);
+    --esharq-tag-l: 34%;
 }

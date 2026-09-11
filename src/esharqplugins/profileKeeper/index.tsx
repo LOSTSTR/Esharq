@@ -33,15 +33,36 @@ const settings = definePluginSettings({
 });
 
 let timer: ReturnType<typeof setInterval> | null = null;
-let ready = false;
+
+/**
+ * معرّف الحساب الذي حُمِّلت لقطتُه. `""` يعني «لم يُحمَّل شيءٌ بعد».
+ *
+ * 🔴 كان مزلاجاً منطقياً (`ready`) يُرفَع مرّةً ولا ينزل. ومن بدّل حسابه داخل
+ * العميل بقي على لقطة الحساب الأوّل: تُحقن لوحةُ حسابٍ في ملفّ حسابٍ آخر،
+ * ولا يُستعاد شكل الثاني، **وتُكتب لقطتُه فوق لقطة الأوّل** بالالتقاط
+ * التلقائيّ. فالمزلاج صار مقارنةَ هويّة: تبدّل المعرّف ⇒ يُعاد التحميل.
+ */
+let loadedFor = "";
+
+/** هل أُوقفت الإضافة أثناء انتظارٍ غير متزامن؟ يمنع تسريب ما بعد الإيقاف. */
+let running = false;
 
 async function begin(): Promise<void> {
     const me = UserStore.getCurrentUser();
-    if (!me) return;
-    if (ready) return;
-    ready = true;
+    if (!me || !running) return;
+    if (loadedFor === me.id) return;
+
+    // حسابٌ مختلف ⇒ ما حُقن للحساب السابق يُرفَع قبل تحميل لقطة الجديد.
+    if (loadedFor !== "") uninstall();
 
     await loadFor(me.id);
+
+    // 🔴 `start()` غير مُنتظَرة من مدير الإضافات، فقد تُوقَف الإضافة بينما
+    // نقرأ من التخزين. بلا هذا الفحص يُركَّب اللافّ والمشتركون **بعد**
+    // `stop()` فيبقون إلى الأبد بلا شيء يُزيلهم.
+    if (!running) return;
+
+    loadedFor = me.id;
     install();
 
     // التقاطةٌ أولى فوراً: من فتح العميل وهو مشترك يُحفظ شكله بلا أن يُطلب
@@ -50,7 +71,7 @@ async function begin(): Promise<void> {
 }
 
 async function autoCapture(): Promise<void> {
-    if (!settings.store.autoCapture) return;
+    if (!running || !settings.store.autoCapture) return;
     // 🔴 لا يُلتقط إلّا والاشتراك **حقيقيّ** قائم: الالتقاط بعد انتهائه يحفظ
     // الفراغ فوق المحفوظ، فيضيع الشكل في اللحظة التي وُجدت الإضافة لأجلها.
     if (!hasRealNitro()) return;
@@ -66,8 +87,17 @@ async function autoCapture(): Promise<void> {
     }
 }
 
+/**
+ * 🔴 إعادة الاتّصال تُعيد بناء سجلّ المستخدم، فيزول ما كُتب فيه.
+ *
+ * ومن نام حاسوبه أو انقطعت شبكته كان يفقد اللوحة والإطار المستعادين فلا
+ * يعودان إلّا بمصادفة `USER_UPDATE` لاحق. فإن كان الحساب هو نفسه يُعاد
+ * التطبيق، وإن تبدّل يُعاد التحميل من أوّله.
+ */
 function onConnectionOpen() {
-    void begin();
+    const me = UserStore.getCurrentUser();
+    if (me && me.id === loadedFor) refresh();
+    else void begin();
 }
 
 export default definePlugin({
@@ -78,16 +108,20 @@ export default definePlugin({
     settings,
 
     async start() {
+        running = true;
+        // `CONNECTION_OPEN` يقع عند كلّ إعادة اتّصال وعند تبديل الحساب، فهو
+        // ما يُعيد تركيب الاستعادة على السجلّ الجديد بعد نومٍ أو انقطاع شبكة.
         FluxDispatcher.subscribe("CONNECTION_OPEN", onConnectionOpen);
         await begin();
         timer = setInterval(() => void autoCapture(), AUTO_MS);
     },
 
     stop() {
+        running = false;
         FluxDispatcher.unsubscribe("CONNECTION_OPEN", onConnectionOpen);
         if (timer) clearInterval(timer);
         timer = null;
-        ready = false;
+        loadedFor = "";
         uninstall();
     }
 });

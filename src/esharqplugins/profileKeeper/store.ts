@@ -48,6 +48,9 @@ const notify = () => listeners.forEach(fn => fn());
 
 export const getSnapshot = (): LookSnapshot | null => current;
 
+/** هل حُمِّلت لقطةُ حسابٍ بعينه؟ اللوحة تُعطَّل ما لم تكن. */
+export const isLoaded = (): boolean => ownerId !== "";
+
 /** هل في اللقطة شيءٌ يُستعاد أصلاً؟ */
 export function hasAnything(snap: LookSnapshot | null): boolean {
     if (!snap) return false;
@@ -76,6 +79,11 @@ export async function loadFor(userId: string): Promise<void> {
  * إلّا إذا جاء بقيمة.
  */
 export async function mergeSave(patch: Partial<LookSnapshot>): Promise<void> {
+    // 🔴 لا كتابةَ بلا صاحب. كانت اللوحة تعمل والإضافة مُطفأة، فيُكتب المفتاح
+    // `ProfileKeeper_look_` بمعرّفٍ فارغ: يُقال للمستخدم «حُفظ» ثمّ يُهمَل
+    // عند التشغيل، ويبقى سجلٌّ يتيم في التخزين لا يقرؤه أحد.
+    if (ownerId === "") return;
+
     const base = current ?? { ...EMPTY };
     const next: LookSnapshot = { ...base, ...patch };
     current = next;
@@ -89,6 +97,7 @@ export async function mergeSave(patch: Partial<LookSnapshot>): Promise<void> {
 
 /** يمحو اللقطة كاملةً — زرٌّ صريح في اللوحة، لا يقع تلقائياً أبداً. */
 export async function clearSnapshot(): Promise<void> {
+    if (ownerId === "") return;
     current = null;
     notify();
     try {

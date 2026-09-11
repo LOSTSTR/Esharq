@@ -108,16 +108,40 @@ function unpatchStore() {
     if (origGetMutable) { store.getMutableRelationships = origGetMutable; origGetMutable = null; }
 }
 
-// ── Patch acceptFriend (accepting a fake request stays local) ──────────────────
+// ── Patch acceptFriendRequest (accepting a fake request stays local) ──────────
 let origAccept: Function | null = null;
+
+/**
+ * 🔴 **الاسم تبدّل، والوعد كان يسقط معه صامتاً.**
+ *
+ * كان البحث عن `("acceptFriend", "addFriend")`، وقِيس حيّاً أنّ الاسمين
+ * **لم يعودا موجودين**: صفر وحدة لكلٍّ منهما. فيُرجِع النداء `null` وتخرج
+ * الدالّة بلا ترقيع ولا كلمة — ومن قَبِل صداقةً وهميّة كان طلبُه يذهب إلى
+ * **ديسكورد فعلاً**، وهو عكس ما تَعِد به الإضافة حرفياً.
+ *
+ * والبديل المقيس `acceptFriendRequest` في وحدةٍ فيها `addRelationship`
+ * و`removeFriend` وأخواتها. وتوقيعه `e => m.addRelationship(e, …)` — أي
+ * **كائنٌ** فيه `userId`، لا معرّفٌ نصّيّ. ويُقبل الشكلان احتياطاً.
+ *
+ * و`isIndirect` كي لا يُسجَّل خطأ عند الغياب، لأنّ الغياب يُقال هنا صراحةً
+ * بدل أن يُترك سطراً غامضاً في السجلّ.
+ */
+const findRelationshipActions = () =>
+    find(filters.byProps("acceptFriendRequest", "addRelationship"), { isIndirect: true }) as any;
 
 function patchAcceptFriend() {
     try {
-        const RA = find(filters.byProps("acceptFriend", "addFriend")) as any;
-        if (!RA || origAccept) return;
-        origAccept = RA.acceptFriend;
-        RA.acceptFriend = async function (userId: string, ...args: any[]) {
-            if (fakeState.get(userId) === "pending") {
+        const RA = findRelationshipActions();
+        if (!RA) {
+            logger.warn("لم أجد وحدة إجراءات الصداقة — قبولُ طلبٍ وهميّ سيذهب إلى ديسكورد. عطّل الإضافة حتى تُحدَّث.");
+            return;
+        }
+        if (origAccept) return;
+
+        origAccept = RA.acceptFriendRequest;
+        RA.acceptFriendRequest = function (options: any, ...args: any[]) {
+            const userId = typeof options === "string" ? options : options?.userId;
+            if (userId && fakeState.get(userId) === "pending") {
                 fakeState.set(userId, "accepted");
                 FluxDispatcher.dispatch({
                     type: "RELATIONSHIP_UPDATE",
@@ -125,16 +149,16 @@ function patchAcceptFriend() {
                 });
                 return;
             }
-            return origAccept!.call(this, userId, ...args);
+            return origAccept!.call(this, options, ...args);
         };
-    } catch (e) { console.warn("[FakeFriends] patchAcceptFriend:", e); }
+    } catch (e) { logger.warn("patchAcceptFriend:", e); }
 }
 
 function unpatchAcceptFriend() {
     try {
         if (!origAccept) return;
-        const RA = find(filters.byProps("acceptFriend", "addFriend")) as any;
-        if (RA) RA.acceptFriend = origAccept;
+        const RA = findRelationshipActions();
+        if (RA) RA.acceptFriendRequest = origAccept;
         origAccept = null;
     } catch (err) { logger.debug("Ignored error", err); }
 }

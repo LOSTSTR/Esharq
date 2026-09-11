@@ -190,7 +190,7 @@ const registeredGameOverflowContextMenuPatch: NavContextMenuPatchCallback = (chi
     children.push(
         <Menu.MenuCheckboxItem
             id="ignore-activities-toggle-activity"
-            label="Enable Activity"
+            label={t("تفعيل النشاط", "Enable Activity")}
             checked={!isCurrentlyIgnored}
             action={handleToggleActivity}
         />

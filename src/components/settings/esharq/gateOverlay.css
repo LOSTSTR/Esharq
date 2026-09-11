@@ -51,14 +51,20 @@
     border-radius: 20px;
     text-align: center;
 
-    /* الزجاج: طبقتان — تدرّج خافت فوق سطح شبه شفّاف، وحدّ فاتح يُمسك الحافّة. */
+    /*
+     * الزجاج: طبقتان — تدرّج خافت فوق سطح شبه شفّاف، وحدّ يُمسك الحافّة.
+     *
+     * 🔴 وكان هذا السطح **مثبَّتاً داكناً** ونجا من أوّل مسح، فلمّا غمق نصّه
+     * مع الثيم الفاتح صار داكناً على داكن — نفس العطب الذي جاء المسح ليُزيله،
+     * وقد أحدثتُه هنا بيدي. فالسطح الآن يتبع الثيم كأخواته.
+     */
     background:
-        linear-gradient(160deg, #ffffff0f 0%, #ffffff05 38%, #0000 70%),
-        rgb(20 20 25 / 72%);
+        linear-gradient(160deg, var(--esharq-tint-strong) 0%, var(--esharq-tint) 38%, #0000 70%),
+        var(--esharq-glass);
     backdrop-filter: blur(22px) saturate(140%);
     box-shadow:
-        inset 0 1px 0 #ffffff1f,
-        inset 0 0 0 1px #ffffff12,
+        inset 0 1px 0 var(--esharq-line),
+        inset 0 0 0 1px var(--esharq-line),
         0 24px 60px #00000073;
 }
 
@@ -134,13 +140,15 @@
 }
 
 .esharq-gate-warn li::marker {
-    color: var(--esharq-on-danger);
+    color: var(--esharq-on-danger-soft);
 }
 
+/* 🔴 البند أهدأ، وعريضُه أقوى — والفرق هو المعنى. وحّدهما مسحٌ سابق في
+   متغيّرٍ واحد فذاب التشديد، ومن يقرأ تحذيراً يحتاج أن يرى أهمّ كلمةٍ فيه. */
 .esharq-gate-warn li {
     font-size: 13px;
     line-height: 1.7;
-    color: var(--esharq-on-danger);
+    color: var(--esharq-on-danger-soft);
 }
 
 .esharq-gate-warn li b,

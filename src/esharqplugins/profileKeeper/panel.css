@@ -81,7 +81,11 @@
     border-block-start: 1px solid var(--esharq-line);
 }
 
-.esharq-pk-row:first-of-type {
+/* 🔴 `:first-of-type` لا يطابق شيئاً هنا: الصفوف `div` وقبلها `div` العنوان،
+   فأوّل `div` من نوعه هو الرأس لا أوّل صفّ. فيبقى خطٌّ زائد تحت العنوان يراه
+   كلّ من يفتح اللوحة. والصواب `:first-child` داخل حاويةٍ تبدأ بها الصفوف —
+   ولمّا لم تكن كذلك، يُلغى الحدّ عن الصفّ الذي يلي الرأس مباشرةً. */
+.esharq-pk-head + .esharq-pk-row {
     border-block-start: none;
 }
 

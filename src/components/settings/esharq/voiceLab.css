@@ -130,7 +130,7 @@
 }
 
 .esharq-seg > button:hover:not(:disabled) {
-    background: var(--esharq-tint-strong);
+    background: var(--esharq-tint-hover);
 }
 
 .esharq-seg > button.on {
@@ -170,7 +170,7 @@
 }
 
 .esharq-pbtn:hover:not(:disabled) {
-    background: var(--esharq-tint-strong);
+    background: var(--esharq-tint-hover);
 }
 
 /* ── حقل رقمي بمفتاح ─────────────────────────────────────────────────────── */

@@ -25,10 +25,20 @@ import { ACCENT, RADIUS, SURFACE, UNIT } from "./tokens";
  */
 
 /** لون ثابت لكل فئة — مشتقّ من اسمها فلا يتبدّل بين جلسة وأخرى. */
+/**
+ * 🔴 **النصاعة متغيّرٌ لا رقمٌ ثابت.**
+ *
+ * كانت ٦٢٪ دائماً، وهي مضبوطةٌ لسطحٍ داكن. وعلى بطاقةٍ بيضاء في الثيم الفاتح
+ * يهبط تباين نصّ الشارة إلى ما دون المقروء — وشارات الفئات على **كلّ** بطاقة
+ * في صفحة الإضافات، وهي أكثر صفحات إشراق زيارةً.
+ *
+ * و`var()` داخل `hsl()` يُحلّ وقت الحساب، فتتبع الشارة ثيم القارئ بلا أن
+ * يتغيّر شيءٌ في مُستدعيها. القيمتان في `surfaces.css`.
+ */
 export function categoryColor(name: string): string {
     let hash = 0;
     for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
-    return `hsl(${hash % 360} 70% 62%)`;
+    return `hsl(${hash % 360} 70% var(--esharq-tag-l, 62%))`;
 }
 
 interface Props {

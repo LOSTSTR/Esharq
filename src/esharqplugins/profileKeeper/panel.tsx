@@ -14,7 +14,7 @@ import { useEffect, useReducer, useState } from "@webpack/common";
 
 import { captureNow, hasRealNitro } from "./capture";
 import { refresh } from "./restore";
-import { clearSnapshot, getSnapshot, mergeSave, onSnapshotChange } from "./store";
+import { clearSnapshot, getSnapshot, isLoaded, mergeSave, onSnapshotChange } from "./store";
 import { LookSnapshot } from "./types";
 
 /**
@@ -61,8 +61,10 @@ const ITEMS: readonly {
             en: "To show it to others, USRBG shows it to whoever runs USRBG, once your request is accepted."
         }
     },
-    { key: "accentColor", ar: "لون التمييز", en: "Accent colour", seenBy: "self" },
-    { key: "avatar", ar: "الصورة الشخصية", en: "Avatar", seenBy: "self" }
+    { key: "accentColor", ar: "لون التمييز", en: "Accent colour", seenBy: "self" }
+    // 🔴 لا تُذكر «الصورة الشخصية» هنا. تُلتقط في `capture.ts` لكن `restore.ts`
+    // لا يكتبها في السجلّ البتّة، فذِكرها بعلامة ✓ وعدٌ لا يُوفى — وهذه اللوحة
+    // وُضعت للصدق عمّا يُستعاد، فإدراجُ ما لا يُستعاد يهدم سببَ وجودها.
 ];
 
 const SEEN_LABEL = {
@@ -88,6 +90,10 @@ function Panel() {
 
     const snap = getSnapshot();
     const live = hasRealNitro();
+
+    // 🔴 اللوحة تُعرَض من بطاقة الإضافة حتّى وهي مُطفأة. وبلا هذا كانت أزرارها
+    // تعمل بلا حسابٍ محمَّل: يُقال «حُفظ» ولا يُحفظ شيء، و«مُحيت» ولا يُمحى.
+    const ready = isLoaded();
 
     const capture = async () => {
         setBusy(true);
@@ -134,16 +140,18 @@ function Panel() {
                 </p>
 
                 <div className="esharq-pk-actions">
-                    <Button size="small" disabled={busy} onClick={capture}>
+                    <Button size="small" disabled={busy || !ready} onClick={capture}>
                         {busy ? t("جارٍ الالتقاط…", "Capturing…") : t("التقط شكلي الآن", "Capture my look now")}
                     </Button>
                     {snap && (
-                        <Button size="small" variant="secondary" onClick={wipe}>
+                        <Button size="small" variant="secondary" disabled={!ready} onClick={wipe}>
                             {t("امحُ اللقطة", "Clear snapshot")}
                         </Button>
                     )}
                     <span className="esharq-pk-said">
-                        {said || t(`آخر التقاط: ${stamp(snap?.at ?? 0)}`, `Last capture: ${stamp(snap?.at ?? 0)}`)}
+                        {!ready
+                            ? t("فعّل الإضافة أوّلاً ليُقرأ حسابك.", "Enable the plugin first so your account can be read.")
+                            : said || t(`آخر التقاط: ${stamp(snap?.at ?? 0)}`, `Last capture: ${stamp(snap?.at ?? 0)}`)}
                     </span>
                 </div>
             </div>
@@ -154,7 +162,10 @@ function Panel() {
                 </div>
 
                 {ITEMS.map(item => {
-                    const saved = Boolean(snap?.[item.key]);
+                    // 🔴 `Boolean` وحدها تكذب: لونُ تمييزٍ قيمته ٠ (أسود) محفوظٌ
+                    // فعلاً ويُستعاد، وكان يُعرَض «غير محفوظ».
+                    const value = snap?.[item.key];
+                    const saved = value !== null && value !== undefined;
                     const covered = item.covers && !isPluginEnabled(item.covers.plugin);
                     return (
                         <div className="esharq-pk-row" key={String(item.key)}>

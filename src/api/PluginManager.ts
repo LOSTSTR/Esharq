@@ -299,7 +299,23 @@ export const startPlugin = traceFunction("startPlugin", function startPlugin(p: 
         // التطوير، فيبقى المستخدم — وهو صاحب السؤال — بلا رقم واحد.
         const startedAt = performance.now();
         try {
-            p.start();
+            /*
+             * 🔴 **و`start()` غير المتزامنة يُلتقط رفضُها أيضاً.**
+             *
+             * `try/catch` لا يرى إلّا ما يُرمى قبل أوّل `await`. فإضافةٌ
+             * `async start()` تفشل بعده تُسجَّل **ناجحة**: مفتاحها يبقى
+             * مُشعَلاً، و`started` تصير `true`، ولا سطر «Failed to start» في
+             * أيّ سجلّ. وقِيس أنّ ذلك يقع فعلاً في إضافاتٍ حسّاسة كقفل
+             * الدخول: يظنّ صاحبه عميله مقفلاً وهو مفتوح.
+             *
+             * ولا يُنتظَر الوعد هنا — انتظارُه يُحوّل بدء كلّ الإضافات إلى
+             * سلسلةٍ متزامنة ويُبطئ الإقلاع. يُلتقط الرفضُ ويُقال، وهذا ما
+             * يُحوّل عطلاً صامتاً إلى عطلٍ مرئيّ.
+             */
+            const maybePromise = p.start() as unknown;
+            if (maybePromise instanceof Promise) {
+                maybePromise.catch(e => logger.error(`Failed to start ${name} (async)\n`, e));
+            }
         } catch (e) {
             recordPluginStart(name, performance.now() - startedAt, true, p.startAt ?? StartAt.WebpackReady);
             logger.error(`Failed to start ${name}\n`, e);

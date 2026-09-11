@@ -17,7 +17,7 @@
 */
 
 import { isPluginEnabled } from "@api/PluginManager";
-import { definePluginSettings } from "@api/Settings";
+import { definePluginSettings, migratePluginSetting } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import NoBlockedMessagesPlugin from "@plugins/noBlockedMessages";
 import { Devs } from "@utils/constants";
@@ -117,6 +117,17 @@ function ReactionUsers({ message, users }: { message: Message, users: User[]; })
         </div>
     );
 }
+
+/**
+ * 🔴 المنبع غيّر اسم الخيار **وقلب قيمته الافتراضية** في التزامٍ واحد:
+ * `avatarClick` افتراضُها `false` صارت `clickableAvatars` افتراضُها `true`.
+ * وبلا ترحيل يبقى اختيار المستخدم القديم في ملفّه لا يقرؤه أحد، ويستيقظ على
+ * سلوكٍ عكس ما ضبطه: النقر على صورة من تفاعل يفتح ملفّه بدل أن يُضيف تفاعله.
+ *
+ * والترحيل يُنقل الاسم فقط ولا يمسّ القيمة، فمن لم يضبط شيئاً يأخذ الافتراضيّ
+ * الجديد ومن ضبط يبقى على ضبطه.
+ */
+migratePluginSetting("WhoReacted", "clickableAvatars", "avatarClick");
 
 const settings = definePluginSettings({
     clickableAvatars: {

@@ -29,7 +29,7 @@
 }
 
 .esharq-cp-row:hover {
-    background: var(--esharq-surface-1);
+    background: var(--esharq-surface-1-hover);
 }
 
 .esharq-cp-row.on {

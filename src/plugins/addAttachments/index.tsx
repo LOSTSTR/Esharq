@@ -7,6 +7,7 @@
 import { ChatBarButton } from "@api/ChatButtons";
 import { UploadIcon } from "@components/Icons";
 import { Devs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { pluralize } from "@utils/misc";
 import definePlugin from "@utils/types";
 import { Message } from "@vencord/discord-types";
@@ -39,15 +40,15 @@ async function addAttachments(channelId: string, messageId: string, existingAtta
     if (files.length + existingAttachmentCount > 10) {
         const remaining = 10 - existingAttachmentCount;
         if (remaining <= 0) {
-            showToast("You cannot add more attachments to this message.", Toasts.Type.FAILURE);
+            showToast(t("لا يمكن إضافة مرفقات أخرى إلى هذه الرسالة.", "You cannot add more attachments to this message."), Toasts.Type.FAILURE);
             return;
         }
 
-        showToast(`You can only add ${pluralize(remaining, "more attachment")} to this message.`, Toasts.Type.FAILURE);
+        showToast(t(`لا يمكنك إضافة أكثر من ${remaining} إلى هذه الرسالة.`, `You can only add ${pluralize(remaining, "more attachment")} to this message.`), Toasts.Type.FAILURE);
         return;
     }
 
-    showToast("Uploading, this can take a while...", Toasts.Type.CLOCK);
+    showToast(t("جارٍ الرفع، قد يستغرق هذا وقتاً…", "Uploading, this can take a while..."), Toasts.Type.CLOCK);
 
     const { body: { attachments } } = await RestAPI.post({
         url: `/channels/${channelId}/attachments`,
@@ -86,7 +87,7 @@ async function addAttachments(channelId: string, messageId: string, existingAtta
         }
     });
 
-    showToast(`${files.length === 1 ? "Attachment" : "Attachments"} added successfully!`, Toasts.Type.SUCCESS);
+    showToast(t(files.length === 1 ? "أُضيف المرفق بنجاح!" : "أُضيفت المرفقات بنجاح!", `${files.length === 1 ? "Attachment" : "Attachments"} added successfully!`), Toasts.Type.SUCCESS);
 }
 
 function canAddAttachments(msg: Message) {
@@ -131,7 +132,7 @@ export default definePlugin({
             if (!channel.isPrivate() && !PermissionStore.can(PermissionsBits.SEND_MESSAGES, channel)) return null;
 
             return {
-                label: "Add Attachments",
+                label: t("إضافة مرفقات", "Add Attachments"),
                 icon: UploadIcon,
                 message: msg,
                 channel: ChannelStore.getChannel(msg.channel_id),
@@ -150,7 +151,7 @@ export default definePlugin({
 
             return (
                 <ChatBarButton
-                    tooltip="Add Attachments"
+                    tooltip={t("إضافة مرفقات", "Add Attachments")}
                     onClick={() => chooseAttachments(msg.channel_id, msg.id, msg.attachments.length)}
                 >
                     <UploadIcon height={18} width={18} />

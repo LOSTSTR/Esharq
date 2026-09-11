@@ -251,7 +251,7 @@ function TextReplace({ title, description, rulesArray, isRegex = false }: TextRe
                 <Paragraph>{description}</Paragraph>
                 <div className={cl("search-input")}>
                     <TextInput
-                        placeholder="Search for a rule..."
+                        placeholder={t("ابحث عن قاعدة…", "Search for a rule...")}
                         value={searchQuery}
                         onChange={setSearchQuery}
                     />
