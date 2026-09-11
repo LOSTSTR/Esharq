@@ -5,7 +5,10 @@
  */
 
 import { setStyleClassNames } from "@api/Styles";
-import { findCssClasses } from "@webpack";
+import { Logger } from "@utils/Logger";
+import { filters, find, mapMangledCssClasses } from "@webpack";
+
+const logger = new Logger("EsharqLateClasses");
 
 /**
  * يملأ أصناف نمطٍ **متى صارت الوحدة موجودة**، لا عند التشغيل وحده.
@@ -36,12 +39,31 @@ import { findCssClasses } from "@webpack";
 const EVERY_MS = 500;
 const TRIES = 20;
 
+/**
+ * 🔴 **البحث صامتٌ هنا عمداً.**
+ *
+ * `findCssClasses` تُسجّل خطأً في السجلّ كلّما لم تجد — وهذه الدالّة **تتوقّع**
+ * ألّا تجد في أوّل محاولة، فكانت تملأ سجلّ كلّ إقلاعٍ بأخطاءٍ متوقَّعة تُخفي
+ * الأخطاء الحقيقية بينها. و`find` بـ`isIndirect` هي نفسُها بلا تسجيل.
+ */
+const quietFind = (classes: string[]): Record<string, string> => {
+    const mod = find(filters.byClassNames(...classes), { isIndirect: true, topLevelOnly: true });
+    if (!mod) return {};
+    try {
+        // ⚠️ `mapMangledCssClasses` ترمي إن لم تجد اسماً في الوحدة التي
+        // أرضت المُرشِّح. المحاولة التالية ستُعيد الكرّة، فالرمي هنا ليس عطلاً.
+        return mapMangledCssClasses(mod, classes);
+    } catch {
+        return {};
+    }
+};
+
 export function fillStyleClassesWhenReady(styles: string[], classes: string[]): void {
     let left = TRIES;
 
     const attempt = (): boolean => {
-        const found = findCssClasses(...classes);
-        // `findCssClasses` تُرجع `{}` حين لا تجد، فالمِحكّ هو وجود القيم لا الكائن.
+        const found = quietFind(classes);
+        // يُرجَع `{}` حين لا تُوجد الوحدة، فالمِحكّ هو وجود القيم لا الكائن.
         if (classes.some(c => !found[c])) return false;
 
         for (const style of styles) setStyleClassNames(style, found);
@@ -51,6 +73,12 @@ export function fillStyleClassesWhenReady(styles: string[], classes: string[]): 
     if (attempt()) return;
 
     const timer = setInterval(() => {
-        if (attempt() || --left <= 0) clearInterval(timer);
+        if (attempt()) { clearInterval(timer); return; }
+        // 🔴 والاستسلام يُقال. كانت الحلقة تنتهي بصمت بعد عشر ثوانٍ، فيبقى
+        // النمطُ بلا أصناف ولا شيء يدلّ على أنّ الإضافة لم تعمل.
+        if (--left <= 0) {
+            clearInterval(timer);
+            logger.warn(`لم تُحلّ الأصناف [${classes.join(", ")}] خلال ${(TRIES * EVERY_MS) / 1000} ثوانٍ — النمط المرتبط بها بلا أثر.`);
+        }
     }, EVERY_MS);
 }
