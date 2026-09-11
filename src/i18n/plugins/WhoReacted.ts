@@ -12,9 +12,9 @@ export default definePluginI18n({
         "en": "Shows a list of who reacted to each reaction on hover."
     },
     "options": {
-        "avatarClick": {
-            "ar": "تبديل النقر على الصور الرمزية في التفاعلات",
-            "en": "Action when clicking a reactor's avatar."
+        "clickableAvatars": {
+            "ar": "حين يكون مُفعَّلاً، النقر على صورة من تفاعل يفتح ملفّه الشخصيّ بدل أن يُضيف التفاعل.",
+            "en": "While this is enabled, clicking a reacting user's avatar will open their profile instead of adding the reaction"
         }
     }
 });
