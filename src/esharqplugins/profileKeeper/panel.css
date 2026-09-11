@@ -1,0 +1,141 @@
+/*
+ * Esharq, a Discord client mod
+ * Copyright (c) 2026 LOSTSTR
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * الأسطح متغيّرات لا أرقامٌ مثبَّتة — تتبع ثيم ديسكورد. انظر
+ * `src/components/settings/esharq/surfaces.css` وسببَ وجودها.
+ */
+
+.esharq-pk {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.esharq-pk-card {
+    padding: 14px 16px;
+    border-radius: 11px;
+    background: var(--esharq-surface-1);
+    box-shadow: inset 0 0 0 1px var(--esharq-line);
+}
+
+.esharq-pk-head {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.esharq-pk-title {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.esharq-pk-chip {
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.esharq-pk-chip.live {
+    background: rgb(35 165 90 / 14%);
+    color: var(--esharq-on-positive);
+}
+
+.esharq-pk-chip.gone {
+    background: rgb(201 162 39 / 14%);
+    color: var(--esharq-on-accent);
+}
+
+.esharq-pk-hint {
+    margin: 0;
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: var(--text-muted);
+}
+
+.esharq-pk-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.esharq-pk-said {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* ── جدول البنود ────────────────────────────────────────────────────────── */
+
+.esharq-pk-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 9px 0;
+    border-block-start: 1px solid var(--esharq-line);
+}
+
+.esharq-pk-row:first-of-type {
+    border-block-start: none;
+}
+
+.esharq-pk-mark {
+    flex: 0 0 auto;
+    inline-size: 18px;
+    text-align: center;
+    font-size: 13px;
+}
+
+.esharq-pk-mark.yes {
+    color: var(--esharq-on-positive);
+}
+
+.esharq-pk-mark.no {
+    color: var(--text-muted);
+    opacity: 0.6;
+}
+
+.esharq-pk-name {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    font-size: 13.5px;
+}
+
+/*
+ * 🔴 مَن يراه مكتوبٌ كلاماً لا لوناً وحده: هذه هي الحقيقة التي جاء المستخدم
+ * من أجلها، وإخفاؤها خلف لونٍ يجعله يظنّ أنّ الجميع يرى شكله.
+ */
+.esharq-pk-seen {
+    flex: 0 0 auto;
+    font-size: 11.5px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
+.esharq-pk-seen.self {
+    background: var(--esharq-tint);
+    color: var(--text-muted);
+}
+
+.esharq-pk-seen.modded {
+    background: rgb(88 101 242 / 14%);
+    color: var(--esharq-on-info);
+}
+
+.esharq-pk-seen.nobody {
+    background: rgb(242 63 67 / 12%);
+    color: var(--esharq-on-danger);
+}
+
+.esharq-pk-covered {
+    margin-top: 2px;
+    font-size: 11px;
+    color: var(--text-muted);
+}
