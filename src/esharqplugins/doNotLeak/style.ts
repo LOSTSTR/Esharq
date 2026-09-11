@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { findByProps } from "@webpack";
-
 /**
  * Blurring is switched on by the `vc-dnl-active` class that index.ts puts on
  * <body> from Discord's own streaming state. It used to be decided here in CSS
@@ -14,45 +12,56 @@ import { findByProps } from "@webpack";
  * names — so any layout change made it match while nothing was being shared,
  * and everything stayed blurred.
  */
-const CssFormatCode: string = `body.vc-dnl-active .{messageContent} {
+
+/**
+ * 🔴 **لا بحثَ في وحدات الويبباك هنا. البتّة.**
+ *
+ * كانت الأصناف تُقرأ بـ`findByProps` مرّةً في `start()`، وقِيس حيّاً أنّ ذلك
+ * فشل فشلاً تامّاً وصامتاً:
+ *
+ *  ① `findByProps("messageContent", …)` تُرجع **صفر وحدة** — ديسكورد لم يعد
+ *    يكشف هذه الأصناف خاصّيّاتٍ عُليا أصلاً.
+ *  ② `embedWrapper` **لم يعد له وجود** في ديسكورد الحاليّ، لا وحدةً ولا صنفاً.
+ *  ③ وحتى `findCssClasses("messageContent")` تُرجع الوحدة **الخطأ**: أربع
+ *    وحدات تحمل الاسم، والأولى (`messageContent__44492`) تصيب **صفر عنصر**
+ *    بينما المستعملة فعلاً هي `messageContent_c19a55`.
+ *
+ * فكانت الورقة المحقونة تحمل تسعة محدِّداتٍ لا تصيب شيئاً، والإضافة مُفعَّلة
+ * تظنّ أنّها تعمل. وهذه إضافةُ **خصوصية**: من يشارك شاشته يظنّ رسائله مموّهة
+ * وهي مكشوفة للجميع. الصمت هنا أسوأ من العطل.
+ *
+ * ⇒ المحدِّد صار على **السمة** لا على صنفٍ مُحلَّل: `[class*="messageContent_"]`
+ * يصيب أيّ نسخةٍ من الصنف مهما تغيّرت بصمتها. وقِيس على الصفحة الحيّة: عشرة
+ * عناصر بالضبط من أصل ٥٨٨٠ — دقيقٌ لا يلتهم الواجهة.
+ *
+ * ⚠️ والزيادة هنا أأمن من النقص: لو طابق المحدِّد نوعاً آخر من محتوى الرسائل
+ * فغايته أن يُموّه أكثر ممّا يلزم — وذلك مقبولٌ في إضافةٍ غايتها الستر، بينما
+ * النقص يكشف ما وُعد المستخدم بستره.
+ */
+const STYLE: string = `body.vc-dnl-active [class*="messageContent_"] {
 filter: blur(12px);
 }
 
-body.vc-dnl-active .{visualMediaItemContainer} {
+body.vc-dnl-active [class*="visualMediaItemContainer_"],
+body.vc-dnl-active [class*="attachment_"],
+body.vc-dnl-active [class*="embedFull_"] {
 filter: blur(50px) brightness(0.1);
 }
 
-body.vc-dnl-active .{embedWrapper} {
-filter: blur(50px);
-}
-
-body.vc-dnl-active.vc-dnl-show-messages .{messageContent},
-body.vc-dnl-active.vc-dnl-show-messages .{visualMediaItemContainer},
-body.vc-dnl-active.vc-dnl-show-messages .{embedWrapper} {
+body.vc-dnl-active.vc-dnl-show-messages [class*="messageContent_"],
+body.vc-dnl-active.vc-dnl-show-messages [class*="visualMediaItemContainer_"],
+body.vc-dnl-active.vc-dnl-show-messages [class*="attachment_"],
+body.vc-dnl-active.vc-dnl-show-messages [class*="embedFull_"] {
 filter: none !important;
 }
 
-body.vc-dnl-active.vc-dnl-hover-to-view .{messageContent}:hover,
-body.vc-dnl-active.vc-dnl-hover-to-view .{visualMediaItemContainer}:hover,
-body.vc-dnl-active.vc-dnl-hover-to-view .{embedWrapper}:hover {
+body.vc-dnl-active.vc-dnl-hover-to-view [class*="messageContent_"]:hover,
+body.vc-dnl-active.vc-dnl-hover-to-view [class*="visualMediaItemContainer_"]:hover,
+body.vc-dnl-active.vc-dnl-hover-to-view [class*="attachment_"]:hover,
+body.vc-dnl-active.vc-dnl-hover-to-view [class*="embedFull_"]:hover {
 filter: none !important;
 }`;
 
 export function getStyle(): string {
-    // Resolve each token from its OWN module. Merging every module into one
-    // object let a shared key (`wrapper`, …) from a later module overwrite an
-    // earlier one, so a token could silently end up as the wrong class.
-    const tokens: Record<string, string | undefined> = {
-        messageContent: findByProps("messageContent", "titleCase")?.messageContent,
-        visualMediaItemContainer: findByProps("visualMediaItemContainer")?.visualMediaItemContainer,
-        embedWrapper: findByProps("embedWrapper")?.embedWrapper
-    };
-
-    let css = CssFormatCode;
-    for (const [token, className] of Object.entries(tokens)) {
-        // An unresolved token would leave `.{token}` in the sheet, which is an
-        // invalid selector — drop that rule instead of shipping broken CSS.
-        css = css.replaceAll(`{${token}}`, className ?? "vc-dnl-unresolved");
-    }
-    return css;
+    return STYLE;
 }

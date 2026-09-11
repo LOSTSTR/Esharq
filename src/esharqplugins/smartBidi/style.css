@@ -1,13 +1,26 @@
-/* [--messageContent] is a placeholder filled by setStyleClassNames in index.ts
-   with Discord's real (mangled) class name. If it can't resolve, the placeholder
-   stays and simply matches nothing — the fix is absent for that build, never
-   broken. .mention / a / code / bdi are stable literal tags/classes. */
+/*
+ * 🔴 محدِّد سمةٍ لا صنفاً مُحلَّلاً، والفرق قِيس حيّاً.
+ *
+ * كان النائب `[--messageContent]` يُملأ بما تُرجعه `findCssClasses`. وفي
+ * ديسكورد الحاليّ **أربع وحدات** تحمل هذا الاسم، وأوّلها — وهو ما تُرجعه
+ * الدالّة — قيمتُه `messageContent__44492` وتصيب **صفر عنصر** في الصفحة.
+ * والمستعمل فعلاً هو `messageContent_c19a55`.
+ *
+ * فكانت الإضافة تُحقن ورقةً «ناجحة» بصنفٍ لا وجود له، ويقول المِحكّ إنّ
+ * النائب امتلأ فيُظنّ أنّها تعمل. امتلاءُ النائب ليس دليلاً على الإصابة.
+ *
+ * ⇒ `[class*="messageContent_"]` يصيب أيّ نسخةٍ من الصنف مهما تبدّلت بصمتها،
+ * ولا يحتاج بحثاً في الوحدات فلا يموت صامتاً. وقِيس: عشرة عناصر بالضبط من
+ * أصل ٥٨٨٠ في الصفحة — دقيقٌ لا يلتهم غيره.
+ *
+ * و`.mention` و`a` و`code` وسومٌ وأصنافٌ ثابتة لا تُبصَم.
+ */
 
 /* unicode-bidi: plaintext makes each line's base direction follow its own
    content (first strong character), overriding Discord's binary markupRtl
    guess. So an Arabic message that Discord mis-detected as LTR (because it
    starts with a number, a mention or a Latin word) is ordered correctly. */
-[--messageContent] {
+[class*="messageContent_"] {
     unicode-bidi: plaintext;
 }
 
@@ -15,8 +28,8 @@
    hijack the direction of the Arabic around it, nor reorder at its boundaries.
    isolate presents each as a single neutral object to the surrounding bidi.
    Replaced elements (emoji <img>) are already neutral, so they need nothing. */
-[--messageContent] .mention,
-[--messageContent] a,
-[--messageContent] code {
+[class*="messageContent_"] .mention,
+[class*="messageContent_"] a,
+[class*="messageContent_"] code {
     unicode-bidi: isolate;
 }

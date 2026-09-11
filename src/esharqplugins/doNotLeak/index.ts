@@ -64,7 +64,7 @@ export default definePlugin({
     start() {
         const style = document.createElement("style");
         style.setAttribute("id", "vc-dont-leak-style");
-        style.innerHTML = getStyle();
+        style.textContent = getStyle();
         document.head.appendChild(style);
 
         document.addEventListener("keyup", keyUpHandler);

@@ -6,28 +6,25 @@
 
 import { disableStyle, enableStyle } from "@api/Styles";
 import { EquicordDevs } from "@utils/constants";
-import { fillStyleClassesWhenReady } from "@utils/esharqLateClasses";
 import definePlugin from "@utils/types";
 
 import style from "./style.css?managed";
 
-// messageContent هو صنف ديسكورد المُصغَّر لمتن الرسالة، ويُغذّي العنصر النائب
-// `[--messageContent]` في style.css بدل تثبيت `[class*="messageContent-"]`.
+// 🔴 لا بحثَ عن أصنافٍ هنا بعد اليوم. مرّ هذا الملفّ بعطلين متتاليين:
 //
-// 🔴 كان يُقرأ داخل `start()` عبر `findCssClassesLazy`. ووحدةُ الرسائل تُحمَّل
-// **كسولاً**، فمن يُقلع على صفحة الأصدقاء لا تكون عنده بعد ⇒ الصنف `undefined`
-// ⇒ يُبقي `compileStyle` العنصرَ النائب، وهو مُحدِّدُ سمةٍ لا يطابق شيئاً.
-// ولا شيء يُعيد الترجمة لاحقاً، فالإضافة تبقى **حيّةً صامتة طوال الجلسة**.
-// قِيس حيّاً: فُتحت قناة حتى ظهرت عناصر الرسائل في DOM، والعنصر النائب باقٍ.
+//  ① الصنف يُقرأ في `start()` ووحدةُ الرسائل تُحمَّل كسولاً، فيبقى النائب
+//    فارغاً طوال الجلسة. أُصلح بإعادةِ محاولةٍ تنتظر الوحدة.
+//  ② والإصلاح نفسه كان مبنيّاً على مِحكٍّ خاطئ: امتلأ النائب — فقيل «نجح» —
+//    بصنفٍ قِيس أنّه يصيب **صفر عنصر**، لأنّ أربع وحداتٍ تحمل الاسم
+//    و`findCssClasses` تُرجع أوّلها لا المستعملة.
+//
+// فصار المحدِّد على السمة في `style.css`، ولا شيء يُحلّ هنا. انظر تعليل الورقة.
 
 export default definePlugin({
     name: "SmartBidi",
     description: "Fix how Arabic and other right-to-left text renders when it's mixed with numbers, links, mentions or code — no more scrambled word order or misplaced punctuation.",
     authors: [EquicordDevs.LOSTSTR],
     tags: ["Accessibility", "Appearance"],
-    start() {
-        enableStyle(style);
-        fillStyleClassesWhenReady([style], ["messageContent"]);
-    },
+    start: () => enableStyle(style),
     stop: () => disableStyle(style),
 });
