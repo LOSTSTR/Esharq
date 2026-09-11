@@ -284,7 +284,7 @@ function AboutWarning() {
     return (
         <div style={{
             border: "1px solid #ed4245", borderRadius: 8, padding: "12px 14px", marginBottom: 12,
-            background: "rgba(237, 66, 69, 0.1)", color: "var(--text-normal, #dbdee1)", fontSize: 13, lineHeight: 1.6
+            background: "rgba(237, 66, 69, 0.1)", color: "var(--text-default, #dbdee1)", fontSize: 13, lineHeight: 1.6
         }}>
             ⚠️ {t(
                 "تحذير خصوصية: هذه الإضافة تراقب شخصاً محدَّداً وتسجّل حالته ونشاطه وحركته الصوتية ورسائله في تخزين جهازك المحلي. راقبة شخص دون علمه قد تنتهك خصوصيته وشروط ديسكورد وقوانين بلدك. البيانات تبقى على جهازك ولا تُرسَل لأحد، لكن استخدم هذه الأداة على مسؤوليتك الأخلاقية والقانونية الكاملة.",

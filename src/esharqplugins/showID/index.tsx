@@ -65,7 +65,7 @@ function CopyButton({ text }: { text: string; }) {
                 lineHeight: 0,
                 verticalAlign: "middle",
             }}
-            onMouseEnter={e => !copied && (e.currentTarget.style.color = "var(--text-normal)")}
+            onMouseEnter={e => !copied && (e.currentTarget.style.color = "var(--text-default)")}
             onMouseLeave={e => !copied && (e.currentTarget.style.color = "var(--text-muted)")}
         >
             {copied ? <CheckIcon /> : <CopyIcon />}

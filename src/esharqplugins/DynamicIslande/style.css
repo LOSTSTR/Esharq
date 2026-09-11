@@ -12,7 +12,7 @@
     width: min(340px, calc(100vw - 420px));
     min-width: 260px;
     color: var(--text-default);
-    background: var(--background-floating);
+    background: var(--background-surface-high);
     border: 1px solid var(--border-subtle);
     border-radius: 24px;
     box-shadow: var(--shadow-high);
@@ -236,14 +236,14 @@
     height: 24px;
     padding: 4px;
     color: var(--green-360);
-    background: var(--background-mod-subtle);
+    background: var(--esharq-tint-strong);
     border-radius: 50%;
     animation: vc-esharq-dynamic-island-icon-breathe 3s ease-in-out infinite;
 }
 
 .vc-esharq-dynamic-island-stream-icon {
     color: var(--brand-500);
-    background: color-mix(in srgb, var(--brand-500) 18%, var(--background-mod-subtle));
+    background: color-mix(in srgb, var(--brand-500) 18%, var(--esharq-tint-strong));
     border-radius: 9px;
     animation: vc-esharq-dynamic-island-stream-icon 2.4s ease-in-out infinite;
 }
@@ -271,7 +271,7 @@
 
 .vc-esharq-dynamic-island-summary-copy strong,
 .vc-esharq-dynamic-island-copy strong {
-    color: var(--header-primary);
+    color: var(--text-strong);
     font-size: 13px;
     font-weight: 600;
 }
@@ -400,7 +400,7 @@
     padding: 8px;
     align-items: center;
     gap: 10px;
-    background: var(--background-mod-subtle);
+    background: var(--esharq-tint-strong);
     border-radius: 14px;
     box-shadow: inset 0 1px rgb(255 255 255 / 5%);
     opacity: 0;
@@ -447,7 +447,7 @@
     height: 32px;
     min-width: 32px;
     padding: 7px;
-    color: var(--interactive-normal);
+    color: var(--text-subtle);
     background: var(--background-mod-strong);
     border-radius: 50%;
     transition: color 200ms ease, background-color 200ms ease, box-shadow 250ms ease, transform 400ms cubic-bezier(.16, 1, .3, 1);
@@ -458,13 +458,13 @@
     height: 28px;
     min-width: 28px;
     padding: 6px;
-    color: var(--interactive-active);
+    color: var(--text-strong);
     box-shadow: inset 0 0 0 1px color-mix(in srgb, currentcolor 24%, transparent);
 }
 
 .vc-esharq-dynamic-island-control:hover {
-    color: var(--interactive-hover);
-    background: var(--background-modifier-hover);
+    color: var(--text-strong);
+    background: var(--esharq-tint-hover);
     box-shadow: 0 6px 16px rgb(0 0 0 / 20%);
     transform: translateY(-2px) scale(1.1);
 }
@@ -521,7 +521,7 @@
     height: 40px;
     flex: none;
     place-items: center;
-    background: var(--green-360-20a);
+    background: rgb(35 165 90 / 20%);
     border-radius: 50%;
 }
 
@@ -549,7 +549,7 @@
 }
 
 .vc-esharq-dynamic-island-screen-section {
-    background: color-mix(in srgb, var(--brand-500) 10%, var(--background-mod-subtle));
+    background: color-mix(in srgb, var(--brand-500) 10%, var(--esharq-tint-strong));
 }
 
 .vc-esharq-dynamic-island-stream-indicator {
@@ -630,7 +630,7 @@
 
 @keyframes vc-esharq-dynamic-island-icon-breathe {
     50% {
-        color: var(--interactive-hover);
+        color: var(--text-strong);
         box-shadow: 0 0 20px color-mix(in srgb, var(--green-360) 35%, transparent);
         transform: scale(1.06);
     }
@@ -759,5 +759,5 @@
 }
 
 .vc-esharq-dynamic-island-participant-row:hover {
-    background: var(--background-modifier-hover);
+    background: var(--esharq-tint-hover);
 }

@@ -294,7 +294,7 @@ function ParticipantRow({ p, channel, currentUser }: { p: { user: any; member: a
         >
             <img src={avatarUrl} style={{ width: "26px", height: "26px", borderRadius: "50%", objectFit: "cover" }} alt="" />
             <div style={{ display: "flex", flexDirection: "column", lineHeight: "1.2", flexGrow: 1, minWidth: 0 }}>
-                <span style={{ fontWeight: 600, fontSize: "13px", color: "var(--header-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <span style={{ fontWeight: 600, fontSize: "13px", color: "var(--text-strong)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {p.member?.nick ?? p.user.globalName ?? p.user.username}
                 </span>
                 <span style={{ fontSize: "11px", color: "var(--text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>

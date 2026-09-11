@@ -22,7 +22,7 @@ function AboutWarning() {
     return (
         <div style={{
             border: "1px solid #f0b232", borderRadius: 8, padding: "12px 14px", marginBottom: 12,
-            background: "rgba(240, 178, 50, 0.1)", color: "var(--text-normal, #dbdee1)", fontSize: 13, lineHeight: 1.5
+            background: "rgba(240, 178, 50, 0.1)", color: "var(--text-default, #dbdee1)", fontSize: 13, lineHeight: 1.5
         }}>
             ⚠️ {t(
                 "تحذير: هذه الإضافة تنقر أزرار البوتات تلقائياً نيابةً عنك — وهذا سلوك أتمتة (شبيه بالـselfbot) يخالف شروط ديسكورد وقد يعرّض حسابك للحظر. استخدمها على مسؤوليتك، ويُفضّل تفعيل «الوضع الآمن» في السيرفرات المشتركة.",

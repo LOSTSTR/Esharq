@@ -395,12 +395,12 @@ export function MetadataScannerModal({ rootProps, url, name, mimeType, size }: {
                     </div>
                 </ModalHeader>
                 <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "16px", alignItems: "center", textAlign: "center" }}>
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-warning)" strokeWidth="2" style={{ color: "var(--status-warning, #f0b232)" }}>
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--status-warning)" strokeWidth="2" style={{ color: "var(--status-warning, #f0b232)" }}>
                         <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
                         <line x1="12" y1="9" x2="12" y2="13" />
                         <line x1="12" y1="17" x2="12.01" y2="17" />
                     </svg>
-                    <div style={{ fontSize: "15px", fontWeight: "600", color: "var(--header-primary, #fff)" }}>
+                    <div style={{ fontSize: "15px", fontWeight: "600", color: "var(--text-strong, #fff)" }}>
                         This file is quite large ({formatBytes(size || 0)})
                     </div>
                     <p style={{ fontSize: "13px", color: "var(--text-muted, #949ba4)", margin: 0, lineHeight: 1.4 }}>
@@ -606,10 +606,10 @@ export function MetadataScannerModal({ rootProps, url, name, mimeType, size }: {
                     style={{
                         width: "100%",
                         padding: "8px 12px",
-                        backgroundColor: "var(--background-secondary)",
-                        border: "1px solid var(--border-neutral-semi-weak, rgba(255, 255, 255, 0.15))",
+                        backgroundColor: "var(--background-base-lowest)",
+                        border: "1px solid var(--border-subtle, rgba(255, 255, 255, 0.15))",
                         borderRadius: "6px",
-                        color: "#dbdee1",
+                        color: "var(--text-default)",
                         fontSize: "13px",
                         outline: "none",
                         boxSizing: "border-box"
@@ -872,7 +872,7 @@ export function MetadataScannerModal({ rootProps, url, name, mimeType, size }: {
                                 </button>
                             </div>
                         </div>
-                        <div style={{ borderRadius: "8px", overflow: "hidden", border: "1px solid var(--border-neutral-semi-weak, rgba(255, 255, 255, 0.15))", height: "300px", width: "100%" }}>
+                        <div style={{ borderRadius: "8px", overflow: "hidden", border: "1px solid var(--border-subtle, rgba(255, 255, 255, 0.15))", height: "300px", width: "100%" }}>
                             <iframe
                                 width="100%"
                                 height="100%"
@@ -1080,7 +1080,7 @@ export function MetadataScannerModal({ rootProps, url, name, mimeType, size }: {
                                 alignItems: "center",
                                 justifyContent: "center",
                                 cursor: "pointer",
-                                color: "#fff",
+                                color: "var(--text-default)",
                                 opacity: 0.8,
                                 transition: "opacity 0.2s"
                             }}
@@ -1106,7 +1106,7 @@ export function MetadataScannerModal({ rootProps, url, name, mimeType, size }: {
                                 alignItems: "center",
                                 justifyContent: "center",
                                 cursor: "pointer",
-                                color: "#fff",
+                                color: "var(--text-default)",
                                 opacity: 0.8,
                                 transition: "opacity 0.2s"
                             }}
@@ -1135,7 +1135,7 @@ export function MetadataScannerModal({ rootProps, url, name, mimeType, size }: {
                                 alignItems: "center",
                                 justifyContent: "center",
                                 cursor: "pointer",
-                                color: "#fff",
+                                color: "var(--text-default)",
                                 opacity: 0.8,
                                 transition: "opacity 0.2s"
                             }}

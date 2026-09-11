@@ -56,7 +56,7 @@
     background: transparent;
     border: none;
     outline: none;
-    color: #fff;
+    color: var(--text-default);
     font-size: 13px;
     font-family: inherit;
     caret-color: var(--brand-500, #5865f2);
@@ -126,7 +126,7 @@
     justify-content: center;
     flex-shrink: 0;
     width: 22px;
-    color: #fff;
+    color: var(--text-subtle);
 }
 
 .vcs-info {
@@ -140,7 +140,7 @@
 .vcs-name {
     font-size: 14px;
     font-weight: 600;
-    color: #fff !important;
+    color: var(--text-default) !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -150,7 +150,7 @@
     display: flex;
     align-items: center;
     font-size: 11px;
-    color: #fff !important;
+    color: var(--text-muted) !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -178,9 +178,9 @@
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    border: 1.5px solid var(--background-secondary);
+    border: 1.5px solid var(--background-base-lowest);
     margin-left: -6px;
-    background: var(--background-secondary);
+    background: var(--background-base-lowest);
 }
 
 .vcs-member-avatar:first-child {

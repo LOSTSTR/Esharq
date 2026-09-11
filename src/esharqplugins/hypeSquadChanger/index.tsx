@@ -68,7 +68,7 @@ export function HypeSquadSelectComponent() {
     return (
         <div style={{ marginTop: 14, marginBottom: 14, width: "100%" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                <h3 style={{ color: "var(--header-primary, #f2f3f5)", fontWeight: 700, textTransform: "uppercase", fontSize: "12px", letterSpacing: "0.04em", margin: 0 }}>
+                <h3 style={{ color: "var(--text-strong, #f2f3f5)", fontWeight: 700, textTransform: "uppercase", fontSize: "12px", letterSpacing: "0.04em", margin: 0 }}>
                     {t("دار HypeSquad", "HypeSquad House")}
                 </h3>
                 <button
@@ -106,8 +106,8 @@ export function HypeSquadSelectComponent() {
                                 display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
                                 padding: "10px 12px", borderRadius: "8px",
                                 background: isSelected
-                                    ? "var(--background-secondary-alt, rgba(255, 255, 255, 0.12))"
-                                    : "var(--background-secondary, rgba(255, 255, 255, 0.05))",
+                                    ? "var(--background-base-lowest, rgba(255, 255, 255, 0.12))"
+                                    : "var(--background-base-lowest, rgba(255, 255, 255, 0.05))",
                                 border: isSelected ? "1.5px solid var(--brand-500, #5865f2)" : "1px solid rgba(255, 255, 255, 0.08)",
                                 boxShadow: isSelected ? "0 0 12px rgba(88, 101, 242, 0.35)" : "none",
                                 cursor: "pointer", transition: "all 0.18s cubic-bezier(0.16, 1, 0.3, 1)", outline: "none"
@@ -121,7 +121,7 @@ export function HypeSquadSelectComponent() {
                             }}
                             onMouseLeave={e => {
                                 if (!isSelected) {
-                                    e.currentTarget.style.background = "var(--background-secondary, rgba(255, 255, 255, 0.05))";
+                                    e.currentTarget.style.background = "var(--background-base-lowest, rgba(255, 255, 255, 0.05))";
                                     e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.08)";
                                     e.currentTarget.style.transform = "translateY(0)";
                                 }

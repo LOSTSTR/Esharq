@@ -453,7 +453,7 @@ function ExportDMModal({ rootProps }: { rootProps: any; }) {
     return (
         <ModalRoot {...rootProps} size="medium">
             <ModalHeader separator={false}>
-                <Forms.FormTitle tag="h4" style={{ margin: 0, display: "flex", alignItems: "center", gap: 8, color: "#fff" }}>
+                <Forms.FormTitle tag="h4" style={{ margin: 0, display: "flex", alignItems: "center", gap: 8, color: "var(--text-default)" }}>
                     <ExportIcon width={16} height={16} /> {t("تصدير الرسائل الخاصة", "Export DMs")}
                 </Forms.FormTitle>
                 <ModalCloseButton onClick={rootProps.onClose} />

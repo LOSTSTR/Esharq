@@ -63,7 +63,7 @@ function CoveragePanel() {
             )}
 
             {report !== null && report.translated === 0 && report.liveKeys > 0 && (
-                <div style={{ ...muted, color: "var(--text-danger)" }}>
+                <div style={{ ...muted, color: "var(--status-danger)" }}>
                     {t(
                         "لم يُطابَق أي مفتاح — الجدول العربي غير مُثبَّت. هذا خلل في النواة لا في هذه الإضافة.",
                         "No key matched — the Arabic table is not installed. That is a core fault, not this plugin's."

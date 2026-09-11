@@ -88,7 +88,7 @@ function AboutWarning() {
     return (
         <div style={{
             border: "1px solid #ed4245", borderRadius: 8, padding: "12px 14px", marginBottom: 12,
-            background: "rgba(237, 66, 69, 0.1)", color: "var(--text-normal, #dbdee1)", fontSize: 13, lineHeight: 1.6
+            background: "rgba(237, 66, 69, 0.1)", color: "var(--text-default, #dbdee1)", fontSize: 13, lineHeight: 1.6
         }}>
             ⚠️ {t(
                 "تحذير: هذه صلاحيات وهميّة في العميل فقط — لا تمنحك أي سلطة حقيقية. الخادم يفرض صلاحياتك الفعلية، فأيّ إجراء (طرد/حظر/تعديل) تضغطه سيُرفَض (403). قد تُفتَح أزرار وقوائم لا تعمل، وقد تظهر أخطاء واجهة لأنّ ديسكورد يستدعي فحوص الصلاحيات في كل مكان. تتداخل مع FakePerm/ShowHiddenThings (تعيد كتابة الفحوص نفسها). استخدمها على مسؤوليتك.",

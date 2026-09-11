@@ -26,7 +26,7 @@
     line-height: 14px;
     text-align: center;
     pointer-events: none;
-    box-shadow: 0 0 0 2px var(--background-secondary-alt, #232428);
+    box-shadow: 0 0 0 2px var(--background-base-lowest, #232428);
 }
 
 /* ── اللوحة ─────────────────────────────────────────────────────────────── */
@@ -39,7 +39,7 @@
     max-width: 420px;
     padding: 10px;
     border-radius: 8px;
-    background: var(--background-floating, #111214);
+    background: var(--background-surface-high, #111214);
     box-shadow: var(--elevation-high, 0 8px 16px rgb(0 0 0 / 24%));
 }
 
@@ -75,13 +75,13 @@
     min-height: 32px;
     border-radius: 4px;
     overflow: visible;
-    color: var(--interactive-normal, #b5bac1);
+    color: var(--text-subtle, #b5bac1);
     transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .esharq-backpack-item:hover {
-    background: var(--background-modifier-hover, rgb(255 255 255 / 4%));
-    color: var(--interactive-hover, #dbdee1);
+    background: var(--esharq-tint-hover, rgb(255 255 255 / 4%));
+    color: var(--text-strong, #dbdee1);
 }
 
 /* 🔴 زرٌّ رفض أن يرسم شيئاً في هذا السياق — زرّ يخصّ خادماً وأنت في رسالة
@@ -105,11 +105,11 @@
     align-items: center;
     justify-content: space-between;
     padding-bottom: 6px;
-    border-bottom: 1px solid var(--background-modifier-accent, rgb(255 255 255 / 6%));
+    border-bottom: 1px solid var(--border-subtle, rgb(255 255 255 / 6%));
 }
 
 .esharq-backpack-title {
-    color: var(--header-primary, #f2f3f5);
+    color: var(--text-strong, #f2f3f5);
     font-size: 13px;
     font-weight: 600;
 }
@@ -118,7 +118,7 @@
     padding: 3px 10px;
     border: none;
     border-radius: 4px;
-    background: var(--background-modifier-hover, rgb(255 255 255 / 6%));
+    background: var(--esharq-tint-hover, rgb(255 255 255 / 6%));
     color: var(--text-muted, #949ba4);
     font-size: 11px;
     font-weight: 600;
@@ -127,7 +127,7 @@
 }
 
 .esharq-backpack-edit:hover {
-    color: var(--text-normal, #dbdee1);
+    color: var(--text-default, #dbdee1);
 }
 
 .esharq-backpack-edit[data-on="true"] {
@@ -162,7 +162,7 @@
     border: none;
     border-radius: 4px;
     background: none;
-    color: var(--text-normal, #dbdee1);
+    color: var(--text-default, #dbdee1);
     font-size: 12px;
     text-align: start;
     cursor: pointer;
@@ -170,7 +170,7 @@
 }
 
 .esharq-backpack-arrange-row:hover {
-    background: var(--background-modifier-hover, rgb(255 255 255 / 4%));
+    background: var(--esharq-tint-hover, rgb(255 255 255 / 4%));
 }
 
 .esharq-backpack-arrange-name {
@@ -184,7 +184,7 @@
     flex-shrink: 0;
     padding: 2px 8px;
     border-radius: 10px;
-    background: var(--background-modifier-hover, rgb(255 255 255 / 6%));
+    background: var(--esharq-tint-hover, rgb(255 255 255 / 6%));
     color: var(--text-muted, #949ba4);
     font-size: 10px;
     font-weight: 600;
@@ -223,10 +223,10 @@
 .esharq-backpack-hotkey-field {
     flex: 1;
     padding: 8px 12px;
-    border: 1px solid var(--background-modifier-accent, rgb(255 255 255 / 8%));
+    border: 1px solid var(--border-subtle, rgb(255 255 255 / 8%));
     border-radius: 4px;
-    background: var(--input-background, rgb(0 0 0 / 20%));
-    color: var(--text-normal, #dbdee1);
+    background: var(--background-base-lowest, rgb(0 0 0 / 20%));
+    color: var(--text-default, #dbdee1);
     font-family: var(--font-code, monospace);
     font-size: 13px;
     cursor: pointer;
@@ -234,7 +234,7 @@
 }
 
 .esharq-backpack-hotkey-field:hover {
-    border-color: var(--background-modifier-selected, rgb(255 255 255 / 16%));
+    border-color: var(--esharq-tint-strong, rgb(255 255 255 / 16%));
 }
 
 /* أثناء التسجيل: الحدّ يقول إنّ الضغطة القادمة تُلتقط. */
@@ -247,12 +247,12 @@
     padding: 8px 12px;
     border: none;
     border-radius: 4px;
-    background: var(--button-secondary-background, #4e5058);
-    color: var(--text-normal, #dbdee1);
+    background: var(--esharq-tint-strong, #4e5058);
+    color: var(--text-default, #dbdee1);
     font-size: 13px;
     cursor: pointer;
 }
 
 .esharq-backpack-hotkey-clear:hover {
-    background: var(--button-secondary-background-hover, #6d6f78);
+    background: var(--esharq-tint-hover, #6d6f78);
 }

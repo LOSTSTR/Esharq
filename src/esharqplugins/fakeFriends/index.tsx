@@ -263,7 +263,7 @@ function askCount(title: string, max: number): Promise<number | null> {
                     </ModalHeader>
                     <ModalContent style={{ padding: "16px 20px" }}>
                         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                            <label style={{ fontSize: 12, fontWeight: 600, color: "#fff", textTransform: "uppercase", letterSpacing: ".04em" }}>
+                            <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-default)", textTransform: "uppercase", letterSpacing: ".04em" }}>
                                 {t(`العدد (الحد الأقصى ${max})`, `Number (max ${max})`)}
                             </label>
                             <input
@@ -274,13 +274,13 @@ function askCount(title: string, max: number): Promise<number | null> {
                                 value={value}
                                 onChange={e => setValue(e.currentTarget.value)}
                                 onKeyDown={e => { if (e.key === "Enter") confirm(); }}
-                                style={{ background: "var(--background-secondary)", border: "1px solid var(--background-modifier-accent)", borderRadius: 4, color: "#fff", fontSize: 16, padding: "8px 12px", width: "100%", outline: "none" }}
+                                style={{ background: "var(--background-base-lowest)", border: "1px solid var(--border-subtle)", borderRadius: 4, color: "var(--text-default)", fontSize: 16, padding: "8px 12px", width: "100%", outline: "none" }}
                             />
                         </div>
                     </ModalContent>
                     <ModalFooter>
                         <button onClick={confirm} disabled={!valid}
-                            style={{ background: valid ? "var(--brand-experiment)" : "var(--button-secondary-background)", border: "none", borderRadius: 4, color: "var(--white-500)", cursor: valid ? "pointer" : "not-allowed", fontSize: 14, fontWeight: 500, padding: "8px 20px" }}>
+                            style={{ background: valid ? "var(--brand-500)" : "var(--esharq-tint-strong)", border: "none", borderRadius: 4, color: "var(--white-500)", cursor: valid ? "pointer" : "not-allowed", fontSize: 14, fontWeight: 500, padding: "8px 20px" }}>
                             {t("تأكيد", "Confirm")}
                         </button>
                         <button onClick={cancel}

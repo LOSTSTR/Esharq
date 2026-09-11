@@ -118,7 +118,7 @@ img[class*="emoji"][src*="gif"] {
     backdrop-filter: none !important;
 }
 [class*="acrylic"] {
-    background-color: var(--background-secondary) !important;
+    background-color: var(--background-base-lowest) !important;
 }
 `;
     }

@@ -13,9 +13,9 @@
     align-items: center;
     gap: 6px;
     padding: 6px 12px;
-    background: var(--background-floating, #111214);
-    color: var(--text-normal, #fff);
-    border: 1px solid var(--background-modifier-accent, rgb(255 255 255 / 12%));
+    background: var(--background-surface-high, #111214);
+    color: var(--text-default, #fff);
+    border: 1px solid var(--border-subtle, rgb(255 255 255 / 12%));
     border-radius: 6px;
     box-shadow: 0 8px 20px rgb(0 0 0 / 45%);
     font-size: 13px;

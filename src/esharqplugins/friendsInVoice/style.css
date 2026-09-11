@@ -22,7 +22,7 @@
 }
 
 .vc-fiv-row:hover {
-    background: var(--background-modifier-hover);
+    background: var(--esharq-tint-hover);
 }
 
 .vc-fiv-info {
@@ -47,8 +47,8 @@
     margin-inline-start: 6px;
     padding: 1px 6px;
     border-radius: 4px;
-    background: var(--background-modifier-selected);
-    color: var(--text-danger);
+    background: var(--esharq-tint-strong);
+    color: var(--status-danger);
     font-size: 11px;
     font-weight: 600;
     white-space: nowrap;
@@ -59,7 +59,7 @@
     padding: 6px 14px;
     border: none;
     border-radius: 6px;
-    background: var(--button-positive-background);
+    background: var(--status-positive);
     color: var(--white-500);
     font-size: 13px;
     font-weight: 600;
@@ -67,11 +67,11 @@
 }
 
 .vc-fiv-join:disabled {
-    background: var(--button-secondary-background);
+    background: var(--esharq-tint-strong);
     color: var(--text-muted);
     cursor: not-allowed;
 }
 
 .vc-fiv-join:hover:not(:disabled) {
-    background: var(--button-positive-background-hover);
+    background: var(--status-positive);
 }

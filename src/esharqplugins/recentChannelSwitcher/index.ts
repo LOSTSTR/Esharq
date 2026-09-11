@@ -240,14 +240,14 @@ function createTextElement<K extends keyof HTMLElementTagNameMap>(tagName: K, te
 
 function styleCard(card: HTMLDivElement, selected: boolean) {
     card.style.borderColor = selected ? "var(--brand-500,#5865f2)" : "transparent";
-    card.style.background = selected ? "var(--background-modifier-selected,rgba(88,101,242,.2))" : "var(--background-secondary-alt,#232428)";
+    card.style.background = selected ? "var(--esharq-tint-strong,rgba(88,101,242,.2))" : "var(--background-base-lowest,#232428)";
 }
 
 function createIcon(location: RecentLocation, size: number) {
     const iconUrl = getIconUrl(location);
     const icon = iconUrl ? document.createElement("img") : createTextElement("div", getInitial(location));
 
-    icon.style.cssText = `width:${size}px;height:${size}px;border-radius:${location.guildId === "@me" ? "50%" : "12px"};display:flex;align-items:center;justify-content:center;flex:0 0 auto;background:var(--background-modifier-accent,rgba(255,255,255,.1));color:var(--text-normal,#dbdee1);font-weight:700;object-fit:cover;`;
+    icon.style.cssText = `width:${size}px;height:${size}px;border-radius:${location.guildId === "@me" ? "50%" : "12px"};display:flex;align-items:center;justify-content:center;flex:0 0 auto;background:var(--border-subtle,rgba(255,255,255,.1));color:var(--text-default,#dbdee1);font-weight:700;object-fit:cover;`;
     if (iconUrl && icon instanceof HTMLImageElement) {
         icon.src = iconUrl;
         icon.alt = "";
@@ -293,7 +293,7 @@ function renderOverlay() {
     overlay.replaceChildren();
 
     const shell = document.createElement("div");
-    shell.style.cssText = "width:min(720px,calc(100vw - 48px));max-height:min(500px,calc(100vh - 48px));padding:16px;border-radius:12px;background:var(--background-floating,#111214);box-shadow:var(--elevation-high,0 8px 24px rgba(0,0,0,.35));border:1px solid var(--background-modifier-accent,rgba(255,255,255,.08));font-family:var(--font-primary,Arial,sans-serif);color:var(--text-normal,#dbdee1);";
+    shell.style.cssText = "width:min(720px,calc(100vw - 48px));max-height:min(500px,calc(100vh - 48px));padding:16px;border-radius:12px;background:var(--background-surface-high,#111214);box-shadow:var(--elevation-high,0 8px 24px rgba(0,0,0,.35));border:1px solid var(--border-subtle,rgba(255,255,255,.08));font-family:var(--font-primary,Arial,sans-serif);color:var(--text-default,#dbdee1);";
     shell.onmousedown = event => event.stopPropagation();
 
     const title = createTextElement("div", "Switch Channel");
@@ -303,12 +303,12 @@ function renderOverlay() {
     const selected = switcherCandidates[selectedIndex];
     if (selected) {
         const preview = document.createElement("div");
-        preview.style.cssText = "display:flex;align-items:center;gap:14px;padding:14px;margin-bottom:12px;border-radius:8px;background:var(--background-secondary,#2b2d31);border:1px solid var(--brand-500,#5865f2);cursor:pointer;transition:background-color .12s ease,border-color .12s ease;";
+        preview.style.cssText = "display:flex;align-items:center;gap:14px;padding:14px;margin-bottom:12px;border-radius:8px;background:var(--background-base-lowest,#2b2d31);border:1px solid var(--brand-500,#5865f2);cursor:pointer;transition:background-color .12s ease,border-color .12s ease;";
         preview.onmouseenter = () => {
-            preview.style.background = "var(--background-modifier-hover,rgba(255,255,255,.08))";
+            preview.style.background = "var(--esharq-tint-hover,rgba(255,255,255,.08))";
         };
         preview.onmouseleave = () => {
-            preview.style.background = "var(--background-secondary,#2b2d31)";
+            preview.style.background = "var(--background-base-lowest,#2b2d31)";
         };
         preview.onmousedown = event => {
             event.preventDefault();
@@ -363,7 +363,7 @@ function renderOverlay() {
         }
 
         const card = document.createElement("div");
-        card.style.cssText = "display:flex;align-items:center;gap:10px;min-width:0;padding:8px;border-radius:8px;border:1px solid transparent;background:var(--background-secondary-alt,#232428);cursor:pointer;transition:background-color .12s ease,border-color .12s ease,transform .08s ease;";
+        card.style.cssText = "display:flex;align-items:center;gap:10px;min-width:0;padding:8px;border-radius:8px;border:1px solid transparent;background:var(--background-base-lowest,#232428);cursor:pointer;transition:background-color .12s ease,border-color .12s ease,transform .08s ease;";
         styleCard(card, i === selectedIndex);
         card.onmouseenter = () => {
             selectedIndex = i;
@@ -407,14 +407,14 @@ function renderOverlay() {
         star.type = "button";
         star.textContent = "*";
         star.title = isStarred(location) ? "Unstar channel" : "Star channel";
-        star.style.cssText = `width:22px;height:22px;border:0;border-radius:4px;background:transparent;color:${isStarred(location) ? "var(--text-warning,#f0b232)" : "var(--interactive-muted,#80848e)"};font:700 15px var(--font-primary,Arial,sans-serif);cursor:pointer;flex:0 0 auto;`;
+        star.style.cssText = `width:22px;height:22px;border:0;border-radius:4px;background:transparent;color:${isStarred(location) ? "var(--status-warning,#f0b232)" : "var(--interactive-muted,#80848e)"};font:700 15px var(--font-primary,Arial,sans-serif);cursor:pointer;flex:0 0 auto;`;
         star.onmouseenter = () => {
-            star.style.background = "var(--background-modifier-hover,rgba(255,255,255,.08))";
-            star.style.color = isStarred(location) ? "var(--text-warning,#f0b232)" : "var(--interactive-hover,#dbdee1)";
+            star.style.background = "var(--esharq-tint-hover,rgba(255,255,255,.08))";
+            star.style.color = isStarred(location) ? "var(--status-warning,#f0b232)" : "var(--text-strong,#dbdee1)";
         };
         star.onmouseleave = () => {
             star.style.background = "transparent";
-            star.style.color = isStarred(location) ? "var(--text-warning,#f0b232)" : "var(--interactive-muted,#80848e)";
+            star.style.color = isStarred(location) ? "var(--status-warning,#f0b232)" : "var(--interactive-muted,#80848e)";
         };
         star.onmousedown = event => {
             event.preventDefault();
@@ -435,8 +435,8 @@ function renderOverlay() {
         close.style.cssText = `width:22px;height:22px;border:0;border-radius:4px;background:transparent;color:${isStarred(location) ? "var(--interactive-muted,#80848e)" : "var(--interactive-muted,#80848e)"};opacity:${isStarred(location) ? ".35" : "1"};font:700 13px var(--font-primary,Arial,sans-serif);cursor:${isStarred(location) ? "not-allowed" : "pointer"};flex:0 0 auto;`;
         close.onmouseenter = () => {
             if (isStarred(location)) return;
-            close.style.background = "var(--background-modifier-hover,rgba(255,255,255,.08))";
-            close.style.color = "var(--interactive-hover,#dbdee1)";
+            close.style.background = "var(--esharq-tint-hover,rgba(255,255,255,.08))";
+            close.style.color = "var(--text-strong,#dbdee1)";
         };
         close.onmouseleave = () => {
             close.style.background = "transparent";
@@ -460,7 +460,7 @@ function renderOverlay() {
     // المفتوحة ظهرت البطاقة ورسالة «لا قنوات أخرى» معاً — متناقضتين. نعرضها عند الفراغ فقط.
     if (!switcherCandidates.length) {
         const empty = createTextElement("div", "No other channels yet. Star channels or visit more channels to fill this menu.");
-        empty.style.cssText = "padding:16px;border-radius:8px;background:var(--background-secondary-alt,#232428);color:var(--text-muted,#949ba4);font-size:13px;text-align:center;";
+        empty.style.cssText = "padding:16px;border-radius:8px;background:var(--background-base-lowest,#232428);color:var(--text-muted,#949ba4);font-size:13px;text-align:center;";
         list.appendChild(empty);
     }
 

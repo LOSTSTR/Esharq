@@ -44,7 +44,7 @@
     font-weight: 700;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    color: var(--header-primary, #fff);
+    color: var(--text-strong, #fff);
     background: linear-gradient(90deg, #5865f2, #a78bfa);
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -53,7 +53,7 @@
 .nc-gifconv-close {
     background: none;
     border: none;
-    color: var(--interactive-normal, #b5bac1);
+    color: var(--text-subtle, #b5bac1);
     cursor: pointer;
     padding: 4px;
     border-radius: 6px;
@@ -63,7 +63,7 @@
 }
 
 .nc-gifconv-close:hover {
-    color: #fff;
+    color: var(--text-strong);
     background: rgb(255 255 255 / 8%);
 }
 
@@ -121,7 +121,7 @@
 .nc-gifconv-dropzone-label {
     font-size: 13px;
     font-weight: 600;
-    color: var(--header-primary, #fff);
+    color: var(--text-strong, #fff);
     line-height: 1.4;
 }
 
@@ -209,7 +209,7 @@
 
 .nc-gifconv-btn-secondary {
     background: rgb(255 255 255 / 7%);
-    color: var(--header-primary, #fff);
+    color: var(--text-strong, #fff);
     border: 1px solid rgb(255 255 255 / 10%);
 }
 .nc-gifconv-btn-secondary:hover { background: rgb(255 255 255 / 12%); }
@@ -223,7 +223,7 @@
 /* ── Error state ─────────────────────────────────────────────────────────── */
 .nc-gifconv-error {
     font-size: 12px;
-    color: var(--text-danger, #f04747);
+    color: var(--status-danger, #f04747);
     text-align: center;
     padding: 8px;
     background: rgb(240 71 71 / 10%);

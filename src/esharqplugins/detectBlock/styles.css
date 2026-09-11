@@ -71,7 +71,7 @@
 .vc-detect-block-info-group {
     overflow: hidden;
     border-radius: 8px;
-    background: var(--background-secondary);
+    background: var(--background-base-lowest);
 }
 
 .vc-detect-block-info-row {

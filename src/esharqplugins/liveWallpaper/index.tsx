@@ -116,9 +116,9 @@ function SettingsComponent() {
                             width: "100%",
                             padding: "8px",
                             borderRadius: "4px",
-                            background: "var(--input-background)",
-                            color: "var(--text-normal)",
-                            border: "1px solid var(--input-border)",
+                            background: "var(--background-base-lowest)",
+                            color: "var(--text-default)",
+                            border: "1px solid var(--border-subtle)",
                             cursor: isDataUrl ? "not-allowed" : "text",
                             opacity: isDataUrl ? 0.6 : 1
                         }}
@@ -143,7 +143,7 @@ function SettingsComponent() {
                 </div>
             )}
 
-            <div style={{ margin: "20px 0", borderBottom: "1px solid var(--background-modifier-accent)" }} />
+            <div style={{ margin: "20px 0", borderBottom: "1px solid var(--border-subtle)" }} />
         </div>
     );
 }

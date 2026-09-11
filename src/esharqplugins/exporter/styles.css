@@ -28,7 +28,7 @@
     background: transparent;
     border: none;
     outline: none;
-    color: #fff;
+    color: var(--text-default);
     font-size: 13px;
     font-family: inherit;
 }
@@ -124,7 +124,7 @@
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background: rgb(88 101 242 / 40%);
+    background: var(--brand-500);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -151,7 +151,7 @@
 .edm-channel-name {
     font-size: 13px;
     font-weight: 500;
-    color: #fff;
+    color: var(--text-default);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -183,13 +183,13 @@
     align-items: center;
     gap: 7px;
     font-size: 13px;
-    color: #fff;
+    color: var(--text-default);
     cursor: pointer;
     user-select: none;
 }
 
 .edm-option span {
-    color: #fff;
+    color: var(--text-default);
 }
 
 .edm-option input[type="checkbox"] {
@@ -234,7 +234,7 @@
 .edm-fmt-key {
     font-size: 13px;
     font-weight: 700;
-    color: #fff;
+    color: var(--text-default);
 }
 
 .edm-fmt-desc {

@@ -78,7 +78,7 @@ interface IconProps { width?: number; height?: number; color?: string; }
 // قفل مُغلَق = خاص (أخضر «محميّ» ليظهر بوضوح أن الوضع الخاص مُفعَّل)
 function LockClosedIcon({ width = 18, height = 18 }: IconProps) {
     return (
-        <svg width={width} height={height} viewBox="0 0 24 24" fill="none" stroke="var(--text-positive, #3ba55c)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width={width} height={height} viewBox="0 0 24 24" fill="none" stroke="var(--status-positive, #3ba55c)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="5" y="11" width="14" height="10" rx="2" />
             <path d="M8 11V7a4 4 0 0 1 8 0v4" />
         </svg>

@@ -66,7 +66,7 @@ html.vc-perfboost-active [class*="layer_"] {
 }
 
 .vc-perfboost-pm-summary b {
-    color: var(--text-normal);
+    color: var(--text-default);
     font-weight: 600;
 }
 
@@ -79,10 +79,10 @@ html.vc-perfboost-active [class*="layer_"] {
 .vc-perfboost-pm-list {
     max-height: 46vh;
     overflow-y: auto;
-    border: 1px solid var(--background-modifier-accent);
+    border: 1px solid var(--border-subtle);
     border-radius: 8px;
     padding: 4px;
-    background: var(--background-secondary-alt, var(--background-secondary));
+    background: var(--background-base-lowest, var(--background-base-lowest));
 }
 
 .vc-perfboost-pm-row {
@@ -96,14 +96,14 @@ html.vc-perfboost-active [class*="layer_"] {
 }
 
 .vc-perfboost-pm-row:hover {
-    background: var(--background-modifier-hover);
+    background: var(--esharq-tint-hover);
 }
 
 .vc-perfboost-pm-name {
     flex: 1;
     min-width: 0;
     cursor: pointer;
-    color: var(--text-normal);
+    color: var(--text-default);
     font-size: 14px;
     font-weight: 500;
     white-space: nowrap;

@@ -98,7 +98,7 @@ function streak(stats: StoredStats, goal: number) {
 }
 
 const row = (label: string, value: React.ReactNode, color?: string) => (
-    <tr style={{ borderBottom: "1px solid var(--background-modifier-accent)" }}>
+    <tr style={{ borderBottom: "1px solid var(--border-subtle)" }}>
         <td style={{ padding: "10px" }}>{label}</td>
         <td style={{ padding: "10px", fontWeight: "bold", color }}>{value}</td>
     </tr>
@@ -132,22 +132,22 @@ function StatsPanel() {
     const best = dayKeys.length ? Math.max(...Object.values(stats.days)) : 0;
 
     return (
-        <div style={{ color: "var(--text-normal)" }}>
-            <div style={{ marginBottom: 20, background: "var(--background-secondary)", padding: 15, borderRadius: 8 }}>
-                <h3 style={{ marginTop: 0, color: "var(--header-primary)" }}>🎯 Daily goal</h3>
+        <div style={{ color: "var(--text-default)" }}>
+            <div style={{ marginBottom: 20, background: "var(--background-base-lowest)", padding: 15, borderRadius: 8 }}>
+                <h3 style={{ marginTop: 0, color: "var(--text-strong)" }}>🎯 Daily goal</h3>
                 <p>Aiming for <strong>{goal}</strong> messages a day.</p>
-                <div style={{ background: "var(--background-modifier-accent)", height: 20, borderRadius: 10, overflow: "hidden", marginTop: 10 }}>
-                    <div style={{ background: "var(--brand-experiment)", width: `${pct}%`, height: "100%", textAlign: "center", color: "white", fontSize: 12, lineHeight: "20px", fontWeight: "bold" }}>
+                <div style={{ background: "var(--border-subtle)", height: 20, borderRadius: 10, overflow: "hidden", marginTop: 10 }}>
+                    <div style={{ background: "var(--brand-500)", width: `${pct}%`, height: "100%", textAlign: "center", color: "white", fontSize: 12, lineHeight: "20px", fontWeight: "bold" }}>
                         {pct}%
                     </div>
                 </div>
                 <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 5 }}>Sent today: {today} / {goal}</p>
             </div>
 
-            <h3 style={{ color: "var(--header-primary)", marginBottom: 10 }}>📊 Stats</h3>
-            <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", background: "var(--background-secondary)", borderRadius: 8, overflow: "hidden" }}>
+            <h3 style={{ color: "var(--text-strong)", marginBottom: 10 }}>📊 Stats</h3>
+            <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", background: "var(--background-base-lowest)", borderRadius: 8, overflow: "hidden" }}>
                 <tbody>
-                    {row("Today", today, "var(--text-positive)")}
+                    {row("Today", today, "var(--status-positive)")}
                     {row("This week", since(7 * DAY))}
                     {row("This month", since(30 * DAY))}
                     {row("This year", since(365 * DAY))}
@@ -160,7 +160,7 @@ function StatsPanel() {
 
             <button
                 onClick={async () => { await DataStore.set(KEY, emptyStats()); reload(); }}
-                style={{ marginTop: 15, background: "var(--background-tertiary)", color: "var(--text-normal)", border: "1px solid var(--background-modifier-accent)", padding: "8px 12px", borderRadius: 4, cursor: "pointer" }}
+                style={{ marginTop: 15, background: "var(--background-base-lowest)", color: "var(--text-default)", border: "1px solid var(--border-subtle)", padding: "8px 12px", borderRadius: 4, cursor: "pointer" }}
             >
                 Reset stats
             </button>

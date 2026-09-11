@@ -7,7 +7,7 @@
 .vc-mybadges-note {
     padding: 10px 12px;
     border-radius: 8px;
-    background: var(--background-modifier-hover);
+    background: var(--esharq-tint-hover);
     color: var(--text-muted);
     font-size: 13px;
     line-height: 18px;
@@ -53,7 +53,7 @@
     gap: 12px;
     padding: 8px 10px;
     border-radius: 8px;
-    background: var(--background-secondary);
+    background: var(--background-base-lowest);
 }
 
 .vc-mybadges-preview {
@@ -67,7 +67,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: var(--header-primary);
+    color: var(--text-strong);
     font-size: 14px;
 }
 

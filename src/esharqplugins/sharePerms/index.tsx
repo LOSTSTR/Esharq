@@ -1117,7 +1117,7 @@ function SharePermsModal({ rootProps }: { rootProps: any; }) {
                                         return (
                                             <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "10px 16px 10px 14px" }}>
                                                 <span style={{ marginLeft: 8, display: "flex" }}><Avatar src={IconUtils.getUserAvatarURL(u)} size={"SIZE_32" as any} /></span>
-                                                <span style={{ fontSize: 14, fontWeight: 500, color: "#e3e5e8" }}>{opt.label}</span>
+                                                <span style={{ fontSize: 14, fontWeight: 500, color: "var(--text-default)" }}>{opt.label}</span>
                                             </div>
                                         );
                                     },
@@ -1126,7 +1126,7 @@ function SharePermsModal({ rootProps }: { rootProps: any; }) {
                                         return (
                                             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                                                 <Avatar src={IconUtils.getUserAvatarURL(u)} size={"SIZE_20" as any} />
-                                                <span style={{ color: "#e3e5e8" }}>{opt.label}</span>
+                                                <span style={{ color: "var(--text-default)" }}>{opt.label}</span>
                                             </div>
                                         );
                                     }
@@ -1328,7 +1328,7 @@ function AboutWarning() {
     return (
         <div style={{
             border: "1px solid #ed4245", borderRadius: 8, padding: "12px 14px", marginBottom: 12,
-            background: "rgba(237, 66, 69, 0.1)", color: "var(--text-normal, #dbdee1)", fontSize: 13, lineHeight: 1.6
+            background: "rgba(237, 66, 69, 0.1)", color: "var(--text-default, #dbdee1)", fontSize: 13, lineHeight: 1.6
         }}>
             ⚠️ {t(
                 "تحذير خطير: هذه الإضافة تسمح لمستخدمين آخرين تمنحهم الوصول بأن ينفّذوا إجراءات إشراف (طرد/حظر/إسكات/إعادة تسمية) عبر حسابك أنت — تظهر هذه الإجراءات كأنّك من قام بها وتتحمّل مسؤوليتها الكاملة. تنفّذ الإضافة أوامر تصلك عبر الرسائل، وهذه أتمتة قد تعرّض حسابك للحظر. امنح الوصول لأشخاص تثق بهم تماماً فقط، واستخدمها على مسؤوليتك.",

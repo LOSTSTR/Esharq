@@ -1,11 +1,10 @@
 .vc-cal-modal-root {
     max-width: 900px;
-    color: #dbdee1;
+    color: var(--text-default);
 }
 
-.vc-cal-modal-root * {
-    color: #dbdee1;
-}
+/* أُزيلت قاعدةٌ شاملة كانت تفرض اللون على كلّ نسل النافذة وتطمس
+   ألوان الأزرار والروابط معه. الجذر وحده يكفي، والوراثة تتكفّل بالباقي. */
 
 .vc-cal-modal-header {
     display: flex;
@@ -17,7 +16,7 @@
 .vc-cal-modal-title {
     font-size: 16px;
     font-weight: 600;
-    color: #f2f3f5 !important;
+    color: var(--text-strong) !important;
 }
 
 .vc-cal-modal-content {
@@ -45,7 +44,7 @@
 .vc-cal-nav-btn {
     background: none;
     border: none;
-    color: #dbdee1 !important;
+    color: var(--text-default) !important;
     cursor: pointer;
     padding: 4px 8px;
     border-radius: 4px;
@@ -55,14 +54,14 @@
 }
 
 .vc-cal-nav-btn:hover {
-    color: #f2f3f5 !important;
-    background: rgb(79 84 92 / 40%);
+    color: var(--text-strong) !important;
+    background: var(--esharq-tint-strong);
 }
 
 .vc-cal-month-label {
     background: none;
     border: none;
-    color: #f2f3f5 !important;
+    color: var(--text-strong) !important;
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
@@ -71,7 +70,7 @@
 }
 
 .vc-cal-month-label:hover {
-    background: rgb(79 84 92 / 40%);
+    background: var(--esharq-tint-strong);
 }
 
 .vc-cal-weekday-row {
@@ -85,7 +84,7 @@
     text-align: center;
     font-size: 11px;
     font-weight: 600;
-    color: #949cf7 !important;
+    color: var(--text-link) !important;
     text-transform: uppercase;
     padding: 4px 0;
 }
@@ -106,19 +105,19 @@
     border-radius: 8px;
     cursor: pointer;
     font-size: 13px;
-    color: #dbdee1 !important;
+    color: var(--text-default) !important;
     transition: background 0.1s, color 0.1s;
     min-height: 36px;
 }
 
 .vc-cal-day-cell:not(.vc-cal-empty):hover {
-    background: rgb(79 84 92 / 40%);
-    color: #f2f3f5 !important;
+    background: var(--esharq-tint-strong);
+    color: var(--text-strong) !important;
 }
 
 .vc-cal-day-cell.vc-cal-today {
     background: rgb(88 101 242 / 30%);
-    color: #949cf7 !important;
+    color: var(--text-link) !important;
     font-weight: 600;
 }
 
@@ -140,7 +139,7 @@
     width: 4px;
     height: 4px;
     border-radius: 50%;
-    background: #949cf7;
+    background: var(--text-link);
     position: absolute;
     bottom: 3px;
 }
@@ -151,7 +150,7 @@
 
 .vc-cal-notes-side {
     flex: 0 0 280px;
-    border-left: 1px solid rgb(79 84 92 / 40%);
+    border-left: 1px solid var(--esharq-tint-strong);
     padding-left: 16px;
     display: flex;
     flex-direction: column;
@@ -162,7 +161,7 @@
     align-items: center;
     justify-content: center;
     height: 100%;
-    color: #949cf7 !important;
+    color: var(--text-link) !important;
     font-size: 13px;
     font-style: italic;
 }
@@ -180,12 +179,12 @@
 .vc-cal-notes-day-name {
     font-size: 13px;
     font-weight: 600;
-    color: #f2f3f5 !important;
+    color: var(--text-strong) !important;
 }
 
 .vc-cal-notes-date-full {
     font-size: 12px;
-    color: #b5bac1 !important;
+    color: var(--text-subtle) !important;
 }
 
 .vc-cal-add-form {
@@ -196,10 +195,10 @@
 }
 
 .vc-cal-add-input {
-    background: #1e1f22;
-    border: 1px solid rgb(79 84 92 / 60%);
+    background: var(--background-base-lowest);
+    border: 1px solid var(--border-subtle);
     border-radius: 4px;
-    color: #dbdee1 !important;
+    color: var(--text-default) !important;
     font-size: 13px;
     padding: 8px 10px;
     outline: none;
@@ -208,7 +207,7 @@
 }
 
 .vc-cal-add-input::placeholder {
-    color: #72767d !important;
+    color: var(--text-muted) !important;
 }
 
 .vc-cal-add-input:focus {
@@ -222,10 +221,10 @@
 
 .vc-cal-format-select {
     flex: 1;
-    background: #1e1f22;
-    border: 1px solid rgb(79 84 92 / 60%);
+    background: var(--background-base-lowest);
+    border: 1px solid var(--border-subtle);
     border-radius: 4px;
-    color: #dbdee1 !important;
+    color: var(--text-default) !important;
     font-size: 12px;
     padding: 6px 8px;
     outline: none;
@@ -262,7 +261,7 @@
 
 .vc-cal-preview {
     font-size: 11px;
-    color: #b5bac1 !important;
+    color: var(--text-subtle) !important;
     display: flex;
     align-items: center;
     gap: 4px;
@@ -270,15 +269,15 @@
 }
 
 .vc-cal-preview code {
-    background: #2b2d31;
+    background: var(--background-base-low);
     padding: 2px 6px;
     border-radius: 3px;
     font-size: 11px;
-    color: #949cf7 !important;
+    color: var(--text-link) !important;
 }
 
 .vc-cal-preview-example {
-    color: #72767d !important;
+    color: var(--text-muted) !important;
 }
 
 .vc-cal-notes-list {
@@ -291,7 +290,7 @@
 }
 
 .vc-cal-note-card {
-    background: #2b2d31;
+    background: var(--background-base-low);
     border-radius: 8px;
     padding: 10px;
     display: flex;
@@ -308,7 +307,7 @@
 .vc-cal-note-time {
     font-size: 12px;
     font-weight: 600;
-    color: #b5bac1 !important;
+    color: var(--text-subtle) !important;
 }
 
 .vc-cal-note-actions {
@@ -319,7 +318,7 @@
 .vc-cal-note-action-btn {
     background: none;
     border: none;
-    color: #b5bac1 !important;
+    color: var(--text-subtle) !important;
     cursor: pointer;
     padding: 4px;
     border-radius: 4px;
@@ -329,8 +328,8 @@
 }
 
 .vc-cal-note-action-btn:hover {
-    color: #f2f3f5 !important;
-    background: rgb(79 84 92 / 40%);
+    color: var(--text-strong) !important;
+    background: var(--esharq-tint-strong);
 }
 
 .vc-cal-note-action-btn.vc-cal-delete:hover {
@@ -339,14 +338,14 @@
 
 .vc-cal-note-text {
     font-size: 13px;
-    color: #dbdee1 !important;
+    color: var(--text-default) !important;
     overflow-wrap: break-word;
 }
 
 .vc-cal-note-discord-ts {
     font-size: 11px;
-    color: #72767d !important;
-    background: #1e1f22;
+    color: var(--text-muted) !important;
+    background: var(--background-base-lowest);
     padding: 4px 6px;
     border-radius: 4px;
     word-break: break-all;
@@ -354,7 +353,7 @@
 
 .vc-cal-notes-empty {
     font-size: 12px;
-    color: #72767d !important;
+    color: var(--text-muted) !important;
     text-align: center;
     padding: 16px 0;
     font-style: italic;

@@ -174,7 +174,7 @@ function VoiceSearchModal({ rootProps, channels }: { rootProps: any; channels: V
     return (
         <ModalRoot {...rootProps} size="medium">
             <ModalHeader separator={false}>
-                <Forms.FormTitle tag="h4" style={{ margin: 0, display: "flex", alignItems: "center", gap: 8, color: "#ffffff" }}>
+                <Forms.FormTitle tag="h4" style={{ margin: 0, display: "flex", alignItems: "center", gap: 8, color: "var(--text-default)" }}>
                     <SearchIcon width={16} height={16} /> {t("القنوات الصوتية", "Voice Channels")}
                     {displayList !== null && <span className="vcs-count-badge">{count}</span>}
                 </Forms.FormTitle>

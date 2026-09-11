@@ -43,6 +43,6 @@ li[class*="channel"]:hover [class*="buttons"] {
 }
 
 li[class*="channel"]:hover [class*="actionIcon"] {
-    color: var(--interactive-normal) !important;
+    color: var(--text-subtle) !important;
     opacity: 1 !important;
 }

@@ -1,37 +1,37 @@
 .theme-dark {
-    --mds-text-normal: var(--text-normal, #dbdee1);
-    --mds-header-primary: var(--header-primary, #fff);
+    --mds-text-normal: var(--text-default, #dbdee1);
+    --mds-header-primary: var(--text-strong, #fff);
     --mds-text-muted: var(--text-muted, #949ba4);
-    --mds-border: var(--border-subtle, var(--background-modifier-accent, rgb(255 255 255 / 8%)));
-    --mds-bg-modal: var(--modal-background, var(--background-primary, rgb(28 28 32 / 88%)));
-    --mds-bg-sidebar: var(--background-secondary, rgb(0 0 0 / 15%));
-    --mds-bg-container: var(--background-secondary-alt, var(--background-tertiary, rgb(0 0 0 / 30%)));
-    --mds-bg-tabs: var(--background-secondary-alt, rgb(0 0 0 / 20%));
-    --mds-tab-hover: var(--background-modifier-hover, rgb(255 255 255 / 4%));
-    --mds-tab-active: var(--background-modifier-selected, rgb(255 255 255 / 10%));
-    --mds-raw-bg: var(--background-tertiary, rgb(0 0 0 / 25%));
-    --mds-gps-bg: var(--background-secondary, rgb(255 255 255 / 3%));
-    --mds-gps-coords-bg: var(--background-modifier-accent, rgb(35 165 90 / 10%));
-    --mds-button-secondary-bg: var(--button-secondary-background, rgb(255 255 255 / 10%));
-    --mds-button-secondary-hover: var(--button-secondary-background-hover, rgb(255 255 255 / 16%));
+    --mds-border: var(--border-subtle, var(--border-subtle, rgb(255 255 255 / 8%)));
+    --mds-bg-modal: var(--modal-background, var(--background-base-lower, rgb(28 28 32 / 88%)));
+    --mds-bg-sidebar: var(--background-base-lowest, rgb(0 0 0 / 15%));
+    --mds-bg-container: var(--background-base-lowest, var(--background-base-lowest, rgb(0 0 0 / 30%)));
+    --mds-bg-tabs: var(--background-base-lowest, rgb(0 0 0 / 20%));
+    --mds-tab-hover: var(--esharq-tint-hover, rgb(255 255 255 / 4%));
+    --mds-tab-active: var(--esharq-tint-strong, rgb(255 255 255 / 10%));
+    --mds-raw-bg: var(--background-base-lowest, rgb(0 0 0 / 25%));
+    --mds-gps-bg: var(--background-base-lowest, rgb(255 255 255 / 3%));
+    --mds-gps-coords-bg: var(--border-subtle, rgb(35 165 90 / 10%));
+    --mds-button-secondary-bg: var(--esharq-tint-strong, rgb(255 255 255 / 10%));
+    --mds-button-secondary-hover: var(--esharq-tint-hover, rgb(255 255 255 / 16%));
 }
 
 .theme-light {
-    --mds-text-normal: var(--text-normal, #313338);
-    --mds-header-primary: var(--header-primary, #060607);
+    --mds-text-normal: var(--text-default, #313338);
+    --mds-header-primary: var(--text-strong, #060607);
     --mds-text-muted: var(--text-muted, #4e5058);
-    --mds-border: var(--border-subtle, var(--background-modifier-accent, rgb(0 0 0 / 8%)));
-    --mds-bg-modal: var(--modal-background, var(--background-primary, rgb(255 255 255 / 95%)));
-    --mds-bg-sidebar: var(--background-secondary, rgb(242 243 245 / 60%));
-    --mds-bg-container: var(--background-secondary-alt, var(--background-tertiary, rgb(242 243 245 / 90%)));
-    --mds-bg-tabs: var(--background-secondary-alt, rgb(0 0 0 / 3%));
-    --mds-tab-hover: var(--background-modifier-hover, rgb(0 0 0 / 4%));
-    --mds-tab-active: var(--background-modifier-selected, rgb(0 0 0 / 8%));
-    --mds-raw-bg: var(--background-tertiary, rgb(0 0 0 / 5%));
-    --mds-gps-bg: var(--background-secondary, rgb(0 0 0 / 3%));
-    --mds-gps-coords-bg: var(--background-modifier-accent, rgb(35 165 90 / 10%));
-    --mds-button-secondary-bg: var(--button-secondary-background, rgb(0 0 0 / 5%));
-    --mds-button-secondary-hover: var(--button-secondary-background-hover, rgb(0 0 0 / 10%));
+    --mds-border: var(--border-subtle, var(--border-subtle, rgb(0 0 0 / 8%)));
+    --mds-bg-modal: var(--modal-background, var(--background-base-lower, rgb(255 255 255 / 95%)));
+    --mds-bg-sidebar: var(--background-base-lowest, rgb(242 243 245 / 60%));
+    --mds-bg-container: var(--background-base-lowest, var(--background-base-lowest, rgb(242 243 245 / 90%)));
+    --mds-bg-tabs: var(--background-base-lowest, rgb(0 0 0 / 3%));
+    --mds-tab-hover: var(--esharq-tint-hover, rgb(0 0 0 / 4%));
+    --mds-tab-active: var(--esharq-tint-strong, rgb(0 0 0 / 8%));
+    --mds-raw-bg: var(--background-base-lowest, rgb(0 0 0 / 5%));
+    --mds-gps-bg: var(--background-base-lowest, rgb(0 0 0 / 3%));
+    --mds-gps-coords-bg: var(--border-subtle, rgb(35 165 90 / 10%));
+    --mds-button-secondary-bg: var(--esharq-tint-strong, rgb(0 0 0 / 5%));
+    --mds-button-secondary-hover: var(--esharq-tint-hover, rgb(0 0 0 / 10%));
 }
 
 .vc-mds-modal {
@@ -280,7 +280,7 @@ tr:hover .vc-mds-copy-btn {
     height: 36px;
     border: 3px solid var(--mds-border);
     border-radius: 50%;
-    border-top-color: var(--brand-experiment);
+    border-top-color: var(--brand-500);
     animation: vc-mds-spin 1s linear infinite;
 }
 
@@ -295,7 +295,7 @@ tr:hover .vc-mds-copy-btn {
     justify-content: center;
     height: 100%;
     gap: 12px;
-    color: var(--text-danger);
+    color: var(--status-danger);
     text-align: center;
     padding: 20px;
 }
@@ -354,7 +354,7 @@ tr:hover .vc-mds-copy-btn {
 .vc-mds-gps-coords {
     font-family: monospace;
     font-size: 14px;
-    color: var(--text-positive);
+    color: var(--status-positive);
     background: var(--mds-gps-coords-bg);
     padding: 6px 12px;
     border-radius: 4px;
@@ -367,7 +367,7 @@ tr:hover .vc-mds-copy-btn {
 }
 
 .vc-mds-button {
-    background: var(--brand-experiment);
+    background: var(--brand-500);
     color: #fff;
     border: none;
     border-radius: 4px;
@@ -382,7 +382,7 @@ tr:hover .vc-mds-copy-btn {
 }
 
 .vc-mds-button:hover {
-    background: var(--brand-experiment-560);
+    background: var(--brand-560);
 }
 
 .vc-mds-button-secondary {

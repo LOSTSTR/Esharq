@@ -57,7 +57,7 @@ const settings = definePluginSettings({
                                 const n = parseInt(h, 16);
                                 if (!isNaN(n) && h.length === 6) { settings.store.caretColor = n; applyCSS(); }
                             }}
-                            style={{ width: 90, padding: "4px 8px", borderRadius: 4, border: "1px solid var(--background-modifier-accent)", background: "var(--background-secondary)", color: "var(--text-normal)", fontSize: 13 }}
+                            style={{ width: 90, padding: "4px 8px", borderRadius: 4, border: "1px solid var(--border-subtle)", background: "var(--background-base-lowest)", color: "var(--text-default)", fontSize: 13 }}
                         />
                     </div>
                 </div>

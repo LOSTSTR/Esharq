@@ -117,7 +117,7 @@ function UploadImageIcon() {
             <rect x="3" y="4" width="18" height="16" rx="2.5" stroke="currentColor" strokeWidth="1.5" />
             <path d="M3 15l4-4.5 3.5 4L14 9l7 9.5" stroke="currentColor" strokeWidth="1.5"
                 strokeLinecap="round" strokeLinejoin="round" opacity="0.5" />
-            <circle cx="18" cy="6" r="5" fill="var(--background-primary, #313338)" />
+            <circle cx="18" cy="6" r="5" fill="var(--background-base-lower, #313338)" />
             <path d="M18 3.5v5M15.5 6h5" stroke="#5865f2" strokeWidth="1.8" strokeLinecap="round" />
         </svg>
     );

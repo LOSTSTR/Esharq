@@ -134,8 +134,8 @@ function InstancePanel() {
                     placeholder={t("اسم نسخة جديدة", "New instance name")}
                     style={{
                         flex: 1, padding: "6px 10px", borderRadius: 8,
-                        border: "1px solid var(--background-modifier-accent)",
-                        background: "var(--input-background)", color: "var(--text-normal)"
+                        border: "1px solid var(--border-subtle)",
+                        background: "var(--background-base-lowest)", color: "var(--text-default)"
                     }}
                 />
                 <Button size={Button.Sizes.SMALL} onClick={add}>{t("أضف", "Add")}</Button>

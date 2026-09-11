@@ -787,7 +787,7 @@ export default definePlugin({
         return (
             <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
                 <button
-                    style={{ padding: "8px 14px", borderRadius: "4px", background: "var(--brand-experiment, #5865F2)", color: "#fff", border: "none", cursor: "pointer" }}
+                    style={{ padding: "8px 14px", borderRadius: "4px", background: "var(--brand-500, #5865F2)", color: "#fff", border: "none", cursor: "pointer" }}
                     onClick={() => {
                         if (root && !document.querySelector(".pcl-layout")) {
                             forceReset("settings button clicked while root was set but no overlay was actually in the DOM");
@@ -798,7 +798,7 @@ export default definePlugin({
                     {hasPasscode(data) ? t("تغيير الرمز", "Change Passcode") : t("إعداد الرمز", "Set Up Passcode")}
                 </button>
                 <button
-                    style={{ padding: "8px 14px", borderRadius: "4px", background: "transparent", color: "var(--text-normal, #fff)", border: "1px solid var(--background-modifier-accent, #555)", cursor: "pointer" }}
+                    style={{ padding: "8px 14px", borderRadius: "4px", background: "transparent", color: "var(--text-default, #fff)", border: "1px solid var(--border-subtle, #555)", cursor: "pointer" }}
                     onClick={() => {
                         if (root && !document.querySelector(".pcl-layout")) {
                             forceReset("settings button clicked while root was set but no overlay was actually in the DOM");

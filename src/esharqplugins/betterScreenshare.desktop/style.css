@@ -31,7 +31,7 @@
     font-size: 16px;
     font-weight: 800;
     line-height: 1.1;
-    color: var(--header-primary);
+    color: var(--text-strong);
 }
 
 .bss-subtitle {
@@ -60,7 +60,7 @@
     padding: 13px 14px;
     border: 1px solid transparent;
     border-radius: 14px;
-    background: var(--background-secondary, #2b2d31);
+    background: var(--background-base-lowest, #2b2d31);
     transition: border-color .15s, background .15s;
 }
 
@@ -74,7 +74,7 @@
 
 .bss-tap:hover {
     border-color: rgb(168 85 247 / 45%);
-    background: var(--background-secondary-alt, #232428);
+    background: var(--background-base-lowest, #232428);
 }
 
 .bss-cap {
@@ -87,13 +87,13 @@
 .bss-label {
     font-size: 13px;
     font-weight: 700;
-    color: var(--text-normal, #dbdee1);
+    color: var(--text-default, #dbdee1);
 }
 
 .bss-val {
     padding: 2px 9px;
     border-radius: 999px;
-    background: var(--background-tertiary);
+    background: var(--background-base-lowest);
     font-size: 12px;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
@@ -115,7 +115,7 @@
     gap: 4px;
     padding: 4px;
     border-radius: 11px;
-    background: var(--background-tertiary);
+    background: var(--background-base-lowest);
 }
 
 .bss-seg-btn {
@@ -133,7 +133,7 @@
 }
 
 .bss-seg-btn:hover:not(.bss-seg-on) {
-    color: var(--text-normal);
+    color: var(--text-default);
 }
 
 .bss-seg-on {
@@ -154,7 +154,7 @@
     inset-inline: 0;
     height: 6px;
     border-radius: 6px;
-    background: var(--background-tertiary);
+    background: var(--background-base-lowest);
 }
 
 .bss-range-fill {
@@ -195,7 +195,7 @@
     padding: 0;
     border: 0;
     border-radius: 999px;
-    background: var(--background-tertiary);
+    background: var(--background-base-lowest);
     cursor: pointer;
     transition: background .18s;
 }
@@ -229,9 +229,9 @@
 .bss-num {
     width: 100%;
     padding: 8px 10px;
-    border: 1px solid var(--background-modifier-accent);
+    border: 1px solid var(--border-subtle);
     border-radius: 9px;
-    background: var(--background-tertiary);
+    background: var(--background-base-lowest);
     font-family: inherit;
     font-size: 14px;
     font-weight: 700;
@@ -285,12 +285,12 @@
     width: 34px;
     height: 34px;
     padding: 0;
-    border: 1px solid var(--background-modifier-accent);
+    border: 1px solid var(--border-subtle);
     border-radius: 9px;
-    background: var(--background-tertiary);
+    background: var(--background-base-lowest);
     font-size: 15px;
     line-height: 1;
-    color: var(--text-normal, #dbdee1);
+    color: var(--text-default, #dbdee1);
     cursor: pointer;
     transition: background .13s, border-color .13s, opacity .13s;
 }
@@ -302,7 +302,7 @@
 
 .bss-pbtn:hover:not(:disabled) {
     border-color: #a855f7;
-    background: var(--background-secondary-alt, #232428);
+    background: var(--background-base-lowest, #232428);
 }
 
 .bss-pbtn-save {

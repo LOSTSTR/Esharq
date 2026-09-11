@@ -323,7 +323,7 @@ function AboutWarning() {
     return (
         <div style={{
             border: "1px solid #f0b232", borderRadius: 8, padding: "12px 14px", marginBottom: 12,
-            background: "rgba(240, 178, 50, 0.1)", color: "var(--text-normal, #dbdee1)", fontSize: 13, lineHeight: 1.6
+            background: "rgba(240, 178, 50, 0.1)", color: "var(--text-default, #dbdee1)", fontSize: 13, lineHeight: 1.6
         }}>
             ⚠️ {t(
                 "تحذير: هذه الإضافة توجّه استعلامات DNS الخاصة بديسكورد عبر خوادم Mullvad (مزوّد خصوصية موثوق) وتستخدم وحدة native لتحليل DNS. خيار «Rewrite fetch URLs» تجريبيّ وقد يكسر HTTPS ويعطّل الاتصال — اتركه مُطفأً ما لم تفهم المخاطرة. لا يقرأ التوكن ولا يرسل بياناتك لأي طرف ثالث سوى استعلام DNS نفسه.",

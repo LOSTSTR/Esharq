@@ -131,8 +131,8 @@ export default definePlugin({
 
     settingsAboutComponent: () => (
         <div style={{
-            color: "var(--text-danger)",
-            border: "1px solid var(--text-danger)",
+            color: "var(--status-danger)",
+            border: "1px solid var(--status-danger)",
             borderRadius: 6,
             padding: "10px 12px",
             margin: "8px 0",

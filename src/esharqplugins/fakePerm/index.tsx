@@ -139,9 +139,9 @@ function toast(msg: string) {
 
 // ─── Common Styles ───────────────────────────────────────────────────────────
 
-const modalTitle: React.CSSProperties = { fontFamily: "var(--font-display)", fontSize: "20px", fontWeight: 600, lineHeight: "24px", color: "#ffffff", margin: 0, padding: 0 };
+const modalTitle: React.CSSProperties = { fontFamily: "var(--font-primary)", fontSize: "20px", fontWeight: 600, lineHeight: "24px", color: "var(--text-default)", margin: 0, padding: 0 };
 function footerBtn(bg: string): React.CSSProperties { return { flex: 1, fontFamily: "var(--font-primary)", fontSize: "14px", fontWeight: 500, height: "38px", background: bg, color: "#ffffff", border: "none", borderRadius: "8px", cursor: "pointer" }; }
-function sectionLabel(mb = "8px"): React.CSSProperties { return { fontFamily: "var(--font-primary)", fontSize: "16px", fontWeight: 600, color: "#ffffff", marginBottom: mb }; }
+function sectionLabel(mb = "8px"): React.CSSProperties { return { fontFamily: "var(--font-primary)", fontSize: "16px", fontWeight: 600, color: "var(--text-default)", marginBottom: mb }; }
 
 // ─── Modals ───────────────────────────────────────────────────────────────────
 
@@ -180,21 +180,21 @@ function KickModal({ rootProps, user, guildId }: { rootProps: any; user: any; gu
     return (
         <ModalRoot {...rootProps} size="small">
             <ModalHeader separator={false}>
-                <h2 style={{ fontFamily: "var(--font-display)", fontSize: "20px", fontWeight: 700, color: "#ffffff", margin: 0, flex: 1 }}>
+                <h2 style={{ fontFamily: "var(--font-primary)", fontSize: "20px", fontWeight: 700, color: "var(--text-default)", margin: 0, flex: 1 }}>
                     {t(`طرد ${username} من الخادم`, `Kick ${username} from server`)}
                 </h2>
                 <ModalCloseButton onClick={rootProps.onClose} />
             </ModalHeader>
             <ModalContent style={{ padding: "8px 16px 20px" }}>
-                <p style={{ fontFamily: "var(--font-primary)", fontSize: "14px", color: "#ffffff", lineHeight: "20px", marginBottom: "16px", marginTop: "4px" }}>
+                <p style={{ fontFamily: "var(--font-primary)", fontSize: "14px", color: "var(--text-default)", lineHeight: "20px", marginBottom: "16px", marginTop: "4px" }}>
                     {t(`هل أنت متأكد من طرد @${tag} من الخادم؟ سيتمكّن من العودة بدعوة جديدة.`, `Are you sure you want to kick @${tag} from the server? They will be able to return with a new invitation.`)}
                 </p>
-                <div style={{ fontFamily: "var(--font-primary)", fontSize: "14px", fontWeight: 600, color: "#ffffff", marginBottom: "8px" }}>{t("سبب الطرد", "Reason for kick")}</div>
+                <div style={{ fontFamily: "var(--font-primary)", fontSize: "14px", fontWeight: 600, color: "var(--text-default)", marginBottom: "8px" }}>{t("سبب الطرد", "Reason for kick")}</div>
                 <textarea
                     value={reason}
                     onChange={e => setReason(e.target.value)}
                     placeholder=""
-                    style={{ width: "100%", height: "120px", background: "var(--input-background, #1e1f22)", border: "1px solid var(--background-tertiary, #1e1f22)", borderRadius: "4px", padding: "10px", color: "#ffffff", fontFamily: "var(--font-primary)", fontSize: "14px", lineHeight: "20px", resize: "none", outline: "none", boxSizing: "border-box" as any }}
+                    style={{ width: "100%", height: "120px", background: "var(--background-base-lowest, #1e1f22)", border: "1px solid var(--background-base-lowest, #1e1f22)", borderRadius: "4px", padding: "10px", color: "var(--text-default)", fontFamily: "var(--font-primary)", fontSize: "14px", lineHeight: "20px", resize: "none", outline: "none", boxSizing: "border-box" as any }}
                 />
             </ModalContent>
             <ModalFooter>
@@ -234,7 +234,7 @@ function BanModal({ rootProps, user }: { rootProps: any; user: any; }) {
                 <div style={sectionLabel()}>{t("السبب", "Reason")}</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "16px" }}>
                     {BAN_REASONS.map(opt => (
-                        <label key={opt.value} style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", fontFamily: "var(--font-primary)", fontSize: "16px", color: "#ffffff", userSelect: "none" as any }} onClick={() => setReason(opt.value)}>
+                        <label key={opt.value} style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", fontFamily: "var(--font-primary)", fontSize: "16px", color: "var(--text-default)", userSelect: "none" as any }} onClick={() => setReason(opt.value)}>
                             <div style={{ width: 20, height: 20, borderRadius: "50%", flexShrink: 0, border: reason === opt.value ? "6px solid #5865f2" : "2px solid #4e5058", background: reason === opt.value ? "#fff" : "transparent", boxSizing: "border-box" as any }} />
                             {opt.label}
                         </label>
@@ -268,28 +268,28 @@ function TimeoutModal({ rootProps, user }: { rootProps: any; user: any; }) {
     return (
         <ModalRoot {...rootProps} size="small">
             <ModalHeader separator={false}>
-                <h2 style={{ fontFamily: "var(--font-display)", fontSize: "20px", fontWeight: 700, color: "#ffffff", margin: 0, flex: 1 }}>
+                <h2 style={{ fontFamily: "var(--font-primary)", fontSize: "20px", fontWeight: 700, color: "var(--text-default)", margin: 0, flex: 1 }}>
                     {t(`مهلة ${username}`, `Timeout ${username}`)}
                 </h2>
                 <ModalCloseButton onClick={rootProps.onClose} />
             </ModalHeader>
             <ModalContent style={{ padding: "8px 16px 20px" }}>
-                <p style={{ fontFamily: "var(--font-primary)", fontSize: "14px", color: "#ffffff", lineHeight: "20px", marginBottom: "20px", marginTop: "4px" }}>
+                <p style={{ fontFamily: "var(--font-primary)", fontSize: "14px", color: "var(--text-default)", lineHeight: "20px", marginBottom: "20px", marginTop: "4px" }}>
                     {t("لا يستطيع الأعضاء المفروضة عليهم مهلة مؤقتة إرسال الرسائل أو التفاعل في القنوات النصية، ولا يُسمح لهم بالانضمام إلى القنوات الصوتية أو قنوات المؤتمرات.", "Temporarily timed out members cannot send messages or react in text channels. They are also not allowed to join voice or conference channels.")}{" "}
                     <span style={{ color: "#00a8fc", cursor: "pointer" }}>{t("اعرف المزيد", "Learn more")}</span>
                 </p>
-                <div style={{ fontFamily: "var(--font-primary)", fontSize: "14px", fontWeight: 600, color: "#ffffff", marginBottom: "8px" }}>{t("المدّة", "Duration")}</div>
-                <div style={{ display: "flex", marginBottom: "20px", borderRadius: "4px", overflow: "hidden", border: "1px solid var(--background-modifier-accent, rgba(255,255,255,0.1))" }}>
+                <div style={{ fontFamily: "var(--font-primary)", fontSize: "14px", fontWeight: 600, color: "var(--text-default)", marginBottom: "8px" }}>{t("المدّة", "Duration")}</div>
+                <div style={{ display: "flex", marginBottom: "20px", borderRadius: "4px", overflow: "hidden", border: "1px solid var(--border-subtle, rgba(255,255,255,0.1))" }}>
                     {TIMEOUT_DURATIONS.map((d, i) => (
                         <button key={i} onClick={() => setSelectedIdx(i)} style={{
                             flex: 1,
                             fontFamily: "var(--font-primary)",
                             fontSize: "14px",
                             fontWeight: 500,
-                            background: selectedIdx === i ? "#5865f2" : "var(--background-secondary, #2b2d31)",
-                            color: "#ffffff",
+                            background: selectedIdx === i ? "#5865f2" : "var(--background-base-lowest, #2b2d31)",
+                            color: "var(--text-default)",
                             border: "none",
-                            borderRight: i < TIMEOUT_DURATIONS.length - 1 ? "1px solid var(--background-modifier-accent, rgba(255,255,255,0.1))" : "none",
+                            borderRight: i < TIMEOUT_DURATIONS.length - 1 ? "1px solid var(--border-subtle, rgba(255,255,255,0.1))" : "none",
                             padding: "8px 2px",
                             height: "36px",
                             cursor: "pointer",
@@ -301,12 +301,12 @@ function TimeoutModal({ rootProps, user }: { rootProps: any; user: any; }) {
                         </button>
                     ))}
                 </div>
-                <div style={{ fontFamily: "var(--font-primary)", fontSize: "14px", fontWeight: 600, color: "#ffffff", marginBottom: "8px" }}>{t("السبب", "Reason")}</div>
+                <div style={{ fontFamily: "var(--font-primary)", fontSize: "14px", fontWeight: 600, color: "var(--text-default)", marginBottom: "8px" }}>{t("السبب", "Reason")}</div>
                 <textarea
                     value={reason}
                     onChange={e => setReason(e.target.value)}
                     placeholder={t("أدخل سبباً. سيظهر فقط في سجلّات الخادم ولن يتمكّن هذا العضو من رؤيته.", "Enter a reason. It will only be visible in server logs and this member won't be able to see it.")}
-                    style={{ width: "100%", height: "100px", background: "var(--input-background, #1e1f22)", border: "1px solid var(--background-tertiary, #1e1f22)", borderRadius: "4px", padding: "10px", color: "#ffffff", fontFamily: "var(--font-primary)", fontSize: "14px", lineHeight: "20px", resize: "none", outline: "none", boxSizing: "border-box" as any }}
+                    style={{ width: "100%", height: "100px", background: "var(--background-base-lowest, #1e1f22)", border: "1px solid var(--background-base-lowest, #1e1f22)", borderRadius: "4px", padding: "10px", color: "var(--text-default)", fontFamily: "var(--font-primary)", fontSize: "14px", lineHeight: "20px", resize: "none", outline: "none", boxSizing: "border-box" as any }}
                 />
             </ModalContent>
             <ModalFooter>
@@ -335,17 +335,17 @@ function AddRoleModal({ rootProps, user, guildId }: { rootProps: any; user: any;
     const filtered = allRoles.filter(r => r.name.toLowerCase().includes(search.toLowerCase()));
     return (
         <ModalRoot {...rootProps} size="small">
-            <ModalContent style={{ padding: "8px 0 0", background: "var(--background-floating, #18191c)", borderRadius: 8, minWidth: 220 }}>
+            <ModalContent style={{ padding: "8px 0 0", background: "var(--background-surface-high, #18191c)", borderRadius: 8, minWidth: 220 }}>
                 <div style={{ padding: "4px 8px" }}>
-                    <input autoFocus placeholder={t("الرتبة", "Role")} value={search} onChange={e => setSearch(e.target.value)} style={{ width: "100%", background: "transparent", border: "1px solid var(--brand-experiment, #5865f2)", borderRadius: 4, outline: "none", color: "var(--text-normal, #dcddde)", fontSize: 14, padding: "4px 8px", boxSizing: "border-box" }} />
+                    <input autoFocus placeholder={t("الرتبة", "Role")} value={search} onChange={e => setSearch(e.target.value)} style={{ width: "100%", background: "transparent", border: "1px solid var(--brand-500, #5865f2)", borderRadius: 4, outline: "none", color: "var(--text-default, #dcddde)", fontSize: 14, padding: "4px 8px", boxSizing: "border-box" }} />
                 </div>
                 <div style={{ maxHeight: 300, overflowY: "auto", scrollbarWidth: "none", padding: "4px 0" }}>
                     {filtered.map(role => {
                         const color = role.color ? `#${role.color.toString(16).padStart(6, "0")}` : "#80848e";
                         return (
-                            <div key={role.id} onClick={() => { toast(t(`الرتبة ${role.name} — محاكاة`, `Role ${role.name} — simulation`)); rootProps.onClose(); }} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 12px", cursor: "pointer", opacity: memberRoleIds.includes(role.id) ? 0.5 : 1 }} onMouseEnter={e => (e.currentTarget.style.background = "var(--background-modifier-hover)")} onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+                            <div key={role.id} onClick={() => { toast(t(`الرتبة ${role.name} — محاكاة`, `Role ${role.name} — simulation`)); rootProps.onClose(); }} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 12px", cursor: "pointer", opacity: memberRoleIds.includes(role.id) ? 0.5 : 1 }} onMouseEnter={e => (e.currentTarget.style.background = "var(--esharq-tint-hover)")} onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
                                 <div style={{ width: 12, height: 12, borderRadius: "50%", background: color, flexShrink: 0 }} />
-                                <span style={{ color: "var(--text-normal, #dcddde)", fontSize: 14 }}>{role.name}</span>
+                                <span style={{ color: "var(--text-default, #dcddde)", fontSize: 14 }}>{role.name}</span>
                             </div>
                         );
                     })}
@@ -425,7 +425,7 @@ const userContextPatch: NavContextMenuPatchCallback = (children, { user }: any) 
                                     render={() => (
                                         <div style={{ display: "flex", alignItems: "center", padding: "8px 10px", gap: 8, width: "100%", boxSizing: "border-box", cursor: "pointer" }}>
                                             <div style={{ width: 14, height: 14, borderRadius: "50%", background: color, flexShrink: 0 }} />
-                                            <span style={{ flex: 1, color: "#ffffff", fontSize: 14, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{role.name}</span>
+                                            <span style={{ flex: 1, color: "var(--text-default)", fontSize: 14, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{role.name}</span>
                                             <div style={{ width: 16, height: 16, borderRadius: 3, flexShrink: 0, border: hasRole ? "none" : "1.5px solid #72767d", background: hasRole ? "#5865f2" : "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                                 {hasRole && <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>}
                                             </div>
@@ -434,7 +434,7 @@ const userContextPatch: NavContextMenuPatchCallback = (children, { user }: any) 
                             );
                         }),
                         <Menu.MenuItem key="fp-role-add" id="fp-role-add" label={t("+ إضافة رتبة", "+ Add a role")} action={() => openModal(p => <AddRoleModal rootProps={p} user={user} guildId={guildId} />)}
-                            render={() => <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", borderTop: "1px solid rgba(79,84,92,0.48)", color: "#b9bbbe", fontSize: 13, cursor: "pointer" }}><span>+</span><span>{t("إضافة رتبة", "Add a role")}</span></div>} />,
+                            render={() => <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", borderTop: "1px solid rgba(79,84,92,0.48)", color: "var(--text-muted)", fontSize: 13, cursor: "pointer" }}><span>+</span><span>{t("إضافة رتبة", "Add a role")}</span></div>} />,
                         ]}
                 </Menu.MenuItem>
                 <Menu.MenuItem key="fp-move" id="fp-move" label={t("النقل إلى", "Move to")}>
