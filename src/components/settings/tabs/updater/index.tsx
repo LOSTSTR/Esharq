@@ -49,21 +49,26 @@ function EquibopSection() {
 
     return (
         <Flex className={Margins.bottom20} flexDirection="column" gap="1em">
+            {/*
+              * 🔴 كان هذا يُسمّي إكويبوب ويُحيل إلى equibop.org — والمستخدم داخل
+              * «إشراق لسطح المكتب» لا يعرف إكويبوب ولا يُريده. الحقيقة أنّ
+              * التطبيق شيئان: القوقعة (تُحدَّث من نافذتها) والمود (يُحدَّث من هنا).
+              */}
             <PlainCard variant="brand">
-                <HeadingSecondary>Equibop & Equicord</HeadingSecondary>
-                <Paragraph>{t("Equibop و Equicord شيئان منفصلان. هذا المُحدِّث خاصّ بـ Equicord.", "Equibop and Equicord are two separate things. This updater is for Equicord.")}</Paragraph>
+                <HeadingSecondary>{t("إشراق لسطح المكتب، وإشراق", "Esharq Desktop and Esharq")}</HeadingSecondary>
+                <Paragraph>{t("التطبيق شيئان: القوقعة التي تُشغّل ديسكورد، والمود الذي يُعرّبه ويُضيف إليه. هذا المُحدِّث خاصّ بالمود.", "The app is two things: the shell that runs Discord, and the mod that arabises and extends it. This updater is for the mod.")}</Paragraph>
                 <Paragraph className={Margins.top8}>
-                    {t("تصلك نوافذ منفصلة لتحديثات Equibop، ويمكنك أيضاً تحديثه يدوياً بتثبيت ", "You receive separate popups for Equibop updates. You can also manually update by installing the ")}
-                    <Link href="https://equibop.org/install">{t("أحدث إصدار", "latest version")}</Link>.
+                    {t("القوقعة تُحدّث نفسها وتُخبرك بنافذةٍ منفصلة، ويمكنك أيضاً تثبيت ", "The shell updates itself and tells you in a separate window. You can also install the ")}
+                    <Link href="https://github.com/LOSTSTR/Esharq-Desktop/releases/latest">{t("أحدث إصدار منها", "latest version of it")}</Link>.
                 </Paragraph>
             </PlainCard>
 
             {isEquibopOutdated && (
                 <PlainCard variant="warning">
-                    <HeadingSecondary>{t("إصدار Equibop قديم", "Equibop Outdated")}</HeadingSecondary>
+                    <HeadingSecondary>{t("إصدار القوقعة قديم", "Shell outdated")}</HeadingSecondary>
                     <Flex flexDirection="column" gap="0.5em">
-                        <Paragraph>{t("إصدارك من Equibop قديم!", "Your version of Equibop is outdated!")}</Paragraph>
-                        <Button variant="link" onClick={() => VesktopNative.app.openUpdater()}>{t("افتح مُحدِّث Equibop", "Open Equibop Updater")}</Button>
+                        <Paragraph>{t("إصدارك من إشراق لسطح المكتب قديم.", "Your version of Esharq Desktop is outdated.")}</Paragraph>
+                        <Button variant="link" onClick={() => VesktopNative.app.openUpdater()}>{t("افتح مُحدِّث إشراق لسطح المكتب", "Open the Esharq Desktop updater")}</Button>
                     </Flex>
                 </PlainCard>
             )}
