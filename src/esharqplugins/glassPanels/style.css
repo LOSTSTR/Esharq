@@ -1,9 +1,24 @@
-/* [--sidebar] etc. are placeholders filled by setStyleClassNames in index.ts with
-   Discord's resolved class names. If a name can't resolve, the placeholder stays
-   and simply matches nothing — the blur is absent for that surface, never broken. */
-[--sidebar],
-[--membersWrap],
-[--members] {
+/*
+ * 🔴 محدِّدات سمةٍ لا أصنافاً مُحلَّلة — والتعليل قِيس لا خُمِّن.
+ *
+ * كانت النوائب `[--sidebar]` و`[--membersWrap]` و`[--members]` تُملأ من
+ * `findCssClasses("sidebar", "membersWrap", "members")`، وذلك نداءٌ يشترط أن
+ * تجتمع الأسماء الثلاثة في **وحدةٍ واحدة**. وقِيس حيّاً أنّها موزّعة على
+ * وحدتين: `sidebar__5e434` في واحدة، و`members` في أخرى. فالمُرشِّح لا
+ * يُرضيه شيء، ويُرجع النداءُ لا شيء، وتبقى النوائب الثلاث كما هي — محدِّدات
+ * سمةٍ لا تطابق عنصراً واحداً.
+ *
+ * والتعليق السابق كان يسمّي ذلك «فشلاً لطيفاً»، وهو في الحقيقة **موتٌ صامت**:
+ * الإضافة تُفعَّل ولا يقع الضباب أبداً ولا سطر يقول لماذا.
+ *
+ * وكان يُحذّر أيضاً من أنّ محدِّد السمة «يُفرط في المطابقة». قِيس: كلٌّ من
+ * `[class*="sidebar_"]` و`[class*="members_"]` يصيب **عنصراً واحداً بالضبط**،
+ * ولا يلتقط `sidebarList_` ولا `membersWrap_` لأنّ الشرطة السفلية بعد الاسم
+ * تفصلهما. فلا إفراط، ولا نداءَ قد يفشل.
+ */
+[class*="sidebar_"],
+[class*="membersWrap_"],
+[class*="members_"] {
     background-color: rgb(25 0 51 / 45%) !important;
     backdrop-filter: blur(10px) saturate(1.3);
 }
