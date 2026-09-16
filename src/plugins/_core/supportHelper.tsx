@@ -493,7 +493,9 @@ export default definePlugin({
                 );
             }
         }
-        if (equicordSupport || isSupportChannel(props?.channel?.id, true) || isKnownIssuesCategory(props?.channel?.parent_id, true)) {
+        // 🔴 القناة وحدها لا تكفي: الزرّ ينفّذ شيفرة الرسالة، وقناة الدعم يكتب فيها أيّ أحد،
+        // فالكاتب الموثوق (`equicordSupport`) هو الشرط لا مكان الرسالة
+        if (equicordSupport || isKnownIssuesCategory(props?.channel?.parent_id, true)) {
             const match = CodeBlockRe.exec(props.message.content || props.message.embeds[0]?.rawDescription || "");
             if (match) {
                 buttons.push(
