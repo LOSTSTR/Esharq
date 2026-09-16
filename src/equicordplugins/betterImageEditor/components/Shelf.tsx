@@ -6,6 +6,7 @@
 
 import { DeleteIcon } from "@components/Icons";
 import { classNameFactory } from "@utils/css";
+import { t } from "@utils/esharqI18n";
 import { React, useCallback, useEffect, useRef, useState } from "@webpack/common";
 
 import { Entry, getFile, Group, Kind } from "../library";
@@ -14,22 +15,29 @@ export const cl = classNameFactory("vc-bie-");
 
 const SQUARE = new Set(["AVATAR", "AVATAR_DECORATION", "GUILD_ICON", "PERSONAL_WIDGET_FIELD"]);
 
-const KIND_NAMES: Record<string, string> = {
-    AVATAR: "avatars",
-    BANNER: "banners",
-    GUILD_ICON: "server icons",
-    GUILD_BANNER: "server banners",
-    SCHEDULED_EVENT_IMAGE: "event covers",
-    HOME_HEADER: "home headers",
-    AVATAR_DECORATION: "decorations",
-    PERSONAL_WIDGET_COVER: "widget covers",
-    PERSONAL_WIDGET_FIELD: "widget images"
+// 🔴 أزواجٌ خامّ [عربي، إنجليزي] لا نصوص t(): الثابت يُقيَّم عند تحميل الوحدة، وقد يسبق prefsReady
+// فتُقرأ اللغة قبل جاهزية الإعدادات؛ لذا تُحلّ لحظة الاستدعاء. وهي خامّ لأنّ t() تعزل اتجاهياً،
+// فتُبنى كلّ جملة من نصف لغتها مباشرةً بلا عزلٍ مزدوج
+const KIND_NAMES: Record<string, readonly [ar: string, en: string]> = {
+    AVATAR: ["الصور الرمزية", "avatars"],
+    BANNER: ["اللافتات", "banners"],
+    GUILD_ICON: ["أيقونات الخوادم", "server icons"],
+    GUILD_BANNER: ["لافتات الخوادم", "server banners"],
+    SCHEDULED_EVENT_IMAGE: ["أغلفة الفعاليات", "event covers"],
+    HOME_HEADER: ["ترويسات الصفحة الرئيسية", "home headers"],
+    AVATAR_DECORATION: ["الزينات", "decorations"],
+    PERSONAL_WIDGET_COVER: ["أغلفة الأدوات", "widget covers"],
+    PERSONAL_WIDGET_FIELD: ["صور الأدوات", "widget images"]
 };
 
-const kindName = (kind: Kind) => KIND_NAMES[kind] ?? kind.toLowerCase().replace(/_/g, " ");
+// نوعٌ لا نعرفه يُسمّى «الصور» بالعربية، لا بمعرّفه اللاتينيّ وسط جملة عربية
+const kindName = (kind: Kind) => KIND_NAMES[kind] ?? ["الصور", kind.toLowerCase().replace(/_/g, " ")] as const;
 
 const isAnimated = (entry: Entry) => entry.type === "image/gif" || entry.name.toLowerCase().endsWith(".gif");
-export const croppedLabel = (kind: Kind) => `Cropped ${kindName(kind)}`;
+export const croppedLabel = (kind: Kind) => {
+    const [ar, en] = kindName(kind);
+    return t(`${ar} المقصوصة`, `Cropped ${en}`);
+};
 
 const PinIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden {...props}>
@@ -79,7 +87,7 @@ export function Shelf({ kind, group, entries, thumbs, activeId, wornId, onGroup,
                     aria-selected={group === "original"}
                     className={cl("tab", { on: group === "original" })}
                     onClick={() => onGroup("original")}
-                >Originals</button>
+                >{t("الأصلية", "Originals")}</button>
                 <button
                     type="button"
                     role="tab"
@@ -90,13 +98,13 @@ export function Shelf({ kind, group, entries, thumbs, activeId, wornId, onGroup,
 
                 {onPutBack && (
                     <button type="button" className={cl("action")} onClick={onPutBack}>
-                        Put back the last one
+                        {t("أعِد السابقة", "Put back the last one")}
                     </button>
                 )}
 
             </div>
 
-            <div className={cl("strip")} role="group" aria-label="Saved pictures">
+            <div className={cl("strip")} role="group" aria-label={t("الصور المحفوظة", "Saved pictures")}>
                 {entries.map(entry => (
                     <div
                         key={entry.id}
@@ -108,7 +116,7 @@ export function Shelf({ kind, group, entries, thumbs, activeId, wornId, onGroup,
                             type="button"
                             aria-label={entry.name}
                             title={entry.id === wornId ? `${entry.name}
-You are wearing this` : entry.name}
+${t("مستخدَمة حالياً", "You are wearing this")}` : entry.name}
                             className={cl("thumb", { active: activeId === entry.id })}
                             style={{ backgroundImage: `url(${(hovered === entry.id && playing[entry.id]) || thumbs[entry.id]})` }}
                             onClick={() => onPick(entry)}
@@ -120,8 +128,8 @@ You are wearing this` : entry.name}
                         <button
                             type="button"
                             className={cl("remove")}
-                            aria-label={`Remove ${entry.name}`}
-                            title="Remove. Hold Shift to skip the confirmation"
+                            aria-label={t(`إزالة ${entry.name}`, `Remove ${entry.name}`)}
+                            title={t("إزالة. اضغط مع Shift لتخطّي التأكيد", "Remove. Hold Shift to skip the confirmation")}
                             onClick={event => onForget(entry, event.shiftKey)}
                         >
                             <DeleteIcon width={10} height={10} />
@@ -130,8 +138,10 @@ You are wearing this` : entry.name}
                             type="button"
                             aria-pressed={!!entry.pinned}
                             className={cl("pin", { on: entry.pinned })}
-                            aria-label={entry.pinned ? `Unpin ${entry.name}` : `Pin ${entry.name}`}
-                            title={entry.pinned ? "Pinned, so it never drops off the shelf" : "Pin so it never drops off the shelf"}
+                            aria-label={entry.pinned ? t(`إلغاء تثبيت ${entry.name}`, `Unpin ${entry.name}`) : t(`تثبيت ${entry.name}`, `Pin ${entry.name}`)}
+                            title={entry.pinned
+                                ? t("مثبّتة، فلن تسقط من الرفّ أبداً", "Pinned, so it never drops off the shelf")
+                                : t("ثبّتها كي لا تسقط من الرفّ أبداً", "Pin so it never drops off the shelf")}
                             onClick={() => onPin(entry)}
                         >
                             <PinIcon width={10} height={10} />
@@ -142,8 +152,8 @@ You are wearing this` : entry.name}
                 {!entries.length && (
                     <span className={cl("empty")}>
                         {group === "original"
-                            ? "Pictures you pick, paste or drop land here"
-                            : "Pictures you crop land here"}
+                            ? t("تظهر هنا الصور التي تختارها أو تلصقها أو تسحبها", "Pictures you pick, paste or drop land here")
+                            : t("تظهر هنا الصور التي تقصّها", "Pictures you crop land here")}
                     </span>
                 )}
             </div>

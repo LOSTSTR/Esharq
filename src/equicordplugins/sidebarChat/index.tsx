@@ -10,6 +10,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { getCurrentChannel } from "@utils/discord";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { Channel, Guild, User } from "@vencord/discord-types";
 import { ChannelType } from "@vencord/discord-types/enums";
@@ -87,22 +88,23 @@ const requireForumView = extractAndLoadChunksLazy(
     /Promise\.all\(\[((?:\i\.e\("\d+"\),?)+)\]\)\.then\(\i\.bind\(\i,(\d+)\)\)[^}]{0,100}?name:"ForumChannel"/
 );
 
+// 🔴 البدائل هنا ليست داخلية: تُعرض عنواناً في رأس الشريط الجانبيّ ونافذة المنبثقة وتلميح الزرّ
 function getChannelTitle(channel: Channel | null | undefined) {
-    if (!channel) return "Chat";
+    if (!channel) return t("دردشة", "Chat");
 
     if (channel.isPrivate()) {
         const recipientId = channel.getRecipientId?.();
         if (!channel.name && recipientId) {
             const user = UserStore.getUser(recipientId);
             if (user) {
-                return RelationshipStore.getNickname(recipientId) || user.globalName || user.username || "DM";
+                return RelationshipStore.getNickname(recipientId) || user.globalName || user.username || t("رسالة خاصة", "DM");
             }
         }
 
-        return channel.name || "DM";
+        return channel.name || t("رسالة خاصة", "DM");
     }
 
-    return channel.name || "Chat";
+    return channel.name || t("دردشة", "Chat");
 }
 
 function canOpenPopout(channel: Channel) {
@@ -119,7 +121,9 @@ function getMainChatChannelId() {
 }
 
 function getPopoutMenuLabel(channelId: string) {
-    return isPopoutWindowOpen(channelId) ? "Close popout chat" : "Popout chat";
+    return isPopoutWindowOpen(channelId)
+        ? t("إغلاق الدردشة المنبثقة", "Close popout chat")
+        : t("دردشة منبثقة", "Popout chat");
 }
 
 let restorePersistedPopoutsInterval: number | null = null;
@@ -246,7 +250,7 @@ const createSidebarChatContextMenuItem = (id: string, guildId: string | null) =>
     return (
         <Menu.MenuItem
             id={`vc-sidebar-chat-${id}`}
-            label={"Open Sidebar Chat"}
+            label={t("فتح الدردشة الجانبية", "Open Sidebar Chat")}
             action={() => {
                 FluxDispatcher.dispatch({
                     // @ts-ignore
@@ -283,7 +287,7 @@ const UserContextPatch: NavContextMenuPatchCallback = (children, args: { user: U
     children.push(createSidebarChatContextMenuItem(args.user.id, null));
     children.push(createPopoutChatContextMenuItem(
         args.user.id,
-        isOpen ? "Close popout chat" : "Popout chat",
+        isOpen ? t("إغلاق الدردشة المنبثقة", "Close popout chat") : t("دردشة منبثقة", "Popout chat"),
         () => {
             if (channelId && isOpen) {
                 closePopout(channelId);
@@ -355,6 +359,7 @@ export default definePlugin({
         "gdm-context": ChannelContextPatch,
     },
 
+    // 🔴 لا يُلفّ بـt: المفتاح الإنجليزيّ هو مفتاح الغلاف في src/i18n/plugins/SidebarChat.ts
     toolboxActions: {
         "Open Previous Chat"() {
             FluxDispatcher.dispatch({
@@ -517,15 +522,15 @@ const Header = ({ guild, channel }: { guild: Guild; channel: Channel; }) => {
         <HeaderBar
             toolbar={
                 <>
-                    <HeaderBarButton icon={ArrowsLeftRightIcon} tooltip="Switch channels" onClick={switchChannels} />
+                    <HeaderBarButton icon={ArrowsLeftRightIcon} tooltip={t("تبديل القنوات", "Switch channels")} onClick={switchChannels} />
                     <HeaderBarButton
                         key={`${channel.id}-${isPopoutOpen ? "open" : "closed"}`}
                         icon={isPopoutOpen ? XSmallIcon : WindowLaunchIcon}
-                        tooltip={isPopoutOpen ? "Close popout chat" : "Popout chat"}
+                        tooltip={isPopoutOpen ? t("إغلاق الدردشة المنبثقة", "Close popout chat") : t("دردشة منبثقة", "Popout chat")}
                         selected={isPopoutOpen}
                         onClick={openPopoutClick}
                     />
-                    <HeaderBarButton icon={XSmallIcon} tooltip="Close Sidebar Chat" onClick={closeSidebar} />
+                    <HeaderBarButton icon={XSmallIcon} tooltip={t("إغلاق الدردشة الجانبية", "Close Sidebar Chat")} onClick={closeSidebar} />
                 </>
             }
         >
@@ -591,8 +596,8 @@ function PopoutHeaderButton() {
         <HeaderBarButton
             key={`${channel.id}-${isOpen ? "open" : "closed"}`}
             icon={isOpen ? XSmallIcon : WindowLaunchIcon}
-            tooltip={isOpen ? "Close popout chat" : `Popout chat for ${label}`}
-            aria-label="Popout chat"
+            tooltip={isOpen ? t("إغلاق الدردشة المنبثقة", "Close popout chat") : t(`دردشة منبثقة لـ ${label}`, `Popout chat for ${label}`)}
+            aria-label={t("دردشة منبثقة", "Popout chat")}
             selected={isOpen}
             onClick={() => openPopout(channel.id)}
         />

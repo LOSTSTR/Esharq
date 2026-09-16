@@ -8,8 +8,8 @@ import { definePluginI18n } from "@utils/i18n/types";
 
 export default definePluginI18n({
     "description": {
-        "ar": "يُضيف معاينة لروابط الرسائل المحاطة بـ <>",
-        "en": "Adds a preview for message links wrapped in <>."
+        "ar": "يُضيف معاينة للرسائل التي تحتوي رابطاً لرسالة أخرى (الروابط المحاطة بـ <> لا تُعايَن)",
+        "en": "Adds a preview to messages that link another message"
     },
     "options": {
         "messageBackgroundColor": {

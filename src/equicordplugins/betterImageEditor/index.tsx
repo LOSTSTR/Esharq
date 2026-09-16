@@ -9,6 +9,7 @@ import "./style.css";
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import { Logger } from "@utils/Logger";
 import { pluralise } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
@@ -78,20 +79,21 @@ const settings = definePluginSettings({
             <Button
                 color={Button.Colors.PRIMARY}
                 onClick={() => Alerts.show({
-                    title: "Forget every remembered crop?",
-                    body: "Your pictures stay. Each one opens unframed from now on, until you crop it again.",
+                    title: t("نسيان كلّ قصّ محفوظ؟", "Forget every remembered crop?"),
+                    body: t("تبقى صورك، لكنّ كلّاً منها سيُفتح بلا قصّ من الآن فصاعداً حتى تقصّها من جديد.", "Your pictures stay. Each one opens unframed from now on, until you crop it again."),
                     confirmColor: Button.Colors.RED,
-                    confirmText: "Forget",
-                    cancelText: "Cancel",
+                    confirmText: t("نسيان", "Forget"),
+                    cancelText: t("إلغاء", "Cancel"),
                     onConfirm: () => forgetCrops()
                         .then(count => showToast(
-                            count ? `Forgot the framing on ${pluralise(count, "picture")}` : "Nothing was framed",
+                            // pluralise تُلحق "s" فلا تصلح للعربية: العدد بعد نقطتين بلا مطابقة معدود
+                            count ? t(`نُسي قصّ الصور: ${count}`, `Forgot the framing on ${pluralise(count, "picture")}`) : t("لم يكن هناك قصّ محفوظ", "Nothing was framed"),
                             Toasts.Type.SUCCESS
                         ))
                         .catch(err => logger.error("could not forget the remembered crops", err))
                 })}
             >
-                Forget remembered framing
+                {t("نسيان القصّ المحفوظ", "Forget remembered framing")}
             </Button>
         )
     },
@@ -110,8 +112,8 @@ const settings = definePluginSettings({
         description: "Carry your pictures, and how each one is framed, to another device.",
         component: () => (
             <div className={cl("buttons")}>
-                <Button color={Button.Colors.PRIMARY} onClick={exportLibrary}>Export to a file</Button>
-                <Button color={Button.Colors.PRIMARY} onClick={importLibrary}>Import from a file</Button>
+                <Button color={Button.Colors.PRIMARY} onClick={exportLibrary}>{t("تصدير إلى ملف", "Export to a file")}</Button>
+                <Button color={Button.Colors.PRIMARY} onClick={importLibrary}>{t("استيراد من ملف", "Import from a file")}</Button>
             </div>
         )
     },
@@ -122,15 +124,15 @@ const settings = definePluginSettings({
             <Button
                 color={Button.Colors.PRIMARY}
                 onClick={() => Alerts.show({
-                    title: "Clear saved pictures?",
-                    body: "Every picture you have saved here goes, along with the crop remembered for each one. Discord's own archive and your current avatar and banner are not touched.",
+                    title: t("مسح الصور المحفوظة؟", "Clear saved pictures?"),
+                    body: t("ستُحذف كلّ صورة حفظتها هنا مع القصّ المحفوظ لكلّ منها. ولا يُمسّ أرشيف ديسكورد نفسه ولا صورتك الرمزية ولافتتك الحاليّتان.", "Every picture you have saved here goes, along with the crop remembered for each one. Discord's own archive and your current avatar and banner are not touched."),
                     confirmColor: Button.Colors.RED,
-                    confirmText: "Clear",
-                    cancelText: "Cancel",
+                    confirmText: t("مسح", "Clear"),
+                    cancelText: t("إلغاء", "Cancel"),
                     onConfirm: () => clear().catch(err => logger.error("could not clear the library", err))
                 })}
             >
-                Clear saved pictures
+                {t("مسح الصور المحفوظة", "Clear saved pictures")}
             </Button>
         )
     }
@@ -166,7 +168,7 @@ async function exportLibrary() {
         else saveFile(new File([data], FILENAME, { type: "application/json" }));
     } catch (err) {
         logger.error("could not export the library", err);
-        showToast("Could not export your pictures", Toasts.Type.FAILURE);
+        showToast(t("تعذّر تصدير صورك", "Could not export your pictures"), Toasts.Type.FAILURE);
     }
 }
 
@@ -174,6 +176,7 @@ async function readChosenFile() {
     if (!IS_DISCORD_DESKTOP) return (await chooseFile("application/json"))?.text() ?? null;
 
     const [file] = await DiscordNative.fileManager.openFiles({
+        // اسم المرشّح إنجليزيّ عمداً كما في SettingsSync/offline.ts: t() تُضيف محارف عزل لا نعرف رسمها في نافذة النظام
         filters: [{ name: "Picture library", extensions: ["json"] }]
     });
     return file ? new TextDecoder().decode(file.data) : null;
@@ -186,12 +189,12 @@ async function importLibrary() {
 
         const added = await importAll(json, settings.store.librarySize);
         showToast(
-            added ? `Added ${pluralise(added, "picture")}` : "Nothing new in that file",
+            added ? t(`أُضيفت صور جديدة: ${added}`, `Added ${pluralise(added, "picture")}`) : t("لا جديد في هذا الملف", "Nothing new in that file"),
             Toasts.Type.SUCCESS
         );
     } catch (err) {
         logger.error("could not import the library", err);
-        showToast("Could not read that file", Toasts.Type.FAILURE);
+        showToast(t("تعذّرت قراءة هذا الملف", "Could not read that file"), Toasts.Type.FAILURE);
     }
 }
 
@@ -247,11 +250,11 @@ function useForget(bump: () => void) {
         if (immediate) return void run();
 
         Alerts.show({
-            title: "Remove this picture?",
-            body: `${entry.name} goes from your saved pictures, along with the crop remembered for it.`,
+            title: t("إزالة هذه الصورة؟", "Remove this picture?"),
+            body: t(`ستُزال ${entry.name} من صورك المحفوظة، ومعها القصّ المحفوظ لها.`, `${entry.name} goes from your saved pictures, along with the crop remembered for it.`),
             confirmColor: Button.Colors.RED,
-            confirmText: "Remove",
-            cancelText: "Cancel",
+            confirmText: t("إزالة", "Remove"),
+            cancelText: t("إلغاء", "Cancel"),
             onConfirm: run
         });
     }, [bump]);
@@ -344,7 +347,7 @@ function PickerShelf({ kind, open, complete, maxSize }: {
     }, [bump]);
 
     const accept = useCallback(async (file: File) => {
-        if (maxSize && file.size > maxSize) return showToast("That picture is too big for Discord", Toasts.Type.FAILURE);
+        if (maxSize && file.size > maxSize) return showToast(t("هذه الصورة أكبر ممّا يقبله ديسكورد", "That picture is too big for Discord"), Toasts.Type.FAILURE);
 
         try {
             const entry = await add(file, kind, "original", settings.store.librarySize);
@@ -352,6 +355,8 @@ function PickerShelf({ kind, open, complete, maxSize }: {
             await hand(entry.id, file, settings.store.rememberCrop ? entry.crop ?? null : null);
         } catch (err) {
             logger.error("could not take that picture", err);
+            // 🔴 السجلّ وحده يترك اللصق أو الإفلات بلا أيّ أثر ظاهر، فيبدو كأنّه لم يحدث
+            showToast(t("تعذّر فتح هذه الصورة", "Could not open that picture"), Toasts.Type.FAILURE);
         }
     }, [kind, hand, bump, maxSize]);
 
@@ -431,6 +436,8 @@ function EditorShelf({ Original, ownProps }: { Original: React.ComponentType<Edi
             await show(entry.id, file, settings.store.rememberCrop ? entry.crop ?? null : null);
         } catch (err) {
             logger.error("could not take that picture", err);
+            // 🔴 السجلّ وحده يترك اللصق أو الإفلات بلا أيّ أثر ظاهر، فيبدو كأنّه لم يحدث
+            showToast(t("تعذّر فتح هذه الصورة", "Could not open that picture"), Toasts.Type.FAILURE);
         }
     }, [kind, show, bump, setGroup]);
 
@@ -465,10 +472,10 @@ function EditorShelf({ Original, ownProps }: { Original: React.ComponentType<Edi
         if (!settings.store.askBeforeSavingCropped) return void run();
 
         Alerts.show({
-            title: "Keep the cropped copy?",
-            body: `It goes on the ${croppedLabel(kind).toLowerCase()} shelf, next to your originals.`,
-            confirmText: "Keep",
-            cancelText: "No thanks",
+            title: t("الاحتفاظ بالنسخة المقصوصة؟", "Keep the cropped copy?"),
+            body: t(`تُحفظ في رفّ ${croppedLabel(kind)}، بجانب صورك الأصلية.`, `It goes on the ${croppedLabel(kind).toLowerCase()} shelf, next to your originals.`),
+            confirmText: t("احتفظ بها", "Keep"),
+            cancelText: t("لا شكراً", "No thanks"),
             onConfirm: run
         });
     }, [kind, bump]);

@@ -24,5 +24,8 @@ export default definePluginI18n({
             "ar": "إبقاء نوافذ الدردشة المنبثقة فوق جميع النوافذ الأخرى.",
             "en": "Keep popout chat windows above all others."
         }
+    },
+    "toolboxActions": {
+        "Open Previous Chat": { "ar": "فتح الدردشة السابقة", "en": "Open Previous Chat" }
     }
 });
