@@ -6,10 +6,14 @@
 
 import "./style.css";
 
+import { isPluginEnabled } from "@api/PluginManager";
 import ErrorBoundary from "@components/ErrorBoundary";
+import showMeYourName from "@plugins/showMeYourName";
 import { EquicordDevs } from "@utils/constants";
+import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
-import type { ReactionEmoji } from "@vencord/discord-types";
+import type { ReactionEmoji, User } from "@vencord/discord-types";
+import { GuildMemberStore, RelationshipStore } from "@webpack/common";
 
 interface ReactionEvent {
     optimistic?: boolean;
@@ -20,13 +24,9 @@ interface ReactionEvent {
 }
 
 interface ReactionUserRowProps {
-    user?: {
-        id: string;
-        username?: string;
-        globalName?: string;
-        global_name?: string;
-        displayName?: string;
-    };
+    user?: User;
+    guildId?: string | null;
+    isHovered?: boolean;
     channelId?: string;
     messageId?: string;
     message?: {
@@ -76,23 +76,47 @@ function getTimestamp(props: ReactionUserRowProps) {
     return timestamp ? formatter.format(timestamp) : undefined;
 }
 
+// 🔴 الاسم الذي كانت ديسكورد سترسمه: بلا لقب الخادم يظهر الاسم العامّ مكان ما يعرفه الأعضاء،
+// ولقب الصديق يُعتبَر خارج الخوادم فقط كما في typingTweaks
+function getFallbackName(user: User, guildId?: string | null) {
+    return (guildId && GuildMemberStore.getNick(guildId, user.id))
+        || (!guildId && RelationshipStore.getNickname(user.id))
+        || user.globalName
+        || user.username;
+}
+
+// 🔴 مكوّنٌ مستقلّ لأنّ دالّة ShowMeYourName تنادي settings.use: تبديل تفعيلها يُبدّل نوع العنصر
+// فيُعاد تركيبه بدل أن يتغيّر عدد الخطافات في المكوّن نفسه
+function ShowMeYourNameReactionName({ user, guildId, isHovered }: { user: User; guildId?: string | null; isHovered?: boolean; }) {
+    const element = showMeYourName.getTypingMemberListProfilesReactionsVoiceNameElement({
+        user,
+        guildId: guildId ?? undefined,
+        type: "reactionsPopout",
+        isHovered
+    });
+
+    // null يعني أنّ ShowMeYourName لا تغيّر أسماء النافذة (إعداد reactions مطفأ)
+    return element ?? <span>{getFallbackName(user, guildId)}</span>;
+}
+
 function ReactionName(props: ReactionUserRowProps) {
     const timestamp = getTimestamp(props);
-    const { user } = props;
+    const { user, guildId, isHovered } = props;
     if (!user) return null;
-
-    const name = user.displayName ?? user.globalName ?? user.global_name ?? user.username;
-    if (!name) return null;
 
     return (
         <div className="vc-reaction-timestamps-name">
-            <span>{name}</span>
+            {isPluginEnabled(showMeYourName.name)
+                ? <ShowMeYourNameReactionName user={user} guildId={guildId} isHovered={isHovered} />
+                : <span>{getFallbackName(user, guildId)}</span>}
             {timestamp ? <span className="vc-reaction-timestamps-time">
-                {user.username ?? user.id} at {timestamp}
+                {t(`${user.username ?? user.id} في ${timestamp}`, `${user.username ?? user.id} at ${timestamp}`)}
             </span> : null}
         </div>
     );
 }
+
+const ReactionNameBoundary = ErrorBoundary.wrap(ReactionName, { noop: true });
 
 export default definePlugin({
     name: "ReactionTimestamps",
@@ -105,7 +129,11 @@ export default definePlugin({
             find: ".MESSAGE,userId:",
             replacement: {
                 match: /(?<=Child,{className:\i\.\i,children:)/,
-                replace: "$self.renderReactionName(arguments[0])??"
+                // 🔴 الناتج عنصرٌ دائماً ولا يكون nullish أبداً: لو سقط `??` إلى استدعاء ShowMeYourName
+                // المُدرَج بعده لنادى خطافاتها مشروطاً داخل صفّ ديسكورد فيرمي React «Rendered fewer hooks».
+                // لذا نرسم اسمها داخل مكوّننا، ونمرّر smynHovered الذي تعرّفه رقعتها في الصفّ نفسه
+                // (typeof تحمي حين تكون مطفأة فلا يوجد المتغيّر)
+                replace: "$self.renderReactionName(arguments[0],typeof smynHovered!==\"undefined\"&&smynHovered)??"
             }
         }
     ],
@@ -122,7 +150,9 @@ export default definePlugin({
         }
     },
 
-    renderReactionName: ErrorBoundary.wrap(ReactionName, { noop: true }),
+    renderReactionName(props: ReactionUserRowProps, isHovered: boolean) {
+        return <ReactionNameBoundary {...props} isHovered={isHovered} />;
+    },
 
     stop() {
         timestamps.clear();
