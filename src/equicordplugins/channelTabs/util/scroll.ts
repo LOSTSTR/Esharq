@@ -166,7 +166,15 @@ export function restoreTabState(tabId: number, channelId: string) {
 
 export function useScrollManager(manager: ScrollManager, isMainChat: boolean) {
     useLayoutEffect(() => {
-        if (!isMainChat || manager.props.windowId !== getWindowId(window)) return;
+        if (!isMainChat) return;
+        // 🔴 هذا المؤثّر يسكن قائمة رسائل ديسكورد نفسها: باحثٌ كسول يفشل بعد تحديثٍ
+        // يرمي هنا فتسقط الدردشة كلّها. الفشل يُطفئ حفظ التمرير وحده، فـscrollManager
+        // يبقى غير مضبوط وcacheCurrentTabState وrestorePendingState تخرجان مبكّراً
+        let isMainWindow = false;
+        try {
+            isMainWindow = manager.props.windowId === getWindowId(window);
+        } catch { }
+        if (!isMainWindow) return;
         scrollManager = manager;
         restorePendingState();
     });

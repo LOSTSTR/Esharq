@@ -339,7 +339,15 @@ export function moveToTab(id: number) {
 
     // cache current tab state before switching to it
     const changingTabs = id !== currentlyOpenTab;
-    if (changingTabs) cacheCurrentTabState(openTabs.find(t => t.id === currentlyOpenTab), openTabs);
+    // 🔴 يُنادي توابع داخلية لمُدير تمرير ديسكورد قبل setOpenTab: اسمٌ واحد يتغيّر
+    // فيرمي، ولولا الحارس لماتت كلّ نقرةٍ على تبويب. الفشل يُسقط الحفظ وحده
+    if (changingTabs) {
+        try {
+            cacheCurrentTabState(openTabs.find(t => t.id === currentlyOpenTab), openTabs);
+        } catch (e) {
+            logger.error("Failed to cache tab scroll state", e);
+        }
+    }
 
     setOpenTab(id);
 
