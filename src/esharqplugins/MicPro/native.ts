@@ -40,28 +40,38 @@
  * To update: bump both asset ids AND both hashes together, taking the digests from
  * the GitHub releases API. Never relax the check to make an update "work".
  *
- * STATIC AUDIT of the pinned patcher.node (2026-08-11, 619a2733…, 309760 bytes),
- * done by parsing the PE without executing it:
+ * STATIC AUDIT of the pinned release `62de190` (2026-09-19), done without executing
+ * anything. patcher.node 54e725ce…592f (322560 B), patcher.ini 22582efb…bc91 (8585 B).
  *
- *   - Imports ONE dll, kernel32. No ws2_32/wininet/winhttp/urlmon/dnsapi, so it has
- *     no linked network capability at all; no shell32/CreateProcess/WinExec, so it
- *     cannot spawn anything; no advapi32/crypt32, so no registry or credential APIs.
- *   - The OS calls it does import — GetModuleHandleW, K32GetModuleInformation,
- *     VirtualProtect, FlushInstructionCache, GetCurrentProcess — are exactly the set
- *     the published patcher.cpp uses.
- *   - No URLs, no IP literals, no base64 blobs. Its strings are the documented result
- *     fields and error codes (`module_base`, `patches_in_ini`, `rva_out_of_bounds`,
- *     `already_patched`, `discord_voice.node not found in process`).
- *   - The embedded PDB path is `D:\a\DiscordVoicePatcher\DiscordVoicePatcher\build\
- *     Release\patcher.pdb` — the GitHub Actions Windows runner layout for that repo,
- *     matching the `build/Release/patcher.node` artifact its public
- *     .github/workflows/build-and-release.yml compiles with node-gyp and uploads.
+ *   - Imports KERNEL32 only, plus the delay-loaded `node.exe` N-API. No
+ *     ws2_32/wininet/winhttp/urlmon/dnsapi (no network), no shell32/CreateProcess/
+ *     WinExec (cannot spawn), no advapi32/crypt32 (no registry or credentials). The
+ *     import set is identical to the previously audited `d849d17`.
+ *   - Its only patcher-specific OS calls — GetModuleHandleW, K32GetModuleInformation,
+ *     VirtualProtect, FlushInstructionCache, GetCurrentProcess — are exactly those in
+ *     the published patcher.cpp. Every GetProcAddress call site resolves a CRT/
+ *     delay-load name; no syscall instructions, no PEB walking, no call leaves .text.
+ *   - No URLs, IP literals or base64 blobs; the only path is the CI PDB path.
+ *   - PROVENANCE, stronger than before: both assets were uploaded by
+ *     `github-actions[bot]` and are **byte-identical to the CI artifact** of run
+ *     34152714356, which checked out commit 62de190 and compiled the public
+ *     patcher.cpp with node-gyp on windows-2022.
+ *   - The ini only locates and edits bytes inside the hard-coded discord_voice.node
+ *     (the parser knows 11 keys; every section here uses only those). Each edit is a
+ *     small change to an existing instruction — channel count 1→2, bitrate
+ *     constants 32000→384000, jcc→jmp, `ret` on the high-pass/downmix/throw paths,
+ *     `mov rax,1; ret` on an "is config ok" check. None introduces new code.
+ *     Because writing bytes into .text IS code execution, the ini is hash-pinned
+ *     exactly like the binary.
  *
- * What that does NOT establish: the build is not reproducible, so the bytes cannot be
- * proven to come from that source; and LoadLibrary/GetProcAddress are present (as in
- * every MSVC binary), which is in principle a way to resolve APIs that are not
- * imported. The evidence is strong, not conclusive. If a stronger guarantee is ever
- * required, the answer is to build it ourselves from source, not to trust harder.
+ * 🔴 Why the pin moved from d849d17: the author re-uploaded d849d17's ini by hand on
+ * 2026-08-11 (our pinned asset id went 404, so fresh installs got no stereo), and
+ * Discord's voice module grew 14.7 → 22.1 MB, where the March patterns resolve only
+ * 6/17 on Stable 9258 — the stereo-critical ones among the missing. 62de190 resolves
+ * 17/17 on Stable 9258 and Canary 1185 (offline scan of the module files).
+ *
+ * What this does NOT establish: we have not reproduced the build ourselves. The
+ * evidence is strong, not conclusive; the stronger answer is building from source.
  */
 
 import { DATA_DIR } from "@main/utils/constants";
@@ -78,23 +88,29 @@ import { applyStereoPatch, forgetStereoPayload, revertStereoPatch, stereoTargets
 
 const PRELOAD_WORLD_ID = 999;
 
-/** Pinned to Loukious/DiscordVoicePatcher release `d849d17` (2026-03-21). */
+/**
+ * Pinned to Loukious/DiscordVoicePatcher release `62de190` (2026-09-07). Both assets
+ * come from the same release — never mix a binary and an ini from different ones.
+ */
+const PINNED_RELEASE = "62de190";
 const PINNED_ASSETS = {
     node: {
-        id: 378551934,
-        sha256: "619a2733bb15d3828ed1616302f011b8e84999cad3da3339f08191e0aff9c0f9",
-        size: 309760,
+        id: 549229316,
+        sha256: "54e725ceadbf03d9024533c91eaed31276351d6b4bc6694bbeef1b393043592f",
+        size: 322560,
     },
     ini: {
-        id: 380950707,
-        sha256: "47f856bcadafb5ef565f5ebd8ea35314b196d550b8bb9790b12963f9dbe4dbea",
-        size: 7050,
+        id: 549229317,
+        sha256: "22582efb5af5dff51343f6f3ca382b3a819b32d4e73e47dedb829cd5db53bc91",
+        size: 8585,
     },
 } as const;
 
 const ASSET_URL = (id: number) => `https://api.github.com/repos/Loukious/DiscordVoicePatcher/releases/assets/${id}`;
 
-const CACHE_DIR = join(DATA_DIR, "plugins", "MicPro");
+// 🔴 مجلّدٌ لكلّ إصدارٍ مثبَّت: المستقرّ وكناري يتشاركان DATA_DIR، فتحديثُ أحدهما كان
+// يحذف patcher.node الذي يحمّله الآخر (EPERM) فيسقط الستيريو فيه.
+const CACHE_DIR = join(DATA_DIR, "plugins", "MicPro", PINNED_RELEASE);
 const NODE_PATH = join(CACHE_DIR, "patcher.node");
 const INI_PATH = join(CACHE_DIR, "patcher.ini");
 
@@ -147,6 +163,11 @@ async function ensureAsset(path: string, asset: PinnedAsset, label: string) {
 async function ensureAssets() {
     assetsPromise ??= (async () => {
         mkdirSync(CACHE_DIR, { recursive: true });
+        // بقايا المجلّد القديم (قبل مجلّد الإصدار): تُحذف إن أمكن، ويُتجاهل الفشل لأنّ
+        // عميلاً آخر يعمل بنسخةٍ أقدم قد يحملها الآن.
+        for (const old of ["patcher.node", "patcher.ini", "release.json"]) {
+            try { rmSync(join(CACHE_DIR, "..", old), { force: true }); } catch { /* مقفل ⇒ يبقى */ }
+        }
         await ensureAsset(NODE_PATH, PINNED_ASSETS.node, "patcher.node");
         await ensureAsset(INI_PATH, PINNED_ASSETS.ini, "patcher.ini");
     })();
@@ -159,34 +180,184 @@ async function ensureAssets() {
     }
 }
 
-export async function applyPatches(_event: IpcMainInvokeEvent) {
-    await ensureAssets();
+/**
+ * 🔴 One application per renderer process. discord_voice.node stays loaded (and
+ * patched) for the life of the process, but a page reload starts a fresh JS session
+ * that asks again. A second scan on already-patched bytes is NOT harmless: the
+ * SetsBitrateBitrateValue patch overwrites a byte its own pattern requires and has
+ * no `expected` guard, so the rescan skips the patched site and writes 5 bytes at
+ * the *next* match — measured live (0x324fe6 on the first call, 0x635D60 on the
+ * second). So the first result is remembered per OS process and returned again.
+ */
+/** What the patcher returns (patcher.cpp @62de190), tagged with where the bytes came from. */
+export interface PatcherResult {
+    assetSource: string;
+    error?: string;
+    /** Served from the per-process memo instead of scanning again. */
+    cached?: boolean;
+    /** revertPatches() called in a process that never applied anything. */
+    notApplied?: boolean;
+    /** Some sites could not be reverted — no rescan until Discord restarts. */
+    partialRevert?: boolean;
+    ok?: number;
+    failed?: number;
+    skipped?: number;
+    patches_in_ini?: number;
+    module_base?: string;
+    tracked?: number;
+    tracked_before?: number;
+    tracked_after?: number;
+    patches?: { name: string; status: string; rva?: string; tier?: string; }[];
+}
 
+const appliedByProcess = new Map<number, PatcherResult>();
+
+function patcherCall(method: "applyPatches" | "revertPatches") {
+    const args = method === "applyPatches" ? JSON.stringify(INI_PATH) : "";
+    return `(() => {
+        try {
+            const requireFn = typeof globalThis.require === "function"
+                ? globalThis.require
+                : (() => {
+                    const m = globalThis.process?.getBuiltinModule?.("module") ?? globalThis.process?.getBuiltinModule?.("node:module");
+                    if (!m?.createRequire) throw new Error("No require available");
+                    return m.createRequire(${JSON.stringify(NODE_PATH)});
+                })();
+            const patcher = requireFn(${JSON.stringify(NODE_PATH)});
+            if (typeof patcher.${method} !== "function") throw new Error("${method} is not available in this patcher build");
+            return patcher.${method}(${args});
+        } catch (e) {
+            return { error: e instanceof Error ? e.name + ": " + e.message : String(e) };
+        }
+    })();`;
+}
+
+function assertVerified() {
     // Re-verify immediately before executing: the cache lives in a user-writable
     // directory, so the check that matters is the one closest to the require().
     if (!isVerified(NODE_PATH, PINNED_ASSETS.node) || !isVerified(INI_PATH, PINNED_ASSETS.ini)) {
         throw new Error("MicPro voice assets failed verification and were not executed");
     }
+}
 
-    const result = await _event.sender.executeJavaScriptInIsolatedWorld(PRELOAD_WORLD_ID, [{
-        code: `(() => {
-            try {
-                const requireFn = typeof globalThis.require === "function"
-                    ? globalThis.require
-                    : (() => {
-                        const m = globalThis.process?.getBuiltinModule?.("module") ?? globalThis.process?.getBuiltinModule?.("node:module");
-                        if (!m?.createRequire) throw new Error("No require available");
-                        return m.createRequire(${JSON.stringify(NODE_PATH)});
-                    })();
-                return requireFn(${JSON.stringify(NODE_PATH)}).applyPatches(${JSON.stringify(INI_PATH)});
-            } catch (e) {
-                return { error: e instanceof Error ? e.name + ": " + e.message : String(e) };
-            }
-        })();`
-    }]);
+/**
+ * One chain of operations per renderer process: apply, revert and the state query
+ * all queue on it, so a query never answers "not patched" while an apply that will
+ * patch is still running (a page reload mid-download used to see exactly that).
+ */
+const opByProcess = new Map<number, Promise<unknown>>();
+function queued<T>(pid: number, op: () => Promise<T>): Promise<T> {
+    const previous = opByProcess.get(pid) ?? Promise.resolve();
+    const next = previous.catch(() => { }).then(op);
+    opByProcess.set(pid, next);
+    const settle = () => { if (opByProcess.get(pid) === next) opByProcess.delete(pid); };
+    next.then(settle, settle);
+    return next;
+}
 
-    if (result == null) throw new Error("Isolated-world execution returned no result");
-    return { assetSource: "pinned d849d17", ...result };
+/** A renderer process may one day reuse this OS pid; forget it when it dies. Registered once per window. */
+const watchedSenders = new WeakSet<object>();
+function forgetOnDeath(sender: IpcMainInvokeEvent["sender"], pid: number) {
+    if (watchedSenders.has(sender)) return;
+    watchedSenders.add(sender);
+    const forget = () => { appliedByProcess.delete(pid); opByProcess.delete(pid); };
+    sender.once("render-process-gone", forget);
+    sender.once("destroyed", forget);
+}
+
+/**
+ * هل الوحدة التي يُشغّلها ديسكورد هذا **مُرقَّعة على القرص** («ستيريو دائم»)؟ حينها
+ * لا تطابق أنماطُ الترقيع في الذاكرة شيئاً، ونتيجتها الجزئيّة تُقرأ فشلاً كاذباً.
+ * ⚠️ يعرف الملفّ الذي يزرعه Stereo Hub وحده: وحدةٌ رقّعتها أداةٌ أخرى على القرص تمرّ،
+ * وفحص التوقيع الرقميّ يحتاج PowerShell وهو ممنوعٌ هنا بقرار المالك.
+ */
+function runningVoiceNodeIsDiskPatched(): boolean {
+    try {
+        const modules = join(process.execPath, "..", "modules");
+        const mod = readdirSync(modules).find(name => name.startsWith("discord_voice"));
+        if (mod === undefined) return false;
+        const node = join(modules, mod, "discord_voice", "discord_voice.node");
+        return existsSync(node) && sha256(node) === STEREO_HUB_NODE_SHA256;
+    } catch {
+        return false;
+    }
+}
+
+/**
+ * الخطوة الأولى، بلا أيّ كتابة: فحص القرص ثمّ التنزيل والتحقّق. تُفصَل عن الترقيع كي
+ * يُعيد المحرّك فحص «هل الصوت مشغول؟» **بعد** التنزيل مباشرةً — فمكالمةٌ تبدأ أثناء
+ * تنزيلٍ أوّل كانت تُكتَب وحدتها وهي تعمل.
+ */
+export async function prepareStereo(_event: IpcMainInvokeEvent): Promise<{ ok: boolean; error?: string; }> {
+    if (runningVoiceNodeIsDiskPatched()) return { ok: false, error: "DISK_PATCHED" };
+    try {
+        await ensureAssets();
+        assertVerified();
+        return { ok: true };
+    } catch (e) {
+        return { ok: false, error: e instanceof Error ? e.message : String(e) };
+    }
+}
+
+export function applyPatches(_event: IpcMainInvokeEvent): Promise<PatcherResult> {
+    const pid = _event.sender.getOSProcessId();
+    return queued(pid, async () => {
+        const previous = appliedByProcess.get(pid);
+        if (previous) return { ...previous, cached: true };
+
+        if (runningVoiceNodeIsDiskPatched()) return { assetSource: `pinned ${PINNED_RELEASE}`, error: "DISK_PATCHED" };
+        await ensureAssets();
+        assertVerified();
+
+        const result = await _event.sender.executeJavaScriptInIsolatedWorld(PRELOAD_WORLD_ID, [{ code: patcherCall("applyPatches") }]);
+        if (result == null) throw new Error("Isolated-world execution returned no result");
+
+        const tagged: PatcherResult = { assetSource: `pinned ${PINNED_RELEASE}`, ...result };
+        // Only a call that actually reached the module is remembered; an error (e.g.
+        // discord_voice not loaded yet) leaves the door open for a later attempt.
+        if (!result.error) {
+            appliedByProcess.set(pid, tagged);
+            forgetOnDeath(_event.sender, pid);
+        }
+        return tagged;
+    });
+}
+
+/** هل هذه العمليّة مُرقَّعة الآن بفعلنا؟ — ينتظر أيّ عمليّةٍ جارية قبل أن يُجيب. */
+export async function patchState(_event: IpcMainInvokeEvent): Promise<{ applied: boolean; result?: PatcherResult; }> {
+    const pid = _event.sender.getOSProcessId();
+    await (opByProcess.get(pid) ?? Promise.resolve()).catch(() => { });
+    const result = appliedByProcess.get(pid);
+    return result ? { applied: true, result } : { applied: false };
+}
+
+/**
+ * Restores the original bytes of every patch this process applied. The patcher only
+ * writes a site back when its current bytes are still exactly what it wrote, so it
+ * never clobbers bytes changed by someone else.
+ */
+export function revertPatches(_event: IpcMainInvokeEvent): Promise<PatcherResult> {
+    const pid = _event.sender.getOSProcessId();
+    return queued(pid, async () => {
+        const previous = appliedByProcess.get(pid);
+        if (!previous) return { assetSource: `pinned ${PINNED_RELEASE}`, notApplied: true, ok: 0, failed: 0, skipped: 0 };
+
+        assertVerified();
+        const result = await _event.sender.executeJavaScriptInIsolatedWorld(PRELOAD_WORLD_ID, [{ code: patcherCall("revertPatches") }]);
+        if (result == null) throw new Error("Isolated-world execution returned no result");
+
+        if (!result.error && result.failed === 0) {
+            // Nothing left patched ⇒ a later enable may scan again safely (the original
+            // bytes are back, so the patterns match the same sites as the first time).
+            appliedByProcess.delete(pid);
+        } else if (!result.error) {
+            // 🔴 Some sites are still ours: rescanning now would miss them and hit other
+            // matches. Remember the process as partially reverted — patchState says so,
+            // and applyPatches returns this instead of scanning — until Discord restarts.
+            appliedByProcess.set(pid, { ...previous, partialRevert: true });
+        }
+        return { assetSource: `pinned ${PINNED_RELEASE}`, ...result };
+    });
 }
 
 
@@ -289,7 +460,9 @@ export function voicePatchState(_event: IpcMainInvokeEvent) {
             if (sha256(node) === STEREO_HUB_NODE_SHA256) patched++;
         } catch { /* ملفّ مقفل أثناء التشغيل — يُعدّ غير مُرقَّع */ }
     }
-    return { clients: nodes.length, patched };
+    // `running`: وحدة الصوت التي يُشغّلها هذا الديسكورد نفسه — وهي وحدها ما يحكم «ستيريو
+    // الجلسة». أمّا `patched` فيعدّ كلّ مجلّد app-* ولو كان بقيّةَ بناءٍ قديم.
+    return { clients: nodes.length, patched, running: runningVoiceNodeIsDiskPatched() };
 }
 
 export function toolsStatus(_event: IpcMainInvokeEvent) {

@@ -33,6 +33,9 @@ export interface StereoTarget {
     voiceDir: string;
     patched: boolean;
     hasBackup: boolean;
+    /** مجلد الصوت من جيل الحمولة نفسه؟ وإلّا لا يُعرض التفعيل. */
+    compatible: boolean;
+    unknownFiles: string[];
 }
 
 function Btn({ label, tone = "plain", disabled, onClick }: {
@@ -99,7 +102,29 @@ export function PermanentStereoCard({ index, onChanged }: { index: number; onCha
         try {
             await fn();
         } catch (e) {
-            setError(e instanceof Error ? e.message : String(e));
+            // رسائل العمليّة الرئيسة إنجليزيّة وتحمل بادئة IPC — نعرض المعنى بلغة الواجهة.
+            // النصّ الخام يبقى في سجلّ المطوّر؛ والمستخدم يرى السبب وما يفعله.
+            const raw = (e instanceof Error ? e.message : String(e)).replace(/^Error invoking remote method '[^']*': (Error: )?/, "");
+            console.error("[MicPro] permanent stereo:", raw);
+            // لا شيء من هذه يمسّ مجلد ديسكورد: الكتابة فيه للعامل المُجدوَل وحده، ولا يُجدوَل إلّا بعد نجاح ما قبله.
+            const reasons: [RegExp, string][] = [
+                [/newer voice module/, t("وحدة الصوت في هذا البناء أحدث من النسخة المُرقَّعة، فلم يُطبَّق الستيريو الدائم — استعمل «ستيريو الجلسة» بدلاً منه.",
+                    "This build's voice module is newer than the patched one, so Permanent stereo was not applied — use “Session stereo” instead.")],
+                [/is not patched/, t("هذا العميل غير مُرقَّع، فلا شيء يُستعاد.", "This client isn't patched, so there is nothing to restore.")],
+                [/already patched and no original backup/, t("وحدة الصوت مُرقَّعةٌ سلفاً ولا نسخة أصليّة محفوظة لها، فلم يُكتب شيء. أعد تثبيت ديسكورد أوّلاً.",
+                    "The voice module is already patched and no original copy of it is saved, so nothing was written. Reinstall Discord first.")],
+                [/No original backup/, t("لا توجد نسخةٌ أصليّة محفوظة لهذا العميل، فلا يُستعاد شيء. أعد تثبيت ديسكورد لتعود وحدة الصوت الأصليّة.",
+                    "No original copy is saved for this client, so nothing can be restored. Reinstall Discord to get the original voice module back.")],
+                [/integrity check/, t("ملفّات الستيريو المُنزَّلة لم تطابق بصمتها المثبّتة، فحُذفت ولم يُكتب شيء في ديسكورد.",
+                    "The downloaded stereo files didn't match their pinned fingerprint, so they were deleted and nothing was written to Discord.")],
+                [/schtasks|stereo worker/, t("تعذّرت جدولة عمليّة التبديل في ويندوز، فلم يُكتب شيء في ديسكورد.",
+                    "Windows couldn't schedule the swap, so nothing was written to Discord.")],
+                [/GET https|fetch|ENOTFOUND|ECONN|ETIMEDOUT|EAI_AGAIN|socket|network/i, t("تعذّر تنزيل ملفّات الستيريو — تحقّق من اتّصالك. لم يُكتب شيء في ديسكورد.",
+                    "The stereo files couldn't be downloaded — check your connection. Nothing was written to Discord.")]
+            ];
+            setError(reasons.find(([pattern]) => pattern.test(raw))?.[1]
+                ?? t("خطأ غير متوقّع، ولم يُكتب شيء في ديسكورد — التفاصيل في سجلّ المطوّر.",
+                    "Unexpected error, and nothing was written to Discord — details are in the developer console."));
         } finally {
             setBusy(null);
             refresh();
@@ -151,9 +176,15 @@ export function PermanentStereoCard({ index, onChanged }: { index: number; onCha
                         { k: t("الحالة", "State"), v: target.patched ? t("ستيريو دائم مُفعَّل", "Permanent stereo on") : t("أصليّ", "Original") },
                         { k: t("نسخة أصلية محفوظة", "Original backed up"), v: target.hasBackup ? t("نعم", "Yes") : t("لا", "No") }
                     ]} />
+                    {!target.compatible && !target.patched && (
+                        <NoticeStrip tone="danger">
+                            {t(`وحدة الصوت في ${target.label} ${target.build} أحدث من الوحدة المُرقَّعة (فيها ملفّات ليست في النسخة المُرقَّعة: ${target.unknownFiles.join("، ")}). التفعيل هنا يخلط بناءين في مجلدٍ واحد فأُوقف — استعمل «ستيريو الجلسة» في بطاقة النقل بدلاً منه.`,
+                                `The voice module in ${target.label} ${target.build} is newer than the patched one (it has files that aren't in the patched build: ${target.unknownFiles.join(", ")}). Enabling here would mix two builds in one folder, so it's blocked — use “Session stereo” in the Transmission card instead.`)}
+                        </NoticeStrip>
+                    )}
                     <div style={{ display: "flex", gap: UNIT, flexWrap: "wrap", marginTop: UNIT * 1.5 }}>
                         <Btn tone="accent" label={busy === `apply-${target.key}` ? t("جارٍ…", "Working…") : t("تفعيل", "Enable")}
-                            disabled={busy !== null || target.patched}
+                            disabled={busy !== null || target.patched || !target.compatible}
                             onClick={() => confirm(
                                 t(`تفعيل الستيريو الدائم على ${target.label}`, `Enable permanent stereo on ${target.label}`),
                                 t("ستُنزَّل 25 ميغابايت وتُتحقَّق بصماتها، ثم تُحفظ نسختك الأصلية، ثم يُغلَق ديسكورد ويُبدَّل الملفّ ويُعاد فتحه. أغلِق ديسكورد بنفسك بعد الضغط ليتمّ التبديل.",
@@ -164,7 +195,7 @@ export function PermanentStereoCard({ index, onChanged }: { index: number; onCha
                                 })
                             )} />
                         <Btn tone="danger" label={busy === `revert-${target.key}` ? t("جارٍ…", "Working…") : t("تعطيل واستعادة الأصل", "Disable and restore original")}
-                            disabled={busy !== null || !target.hasBackup}
+                            disabled={busy !== null || !target.hasBackup || !target.patched}
                             onClick={() => confirm(
                                 t("تعطيل الستيريو الدائم", "Disable permanent stereo"),
                                 t("ستُعاد نسختك الأصلية المحفوظة. أغلِق ديسكورد بعد الضغط ليتمّ التبديل.",

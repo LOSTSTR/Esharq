@@ -46,5 +46,13 @@ export const settings = definePluginSettings({
             noiseMode: "none" | "standard" | "krisp";
             vadThreshold: number;
         }
+    },
+    // حالة المعالجة قبل تفعيل الستيريو (يُطفئ الستيريو إلغاء الضوضاء والصدى وAGC)،
+    // تُعاد عند إطفائه. محفوظةٌ لا في الذاكرة: من أعاد التشغيل والستيريو مفعّل ثمّ
+    // أطفأه كان يبقى ميكروفونه بلا معالجة.
+    savedProcessing: {
+        type: OptionType.CUSTOM,
+        description: "",
+        default: null as null | { noiseMode: "none" | "standard" | "krisp"; echo: boolean; agc: boolean; }
     }
 });

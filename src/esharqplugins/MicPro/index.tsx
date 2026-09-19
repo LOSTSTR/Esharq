@@ -12,6 +12,7 @@
  *   ② زرّ في شريط الصوت يفتح صفحة المختبر — نفس الواجهة، مدخل أقرب.
  */
 
+import { Settings } from "@api/Settings";
 import { PluginInfo as MicEngineInfo } from "@plugins/_micProEngine/constants";
 import { MicrophonePatcher } from "@plugins/_micProEngine/patchers";
 import { initMicrophoneStore, microphoneStore } from "@plugins/_micProEngine/stores";
@@ -21,7 +22,7 @@ import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { SettingsRouter } from "@webpack/common";
 
-import { applyProcToConnection, applyStereoEngine, disableMonoBreakers, isLoopbackOn, isStereoEnabled, mediaEngine, setLoopback } from "./engine";
+import { applyProcToConnection, disableMonoBreakers, isLoopbackOn, isStereoEnabled, mediaEngine, setLoopback, startStereoEngine, stereoEngineState, stopStereoEngine } from "./engine";
 import { settings } from "./settings";
 
 let micPatcher: MicrophonePatcher | undefined;
@@ -59,6 +60,9 @@ export default definePlugin({
     // مكالمة (نفس ما فعله BetterMicrophone الأصلي). بدونه قد لا يُطبَّق الستيريو مطلقاً.
     requiresRestart: true,
 
+    /** حال «ستيريو الجلسة» للقراءة فقط — للتشخيص من أدوات المطوّر ومن الاختبار الحيّ. */
+    get stereoState() { return { ...stereoEngineState(), intent: isStereoEnabled() }; },
+
     start() {
         addSettingsPanelButton({
             name: "MicPro",
@@ -69,6 +73,11 @@ export default definePlugin({
 
         if (!IS_DISCORD_DESKTOP) return;
         try {
+            // 🔴 مخزن المحرّك يعيش تحت الاسم القديم BetterMicrophone (لتبقى ملفّات
+            // المستخدمين القدامى)، وcreatePluginStore يرمي إن لم يجد مدخله. ولا مدخل
+            // إلّا لمن ثبّت قبل أن تصير BetterMicrophone مكتبة (٤ يوليو) — فكلّ تثبيتٍ
+            // بعده كان يسقط هنا ويتخطّى الرقعة والحارس والترقيع، فلا ستيريو أبداً.
+            (Settings.plugins as Record<string, any>)[MicEngineInfo.PLUGIN_NAME] ??= { enabled: false };
             initMicrophoneStore();
             micPatcher = new MicrophonePatcher().patch();
 
@@ -100,7 +109,7 @@ export default definePlugin({
             // verified native module (see native.ts), and it is only fetched and executed
             // when the user has actually turned stereo on: anyone who never enables stereo
             // downloads and runs nothing.
-            if (isStereoEnabled()) applyStereoEngine();
+            startStereoEngine();
         } catch (e) {
             console.error("[MicPro] stereo engine init failed", e);
         }
@@ -116,5 +125,6 @@ export default definePlugin({
             Emitter.removeAllListeners(MicEngineInfo.PLUGIN_NAME);
         } catch (e) { console.error("[MicPro] stop cleanup failed", e); }
         micPatcher = undefined;
+        stopStereoEngine();
     }
 });

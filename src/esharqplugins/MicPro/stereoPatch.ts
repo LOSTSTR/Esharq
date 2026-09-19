@@ -90,6 +90,13 @@ export interface StereoTarget {
     exe: string;
     patched: boolean;
     hasBackup: boolean;
+    /**
+     * هل مجلد الصوت من جيل الحمولة نفسه؟ الحمولة تسعة ملفّات من بناء 1.0.9243،
+     * فإن وُجد في المجلد ملفّ ليس منها فالوحدة من جيلٍ أحدث.
+     */
+    compatible: boolean;
+    /** ملفّات في مجلد الصوت لا تعرفها الحمولة — سبب عدم التوافق. */
+    unknownFiles: string[];
 }
 
 const CLIENTS: readonly { key: string; label: string; dir: string; exe: string; }[] = [
@@ -128,6 +135,15 @@ export function stereoTargets(): StereoTarget[] {
 
             let patched = false;
             try { patched = sha256File(node) === PATCHED_NODE_SHA256; } catch { /* ملفّ مقفل ⇒ يُعدّ غير مُرقَّع */ }
+            // 🔴 قِيس ٢٠٢٦-٠٩-١٩: وحدة المستقرّ 9258 فيها MediaHost.js وبيانٌ من 36 ك.ب
+            // و`discord_voice.node` من 22 م.ب، وكناري 1185 فيها vfx_helper.exe. نسخ الملفّات
+            // التسعة فوقها يخلط جيلين في مجلدٍ واحد (index.js قديم بجانب MediaHost.js
+            // جديد) — فلا يُعرض الترقيع إلّا حيث يطابق المجلد الحمولة.
+            let unknownFiles: string[] = [];
+            try {
+                unknownFiles = readdirSync(voiceDir)
+                    .filter(name => !(name in PAYLOAD) && !name.endsWith(".esharq-new") && statSync(join(voiceDir, name)).isFile());
+            } catch { /* مجلد لا يُقرأ ⇒ يُعدّ غير متوافق أدناه */ unknownFiles = ["?"]; }
 
             out.push({
                 key: client.key,
@@ -137,7 +153,9 @@ export function stereoTargets(): StereoTarget[] {
                 voiceDir,
                 exe: join(root, build, client.exe),
                 patched,
-                hasBackup: existsSync(join(BACKUP_DIR, client.key, "discord_voice.node"))
+                hasBackup: backupDirFor(client.key, build) != null,
+                compatible: unknownFiles.length === 0,
+                unknownFiles
             });
             break;
         }
@@ -186,13 +204,32 @@ export async function ensurePayload(): Promise<{ downloaded: string[]; verified:
 // ── النسخة الأصلية ───────────────────────────────────────────────────────────
 
 /**
+ * 🔴 كانت النسخة تُحفظ لكلّ عميل لا لكلّ بناء: من رقّع بناءً ثمّ حدّث ديسكورد ورقّع
+ * الجديد وجد نسخة القديم فلم يأخذ غيرها، وإرجاعه كان يكتب وحدة القديم فوق الجديد.
+ * الآن مجلدٌ لكلّ بناء؛ والمجلد القديم (بلا بناء) يُقبل للإرجاع وحده، فهو كلّ ما
+ * يملكه من رقّع بإصدارٍ سابق.
+ */
+function backupDirFor(key: string, build: string): string | null {
+    const perBuild = join(BACKUP_DIR, key, build);
+    if (existsSync(join(perBuild, "discord_voice.node"))) return perBuild;
+    const legacy = join(BACKUP_DIR, key);
+    if (existsSync(join(legacy, "discord_voice.node"))) return legacy;
+    return null;
+}
+
+/**
  * تُؤخذ **مرّة واحدة** وقبل أول ترقيع. ولا تُؤخذ من مجلد مُرقَّع أبداً — وإلّا
  * صار «الأصل» نسخةً مُرقَّعة ولم يبقَ طريق رجوع.
  */
 function ensureBackup(target: StereoTarget): { created: boolean; dir: string; } {
-    const dir = join(BACKUP_DIR, target.key);
+    const dir = join(BACKUP_DIR, target.key, target.build);
     if (existsSync(join(dir, "discord_voice.node"))) return { created: false, dir };
-    if (target.patched) throw new Error("Discord's voice module is already patched and no original backup exists — reinstall Discord to restore it first");
+    if (target.patched) {
+        // مُرقَّعٌ سلفاً بإصدارٍ سابق: نسخته القديمة هي الأصل الوحيد، ولا تُؤخذ نسخةٌ من المُرقَّع.
+        const existing = backupDirFor(target.key, target.build);
+        if (existing != null) return { created: false, dir: existing };
+        throw new Error("Discord's voice module is already patched and no original backup exists — reinstall Discord to restore it first");
+    }
 
     mkdirSync(dir, { recursive: true });
     for (const name of readdirSync(target.voiceDir)) {
@@ -345,6 +382,10 @@ export function payloadStatus() {
 export async function applyStereoPatch(key: string, dryRun: boolean): Promise<WorkerPlan & { backupCreated: boolean; payload: ReturnType<typeof payloadStatus>; }> {
     const target = targetFor(key);
     const payload = payloadStatus();
+    // الإرجاع يبقى متاحاً دائماً؛ أمّا الترقيع فلا يُكتب فوق جيلٍ لا تطابقه الحمولة.
+    if (!target.compatible && !target.patched) {
+        throw new Error(`${target.label} ${target.build} has a newer voice module than the patched build (unknown files: ${target.unknownFiles.join(", ")}). Permanent stereo would mix two builds in one folder, so it was not applied — use Session stereo instead.`);
+    }
     if (dryRun) {
         const plan = await schedule("patch", target, PAYLOAD_DIR, true);
         return { ...plan, files: payload.map(f => f.name), backupCreated: false, payload };
@@ -357,8 +398,11 @@ export async function applyStereoPatch(key: string, dryRun: boolean): Promise<Wo
 
 export async function revertStereoPatch(key: string, dryRun: boolean): Promise<WorkerPlan> {
     const target = targetFor(key);
-    const dir = join(BACKUP_DIR, target.key);
-    if (!existsSync(join(dir, "discord_voice.node"))) throw new Error("No original backup was found for this client");
+    const dir = backupDirFor(target.key, target.build);
+    if (dir == null) throw new Error("No original backup was found for this client");
+    // 🔴 بعد تحديث ديسكورد يصير المجلد أصليّاً من جيلٍ أحدث، ونسخُ احتياطيٍّ أقدم فوقه
+    // يخلط بناءين. لا إرجاع إلّا لمُرقَّع.
+    if (!target.patched) throw new Error(`${target.label} ${target.build} is not patched — there is nothing to restore, and copying an older backup over it would mix two builds`);
     return schedule("revert", target, dir, dryRun);
 }
 

@@ -12,7 +12,7 @@ import { microphoneStore } from "@plugins/_micProEngine/stores";
 import { flushTransmission, transmissionReady } from "@plugins/MicPro";
 import {
     apply, isLoopbackOn, isStereoEnabled, MicProNative, type NoiseMode, openLevelStream,
-    readState, setLoopback, stereoEngineState, toggleStereo
+    readState, setLoopback, toggleStereo, useStereoEngine
 } from "@plugins/MicPro/engine";
 import { settings as micSettings } from "@plugins/MicPro/settings";
 import { t } from "@utils/esharqI18n";
@@ -225,7 +225,7 @@ function ProfileBar({ st }: { st: any; }) {
                 )}
                 <button type="button" className="esharq-pbtn" title={t("حفظ", "Save")} onClick={save}>{naming ? "✓" : "💾"}</button>
                 <button type="button" className="esharq-pbtn" title={t("جديد", "New")} disabled={naming}
-                    onClick={() => st.setCurrentProfile({ name: "" })}>＋</button>
+                    onClick={() => { st.setCurrentProfile({ name: "" }); flushTransmission(); }}>＋</button>
                 <button type="button" className="esharq-pbtn" title={t("نسخ", "Duplicate")} disabled={naming}
                     onClick={() => { st.setCurrentProfile({ ...st.getCurrentProfile(), name: "" }); setNameInput(""); setNaming(true); }}>⧉</button>
                 <button type="button" className="esharq-pbtn" title={t("حذف", "Delete")} disabled={naming || isDefault || !name} onClick={del}>🗑</button>
@@ -234,12 +234,80 @@ function ProfileBar({ st }: { st: any; }) {
     );
 }
 
+/**
+ * حال «ستيريو الجلسة» كما هي فعلاً في وحدة صوت ديسكورد، لا كما يقولها المفتاح:
+ * رسالةٌ واحدة في كلّ مرّة، بأرقامها، وبعلاجٍ يستطيعه المستخدم. النصّ التقنيّ
+ * الخام يبقى في سجلّ المطوّر.
+ */
+function SessionStereoStatus({ eng, stereoOn }: { eng: ReturnType<typeof useStereoEngine>; stereoOn: boolean; }) {
+    if (eng.phase === "waiting-call") {
+        return (
+            <NoticeStrip>
+                {stereoOn
+                    ? t("سيعمل ستيريو الجلسة من المكالمة القادمة — لا نُعدّل وحدة الصوت وهي قيد الاستعمال (مكالمة أو اختبار ميكروفون).",
+                        "Session stereo takes effect from your next call — the voice module isn't modified while it's in use (a call or a mic test).")
+                    : t("أُطفئ ستيريو الجلسة، ويعود صوتك أحادياً تماماً حين تنتهي المكالمة الحاليّة — لا نُعدّل وحدة الصوت وهي قيد الاستعمال.",
+                        "Session stereo is off; your audio returns fully to mono when the current call ends — the voice module isn't modified while it's in use.")}
+            </NoticeStrip>
+        );
+    }
+    if (eng.partial) {
+        return (
+            <NoticeStrip tone="danger">
+                {t("تعذّر إرجاع بعض تعديلات ستيريو الجلسة لأنّ أداةً أخرى غيّرت البايتات نفسها بعدنا، فتُركت كما هي كي لا نُفسد ما كتبته. أعد تشغيل ديسكورد: التعديلات في الذاكرة وحدها وتزول كلّها بإغلاقه.",
+                    "Some Session stereo changes couldn't be undone because another tool changed the same bytes after us, so they were left alone rather than risk corrupting its changes. Restart Discord: the changes live in memory only and all disappear when it closes.")}
+            </NoticeStrip>
+        );
+    }
+    if (eng.revertStuck) {
+        return (
+            <NoticeStrip tone="danger">
+                {t("تعذّر إرجاع ستيريو الجلسة (التفاصيل في سجلّ المطوّر). شغّل المفتاح ثمّ أطفئه للمحاولة من جديد، أو أعد تشغيل ديسكورد: التعديلات في الذاكرة وحدها وتزول بإغلاقه.",
+                    "Session stereo couldn't be turned off (details are in the developer console). Turn the switch on and off to try again, or restart Discord: the changes live in memory only and disappear when it closes.")}
+            </NoticeStrip>
+        );
+    }
+    if (!stereoOn) return null;
+    if (eng.phase === "applying") return <NoticeStrip>{t("جارٍ تجهيز ستيريو الجلسة…", "Preparing Session stereo…")}</NoticeStrip>;
+    if (eng.error != null && eng.error !== "disk-patched") {
+        const why = {
+            download: t("تعذّر تنزيل ملفّات المُرقِّع — تحقّق من اتّصالك.", "The patcher files couldn't be downloaded — check your connection."),
+            integrity: t("ملفّات المُرقِّع لم تطابق بصمتها المثبّتة، فلم تُشغَّل.", "The patcher files didn't match their pinned fingerprint, so they were not run."),
+            "not-loaded": t("وحدة صوت ديسكورد لم تُحمَّل بعد.", "Discord's voice module isn't loaded yet."),
+            unknown: t("خطأ غير متوقّع — التفاصيل في سجلّ المطوّر.", "Unexpected error — details are in the developer console.")
+        }[eng.error];
+        return (
+            <NoticeStrip tone="danger">
+                {t(`ستيريو الجلسة لم يعمل، فلن يُبَثّ صوتك ستيريو. ${why} أطفئ المفتاح وأعد تشغيله للمحاولة من جديد.`,
+                    `Session stereo didn't run, so your audio won't go out in stereo. ${why} Turn the switch off and on to try again.`)}
+            </NoticeStrip>
+        );
+    }
+    if (eng.applied && eng.detail != null) {
+        if (eng.ready) {
+            return (
+                <NoticeStrip>
+                    {t(`ستيريو الجلسة يعمل: طُبّقت ${eng.detail.ok} من ${eng.detail.total} رقعة صوت على وحدة صوت ديسكورد.`,
+                        `Session stereo is active: ${eng.detail.ok} of ${eng.detail.total} audio patches applied to Discord's voice module.`)}
+                </NoticeStrip>
+            );
+        }
+        return (
+            <NoticeStrip tone="danger">
+                {t(`طُبّق ستيريو الجلسة جزئياً (${eng.detail.ok} من ${eng.detail.total} رقعة صوت)، فلن يُبَثّ صوتك ستيريو فعلياً. غالباً لأنّ بناء ديسكورد أحدث من أنماط المُرقِّع، ويصلحه تحديثٌ لإشراق.`,
+                    `Session stereo was only partly applied (${eng.detail.ok} of ${eng.detail.total} audio patches), so your audio won't actually go out in stereo. Most likely this Discord build is newer than the patcher's patterns; an Esharq update fixes it.`)}
+            </NoticeStrip>
+        );
+    }
+    return null;
+}
+
 function TransmissionCard({ index, diskPatched }: { index: number; diskPatched: boolean; }) {
     const st = microphoneStore.use();
     const { currentProfile: p } = st;
     const simple = st.simpleMode ?? true;
     const stereoOn = isStereoEnabled();
-    const engine = stereoEngineState();
+    const eng = useStereoEngine();
 
     const bitrates: readonly { value: number; label: string; }[] = [
         { value: 96, label: t("عادي", "Normal") },
@@ -277,7 +345,7 @@ function TransmissionCard({ index, diskPatched }: { index: number; diskPatched: 
             {stereoOn && (
                 <NoticeStrip>
                     {t("لضمان عمل ستيريو الجلسة أُوقف تلقائياً: إلغاء الضوضاء، وإلغاء الصدى، وAGC — لأنها تُحوّل صوتك إلى أحادي فتُفسده.",
-                        "To keep session stereo working, noise suppression, echo cancellation and AGC were turned off automatically — they downmix your mic to mono and break it.")}
+                        "To keep Session stereo working, noise suppression, echo cancellation and AGC were turned off automatically — they downmix your mic to mono and break it.")}
                 </NoticeStrip>
             )}
 
@@ -323,12 +391,7 @@ function TransmissionCard({ index, diskPatched }: { index: number; diskPatched: 
                 {t("✓ تطبيق على المكالمة الجارية", "✓ Apply to the current call")}
             </button>
 
-            {engine === false && (
-                <NoticeStrip tone="danger">
-                    {t("محرّك ستيريو الجلسة لم يُحمَّل، فلن يُبَثّ الصوت ستيريو فعلياً. أعد تشغيل ديسكورد؛ وإن استمرّ الأمر فجرّب «ستيريو دائم» في القسم الاختياري أسفل الصفحة.",
-                        "The session stereo engine didn't load, so audio won't actually transmit in stereo. Restart Discord; if it persists, try “Permanent stereo” in the optional section at the bottom of this page.")}
-                </NoticeStrip>
-            )}
+            {!diskPatched && <SessionStereoStatus eng={eng} stereoOn={stereoOn} />}
         </Card>
     );
 }
@@ -343,7 +406,7 @@ export function VoiceLabPage() {
     const [diskPatched, setDiskPatched] = useState(false);
     const readPatchState = () => {
         MicProNative?.voicePatchState()
-            .then(r => setDiskPatched(r.patched > 0))
+            .then(r => setDiskPatched(r.running))
             .catch(() => setDiskPatched(false));
     };
     useEffect(readPatchState, []);
