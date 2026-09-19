@@ -147,10 +147,44 @@ async function probeSteam(creds: Credentials): Promise<ProbeResult> {
 // المعرّف هنا UUID لماينكرافت بلا شُرَط. `session.online` هو الفصل، و`gameType`
 // و`mode` يصفان ما يلعبه. الطلب لحسابٍ واحد في المرّة، فلا دفعات في هذه الواجهة.
 
+/**
+ * أسماء الألعاب والأوضاع كما يقرؤها البشر. 🔴 كنّا نعرض الرموز الداخليّة كما هي:
+ * الاسم `BEDWARS` والسطر الثاني `BEDWARS_EIGHT_ONE`. الصواب «Bed Wars» و«Solo».
+ *
+ * مقيسٌ على البيانات الحيّة (٢٠٢٦-٠٩-١٩، ٧٫٧ ك.ب، ٣٠ لعبة، بلا مفتاح، ومضيفه مسموحٌ
+ * عندنا أصلاً): **لا لعبة تملك `modes`** — الأسماء كلّها في `modeNames` — و**١٥ لعبة
+ * من ٣٠ بلا `modeNames` أصلاً**، ولعبةٌ مثل `MCGO` تملك وضعاً واحداً فقط. فأيّ بحثٍ
+ * مباشر يُنتج `undefined` لأغلب الأوضاع؛ ولذلك احتياطٌ يُجمّل الرمز نفسه دائماً.
+ */
+const HYPIXEL_GAMES_URL = "https://api.hypixel.net/v2/resources/games";
+const HYPIXEL_GAMES_TTL = 12 * 60 * 60 * 1000;
+let hypixelGames: Record<string, unknown> | null = null;
+let hypixelGamesAt = 0;
+
+/** `BEDWARS_EIGHT_ONE` ⇒ `Bedwars Eight One` — لا يُعرض رمزٌ خام ولا `undefined` أبداً. */
+function prettifyCode(code: string): string {
+    return code.split("_").filter(Boolean)
+        .map(part => part.charAt(0) + part.slice(1).toLowerCase())
+        .join(" ");
+}
+
+async function hypixelGameNames(): Promise<Record<string, unknown>> {
+    if (hypixelGames && Date.now() - hypixelGamesAt < HYPIXEL_GAMES_TTL) return hypixelGames;
+    const parsed = parse(await get(HYPIXEL_GAMES_URL));
+    if ("error" in parsed) {
+        logger.warn("Hypixel games:", parsed.error);
+        return hypixelGames ?? {};
+    }
+    hypixelGames = asRecord(parsed.data.games) ?? {};
+    hypixelGamesAt = Date.now();
+    return hypixelGames;
+}
+
 async function pollHypixel(creds: Credentials, accountIds: string[]): Promise<PlatformPresence[]> {
     if (!creds.hypixelKey || accountIds.length === 0) return [];
 
     const out: PlatformPresence[] = [];
+    const games = await hypixelGameNames();
     for (const accountId of accountIds) {
         const url = `https://api.hypixel.net/v2/status?uuid=${encodeURIComponent(accountId)}`;
         const parsed = parse(await get(url, { "API-Key": creds.hypixelKey }));
@@ -165,11 +199,20 @@ async function pollHypixel(creds: Credentials, accountIds: string[]): Promise<Pl
             continue;
         }
 
+        const gameType = asText(session.gameType);
         const mode = asText(session.mode);
+        const map = asText(session.map);
+        const entry = asRecord(games[gameType]);
+        const gameName = asText(entry?.name) || (gameType ? prettifyCode(gameType) : "Hypixel");
+        const modeName = mode && mode !== "LOBBY"
+            ? asText(asRecord(entry?.modeNames)?.[mode]) || prettifyCode(mode)
+            : "";
+
         out.push({
             accountId,
-            game: asText(session.gameType) || "Hypixel",
-            detail: mode && mode !== "LOBBY" ? mode : t("في اللوبي", "in the lobby")
+            game: gameName,
+            // الخريطة تُضاف حين يعطيها الخادم — وهي أنفع ما يُقال بعد الوضع.
+            detail: modeName ? (map ? `${modeName} · ${map}` : modeName) : t("في اللوبي", "in the lobby")
         });
     }
     return out;

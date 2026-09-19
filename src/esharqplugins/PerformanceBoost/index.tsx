@@ -67,8 +67,18 @@ function removeCss() {
 }
 
 // ── تحسينات وقت التشغيل (كلها لمرة واحدة عند التفعيل — بلا حلقات/مؤقّتات، فلا تُثقل ولا تُسرّب) ──
-const PASSIVE_EVENTS = ["wheel", "mousewheel", "touchstart", "touchmove", "touchend"];
-let originalAddEventListener: typeof EventTarget.prototype.addEventListener | null = null;
+/*
+ * 🔴 أُزيل ترقيعٌ كان يستبدل `EventTarget.prototype.addEventListener` ليفرض
+ * `passive:true` على wheel/mousewheel/touchstart/touchmove/touchend.
+ *
+ * قِيس على العميل الحيّ ٢٠٢٦-٠٩-١٩:
+ *  • **فائدته صفر**: كروميوم يجعل هذه الأحداث passive **أصلاً** على
+ *    `document` و`window` و`body` — وهي مواضع مكسب التمرير.
+ *  • **وكلفته حقيقيّة**: على عنصرٍ مفرد ليست passive افتراضياً، وهناك كان ترقيعنا
+ *    يُبطل `preventDefault` **بصمت** (قِيس: يعمل قبله، يفشل معه، يعود بعده) —
+ *    أي تكبير Ctrl+عجلة، والعجلة على المنزلقات، والمُمرِّرات المخصّصة.
+ * ومن يُمرّر `passive:false` صراحةً كان ينجو — وهو ما لا يفعله أكثر الكود.
+ */
 let springs: { Globals?: { assign?: (o: Record<string, unknown>) => void; }; }[] = [];
 
 // تفريغ كاش عدد كبير من الـStores الثقيلة لتحرير الذاكرة (اختياري — قد يُعيد الجلب لاحقاً).
@@ -98,18 +108,6 @@ function applyRuntimeOpts() {
         springs = findAll(m => typeof (m as any)?.Globals === "object" && typeof (m as any)?.Springs === "object") as typeof springs;
         for (const s of springs) s.Globals?.assign?.({ skipAnimation: true });
     }
-    // جعل مستمعي التمرير/اللمس passive — تمرير أنعم (قابل للعكس)
-    if (settings.store.passiveListeners && !originalAddEventListener) {
-        originalAddEventListener = EventTarget.prototype.addEventListener;
-        const orig = originalAddEventListener;
-        EventTarget.prototype.addEventListener = function (this: EventTarget, type: string, listener: any, options?: any) {
-            if (PASSIVE_EVENTS.includes(type) && listener != null) {
-                if (typeof options === "boolean" || options === undefined) options = { capture: !!options, passive: true };
-                else if (options.passive === undefined) options = { ...options, passive: true };
-            }
-            return orig.call(this, type, listener, options);
-        } as typeof EventTarget.prototype.addEventListener;
-    }
     // صور كسولة + فكّ ترميز غير متزامن (لمرة واحدة، غير مؤذٍ). نتخطّى صور الدردشة:
     // loading=lazy/decoding=async عليها يكسران التمرير التلقائي لأسفل المحادثة.
     if (settings.store.lazyImages) {
@@ -124,14 +122,10 @@ function applyRuntimeOpts() {
     if (settings.store.clearStoreCaches) clearStoreCaches();
 }
 
-// عكس كل ما هو قابل للعكس — يمنع تسريب الرقعة على addEventListener.
+// عكس كل ما هو قابل للعكس.
 function removeRuntimeOpts() {
     for (const s of springs) s.Globals?.assign?.({ skipAnimation: false });
     springs = [];
-    if (originalAddEventListener) {
-        EventTarget.prototype.addEventListener = originalAddEventListener;
-        originalAddEventListener = null;
-    }
 }
 
 // ── تطبيق واستعادة الإعدادات التلقائية (Compact + GIF) ──
@@ -334,7 +328,7 @@ function PerfHeaderButton() {
 
 export default definePlugin({
     name: "PerformanceBoost",
-    description: "Game/performance mode: reduces animations, compacts messages, stops GIFs, lowers process priority, cleans cache, and applies runtime speedups (spring skip, passive listeners, lazy images, memory-freeing) — all revertible. (Hardware acceleration requires one-time manual toggle + restart.)",
+    description: "Game/performance mode: reduces animations, compacts messages, stops GIFs, lowers process priority, cleans cache, and applies runtime speedups (spring skip, lazy images, memory-freeing) — all revertible. (Hardware acceleration requires one-time manual toggle + restart.)",
     authors: [EquicordDevs.LOSTSTR],
     tags: ["Utility"],
     dependencies: ["HeaderBarAPI"],
@@ -376,7 +370,7 @@ export default definePlugin({
     stop() {
         stopLoadMonitor();
         revertMode();
-        removeRuntimeOpts(); // ضمان عكس رقعة addEventListener حتى لو لم يكن الوضع مفعّلاً (بلا تسريب)
+        removeRuntimeOpts(); // عكس حركات Spring حتى لو لم يكن الوضع مفعّلاً
         // ننظّف المهلة الاحتياطية ونُعيد ضبط الحالة لإعادة تفعيل نظيفة لاحقاً.
         if (readyFallbackTimer !== null) {
             clearTimeout(readyFallbackTimer);

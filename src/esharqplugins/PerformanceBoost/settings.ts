@@ -90,10 +90,6 @@ export const settings = definePluginSettings({
         type: OptionType.BOOLEAN, default: true,
         description: "Skip Discord's spring animations for a snappier UI"
     },
-    passiveListeners: {
-        type: OptionType.BOOLEAN, default: true,
-        description: "Make scroll and touch listeners passive for smoother scrolling"
-    },
     lazyImages: {
         type: OptionType.BOOLEAN, default: true,
         description: "Lazy-load and async-decode images to reduce jank"

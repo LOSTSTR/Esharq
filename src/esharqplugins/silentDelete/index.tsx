@@ -13,6 +13,16 @@ import { sleep } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import { ChannelStore, Constants, Menu, React, RestAPI, UserStore } from "@webpack/common";
 
+/**
+ * 🔴 كانت `/silentpurge` تُكمل بعد إطفاء الإضافة. الأمر يجلب حتى ١٠٠ رسالة ثمّ يحذف
+ * بفاصل `purgeInterval` (٥٠٠ مللي افتراضاً) ⇒ قد يبقى يعمل نحو خمسين ثانية، وكلّ دورة
+ * **تُعدّل ثمّ تحذف رسالةً حقيقيّة** عبر واجهة ديسكورد. وهذه إضافة فيها خطر حظر، فـ«أطفأتُها
+ * وظلّت تعمل» سلوكٌ لا يُقبل. والإضافة تصريحيّة بلا `start`/`stop`، فأُضيفا لهذا الغرض.
+ */
+let active = false;
+/** 🔴 بلا هذا كان أمر الحذف الصامت يُشغَّل مرّتين معاً، فيتضاعف معدّل الطلبات الذي وُجد الفاصل ليحدّه. */
+let purgeRunning = false;
+
 const settings = definePluginSettings({
     warning: {
         type: OptionType.COMPONENT,
@@ -29,7 +39,8 @@ const settings = definePluginSettings({
     deleteDelay: {
         type: OptionType.NUMBER,
         description: t("التأخير بالمللي ثانية قبل حذف رسالة الاستبدال (يُنصح بـ 100-500).", "Delay in milliseconds before deleting the replacement message (recommended: 100-500)."),
-        default: 200
+        default: 200,
+        isValid: (v: number) => (Number.isFinite(v) && v >= 50) || t("أقلّ قيمة مسموحة ٥٠ مللي ثانية.", "The minimum allowed value is 50 ms.")
     },
     suppressNotifications: {
         type: OptionType.BOOLEAN,
@@ -44,7 +55,10 @@ const settings = definePluginSettings({
     purgeInterval: {
         type: OptionType.NUMBER,
         description: t("التأخير بالمللي ثانية بين كل عملية حذف أثناء ‎/silentpurge (يُنصح بـ 500-1000 لتجنّب حدود المعدّل).", "Delay in milliseconds between each message deletion during /silentpurge (recommended: 500-1000 to avoid rate limits)."),
-        default: 500
+        default: 500,
+        // 🔴 كان صفرٌ يُكتب هنا فيُستبدَل صامتاً بـ٥٠٠ (احتياطيّ بالصدق لا بالغياب)، فيظنّ
+        // المستخدم أنّ إعداده يعمل. الأرضيّة تُقال له بدل أن تُتجاهَل قيمته.
+        isValid: (v: number) => (Number.isFinite(v) && v >= 100) || t("أقلّ قيمة مسموحة ١٠٠ مللي ثانية.", "The minimum allowed value is 100 ms.")
     },
     accentColor: {
         type: OptionType.STRING,
@@ -139,6 +153,9 @@ export default definePlugin({
         "message": messageContextMenuPatch
     },
 
+    start() { active = true; },
+    stop() { active = false; },
+
     commands: [
         {
             name: "silentpurge",
@@ -157,12 +174,24 @@ export default definePlugin({
                 const channelId = ctx.channel.id;
                 const currentUserId = UserStore.getCurrentUser()?.id;
 
+                if (purgeRunning) {
+                    sendBotMessage(channelId, { content: t("هناك عمليّة حذفٍ صامت تعمل الآن — انتظر انتهاءها.", "A silent purge is already running — wait for it to finish.") });
+                    return;
+                }
+                purgeRunning = true;
+
                 (async () => {
                     try {
                         const userMessages: any[] = [];
                         let lastMessageId: string | undefined;
+                        // 🔴 كانت الحلقة تمشي إلى أوّل القناة بلا حدّ: طلبُ مئة رسالة في قناةٍ
+                        // ضخمة لا يملك فيها المستخدم إلّا القليل يتحوّل إلى دقائق من الطلبات
+                        // الصامتة. عشر صفحات (ألف رسالة) أبعد ممّا يحتاجه حدّ الأمر.
+                        const MAX_PAGES = 10;
+                        let pages = 0;
 
-                        while (userMessages.length < count) {
+                        while (userMessages.length < count && pages++ < MAX_PAGES) {
+                            if (!active) return;
                             const response = await RestAPI.get({
                                 url: Constants.Endpoints.MESSAGES(channelId),
                                 query: { limit: 100, ...(lastMessageId && { before: lastMessageId }) }
@@ -183,19 +212,36 @@ export default definePlugin({
                             await sleep(100);
                         }
 
-                        if (!userMessages.length) return;
+                        if (!userMessages.length) {
+                            sendBotMessage(channelId, { content: t("لم أجد رسائل لك في هذه القناة.", "I found no messages of yours in this channel.") });
+                            return;
+                        }
 
                         const purgeInterval = settings.store.purgeInterval || 500;
                         let successCount = 0;
 
+                        let stopped = false;
                         for (let i = 0; i < userMessages.length; i++) {
+                            if (!active) { stopped = true; break; }
                             if (await silentDeleteMessage(channelId, userMessages[i].id)) successCount++;
                             if (i < userMessages.length - 1) await sleep(purgeInterval);
                         }
 
-                        sendBotMessage(channelId, { content: t("تمّ حذف {count} رسالة بصمت بنجاح.", "Successfully silently deleted {count} message(s).").replace("{count}", successCount.toString()) });
+                        const failed = (stopped ? 0 : userMessages.length) - successCount;
+                        sendBotMessage(channelId, {
+                            content: stopped
+                                ? t("أُوقف الحذف الصامت لأنّ الإضافة عُطّلت — حُذفت {count} رسالة قبل التوقّف.", "Silent purge stopped because the plugin was disabled — {count} message(s) were deleted before it stopped.").replace("{count}", successCount.toString())
+                                // 🔴 كان يُعلن النجاح ويبتلع الفشل: رسالةٌ استُبدلت بالنصّ النائب ثمّ
+                                // لم تُحذف تبقى ظاهرةً للجميع بذلك النصّ، ولا يُخبَر صاحبها.
+                                : failed > 0
+                                    ? t("حُذفت {count} رسالة، وتعذّر حذف {failed} — قد تكون ظاهرةً الآن بنصّ الاستبدال.", "Deleted {count} message(s); {failed} could not be deleted and may now be visible with the placeholder text.").replace("{count}", successCount.toString()).replace("{failed}", failed.toString())
+                                    : t("تمّ حذف {count} رسالة بصمت بنجاح.", "Successfully silently deleted {count} message(s).").replace("{count}", successCount.toString())
+                        });
                     } catch (error) {
                         console.error("[SilentDelete] Error during silent purge:", error);
+                        sendBotMessage(channelId, { content: t("توقّف الحذف الصامت بخطأ — التفاصيل في سجلّ المطوّر.", "The silent purge stopped with an error — details are in the developer console.") });
+                    } finally {
+                        purgeRunning = false;
                     }
                 })();
             }

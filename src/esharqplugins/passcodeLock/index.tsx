@@ -187,11 +187,6 @@ const settings = definePluginSettings({
         description: "Always lock on startup",
         default: true,
     },
-    highlightButtons: {
-        type: OptionType.BOOLEAN,
-        description: "Highlight number buttons when typing the passcode from the keyboard",
-        default: false,
-    },
     hideNotifications: {
         type: OptionType.BOOLEAN,
         description: "Hide notification content while locked",
@@ -312,6 +307,10 @@ function PasscodeLocker({ type, button, onDone }: LockerProps) {
     const [delayLeft, setDelayLeft] = useState(0);
     // Our React types require an initial value; the upstream copy relied on a looser signature.
     const iconRef = useRef<HTMLImageElement | null>(null);
+    // 🔴 تبقى الشاشة مركَّبة وقابلة للنقر طوال نصف ثانية من حركة الخروج، فيمكن أن يدخل
+    // `accept()` مرّةً ثانية (ضغطة Enter انعكاسيّة) فيُنفَّذ `onDone` مرّتين: يُعاد إصمات
+    // المستخدم بعد رفعه، ويُحفظ الرمز مرّتين بملحين مختلفين.
+    const closedRef = useRef(false);
     const len = codeLength();
 
     const getBg = () => rootRef.current?.querySelector(".pcl-layout-bg") as HTMLElement | null;
@@ -358,6 +357,8 @@ function PasscodeLocker({ type, button, onDone }: LockerProps) {
     // the unmount — this is what previously could leave the full-screen overlay
     // stuck forever, eating all clicks/keystrokes.
     const close = (success: boolean) => {
+        if (closedRef.current) return;
+        closedRef.current = true;
         try {
             const controls = rootRef.current?.querySelector(".pcl-controls") as HTMLElement | null;
             if (controls) controls.style.opacity = "0";
@@ -436,11 +437,12 @@ function PasscodeLocker({ type, button, onDone }: LockerProps) {
                 }
                 return;
             }
+            // 🔴 كان هنا بابٌ خلفيّ: إن لم يوجد رمزٌ مُتحقَّقٌ منه تُقبل "0000" أو "000000".
+            // لا يُذكر في أيّ مكان، ويفتح قفلاً لم يضعه صاحبه. والقفل نفسه صار يرفض أن
+            // يُفتح بلا رمز (انظر `lock`)، فلم يبقَ لهذا الباب معنى إلّا الخطر.
             let ok = false;
             if (hasPasscode(data)) {
                 ok = await hashCheck(submittedCode, data.salt!, data.iterations!, data.hash!);
-            } else {
-                ok = (submittedCode === "0000" || submittedCode === "000000");
             }
             if (ok) close(true);
             else fail();
@@ -622,6 +624,20 @@ let container: HTMLDivElement | null = null;
 let originalShowNotification: any = null;
 let autolockTimeout: ReturnType<typeof setTimeout> | undefined;
 let watchdogTimeout: ReturnType<typeof setTimeout> | undefined;
+/**
+ * 🔴 `start()` غير متزامنة ومدير الإضافات لا ينتظرها، فإيقافٌ يصل أثناء قراءة قاعدة
+ * البيانات يُقبَل — ثمّ يُكمل ما بعد `await` تركيب المستمعين والمؤقّتات وترقيع الإشعارات
+ * على إضافةٍ **موقَفة**. هذا العدّاد يجعل الإكمال يتحقّق أنّه ما زال هو الجلسة القائمة.
+ */
+let runEpoch = 0;
+/**
+ * 🔴 مؤقّتا قفل الإقلاع. كانا عاريين بلا مقبض، و`stop()` يُلغي الآخرَين وحدهما —
+ * فمن عطّل الإضافة أو أعاد تشغيلها خلال ~٢٫٣ ثانية من بدئها كانت إعادةُ المحاولة
+ * تُنفَّذ **بعد** التفكيك (وقد أُلغي الجذر وأُزيلت الحاوية)، فتبني شاشة قفلٍ جديدة
+ * لا يملكها شيء والإضافة تظهر «مُعطَّلة». عيبٌ على شكل حبسٍ في إضافة قفل.
+ */
+let startupLockTimeout: ReturnType<typeof setTimeout> | undefined;
+let startupRetryTimeout: ReturnType<typeof setTimeout> | undefined;
 
 // Last-resort cleanup. Always safe to call, idempotent. Exposed on window so it
 // can be triggered manually from devtools console if something ever still slips
@@ -641,8 +657,8 @@ function forceReset(reason?: string) {
     clearTimeout(watchdogTimeout);
 }
 
-function openLocker(type: LockType, button: HTMLElement | null, onSuccess?: (newCode?: string) => void) {
-    if (root) return;
+function openLocker(type: LockType, button: HTMLElement | null, onSuccess?: (newCode?: string) => void): boolean {
+    if (root) return false;
 
     container = document.createElement("div");
     document.body.appendChild(container);
@@ -717,12 +733,23 @@ function openLocker(type: LockType, button: HTMLElement | null, onSuccess?: (new
             }}
         />,
     );
+    return true;
 }
 
 function lock(button: HTMLElement | null = document.body) {
     if (isLocked) return;
+    // 🔴 شاشة قفلٍ بلا رمزٍ خلفها **مصيدة**: لم يكن يفتحها إلا رمزٌ سرّيّ غير موثّق
+    // ("0000") أو إعادة تشغيل. البدء التلقائيّ يرفض ذلك أصلاً، والمداخل اليدويّة
+    // الثلاثة (زرّ الشريط، وزرّ الإعدادات، والاختصار) كانت تفتحها بلا شرط.
+    if (!hasPasscode(data)) {
+        showToast(t("اضبط رمزاً أوّلاً من إعدادات الإضافة.", "Set a passcode first in the plugin's settings."), Toasts.Type.FAILURE);
+        return;
+    }
     try {
-        openLocker("default", button);
+        // 🔴 ولا تُثبَّت حالة القفل إن اعتذر `openLocker` (كأن تكون نافذةٌ أخرى مفتوحة):
+        // كانت تُثبَّت على أيّ حال، فتبقى `isLocked` مرفوعةً بلا شاشة قفل — ويموت كلّ
+        // مدخلٍ للقفل بقيّة الجلسة بصمت.
+        if (!openLocker("default", button)) return;
         // Only commit the locked state once the overlay actually rendered
         // without throwing. Setting this *before* the attempt is what could
         // previously leave isLocked stuck at true forever if openLocker failed
@@ -766,7 +793,7 @@ export default definePlugin({
                     ref={ref as any}
                     icon={LockIcon}
                     iconSize={20}
-                    tooltip="Lock Discord"
+                    tooltip={t("اقفل ديسكورد", "Lock Discord")}
                     onClick={() => {
                         // If a previous overlay somehow got stuck (root still set but
                         // nothing visible / unresponsive), this button doubles as a
@@ -812,20 +839,33 @@ export default definePlugin({
     },
 
     async start() {
+        const epoch = ++runEpoch;
         await loadData();
+        if (epoch !== runEpoch) return;
 
         // Manual recovery hatch, always available from devtools console.
         (window as any).__esharqPasscodeReset = () => forceReset("manually triggered via window.__esharqPasscodeReset()");
 
-        if (settings.store.hideNotifications && NotificationModule) {
-            originalShowNotification = NotificationModule.showNotification;
-            NotificationModule.showNotification = function (...args: any[]) {
-                args[0] = LOCK_ICON_DATA_URI;
-                args[1] = "New notification";
-                args[2] = "You have 1 new notification!";
-                if (args[4]?.onClick) args[4].onClick = () => {};
-                return originalShowNotification.apply(this, args);
-            };
+        // 🔴 الإعداد يَعِد بإخفاء محتوى الإشعارات **أثناء القفل**، وكان الترقيع يُركَّب
+        // مرّةً بلا أيّ فحصٍ للقفل — فيُخفى محتوى كلّ إشعارٍ طوال الجلسة (رسائل خاصّة،
+        // ومناداة، ومكالمات) والعميل مفتوح. الفحص الآن **عند النداء** لا عند التركيب.
+        // 🔴 ومُحمَّل الوحدة كسولٌ يرمي إن نقلها ديسكورد، وكان ذلك يقتل بقيّة `start()`
+        // (الاختصار والقفل التلقائيّ وقفل الإقلاع) والإضافة تبدو «مُفعَّلة».
+        try {
+            if (settings.store.hideNotifications && NotificationModule) {
+                const mod = NotificationModule;
+                originalShowNotification = mod.showNotification;
+                mod.showNotification = function (...args: any[]) {
+                    if (!isLocked) return originalShowNotification!.apply(this, args);
+                    args[0] = LOCK_ICON_DATA_URI;
+                    args[1] = t("إشعار جديد", "New notification");
+                    args[2] = t("لديك إشعار جديد واحد!", "You have 1 new notification!");
+                    if (args[4]?.onClick) args[4].onClick = () => { };
+                    return originalShowNotification!.apply(this, args);
+                };
+            }
+        } catch (e) {
+            console.error("[PasscodeLock] could not hook notifications; continuing without it", e);
         }
 
         const onKeyDown = (e: KeyboardEvent) => {
@@ -861,12 +901,12 @@ export default definePlugin({
         // lockOnStartup defaults to true — trapping the user behind a lock screen
         // with no passcode they ever chose.
         if (hasPasscode(data) && (settings.store.lockOnStartup || data.locked)) {
-            setTimeout(() => {
+            startupLockTimeout = setTimeout(() => {
                 lock(document.body);
                 // If the first attempt failed (isLocked still false, meaning
                 // openLocker threw), retry once after modules have had more
                 // time to initialize.
-                setTimeout(() => {
+                startupRetryTimeout = setTimeout(() => {
                     if (!isLocked) lock(document.body);
                 }, 2000);
             }, 300);
@@ -874,6 +914,7 @@ export default definePlugin({
     },
 
     stop() {
+        runEpoch++;
         if (originalShowNotification && NotificationModule) {
             NotificationModule.showNotification = originalShowNotification;
             originalShowNotification = null;
@@ -884,6 +925,8 @@ export default definePlugin({
         window.removeEventListener("mousedown", (this as any)._activityListener);
         clearTimeout(autolockTimeout);
         clearTimeout(watchdogTimeout);
+        clearTimeout(startupLockTimeout);
+        clearTimeout(startupRetryTimeout);
         delete (window as any).__esharqPasscodeReset;
 
         root?.unmount();

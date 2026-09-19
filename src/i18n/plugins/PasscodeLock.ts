@@ -33,9 +33,6 @@ export default definePluginI18n({
         "lockOnStartup": {
             "ar": "القفل دائماً عند بدء التشغيل"
         },
-        "highlightButtons": {
-            "ar": "إبراز أزرار الأرقام عند كتابة الرمز بلوحة المفاتيح"
-        },
         "hideNotifications": {
             "ar": "إخفاء محتوى الإشعارات أثناء القفل"
         },

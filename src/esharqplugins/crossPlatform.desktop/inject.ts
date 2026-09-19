@@ -83,11 +83,15 @@ function toActivity(presence: PlatformPresence, platformLabel: string, discordId
     if (presence.game === null) return null;
 
     const streaming = presence.streamUrl !== undefined;
+    // 🔴 للبثّ كان العنوان يُكتب **مرّتين**: في `state` و`details` معاً، واسم اللعبة الذي
+    // يعطينا إيّاه تويتش يحتلّ `name`. وشكل ديسكورد الأصليّ لنشاط تويتش: الاسم "Twitch"،
+    // و`state` اللعبة، و`details` عنوان البثّ — فلا تكرار، ويتعرّف عليه ما يتعرّف على
+    // بثّ تويتش الأصليّ. ولا شيء عندنا يعتمد على `name` (نُميّز نشاطاتنا بـ`id`).
     return {
         id: `esharq-xp-${platformLabel}-${discordId}`,
-        name: presence.game,
+        name: streaming ? "Twitch" : presence.game,
         type: streaming ? ActivityType.STREAMING : ActivityType.PLAYING,
-        state: presence.detail,
+        state: streaming ? presence.game : presence.detail,
         details: streaming ? presence.detail : undefined,
         url: presence.streamUrl,
         flags: ActivityFlags.INSTANCE,

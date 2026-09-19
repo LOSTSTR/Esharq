@@ -51,10 +51,36 @@ function notify(message: string, failure = false) {
     });
 }
 
+/**
+ * القناة التي أنا فيها وخادمها.
+ *
+ * 🔴 قِيس ٢٠٢٦-٠٩-١٩ على العميل الحيّ: سجلّ `VoiceStateStore` **لا يحمل `guildId`
+ * إطلاقاً** — حقوله: userId, channelId, sessionId, mute, deaf, selfMute, selfDeaf,
+ * selfVideo, selfStream, suppress, requestToSpeakTimestamp, discoverable,
+ * connectedAt. فكلّ شرطٍ كُتب `myState.guildId` كان `undefined` دائماً، أي أنّ
+ * تحريك الهدف عند بدء المتابعة وسحبَه بعد مغادرته **لم يعملا قطّ**. (الحقل موجودٌ
+ * في حمولة `VOICE_STATE_UPDATES` وحدها، ولذلك يعمل الفرع الذي يقرؤه منها.)
+ *
+ * والقناة تُعرّف خادمها، فنأخذه منها.
+ */
+function myVoicePlace(myId?: string): { guildId: string; channelId: string; } | null {
+    const channelId = myId ? VoiceStateStore.getVoiceStateForUser(myId)?.channelId : null;
+    if (!channelId) return null;
+    const guildId = ChannelStore.getChannel(channelId)?.guild_id;
+    return guildId ? { guildId, channelId } : null;
+}
+
 async function moveTargetTo(guildId: string, channelId: string) {
     if (!targetId || !guildId || !channelId) return;
     const targetState = VoiceStateStore.getVoiceStateForUser(targetId);
     if (!targetState || targetState.channelId === channelId) return;
+
+    // 🔴 ديسكورد لا ينقل إلّا عضواً متّصلاً بالصوت **في هذا الخادم نفسه**. وبلا هذا الفحص
+    // كان كلّ تحديثٍ لحالتي الصوتيّة (كتم، إصمات، كاميرا) يُطلق طلب نقلٍ محكومٍ بالفشل
+    // متى كان الهدف في خادمٍ آخر. والفرع المجاور يفحصه أصلاً، فالنقص هنا سهوٌ لا قصد.
+    // ولا نبالي إن لم نعرف قناة الهدف (قناةٌ لا نراها): النقل حينها مشروع ويُحاوَل.
+    const targetChannel = ChannelStore.getChannel(targetState.channelId);
+    if (targetChannel && targetChannel.guild_id !== guildId) return;
 
     const channel = ChannelStore.getChannel(channelId);
     if (!channel) return;
@@ -96,8 +122,8 @@ function follow(userId: string) {
     lastFailedChannel = null;
 
     const myId = UserStore.getCurrentUser()?.id;
-    const myState = VoiceStateStore.getVoiceStateForUser(myId);
-    if (myState?.channelId && myState.guildId) moveTargetTo(myState.guildId, myState.channelId);
+    const mine = myVoicePlace(myId);
+    if (mine) moveTargetTo(mine.guildId, mine.channelId);
 
     notifyAll();
     persist();
@@ -186,9 +212,9 @@ export default definePlugin({
                 if (s.userId === myId) {
                     if (s.channelId && s.guildId) moveTargetTo(s.guildId, s.channelId);
                 } else if (s.userId === targetId) {
-                    const myState = VoiceStateStore.getVoiceStateForUser(myId);
-                    if (myState?.channelId && myState.guildId && s.guildId === myState.guildId && s.channelId !== myState.channelId) {
-                        moveTargetTo(myState.guildId, myState.channelId);
+                    const mine = myVoicePlace(myId);
+                    if (mine && s.guildId === mine.guildId && s.channelId !== mine.channelId) {
+                        moveTargetTo(mine.guildId, mine.channelId);
                     }
                 }
             }
