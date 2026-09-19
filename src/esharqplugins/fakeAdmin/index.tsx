@@ -105,6 +105,24 @@ export default definePlugin({
     tags: ["Fun", "Servers"],
     settings,
 
+    patches: [
+        {
+            // 🔴 القنوات المخفيّة كانت تظهر باسم «لا وصول»: تجربة ديسكورد
+            // 2026-02-private-channel-hiding تُضيف عند IDENTIFY قدرةً في البوّابة
+            // (1767421 بدل 1734653) فيحجب **الخادم** أسماء القنوات الخاصّة ويُرسلها
+            // «___hidden…». كشفُ القنوات بالصلاحيات وحده لا يُعيد اسماً لم يصل.
+            // نُطفئ قراءتَي التجربة (getConfig/useConfig) فلا تُطلب التعمية أصلاً.
+            // ⚠️ لا نلمس جدول النسخ (enableObfuscation:!0) لأنّ ShowHiddenChannels
+            // تُرقّعه، ورقعتان على نصٍّ واحد تُسقط الثانية «had no effect».
+            // يسري بعد إعادة التشغيل لأنّ القرار يُتّخذ عند الاتّصال.
+            find: "2026-02-private-channel-hiding",
+            replacement: {
+                match: /\.enableObfuscation\b/g,
+                replace: ".enableObfuscation&&false"
+            }
+        }
+    ],
+
     start() {
         spoofPermissions();
 
