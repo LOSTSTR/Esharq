@@ -146,16 +146,32 @@ function applyCaretPosition() {
 }
 
 let observer: MutationObserver | null = null;
+let caretFrame = 0;
+
+/**
+ * 🔴 المراقب يرصد كلّ تغييرٍ في الصفحة كلّها (`subtree` على `body`)، وكان كلّ تغييرٍ
+ * يستدعي `applyCaretPosition` فوراً — وهي تقرأ `getClientRects()` فتُجبر المتصفّح على
+ * إعادة حساب التخطيط. ووصولُ رسالةٍ واحدة يُحدث عشرات التغييرات، فتتكرّر الحسبة عشرات
+ * المرّات في الإطار الواحد بلا فائدة: الموضع النهائيّ واحد. الآن تُجمَع في مرّةٍ لكلّ إطار.
+ */
+function scheduleCaretPosition() {
+    if (caretFrame) return;
+    caretFrame = requestAnimationFrame(() => {
+        caretFrame = 0;
+        applyCaretPosition();
+    });
+}
 
 function startObserver() {
     if (observer || document.visibilityState === "hidden") return;
-    observer = new MutationObserver(() => applyCaretPosition());
+    observer = new MutationObserver(scheduleCaretPosition);
     observer.observe(document.body, { childList: true, subtree: true });
 }
 
 function stopObserver() {
     observer?.disconnect();
     observer = null;
+    if (caretFrame) { cancelAnimationFrame(caretFrame); caretFrame = 0; }
 }
 
 function handleVisibilityChange() {

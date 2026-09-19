@@ -17,6 +17,22 @@ const GiftActions = findByPropsLazy("redeemGiftCode");
 
 let startTime = 0;
 let claiming = false;
+/**
+ * 🔴 الرمز الواحد يصل مرّاتٍ كثيرة: يُعاد نشره، ويُنسخ إلى عدّة قنواتٍ متابَعة، ويُقتبس.
+ * وكان كلّ وصولٍ يُضاف إلى الطابور، فيُرسَل طلب استبدالٍ لكلّ رسالة ويظهر إشعار فشلٍ
+ * مكرّر. يُجرَّب الرمز مرّةً واحدة في الجلسة. (وثمنُها: رمزٌ فشل لسببٍ عابر لا يُعاد
+ * حتى إعادة تشغيل الإضافة — وهو أهون من سيلِ الطلبات.)
+ */
+const seenCodes = new Set<string>();
+/**
+ * 🔴 رقم الجلسة. التعطيل ثمّ التفعيل كان يترك محاولةً سابقة في الطريق: حين تكتمل
+ * تُنزل راية `claiming` وتسحب من طابور الجلسة **الجديدة**، فتجري محاولتان معاً.
+ * الحارس القديم `settled` لكلّ محاولةٍ لا لكلّ جلسة، فلا يمنع هذا.
+ */
+let generation = 0;
+let pluginActive = false;
+/** سقفٌ للطابور — سيلٌ من روابط الهدايا كان يُنمّيه بلا حدّ. */
+const MAX_QUEUE = 50;
 const codeQueue: Array<{
     code: string;
     channelId: string;
@@ -45,15 +61,20 @@ const settings = definePluginSettings({
 });
 
 function processQueue() {
-    if (claiming || !codeQueue.length) return;
+    if (!pluginActive || claiming || !codeQueue.length) return;
 
     claiming = true;
+    const claimGeneration = generation;
     const { code, channelId, guildId, messageId, senderName } = codeQueue.shift()!;
+    /** هل ما زالت هذه المحاولة تخصّ الجلسة الحيّة؟ */
+    const stale = () => !pluginActive || claimGeneration !== generation;
 
     logger.log(`Attempting to redeem code: ${code} (channel: ${channelId}, guild: ${guildId ?? "dm"})`);
 
     const onSuccess = (gift: any) => {
         logger.log(`Successfully redeemed code: ${code} (channel: ${channelId}, guild: ${guildId ?? "dm"})`);
+        // جلسةٌ انتهت: لا إشعار ولا مساس بطابور الجلسة الحاليّة.
+        if (stale()) return;
 
         if (settings.store.notifyOnRedeem) {
             const user = UserStore.getCurrentUser();
@@ -77,6 +98,7 @@ function processQueue() {
 
     const onFailure = (err: unknown) => {
         logger.error(`Failed to redeem code: ${code} (channel: ${channelId}, guild: ${guildId ?? "dm"})`, err);
+        if (stale()) return;
 
         if (settings.store.notifyOnFail) {
             const user = UserStore.getCurrentUser();
@@ -103,6 +125,7 @@ function processQueue() {
     function finish() {
         if (settled) return;
         settled = true;
+        if (stale()) return;
         claiming = false;
         processQueue();
     }
@@ -146,14 +169,21 @@ export default definePlugin({
 
     start() {
         startTime = Date.now();
+        pluginActive = true;
+        generation++;
         codeQueue.length = 0;
+        seenCodes.clear();
         claiming = false;
     },
 
     stop() {
         // Disabling mid-claim would otherwise leave the claiming flag raised and stale entries
         // queued, so the next enable would redeem codes from a session that already ended.
+        // ورفعُ رقم الجلسة يُبطل أيّ محاولةٍ ما زالت في الطريق.
+        pluginActive = false;
+        generation++;
         codeQueue.length = 0;
+        seenCodes.clear();
         claiming = false;
     },
 
@@ -173,8 +203,13 @@ export default definePlugin({
             // autoClaim plugin already uses.
             const channel = ChannelStore.getChannel(message.channel_id);
 
+            const code = match[1];
+            if (seenCodes.has(code)) return;
+            if (codeQueue.length >= MAX_QUEUE) return;
+            seenCodes.add(code);
+
             codeQueue.push({
-                code: match[1],
+                code,
                 channelId: message.channel_id,
                 guildId: channel?.guild_id ?? message.guild_id,
                 messageId: message.id,

@@ -199,6 +199,8 @@ let origRAF: typeof requestAnimationFrame | null = null;
 let origCancelRAF: typeof cancelAnimationFrame | null = null;
 let bgFpsActive = false;
 const rafMap = new Map<number, ReturnType<typeof setTimeout>>();
+/** النداءات المؤجَّلة — تُسلَّم للدالّة الأصليّة عند العودة بدل أن تُرمى. */
+const pendingCallbacks = new Map<number, FrameRequestCallback>();
 let rafSeq = 0;
 
 function bgFrameIntervalMs(): number {
@@ -239,6 +241,14 @@ function applyBgFpsPatch(enable: boolean) {
     }
 }
 
+/**
+ * 🔴 مُعرّفاتنا كانت تبدأ من ١ فتصطدم بمُعرّفات `requestAnimationFrame` الأصليّة
+ * المُعطاة قبل الاستبدال: إلغاءُ إطارٍ أصليّ رقمه ٣ كان يُلغي **مؤقّتنا** رقم ٣،
+ * فيبقى الإطار الأصليّ معلّقاً ويُنفَّذ نداءٌ ألغاه صاحبه. نبدأ من مدى عالٍ لا يبلغه
+ * عدّاد المتصفّح في جلسة.
+ */
+const RAF_ID_BASE = 1e9;
+
 function installRafThrottle() {
     if (origRAF || !bgFpsActive) return;
     origRAF = window.requestAnimationFrame;
@@ -246,15 +256,17 @@ function installRafThrottle() {
     let lastT = 0;
 
     (window as any).requestAnimationFrame = function (cb: FrameRequestCallback) {
-        const id = ++rafSeq;
+        const id = RAF_ID_BASE + (++rafSeq);
         const now = performance.now();
         const delay = Math.max(0, bgFrameIntervalMs() - (now - lastT));
         const tId = setTimeout(() => {
             rafMap.delete(id);
+            pendingCallbacks.delete(id); // نُفِّذ ⇒ لا يُعاد تسليمه عند العودة
             lastT = performance.now();
             cb(performance.now());
         }, delay);
         rafMap.set(id, tId);
+        pendingCallbacks.set(id, cb);
         return id;
     };
 
@@ -263,6 +275,7 @@ function installRafThrottle() {
         if (tId !== undefined) {
             clearTimeout(tId);
             rafMap.delete(id);
+            pendingCallbacks.delete(id);
         } else if (origCancelRAF) {
             origCancelRAF(id);
         }
@@ -273,10 +286,16 @@ function uninstallRafThrottle() {
     if (!origRAF) return;
     window.requestAnimationFrame = origRAF;
     if (origCancelRAF) window.cancelAnimationFrame = origCancelRAF;
-    origRAF = null;
-    origCancelRAF = null;
     for (const tId of rafMap.values()) clearTimeout(tId);
     rafMap.clear();
+    // 🔴 ما كان منتظراً لا يُرمى: كانت المؤقّتات تُمحى بلا تنفيذ، فيبقى من طلب إطاراً
+    // قبل العودة للواجهة منتظراً نداءً لا يأتي (رسمٌ متجمّد حتى الحدث التالي). تُسلَّم
+    // إلى الدالّة الأصليّة لتعمل في أوّل إطارٍ حقيقيّ.
+    const stranded = [...pendingCallbacks.values()];
+    pendingCallbacks.clear();
+    for (const cb of stranded) origRAF(cb);
+    origRAF = null;
+    origCancelRAF = null;
 }
 
 /* -------------------------------------------------------------------------- */

@@ -29,6 +29,8 @@ interface VoiceChannel {
     guildName: string;
     guildIcon: string | null;
     memberCount: number;
+    /** أوائل من في القناة — تُجمع في المسح نفسه، فلا يُعاد المرور على كلّ الحالات عند الرسم. */
+    memberIds: string[];
     canAccess: boolean; // false = channel visible but no permission to join
     // Pre-built unique search index: "channel name · server name"
     searchIndex: string;
@@ -47,12 +49,19 @@ async function scan(): Promise<VoiceChannel[]> {
         setTimeout(() => {
             try {
                 const memberCount: Record<string, number> = {};
+                // 🔴 كان الرسم يستدعي getAllVoiceStates() **لكلّ صفّ** ثمّ يُرشّح حالات الخادم
+                // كلّها ليعرض عشر صور — أي مرورٌ على كلّ حالات الصوت مضروباً في عدد النتائج.
+                // العدّ يمرّ عليها أصلاً، فتُلتقط المعرّفات في المرور نفسه مرّةً واحدة.
+                const memberIds: Record<string, string[]> = {};
                 try {
                     const all: any = VoiceStateStore.getAllVoiceStates?.() ?? {};
                     for (const gId in all) {
                         for (const uId in all[gId]) {
                             const cid = all[gId][uId]?.channelId;
-                            if (cid) memberCount[cid] = (memberCount[cid] ?? 0) + 1;
+                            if (!cid) continue;
+                            memberCount[cid] = (memberCount[cid] ?? 0) + 1;
+                            const ids = memberIds[cid] ??= [];
+                            if (ids.length < 10) ids.push(uId);
                         }
                     }
                 } catch (err) { logger.debug("Ignored error", err); }
@@ -90,6 +99,7 @@ async function scan(): Promise<VoiceChannel[]> {
                                 guildName: gName,
                                 guildIcon: gIcon,
                                 memberCount: memberCount[ch.id] ?? 0,
+                                memberIds: memberIds[ch.id] ?? [],
                                 canAccess: true,
                                 searchIndex: `${cName.toLowerCase()} ${gName.toLowerCase()}`,
                             });
@@ -231,18 +241,11 @@ function VoiceSearchModal({ rootProps, channels }: { rootProps: any; channels: V
                                                 <div className="vcs-members-info">
                                                     <span className="vcs-members-count"> · {ch.memberCount}</span>
                                                     <div className="vcs-member-avatars">
-                                                        {(() => {
-                                                            const allStates = VoiceStateStore.getAllVoiceStates();
-                                                            const guildStates = allStates[ch.guildId] || {};
-                                                            const channelStates = Object.values(guildStates).filter((s: any) => s.channelId === ch.channelId);
-
-                                                            return channelStates.slice(0, 10).map((s: any) => {
-                                                                const user = UserStore.getUser(s.userId);
-                                                                if (!user) return null;
-                                                                const avatarUrl = user.getAvatarURL(ch.guildId, 16);
-                                                                return <img key={s.userId} src={avatarUrl} className="vcs-member-avatar" />;
-                                                            });
-                                                        })()}
+                                                        {ch.memberIds.map(userId => {
+                                                            const user = UserStore.getUser(userId);
+                                                            if (!user) return null;
+                                                            return <img key={userId} src={user.getAvatarURL(ch.guildId, 16)} className="vcs-member-avatar" />;
+                                                        })}
                                                     </div>
                                                 </div>
                                             )}

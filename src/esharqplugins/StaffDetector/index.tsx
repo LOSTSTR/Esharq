@@ -33,15 +33,16 @@ const emptyIdSet = new Set<string>();
 const idSetCache = new Map<string, Set<string>>();
 let currentVoiceChannelId: string | null = null;
 
-const DEFAULT_SOUND_URLS = {
-    join: "https://github.com/zFrxncesck1/zFrxncesck1/raw/refs/heads/main/host/sounds/join.wav",
-    leave: "https://github.com/zFrxncesck1/zFrxncesck1/raw/refs/heads/main/host/sounds/leave.wav",
-};
-
-const CUSTOM_DEFAULT_URLS = {
-    join: "https://github.com/zFrxncesck1/zFrxncesck1/raw/refs/heads/main/host/sounds/trollface-smile.mp3",
-    leave: "https://github.com/zFrxncesck1/zFrxncesck1/raw/refs/heads/main/host/sounds/death-note-light-yagami-is-sus.mp3",
-};
+/**
+ * 🔴 كانت الأصوات الافتراضيّة أربعة روابط على حساب `zFrxncesck1` في GitHub. قِيس
+ * ٢٠٢٦-٠٩-١٩: **الأربعة والحساب نفسه يُرجعون 404** — فمن لم يرفع صوتاً بنفسه كان
+ * تنبيهه صامتاً بلا أيّ رسالة (الخطأ يُسجَّل خلف `enableLogs` المطفأة افتراضياً).
+ *
+ * فلا نُبدّل مضيفاً بمضيف: النغمة تُولَّد في المتصفّح نفسه — لا تنزيل، ولا مضيفٌ
+ * يموت بعد سنة، ولا بايتاتٌ من طرفٍ ثالث. ومن أراد صوتاً بعينه فرفعُ ملفٍّ أو رابطٌ
+ * مخصّص كما كانا.
+ */
+let toneCtx: AudioContext | null = null;
 
 type AudioDataKey = "customJoinSoundData" | "customLeaveSoundData";
 type AudioNameKey = "customJoinSoundDataName" | "customLeaveSoundDataName";
@@ -215,7 +216,7 @@ const settings = definePluginSettings({
     useCustomSounds: {
         type: OptionType.BOOLEAN,
         default: false,
-        description: t("إيقاف - ملف WAV مدمج. تشغيل - استخدم الملف المرفوع أو الرابط أدناه (الملف المرفوع له الأولوية على الرابط).", "OFF - built-in WAV. ON - use uploaded file or URL below (uploaded file takes priority over URL)."),
+        description: t("إيقاف - نغمة مدمجة تُولَّد في التطبيق. تشغيل - استخدم الملف المرفوع أو الرابط أدناه (الملف المرفوع له الأولوية على الرابط).", "OFF - a built-in tone generated in the app. ON - use the uploaded file or URL below (an uploaded file takes priority over the URL)."),
     },
 
     customJoinSoundData: {
@@ -233,7 +234,7 @@ const settings = definePluginSettings({
     customJoinSound: {
         type: OptionType.STRING,
         default: "",
-        description: t("رابط احتياطي للانضمام (‏https://...‏) — يُستخدَم فقط إن لم يُرفَع ملف أعلاه. فارغ = ملف MP3 مخصّص مدمج.", "JOIN fallback URL (https://...) — used only if no file is uploaded above. Empty = built-in custom MP3."),
+        description: t("رابط احتياطي للانضمام (‏https://...‏) — يُستخدَم فقط إن لم يُرفَع ملف أعلاه. فارغ = النغمة المدمجة.", "JOIN fallback URL (https://...) — used only if no file is uploaded above. Empty = the built-in tone."),
     },
     customJoinUpload: {
         type: OptionType.COMPONENT,
@@ -256,7 +257,7 @@ const settings = definePluginSettings({
     customLeaveSound: {
         type: OptionType.STRING,
         default: "",
-        description: t("رابط احتياطي للمغادرة (‏https://...‏) — يُستخدَم فقط إن لم يُرفَع ملف أعلاه. فارغ = ملف MP3 مخصّص مدمج.", "LEAVE fallback URL (https://...) — used only if no file is uploaded above. Empty = built-in custom MP3."),
+        description: t("رابط احتياطي للمغادرة (‏https://...‏) — يُستخدَم فقط إن لم يُرفَع ملف أعلاه. فارغ = النغمة المدمجة.", "LEAVE fallback URL (https://...) — used only if no file is uploaded above. Empty = the built-in tone."),
     },
     customLeaveUpload: {
         type: OptionType.COMPONENT,
@@ -607,6 +608,32 @@ function playSrc(src: string): void {
     });
 }
 
+/** نغمة التنبيه المدمجة: نغمتان صاعدتان للدخول وهابطتان للخروج، بمغلّفٍ يمنع الطقطقة. */
+function playBuiltinTone(isJoin: boolean): void {
+    try {
+        toneCtx ??= new AudioContext();
+        const ctx = toneCtx;
+        if (ctx.state === "suspended") void ctx.resume();
+
+        const volume = Math.min(1, Math.max(0, settings.store.soundVolume ?? 0.36));
+        for (const [i, freq] of (isJoin ? [660, 990] : [660, 440]).entries()) {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "sine";
+            osc.frequency.value = freq;
+            const start = ctx.currentTime + i * 0.11;
+            gain.gain.setValueAtTime(0.0001, start);
+            gain.gain.linearRampToValueAtTime(volume * 0.5, start + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.16);
+            osc.connect(gain).connect(ctx.destination);
+            osc.start(start);
+            osc.stop(start + 0.18);
+        }
+    } catch (e) {
+        if (settings.store.enableLogs) logger.error("StaffDetector: tone error:", e);
+    }
+}
+
 function playStaffSound(isJoin: boolean): void {
     if (!settings.store.enableSounds) return;
     if (settings.store.useCustomSounds) {
@@ -614,10 +641,8 @@ function playStaffSound(isJoin: boolean): void {
         if (dataUri) { playSrc(dataUri); return; }
         const url = (isJoin ? settings.store.customJoinSound : settings.store.customLeaveSound)?.trim();
         if (url) { playSrc(url); return; }
-        playSrc(isJoin ? CUSTOM_DEFAULT_URLS.join : CUSTOM_DEFAULT_URLS.leave);
-        return;
     }
-    playSrc(isJoin ? DEFAULT_SOUND_URLS.join : DEFAULT_SOUND_URLS.leave);
+    playBuiltinTone(isJoin);
 }
 
 function scanChannelStaff(channelId: string, isInit: boolean): void {
@@ -737,5 +762,8 @@ export default definePlugin({
     stop() {
         currentChannelStaff.clear();
         currentVoiceChannelId = null;
+        // سياق الصوت مورد من النظام — يُغلق مع الإضافة ولا يبقى معلّقاً.
+        void toneCtx?.close().catch(() => { });
+        toneCtx = null;
     },
 });

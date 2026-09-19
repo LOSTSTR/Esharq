@@ -267,6 +267,27 @@ function buildMd(messages: RichMessage[], channelName: string): string {
     return lines.join("\n");
 }
 
+/**
+ * 🔴 كلّ ما يدخل ملفّ HTML المُصدَّر يمرّ من هنا. الاسم المعروض واسم المرفق واسم
+ * الملصق واسم القناة نصوصٌ يكتبها **غيرك**، وكانت تُلصق كما هي: اسمٌ فيه
+ * `<img src=x onerror=…>` يصير شيفرةً تعمل حين تفتح الملفّ، وتقرأ المحادثة كلّها
+ * وترسلها. (مقيسٌ على هذه الدالّة نفسها قبل الإصلاح.)
+ */
+function escapeHtml(value: unknown): string {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+/** روابط `src`/`href` لا تُقبل إلّا http(s): فلا يصير مرفقٌ أو رابط تضمينٍ `javascript:`. */
+function safeUrl(url: unknown): string {
+    const raw = String(url ?? "");
+    return /^https?:\/\//i.test(raw) ? escapeHtml(raw) : "#";
+}
+
 function buildHtml(messages: RichMessage[], channelName: string): string {
     const rows = messages.map(m => {
         const d = new Date(m.timestamp).toLocaleString();
@@ -276,34 +297,37 @@ function buildHtml(messages: RichMessage[], channelName: string): string {
             ? IconUtils.getUserAvatarURL({ id: m.authorId, avatar: m.authorAvatar } as any, false, 32)
             : IconUtils.getDefaultAvatarURL(m.authorId);
         const replyHtml = m.referencedMessage
-            ? `<div class="reply"><b>${m.referencedMessage.authorName}</b>: ${m.referencedMessage.content.replace(/</g, "&lt;")}</div>`
+            ? `<div class="reply"><b>${escapeHtml(m.referencedMessage.authorName)}</b>: ${escapeHtml(m.referencedMessage.content)}</div>`
             : "";
         const mediaHtml = m.attachments.map(a => {
             const t_type = getMediaType(a.url, a.contentType);
-            if (t_type === "image") return `<div class="media"><img src="${a.url}" alt="${a.filename}" loading="lazy"><div class="media-name">${a.filename} (${formatSize(a.size)})</div></div>`;
-            if (t_type === "video") return `<div class="media"><video src="${a.url}" controls preload="none"></video><div class="media-name">${a.filename}</div></div>`;
-            if (t_type === "audio") return `<div class="media"><audio src="${a.url}" controls></audio><div class="media-name">${a.filename}</div></div>`;
-            return `<div class="attachment"><a href="${a.url}" target="_blank">${a.filename}</a> <span class="size">${formatSize(a.size)}</span></div>`;
+            const name = escapeHtml(a.filename);
+            const url = safeUrl(a.url);
+            if (t_type === "image") return `<div class="media"><img src="${url}" alt="${name}" loading="lazy"><div class="media-name">${name} (${formatSize(a.size)})</div></div>`;
+            if (t_type === "video") return `<div class="media"><video src="${url}" controls preload="none"></video><div class="media-name">${name}</div></div>`;
+            if (t_type === "audio") return `<div class="media"><audio src="${url}" controls></audio><div class="media-name">${name}</div></div>`;
+            return `<div class="attachment"><a href="${url}" target="_blank">${name}</a> <span class="size">${formatSize(a.size)}</span></div>`;
         }).join("");
         const embedHtml = m.embeds.map(e => {
             let html = "<div class=\"embed\">";
-            if (e.title) html += `<div class="embed-title">${e.title.replace(/</g, "&lt;")}</div>`;
-            if (e.description) html += `<div class="embed-desc">${e.description.slice(0, 300).replace(/</g, "&lt;")}</div>`;
-            if (e.image) html += `<img src="${e.image}" class="embed-img" loading="lazy">`;
-            if (e.url) html += `<a href="${e.url}" target="_blank" class="embed-url">${e.url}</a>`;
+            if (e.title) html += `<div class="embed-title">${escapeHtml(e.title)}</div>`;
+            if (e.description) html += `<div class="embed-desc">${escapeHtml(e.description.slice(0, 300))}</div>`;
+            if (e.image) html += `<img src="${safeUrl(e.image)}" class="embed-img" loading="lazy">`;
+            if (e.url) html += `<a href="${safeUrl(e.url)}" target="_blank" class="embed-url">${escapeHtml(e.url)}</a>`;
             return html + "</div>";
         }).join("");
-        const stickerHtml = m.stickers.map(s => `<span class="sticker">${s.name}</span>`).join("");
+        const stickerHtml = m.stickers.map(s => `<span class="sticker">${escapeHtml(s.name)}</span>`).join("");
         const reactHtml = m.reactions.length
-            ? `<div class="reactions">${m.reactions.map(r => `<span class="reaction">${r.emoji} ${r.count}</span>`).join("")}</div>` : "";
-        const content = m.content ? `<div class="content">${m.content.replace(/</g, "&lt;").replace(/\n/g, "<br>")}</div>` : "";
+            ? `<div class="reactions">${m.reactions.map(r => `<span class="reaction">${escapeHtml(r.emoji)} ${escapeHtml(r.count)}</span>`).join("")}</div>` : "";
+        // يُهرَّب أوّلاً ثمّ تُحوَّل الأسطر — والعكس يجعل `<br>` نفسه نصّاً.
+        const content = m.content ? `<div class="content">${escapeHtml(m.content).replace(/\n/g, "<br>")}</div>` : "";
         const msgClass = m.deleted ? "msg deleted" : "msg";
-        return `<div class="${msgClass}">${replyHtml}<div class="msg-header"><img src="${avatarUrl}" class="avatar"><span class="author">${m.authorName}</span><span class="ts">${d}</span>${edited}${pinned}</div>${content}${mediaHtml}${embedHtml}${stickerHtml}${reactHtml}</div>`;
+        return `<div class="${msgClass}">${replyHtml}<div class="msg-header"><img src="${safeUrl(avatarUrl)}" class="avatar"><span class="author">${escapeHtml(m.authorName)}</span><span class="ts">${escapeHtml(d)}</span>${edited}${pinned}</div>${content}${mediaHtml}${embedHtml}${stickerHtml}${reactHtml}</div>`;
     }).join("");
 
-    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${t("تصدير الرسائل الخاصة", "Export DMs")} — ${channelName}</title>
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${t("تصدير الرسائل الخاصة", "Export DMs")} — ${escapeHtml(channelName)}</title>
 <style>*{box-sizing:border-box;margin:0;padding:0}body{background:#1e1f22;color:#dbdee1;font-ffriendly:system-ui,sans-serif;padding:20px;max-width:900px;margin:0 auto}h1{color:#5865f2;margin-bottom:4px}.meta{color:#949ba4;font-size:13px;margin-bottom:24px}.msg.deleted{background-color:rgba(240,71,71,0.1);border-left:2px solid #f04747}.msg{padding:10px 12px;border-radius:4px;margin-bottom:2px}.msg:hover{background:rgba(255,255,255,0.04)}.msg-header{display:flex;align-items:center;gap:8px;margin-bottom:4px}.avatar{width:32px;height:32px;border-radius:50%}.author{font-weight:700;color:#f2f3f5;font-size:14px}.ts{font-size:11px;color:#949ba4;margin-left:4px}.edited,.pin{font-size:10px;color:#949ba4;margin-left:4px}.reply{font-size:12px;color:#949ba4;padding:4px 8px;border-left:3px solid #4f545c;margin-bottom:6px;background:rgba(255,255,255,0.03)}.content{font-size:14px;line-height:1.5;color:#dbdee1;white-space:pre-wrap;word-break:break-word;margin-bottom:4px}.media{margin:6px 0}.media img,.media video{max-width:400px;max-height:300px;border-radius:8px;display:block}.media-name{font-size:11px;color:#949ba4;margin-top:2px}.attachment{padding:6px 10px;background:rgba(0,0,0,0.2);border-radius:4px;margin:4px 0;display:inline-block}.attachment a{color:#00aff4;text-decoration:none}.embed{border-left:4px solid #5865f2;background:rgba(255,255,255,0.04);border-radius:0 4px 4px 0;padding:8px 12px;margin:6px 0}.embed-title{font-weight:700;color:#00aff4;margin-bottom:4px}.embed-desc{font-size:13px;color:#dbdee1}.embed-img{max-width:300px;border-radius:4px;margin-top:6px}.embed-url{font-size:12px;color:#00aff4;display:block;margin-top:4px;text-decoration:none}.sticker{font-size:12px;color:#b5bac1;background:rgba(255,255,255,0.06);border-radius:4px;padding:2px 6px;margin:2px}.reactions{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}.reaction{background:rgba(255,255,255,0.08);border-radius:8px;padding:2px 8px;font-size:12px}audio{width:300px;margin-top:4px}</style>
-</head><body><h1>${channelName}</h1><p class="meta">${t("صُدّرت في", "Exported on")} ${new Date().toLocaleString()} · ${messages.length} ${t("رسالة", "messages")}</p>${rows}</body></html>`;
+</head><body><h1>${escapeHtml(channelName)}</h1><p class="meta">${t("صُدّرت في", "Exported on")} ${new Date().toLocaleString()} · ${messages.length} ${t("رسالة", "messages")}</p>${rows}</body></html>`;
 }
 
 function downloadFile(content: string, filename: string, mime: string) {

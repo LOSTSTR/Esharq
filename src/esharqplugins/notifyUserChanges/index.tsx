@@ -69,7 +69,11 @@ function shouldBeNative() {
 
 const SessionsStore = findStoreLazy("SessionsStore");
 
-const StatusUtils = mapMangledModuleLazy(".concat(.5625*", {
+// 🔴 قِيس ٢٠٢٦-٠٩-١٩ على كناري: النصّ القديم `.concat(.5625*` لا يوجد في أيٍّ من
+// ١٢٧٩٥ وحدة، فيُرجع المُحدِّد كائناً فارغاً و`useStatusFillColor` تصير `undefined`،
+// فترمي عند رسم أيقونة المنصّة ويرى المستخدم بطاقة خطأ بدل الإشعار. وهو النصّ الذي
+// تستعمله إضافتنا الأساسيّة platformIndicators منذ إصلاح ڤينكورد (2026-02).
+const StatusUtils = mapMangledModuleLazy([".5625*", "translate"], {
     useStatusFillColor: filters.byCode(".hex")
 });
 
