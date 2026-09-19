@@ -151,7 +151,7 @@ export default definePlugin({
             }
         },
         {
-            find: '[role="tab"][aria-disabled="false"]',
+            find: ".getLastFocusableElement()}",
             predicate: () => settings.store.exportContacts,
             replacement: {
                 match: /("aria-label":(\i).{0,25}children:null!=\i)\?(this\.renderChildren\(\i\)):null/,
