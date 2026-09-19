@@ -206,8 +206,8 @@ export function VoiceLabTools({ index, onChanged }: { index: number; onChanged: 
                     "You opened it yourself after the warning. Nothing is downloaded or patched without a press from you.")}
                 badge={t("مفتوح", "Unlocked")} badgeTone="ok">
                 <NoticeStrip>
-                    {t("«ستيريو دائم» من إشراق ويُبدّل ملفّ صوت ديسكورد على قرصك، ومعه نسخة أصلية وزرّ رجوع. أمّا الأدوات الخارجية فليست من إشراق ولا يحزمها ولا يُنزّلها عند تثبيته — تبقى كما يشحنها أصحابها، والمصادر مكتوبة في كل بطاقة لمن أراد قراءتها قبل التثبيت.",
-                        "“Permanent stereo” is Esharq's own and replaces Discord's voice module on your disk, with an original backup and a revert button. The external tools are not Esharq's: it neither bundles nor downloads them at install time — they stay exactly as their authors ship them, and each card lists its sources so you can read them first.")}
+                    {t("«ستيريو دائم» من إشراق ويُرقّع ملفّ صوت ديسكورد على قرصك، ومعه نسخة أصلية وزرّ إزالة. أمّا الأدوات الخارجية فليست من إشراق ولا يحزمها ولا يُنزّلها عند تثبيته — تبقى كما يشحنها أصحابها، والمصادر مكتوبة في كل بطاقة لمن أراد قراءتها قبل التثبيت.",
+                        "“Permanent stereo” is Esharq's own and patches Discord's voice module on your disk, with an original backup and a Remove button. The external tools are not Esharq's: it neither bundles nor downloads them at install time — they stay exactly as their authors ship them, and each card lists its sources so you can read them first.")}
                 </NoticeStrip>
                 {error !== null && <NoticeStrip tone="danger">{error}</NoticeStrip>}
 
@@ -227,8 +227,8 @@ export function VoiceLabTools({ index, onChanged }: { index: number; onChanged: 
             {/* ── الأداة الخارجية Stereo Hub ────────────────────────────────── */}
             <Card index={index + 2}
                 title={t("الأداة الخارجية Stereo Hub", "Stereo Hub (external tool)")}
-                subtitle={t("الأداة الأصلية التي أخذنا عنها الطريقة — للمقارنة أو إن أردت واجهتها هي. لا تحتاجها إن فعّلت «ستيريو دائم».",
-                    "The original tool our method is taken from — for comparison, or if you prefer its own interface. You do not need it if “Permanent stereo” is enabled.")}
+                subtitle={t("الأداة الأصلية التي أخذنا عنها فكرة التبديل بعد الإغلاق — للمقارنة أو إن أردت واجهتها هي. لا تحتاجها إن فعّلت «ستيريو دائم».",
+                    "The original tool we took the swap-after-exit idea from — for comparison, or if you prefer its own interface. You do not need it if “Permanent stereo” is enabled.")}
                 badge={status?.stereoHub.installed === true ? t("مثبَّتة", "Installed") : t("غير مثبَّتة", "Not installed")}
                 badgeTone={status?.stereoHub.installed === true ? "ok" : "danger"}>
 
@@ -237,6 +237,8 @@ export function VoiceLabTools({ index, onChanged }: { index: number; onChanged: 
                         <NoticeStrip tone="danger">
                             <b>{t("اقرأ قبل التثبيت:", "Read before installing:")}</b>
                             <ul style={{ margin: `${UNIT}px 0 0`, paddingInlineStart: UNIT * 2.5 }}>
+                                <li>{t("أعلن صاحبها توقّف المشروع في أغسطس 2026: لا تحديثات ولا وحدات صوت جديدة، وقد تتعطّل مع أيّ إصدارٍ قادم لديسكورد.",
+                                    "Its author discontinued the project in August 2026: no updates and no new voice modules, and it may break with any upcoming Discord release.")}</li>
                                 <li>{t("تستبدل ملفّ صوت ديسكورد عندك بنسخة جاهزة من بناء 1.0.9243 (يوليو 2026) — أي قد تكون أقدم من بنائك الحالي.",
                                     "It replaces your Discord voice module with a prebuilt copy from build 1.0.9243 (July 2026) — likely older than the one you run.")}</li>
                                 <li>{t("الأداة الأصلية لا تتحقّق من بصمة ما تُنزّله. نسخة إشراق تُنزّلها من التزام مُجمَّد وتتحقّق من بايتاتها قبل أي استعمال.",

@@ -79,12 +79,13 @@ import { downloadToFile } from "@main/utils/http";
 import { VENCORD_USER_AGENT } from "@shared/vencordUserAgent";
 import { spawn, spawnSync } from "child_process";
 import { createHash } from "crypto";
-import { dialog, IpcMainInvokeEvent, shell } from "electron";
-import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, unlinkSync, writeFileSync } from "fs";
+import { app, dialog, IpcMainInvokeEvent, shell } from "electron";
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, unlinkSync, writeFileSync } from "fs";
 import { homedir } from "os";
-import { join } from "path";
+import { basename, join } from "path";
 
-import { applyStereoPatch, forgetStereoPayload, revertStereoPatch, stereoTargets } from "./stereoPatch";
+import { patchVoiceModuleFile } from "./diskPatcher";
+import { applyStereoPatch, isDiskPatchedVoiceNode, revertStereoPatch, type StereoPatterns, stereoTargets, sweepStereo } from "./stereoPatch";
 
 const PRELOAD_WORLD_ID = 999;
 
@@ -266,18 +267,35 @@ function forgetOnDeath(sender: IpcMainInvokeEvent["sender"], pid: number) {
 }
 
 /**
- * هل الوحدة التي يُشغّلها ديسكورد هذا **مُرقَّعة على القرص** («ستيريو دائم»)؟ حينها
- * لا تطابق أنماطُ الترقيع في الذاكرة شيئاً، ونتيجتها الجزئيّة تُقرأ فشلاً كاذباً.
- * ⚠️ يعرف الملفّ الذي يزرعه Stereo Hub وحده: وحدةٌ رقّعتها أداةٌ أخرى على القرص تمرّ،
- * وفحص التوقيع الرقميّ يحتاج PowerShell وهو ممنوعٌ هنا بقرار المالك.
+ * هل الوحدة التي يُشغّلها ديسكورد هذا **مُرقَّعة على القرص**؟ 🔴 حينها لا يجوز الترقيع
+ * في الذاكرة: المسح فوق ملفٍّ مُرقَّع يحلّ ٧ من ١٧ نمطاً، ثلاثٌ منها على مواضع
+ * **أخرى** فيكتب في غير مكانه (قِيس ٢٠٢٦-٠٩-١٩).
+ *
+ * طبقتان: البصمة لما نعرفه (ستيريو إشراق الدائم، وحمولة 9243 التي يزرعها Stereo
+ * Hub)؛ ثمّ الأنماط نفسها لما لا نعرفه — وحدةٌ أصليّة لا تحمل بايتات أيّ رقعة في
+ * موضعها، فوجود واحدةٍ منها يعني أنّ أداةً ما رقّعتها. يُحفظ الناتج لكلّ (ملفّ،
+ * حجم، وقت تعديل) لأنّ المسح نصف ثانية.
  */
+const diskPatchScan = new Map<string, boolean>();
 function runningVoiceNodeIsDiskPatched(): boolean {
     try {
         const modules = join(process.execPath, "..", "modules");
         const mod = readdirSync(modules).find(name => name.startsWith("discord_voice"));
         if (mod === undefined) return false;
         const node = join(modules, mod, "discord_voice", "discord_voice.node");
-        return existsSync(node) && sha256(node) === STEREO_HUB_NODE_SHA256;
+        if (!existsSync(node)) return false;
+        if (isDiskPatchedVoiceNode(node)) return true;
+
+        if (!isVerified(INI_PATH, PINNED_ASSETS.ini)) return false;
+        const { size, mtimeMs } = statSync(node);
+        const key = `${node}|${size}|${mtimeMs}`;
+        let patched = diskPatchScan.get(key);
+        if (patched === undefined) {
+            const outcome = patchVoiceModuleFile(readFileSync(node), readFileSync(INI_PATH, "latin1"));
+            patched = outcome.patches.some(p => p.status === "already_patched");
+            diskPatchScan.set(key, patched);
+        }
+        return patched;
     } catch {
         return false;
     }
@@ -385,13 +403,6 @@ const STEREO_HUB = {
     file: join(TOOLS_DIR, "stereo-hub", "discord_stereo_hub.py")
 } as const;
 
-/**
- * بصمة وحدة الصوت التي يزرعها Stereo Hub (نسخة بناء 1.0.9243 وقد غُيّر فيها
- * 836 بايتاً). وجودها يعني أن ديسكورد مُرقَّع على القرص — فيتعارض مع ستيريو
- * MicPro الذي يُرقّع في الذاكرة.
- */
-const STEREO_HUB_NODE_SHA256 = "dccda1f5770572523429abca88dcb3a5bbbca7b7703e119391ad3751fafb7a42";
-
 interface ToolsState {
     /** مسار برنامج مغيّر الصوت كما حدّده المستخدم — نحن لا نُنزّله. */
     vcClientPath?: string;
@@ -455,11 +466,8 @@ function discordVoiceNodes(): string[] {
 export function voicePatchState(_event: IpcMainInvokeEvent) {
     const nodes = discordVoiceNodes();
     let patched = 0;
-    for (const node of nodes) {
-        try {
-            if (sha256(node) === STEREO_HUB_NODE_SHA256) patched++;
-        } catch { /* ملفّ مقفل أثناء التشغيل — يُعدّ غير مُرقَّع */ }
-    }
+    // بصمة Stereo Hub وبصمات ستيريو إشراق الدائم معاً.
+    for (const node of nodes) if (isDiskPatchedVoiceNode(node)) patched++;
     // `running`: وحدة الصوت التي يُشغّلها هذا الديسكورد نفسه — وهي وحدها ما يحكم «ستيريو
     // الجلسة». أمّا `patched` فيعدّ كلّ مجلّد app-* ولو كان بقيّةَ بناءٍ قديم.
     return { clients: nodes.length, patched, running: runningVoiceNodeIsDiskPatched() };
@@ -581,18 +589,61 @@ export function forgetVcClient(_event: IpcMainInvokeEvent) {
  * لا يبدأ شيء منه إلّا بضغطة المستخدم، و`dryRun` يُظهر ما سيجري قبل أن يجري.
  * ───────────────────────────────────────────────────────────────────────── */
 
-export function stereoStatus(_event: IpcMainInvokeEvent) {
-    return { targets: stereoTargets() };
+/** الأنماط المثبَّتة نصّاً — لا تُقرأ إلّا بعد التحقّق من بصمتها، كالثنائيّ تماماً. */
+function verifiedPatterns(): StereoPatterns | null {
+    if (!isVerified(INI_PATH, PINNED_ASSETS.ini)) return null;
+    return { text: readFileSync(INI_PATH, "latin1"), release: PINNED_RELEASE };
 }
 
-export function stereoApply(_event: IpcMainInvokeEvent, key: string, dryRun: boolean) {
-    return applyStereoPatch(key, dryRun);
+/** اسم عمليّة العميل الذي يعمل إشراق داخله الآن — لمطابقة ما ينتظره العامل. */
+const DISCORD_EXE_NAMES = new Set(["Discord", "DiscordCanary", "DiscordPTB", "DiscordDevelopment"]);
+function ownProcessName(): string | null {
+    const exe = basename(process.execPath, ".exe");
+    return DISCORD_EXE_NAMES.has(exe) ? exe : null;
+}
+
+/** يكنس ما لم يعد يلزم أوّلاً، ثمّ يُبلغ حال كلّ عميل — فتظهر «أُزيل نهائياً» حين تتمّ الإزالة. */
+export async function stereoStatus(_event: IpcMainInvokeEvent) {
+    // 🔴 الكنس قد يفشل (ملفّ مقفل، مضادّ فيروسات) — لا يُسقط عرضَ العملاء وزرّ الإزالة معه.
+    let sweep: Awaited<ReturnType<typeof sweepStereo>> | null = null;
+    try { sweep = await sweepStereo(); } catch (e) { console.error("[MicPro] permanent stereo sweep failed", e); }
+    return {
+        targets: stereoTargets(verifiedPatterns()),
+        sweep,
+        // هل ينتظر عاملٌ خروجَ هذا العميل بالذات؟ عندها وحدها يُجدي زرّ «أعد التشغيل».
+        canRestart: sweep?.pending === true && !!ownProcessName() && sweep.pendingProcesses.includes(ownProcessName()!)
+    };
+}
+
+export async function stereoApply(_event: IpcMainInvokeEvent, key: string, dryRun: boolean) {
+    // الأنماط نفسها التي يستعملها ستيريو الجلسة، ويُتحقَّق منها قبل القراءة مباشرةً.
+    await ensureAssets();
+    const patterns = verifiedPatterns();
+    if (patterns == null) throw new Error("MicPro voice assets failed verification and were not used");
+    return applyStereoPatch(key, dryRun, patterns);
 }
 
 export function stereoRevert(_event: IpcMainInvokeEvent, key: string, dryRun: boolean) {
     return revertStereoPatch(key, dryRun);
 }
 
-export function stereoForget(_event: IpcMainInvokeEvent) {
-    return forgetStereoPayload();
+/** عند بدء MicPro: ما أُزيل في الجلسة السابقة يُمحى أثره وإن لم تُفتح الصفحة. */
+export function stereoSweep(_event: IpcMainInvokeEvent) {
+    return sweepStereo();
+}
+
+/**
+ * «أعد تشغيل ديسكورد الآن» بعد جدولة التبديل: إغلاقٌ عاديّ (لا قتل)، والعامل الذي
+ * ينتظر خروجه يُبدّل الملفّ ثمّ يفتحه من جديد. لا يُغلق شيئاً إن لم يكن عاملٌ ينتظر.
+ */
+export async function stereoRestartDiscord(_event: IpcMainInvokeEvent) {
+    const sweep = await sweepStereo();
+    const own = ownProcessName();
+    // 🔴 لا يُغلَق عميلٌ لا ينتظر خروجَه عامل: لو انتظر العاملُ عميلاً آخر، إغلاق هذا
+    // العميل يُطفئه بلا أن يُتمّ شيئاً ولا يُعيد فتحه أحد.
+    if (!sweep.pending || own == null || !sweep.pendingProcesses.includes(own)) {
+        return { ok: false, waitingFor: sweep.pendingProcesses };
+    }
+    setTimeout(() => app.quit(), 400);
+    return { ok: true };
 }

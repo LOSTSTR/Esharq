@@ -54,5 +54,12 @@ export const settings = definePluginSettings({
         type: OptionType.CUSTOM,
         description: "",
         default: null as null | { noiseMode: "none" | "standard" | "krisp"; echo: boolean; agc: boolean; }
+    },
+    // كنسُ بدء التشغيل يُتمّ الإزالة قبل أن تُفتح الصفحة، فيُعلَّم هنا كي تُخبر بطاقة
+    // «ستيريو دائم» صاحبها أنّ الإزالة تمّت — ثمّ يُمسح حين تُعرض.
+    permanentStereoRemoved: {
+        type: OptionType.CUSTOM,
+        description: "",
+        default: false
     }
 });

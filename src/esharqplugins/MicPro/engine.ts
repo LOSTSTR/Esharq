@@ -256,7 +256,9 @@ async function applyOnce(): Promise<"done" | "deferred"> {
         const prepared = await Native!.prepareStereo();
         if (!prepared.ok) {
             state.error = classifyError(prepared.error ?? "");
-            console.error("[MicPro] stereo engine failed:", prepared.error);
+            // وحدةٌ مُرقَّعة على القرص حالٌ متوقَّعة (ستيريو دائم)، لا عطل.
+            if (state.error === "disk-patched") console.info("[MicPro] session stereo skipped: the voice module is patched on disk");
+            else console.error("[MicPro] stereo engine failed:", prepared.error);
             return "done";
         }
         // 🔴 الفحص الأوّل سبق التنزيل، والتنزيل قد يطول: يُعاد الفحص الآن، قبل الكتابة مباشرةً.

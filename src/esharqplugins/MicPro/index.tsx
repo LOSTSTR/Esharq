@@ -22,7 +22,7 @@ import { t } from "@utils/esharqI18n";
 import definePlugin from "@utils/types";
 import { SettingsRouter } from "@webpack/common";
 
-import { applyProcToConnection, disableMonoBreakers, isLoopbackOn, isStereoEnabled, mediaEngine, setLoopback, startStereoEngine, stereoEngineState, stopStereoEngine } from "./engine";
+import { applyProcToConnection, disableMonoBreakers, isLoopbackOn, isStereoEnabled, mediaEngine, MicProNative, setLoopback, startStereoEngine, stereoEngineState, stopStereoEngine } from "./engine";
 import { settings } from "./settings";
 
 let micPatcher: MicrophonePatcher | undefined;
@@ -110,6 +110,10 @@ export default definePlugin({
             // when the user has actually turned stereo on: anyone who never enables stereo
             // downloads and runs nothing.
             startStereoEngine();
+            // ما أُزيل من الستيريو الدائم في جلسةٍ سابقة يُمحى أثره الآن، وإن لم تُفتح صفحته.
+            MicProNative?.stereoSweep()
+                .then(r => { if (r.removedByUser) settings.store.permanentStereoRemoved = true; })
+                .catch(e => console.error("[MicPro] permanent stereo sweep failed", e));
         } catch (e) {
             console.error("[MicPro] stereo engine init failed", e);
         }
