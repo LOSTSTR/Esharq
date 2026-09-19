@@ -10,7 +10,7 @@ import { definePluginSettings } from "@api/Settings";
 import { t } from "@utils/esharqI18n";
 import { ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalRoot, openModal } from "@utils/esharqModals";
 import definePlugin, { OptionType } from "@utils/types";
-import { Button, FluxDispatcher, GuildChannelStore, GuildMemberStore, GuildRoleStore, GuildStore, Menu, React, Select, SelectedGuildStore, showToast, TextArea, UserStore, VoiceStateStore } from "@webpack/common";
+import { Button, GuildChannelStore, GuildMemberStore, GuildRoleStore, GuildStore, Menu, React, Select, SelectedGuildStore, showToast, TextArea, UserStore } from "@webpack/common";
 import { Logger } from "@utils/Logger";
 
 const logger = new Logger("FakePerm");
@@ -63,20 +63,24 @@ function getCurrentGuildId(): string | null {
     try { return SelectedGuildStore?.getGuildId() ?? null; } catch { return null; }
 }
 
+/** يُضبط في `start` — الإخفاء الفعليّ يجري في `applyDomOverrides` على كائن الإضافة. */
+let refreshOverrides: (() => void) | null = null;
+
+/**
+ * تُنادى بعد كلّ طردٍ أو حظرٍ أو فصلٍ محلّيّ كي يختفي العضو من القائمة فوراً.
+ *
+ * 🔴 كانت تُرسل حدث `GUILD_MEMBER_LIST_UPDATE` اصطناعيّاً خلف شرطٍ صوتيّ لا معنى له
+ * لإعادة رسم قائمة أعضاء (يشترط أن أكون في قناةٍ صوتيّة في الخادم المعروض). والأسوأ
+ * أنّ سجلّ `VoiceStateStore` **لا يحمل `guildId` أصلاً** (قِيس على العميل الحيّ
+ * ٢٠٢٦-٠٩-١٩: ثلاثة عشر حقلاً وليس فيها) ⇒ الشرط صادقٌ دائماً، **فالإرسال لم يقع قطّ**.
+ *
+ * ولم يُلاحَظ لأنّ الإخفاء الحقيقيّ يجري في `applyDomOverrides` التي تُنادى من نبضةٍ
+ * كلّ ثلاث ثوانٍ — فكان العضو المطرود محلّياً يبقى ظاهراً حتى ثلاث ثوانٍ. نستدعي
+ * الآليّة نفسها مباشرةً: فوريّةٌ، وبلا حدثٍ مُلفَّقٍ يُقحَم في دفاتر ديسكورد.
+ */
 function notifyMemberListChange() {
     if (!isEnabled) return;
-    try {
-        const guildId = getCurrentGuildId();
-        if (!guildId) return;
-
-        const myId = UserStore?.getCurrentUser()?.id;
-        if (myId && VoiceStateStore) {
-            const myVS = VoiceStateStore.getVoiceStateForUser(myId);
-            if (!myVS || myVS.guildId !== guildId) return;
-        }
-
-        FluxDispatcher?.dispatch({ type: "GUILD_MEMBER_LIST_UPDATE", ops: [], id: "everyone", guildId });
-    } catch (err) { logger.debug("Ignored error", err); }
+    try { refreshOverrides?.(); } catch (err) { logger.debug("Ignored error", err); }
 }
 
 
@@ -588,6 +592,7 @@ export default definePlugin({
 
     async start() {
         isEnabled = settings.store.enabled === true;
+        refreshOverrides = () => this.applyDomOverrides();
 
         // Patches are ALWAYS registered — they check isEnabled at runtime
         addContextMenuPatch("user-context", userContextPatch);
@@ -629,5 +634,7 @@ export default definePlugin({
         mutedUsers.clear(); deafenedUsers.clear(); fakeNicks.clear();
         disconnectedUsers.clear(); kickedUsers.clear(); bannedUsers.clear(); deletedMessages.clear();
         applyVoiceBadges();
+        // لا يبقى مرجعٌ إلى كائن الإضافة بعد إيقافها.
+        refreshOverrides = null;
     },
 });
